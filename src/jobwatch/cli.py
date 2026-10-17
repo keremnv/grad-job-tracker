@@ -10,6 +10,7 @@ import sys
 from .feeds import collect_board
 from .config import load_config, watchlist
 from .overview import read_applications, weekly, requirements
+from .leads import load_leads, render_leads
 from .filtering import classify, rank, plain
 from .render import text, link
 from .timing import deadline_window, stale
@@ -163,12 +164,13 @@ def scan(config_path: Path, state_path: Path, report_path: Path, verification_pa
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("command", choices=["scan", "report", "watchlist", "weekly", "requirements"])
+    ap.add_argument("command", choices=["scan", "report", "watchlist", "weekly", "requirements", "leads"])
     ap.add_argument("--config", default="config/employers.json")
     ap.add_argument("--state", default="data/jobs.json")
     ap.add_argument("--report", default="reports/latest.md")
     ap.add_argument("--verifications", default="data/verifications.json")
     ap.add_argument("--applications", default="data/applications.csv")
+    ap.add_argument("--leads", default="data/leads.json")
     ap.add_argument("--output", help="Local report output; weekly defaults to ignored .local-reports/weekly.md")
     ns = ap.parse_args(argv)
     try:
@@ -176,6 +178,13 @@ def main(argv: list[str] | None = None) -> int:
             return scan(Path(ns.config), Path(ns.state), Path(ns.report), Path(ns.verifications))
         if ns.command == "watchlist":
             print(watchlist(load_config(Path(ns.config))), end="")
+            return 0
+        if ns.command == "leads":
+            dest = Path(ns.output or "reports/leads.md")
+            if dest.resolve() in {Path(p).resolve() for p in (ns.config, ns.state, ns.applications, ns.verifications, ns.leads)}:
+                raise ValueError("report output collides with protected owner/config data")
+            atomic_write(dest, render_leads(load_leads(Path(ns.leads)), utcnow()))
+            print(f"Wrote {text(dest)}")
             return 0
         verifications = load_verifications(Path(ns.verifications))
         state = load_state(Path(ns.state))

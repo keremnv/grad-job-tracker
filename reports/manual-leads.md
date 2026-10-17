@@ -1,5 +1,8 @@
 # Additional manual leads — checked 17 October 2026 UTC
 
+> Historical note. Current manually checked leads and programme cycles are in
+> [`leads.md`](leads.md), generated from `data/leads.json`.
+
 These are official-page observations, separate from the three API feeds and
 from the owner's application ledger. Application forms were not verified.
 These leads are not included in the 23 automatically screened candidates.
