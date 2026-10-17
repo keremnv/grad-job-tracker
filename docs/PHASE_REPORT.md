@@ -1,4 +1,8 @@
-# Phase outcomes — 17 October 2026 UTC
+# Phase outcomes — initial local audit, 17 October 2026 UTC
+
+This is the earlier local-audit snapshot (last scan 16:49 UTC). The subsequent
+GitHub setup, successful hosted run and newly verified incident.io deadline are
+recorded in [`HOSTING.md`](HOSTING.md).
 
 The standing specification and handoff were read in full before edits. Work was
 performed locally in the supplied folder. It has no Git metadata: there were no

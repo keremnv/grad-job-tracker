@@ -3,7 +3,9 @@
 Private, personal, **read-only vacancy discovery** for UK software engineering,
 developer infrastructure and AI/ML jobs relevant to a 2027 Computer Science graduate.
 
-**Current status: locally audited collector; hosting is not configured or verified.**
+**Current status: private GitHub repository created; first hosted scan verified.**
+The daily schedule is enabled and remains best effort. See
+[`docs/HOSTING.md`](docs/HOSTING.md) for run evidence.
 Offline adapter and state-transition tests are included. Initial enabled public ATS boards are **Palantir
 (Lever), Monzo (Greenhouse), incident.io (Ashby)**. The other employers are a
 manual watchlist; they are **not** automatically collected yet. The watchlist has
@@ -93,7 +95,8 @@ checked entry-level descriptions, especially ML/AI. **Do not build a dashboard y
 
 The first local live audit and its limits are recorded in
 [`docs/P0_AUDIT.md`](docs/P0_AUDIT.md). Three boards were fetched on 17 October
-2026. This does not establish a running hosted service. Install into `.venv`
+2026. The subsequent GitHub setup and first hosted run are recorded in
+[`docs/HOSTING.md`](docs/HOSTING.md). Install into `.venv`
 and use `.venv/bin/python` (or activate it) for the commands above.
 
 Before a scan or manual ledger edit, make a local private backup outside Git:
@@ -118,7 +121,8 @@ application ledger or the separate `data/verifications.json` inspection record.
 The default schedule is 07:27 UTC (07:27 GMT / 08:27 BST), best effort. GitHub's
 60-day inactivity schedule disabling rule is documented for public repositories.
 The scan workflow is restricted to a private repository's default branch. No
-repository was created and no Actions were executed during this local audit.
+repository was created and no Actions were executed during the initial local audit;
+the later authorised GitHub setup and successful run are recorded in `docs/HOSTING.md`.
 
 ## Review commands and evidence
 

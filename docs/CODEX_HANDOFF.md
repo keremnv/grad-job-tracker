@@ -15,9 +15,11 @@ It is intentionally not a competing specification.
 
 The original scaffold was offline-tested only. A local live audit on 17 October
 2026 subsequently fetched all three configured feeds and inspected two
-application pages. Hosting is still unconfigured/unverified; no submissions were
-tested. See `P0_AUDIT.md` and `PHASE_REPORT.md` for current evidence and remaining
-stage gates. No LinkedIn scraping is included.
+application pages. The subsequent authorised GitHub setup created the private
+repository and verified the first manually dispatched hosted scan. See
+`HOSTING.md` for its run links; the first cron-triggered run is not yet observed.
+No submissions were tested. See `P0_AUDIT.md` and `PHASE_REPORT.md` for the
+initial audit and remaining stage gates. No LinkedIn scraping is included.
 
 ## Move the project to your computer and create a private repo
 
