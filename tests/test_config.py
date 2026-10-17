@@ -7,10 +7,18 @@ from jobwatch.config import load_config, watchlist
 
 
 class ConfigTests(unittest.TestCase):
-    def test_real_config_has_dated_sources_and_only_original_feeds(self):
+    def test_real_config_has_dated_sources_and_only_verified_feeds(self):
         cfg = load_config(Path('config/employers.json'))
         self.assertGreaterEqual(sum(bool(e.get('careers_verified_at')) for e in cfg['employers']),30)
-        self.assertEqual({(e['provider'],e['board']) for e in cfg['employers'] if e.get('enabled')}, {('lever','palantir'),('greenhouse','monzo'),('ashby','incident')})
+        # Each mapping below was verified from the employer's own site; see verification_notes.
+        self.assertEqual({(e['provider'],e['board'],e.get('region','global')) for e in cfg['employers'] if e.get('enabled')},
+                         {('lever','palantir','global'),('greenhouse','monzo','global'),('ashby','incident','global'),
+                          ('greenhouse','cambridgeconsultantslimited','eu'),('greenhouse','riverlane','eu'),('greenhouse','mw-tech-grad','global'),
+                          ('ashby','hyperexponential','global'),('lever','scottlogic','global'),('ashby','tracebit','global')})
+        # Boards seen only via search or an unreachable employer site stay manual.
+        manual={e['company']:e for e in cfg['employers'] if not e.get('enabled')}
+        for name in ('DV Trading','Bloxd','Fifty One Degrees (51D)','Resonance (Applied AI)'):
+            self.assertNotIn('mapping_verified_at',manual[name]); self.assertNotIn('careers_verified_at',manual[name])
         self.assertGreaterEqual(len(cfg['employers']),30)
         for e in cfg['employers']:
             self.assertTrue(e.get('verification_notes'))

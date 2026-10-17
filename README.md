@@ -6,15 +6,18 @@ developer infrastructure and AI/ML jobs relevant to a 2027 Computer Science grad
 **Current status: private GitHub repository created; first hosted scan verified.**
 The daily schedule is enabled and remains best effort. See
 [`docs/HOSTING.md`](docs/HOSTING.md) for run evidence.
-Offline adapter and state-transition tests are included. Initial enabled public ATS boards are **Palantir
-(Lever), Monzo (Greenhouse), incident.io (Ashby)**. The other employers are a
-manual watchlist; they are **not** automatically collected yet. The watchlist has
-31 entries: 30 dated official careers sources and one explicitly unverified source. No application
+Offline adapter and state-transition tests are included. Enabled public ATS boards are **Palantir
+(Lever), Monzo (Greenhouse), incident.io (Ashby)**, plus, from 17 October 2026, **Cambridge
+Consultants and Riverlane (EU-hosted Greenhouse), Marshall Wace (Greenhouse), Scott Logic (Lever),
+hyperexponential and Tracebit (Ashby)**. Each new mapping was verified from the employer's own site;
+see `verification_notes` in `config/employers.json`. The other employers are a
+manual watchlist; they are **not** automatically collected. The watchlist has
+44 entries: 39 dated official careers sources and five explicitly unverified sources. No application
 submissions or browser/LinkedIn scraping are implemented.
 
 ## What it does
 
-- Fetches currently published postings from three official, publicly readable ATS JSON APIs.
+- Fetches currently published postings from nine configured boards on three official, publicly readable ATS JSON APIs.
 - Screens explicit non-UK, senior, placement and non-engineering posts; ambiguous
   geography and eligibility stay in `review`, with explainable role-family reasons.
 - Tracks stable provider IDs and first/last observation dates in `data/jobs.json`.
@@ -65,7 +68,9 @@ The first run does not retroactively discover when a role originally opened.
 Edit [`config/employers.json`](config/employers.json). Each enabled entry must
 have a verified `{provider, board}` mapping for `greenhouse`, `lever` or `ashby`.
 Do **not** turn manual entries on without confirming their actual ATS provider
-and board identifier. `board` isn't a careers-site URL.
+and board identifier. `board` isn't a careers-site URL. EU-hosted Greenhouse boards
+(posting URLs on `job-boards.eu.greenhouse.io`) need `"region": "eu"`; the API host is
+unchanged. A region mismatch fails the board rather than hiding its postings.
 
 For companies on Workday, bespoke sites, or LinkedIn, maintain a manual
 watchlist until a permitted official public feed or API is identified.
