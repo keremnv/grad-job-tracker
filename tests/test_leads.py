@@ -81,6 +81,28 @@ class LeadRegistryTests(unittest.TestCase):
         self.assertIn("not verified as the employer's own source", out)
         self.assertIn('without a quoted 2027 intake', out)
 
+    def test_role_sample_is_sourced_and_spans_families(self):
+        from collections import Counter
+        from jobwatch.config import timestamp
+        from jobwatch.feeds import public_url
+        data = json.loads(Path('data/role_sample.json').read_text())
+        checks = json.loads(Path('data/verifications.json').read_text())['postings']
+        rows = data['postings']
+        self.assertGreaterEqual(len(rows), 12)
+        self.assertEqual(len({r['id'] for r in rows}), len(rows))
+        families = Counter(r['family'] for r in rows)
+        self.assertEqual(set(families), set(data['families']))
+        self.assertTrue(all(n >= 3 for n in families.values()))
+        self.assertGreaterEqual(len({r['company'] for r in rows}), 8)
+        for r in rows:
+            with self.subTest(id=r['id']):
+                self.assertTrue(public_url(r['url'])); timestamp(r['checked_at'])
+                self.assertIs(type(r['official']), bool)
+                for field in ('mandatory', 'preferred', 'unclear'):
+                    self.assertIsInstance(r[field], list)
+                if r['posting_key']:  # description hash recorded at the same check
+                    self.assertEqual(checks[r['posting_key']]['description_url'], r['url'])
+
     def test_cli_writes_report_and_protects_registry(self):
         with TemporaryDirectory() as d:
             d = Path(d); src = d / 'leads.json'; out = d / 'leads.md'

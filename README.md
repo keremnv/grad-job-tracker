@@ -87,8 +87,11 @@ assessment answers or sensitive correspondence. The project never applies to job
 ## Next steps
 
 See [`docs/CODEX_HANDOFF.md`](docs/CODEX_HANDOFF.md) for a phased Codex plan.
-The next milestone is owner review of the candidate queue and more independently
-checked entry-level descriptions, especially ML/AI. **Do not build a dashboard yet.**
+The 17 October 2026 evidence pass is summarised in
+[`docs/CV_MARKET_BRIEF.md`](docs/CV_MARKET_BRIEF.md): a selected 15-description
+requirements sample (`data/role_sample.json`), a dated lead and programme-cycle
+registry, and a provisional CV-variant recommendation. Infrastructure expansion has
+stopped; the next milestone is owner review and applications. **No dashboard.**
 
 ### Public API documentation
 
@@ -153,7 +156,8 @@ previous-year programmes in a separate section, and never infers a 2027 opening.
 `requirements` writes `reports/requirements.md` using only description snapshots
 with matching independent inspection hashes in `data/verifications.json`.
 Counts are attributed *mentions*, not automatically proven requirements. The
-current two-description sample does not justify selecting CV variants.
+manually classified 15-description sample in `data/role_sample.json` and
+`docs/CV_MARKET_BRIEF.md` is the main CV-variant evidence; it is still a selected sample.
 
 The public queue is `reports/latest.md`; the source-linked employer list is
 `reports/watchlist.md`. Exact deadline dates are used only when supplied by a
