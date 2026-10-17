@@ -33,6 +33,26 @@ class ParserRegressionTests(unittest.TestCase):
                 self.assertEqual(len(rows), 1)
                 self.assertTrue(rows[0].raw)
 
+    def test_greenhouse_eu_board_requires_explicit_region(self):
+        eu = {'company': 'Riverlane', 'provider': 'greenhouse', 'board': 'riverlane', 'region': 'eu'}
+        row = collect_board(eu, lambda _: fixture('greenhouse_eu'))[0]
+        self.assertEqual(row.key, 'greenhouse:riverlane:5000685101')
+        self.assertTrue(row.url.startswith('https://job-boards.eu.greenhouse.io/riverlane/jobs/'))
+        visited = []
+        collect_board(eu, lambda url: visited.append(url) or fixture('greenhouse_eu'))
+        self.assertEqual(visited, ['https://boards-api.greenhouse.io/v1/boards/riverlane/jobs?content=true'])
+        # An EU host on a board not declared EU, or the reverse, fails the board rather than vanishing.
+        with self.assertRaises(ValueError):
+            collect_board({**eu, 'region': 'global'}, lambda _: fixture('greenhouse_eu'))
+        with self.assertRaises(ValueError):
+            collect_board({**ENTRIES['greenhouse'], 'region': 'eu'}, lambda _: fixture('greenhouse'))
+        data = fixture('greenhouse_eu')
+        data['jobs'][0]['absolute_url'] = 'https://job-boards.eu.greenhouse.io/other/jobs/5000685101'
+        with self.assertRaises(ValueError):
+            collect_board(eu, lambda _: data)
+        with self.assertRaises(ValueError):
+            collect_board({**eu, 'region': 'us'}, lambda _: fixture('greenhouse_eu'))
+
     def test_source_date_semantics(self):
         gh = collect_board(ENTRIES['greenhouse'], lambda _: fixture('greenhouse'))[0]
         self.assertEqual(gh.published_at, gh.raw['first_published'])

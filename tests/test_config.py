@@ -24,6 +24,17 @@ class ConfigTests(unittest.TestCase):
                 path=Path(d)/'config';path.write_text(json.dumps(cfg))
                 with self.subTest(field=field),self.assertRaises(ValueError):load_config(path)
 
+    def test_enabled_feed_region_is_validated(self):
+        base=json.loads(Path('config/employers.json').read_text())
+        for provider,region,ok in [('greenhouse','eu',True),('lever','eu',True),('greenhouse','us',False),('ashby','eu',False),('greenhouse','',False)]:
+            cfg=copy.deepcopy(base);cfg['employers'][0].update(provider=provider,region=region)
+            with TemporaryDirectory() as d:
+                path=Path(d)/'config';path.write_text(json.dumps(cfg))
+                with self.subTest(provider=provider,region=region):
+                    if ok:load_config(path)
+                    else:
+                        with self.assertRaises(ValueError):load_config(path)
+
     def test_watchlist_escapes_and_is_not_vacancy_verification(self):
         cfg={'employers':[{'company':'<b>fake</b>', 'enabled':False,'careers_url':'https://example.org/', 'relevance_notes':'[click](javascript:bad)'}]}
         out=watchlist(cfg)

@@ -100,7 +100,9 @@ def _link(value, kind, board, region="global") -> tuple[str, str]:
     u = urlsplit(value)
     parts = u.path.strip("/").split("/")
     if kind == "greenhouse":
-        valid = u.hostname in {"boards.greenhouse.io", "job-boards.greenhouse.io"} and len(parts) == 3 and parts[:2] == [board, "jobs"]
+        # EU-hosted boards are served by the same documented API but link to EU job-board hosts.
+        hosts = {"boards.eu.greenhouse.io", "job-boards.eu.greenhouse.io"} if region == "eu" else {"boards.greenhouse.io", "job-boards.greenhouse.io"}
+        valid = u.hostname in hosts and len(parts) == 3 and parts[:2] == [board, "jobs"]
     else:
         host = ("jobs.eu.lever.co" if region == "eu" else "jobs.lever.co") if kind == "lever" else "jobs.ashbyhq.com"
         if parts[-1] in ("apply", "application"):
@@ -118,6 +120,8 @@ def collect_board(entry: dict, get_json=request_json, pause=time.sleep) -> list[
         raise ValueError("invalid board identifier: expected a single ATS board slug")
     company = _text(entry["company"], "company", True)
     region = entry.get("region", "global")
+    if kind == "greenhouse" and region not in ("global", "eu"):
+        raise ValueError("Greenhouse region must be 'global' or 'eu'")
     rows = []
     if kind == "greenhouse":
         data = _object(get_json(f"https://boards-api.greenhouse.io/v1/boards/{board}/jobs?content=true"), "Greenhouse response")
@@ -163,7 +167,7 @@ def collect_board(entry: dict, get_json=request_json, pause=time.sleep) -> list[
             if j["internal_job_id"] is None:
                 continue  # documented prospect, not a vacancy
             identifier = _identity(j.get("id"))
-            link, link_id = _link(j.get("absolute_url"), kind, board)
+            link, link_id = _link(j.get("absolute_url"), kind, board, region)
             title = _text(j.get("title"), "title", True)
             locations = [_text(_optional_object(j.get("location"), "location").get("name"), "location name")]
             for office in _list(j.get("offices", []), "offices"):

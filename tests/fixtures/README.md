@@ -6,6 +6,11 @@ Captured during the read-only API audit on 17 October 2026 UTC:
 - `lever.json`: [Palantir public postings list](https://api.lever.co/v0/postings/palantir?mode=json&skip=0&limit=100).
 - `ashby.json`: [incident.io public posting list](https://api.ashbyhq.com/posting-api/job-board/incident?includeCompensation=true).
 
+- `greenhouse_eu.json`: captured 17 October 2026 UTC from the documented
+  [Riverlane public Job Board list](https://boards-api.greenhouse.io/v1/boards/riverlane/jobs?content=true).
+  This EU-hosted board is served by the standard API host but its `absolute_url`
+  values use `job-boards.eu.greenhouse.io`; `content` omitted.
+
 One actual record per board is retained to exercise nesting, dates, IDs and
 provider URLs. Descriptions and duplicate narrative fields were omitted to keep
 fixtures small; Greenhouse meta.total is reduced to the retained list length.

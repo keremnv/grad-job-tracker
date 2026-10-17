@@ -37,6 +37,8 @@ def load_config(path: Path):
         if e.get('enabled'):
             if e.get('provider') not in {'greenhouse', 'lever', 'ashby'} or not BOARD.fullmatch(e.get('board', '')):
                 raise ValueError('enabled feed requires supported provider and board slug')
+            if e.get('region', 'global') not in ({'global', 'eu'} if e['provider'] != 'ashby' else {'global'}):
+                raise ValueError('feed region must be explicit global or eu (Greenhouse/Lever only)')
             if not public_url(e.get('validation_url', '')):
                 raise ValueError('enabled feed requires official validation URL')
             timestamp(e.get('mapping_verified_at'))
