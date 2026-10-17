@@ -8,16 +8,18 @@ from .feeds import Posting
 UK_CODES = {'uk', 'gb', 'gbr', 'united kingdom', 'great britain'}
 UK_COUNTRY = re.compile(r'\b(?:united kingdom|u\.?k\.?|great britain|england|scotland|wales|northern ireland)\b', re.I)
 UK_CITY = re.compile(r'\b(?:london|manchester|sheffield|leeds|bristol|cambridge|oxford|edinburgh|glasgow|cardiff|birmingham|newcastle|nottingham|liverpool|reading|bath|exeter|belfast)\b', re.I)
-FOREIGN = re.compile(r'\b(?:united states|usa|canada|ontario|massachusetts|new york|san francisco|washington|seattle|boston|austin|singapore|australia|sydney|india|bengaluru|germany|berlin|france|paris|japan|tokyo)\b', re.I)
+FOREIGN = re.compile(r'\b(?:united states|usa|canada|ontario|massachusetts|new york|san francisco|washington|seattle|boston|austin|singapore|hong kong|australia|sydney|india|bengaluru|germany|berlin|france|paris|japan|tokyo)\b', re.I)
 EARLY = re.compile(r'\b(?:graduate|new[ -]grad|junior|entry[ -]level|early[ -]career|associate|recent[ -]grad)\b', re.I)
-SENIOR = re.compile(r'\b(?:senior|sr\.?|staff|principal|lead|manager|director|head of|vp|distinguished)\b', re.I)
+SENIOR = re.compile(r'\b(?:senior|sr\.?|staff|principal|lead|leader|manager|director|head of|vp|distinguished)\b', re.I)
 STUDENT = re.compile(r'\b(?:intern|internship|apprentice|apprenticeship|placement|industrial year)\b', re.I)
-NON_ENGINEER = re.compile(r'\b(?:sales|account executive|recruiter|marketing|customer success|product manager|project manager|solutions consultant)\b', re.I)
+NON_ENGINEER = re.compile(r'\b(?:sales|account executive|recruiter|marketing|customer success|product manager|project manager|solutions consultant|business develop\w*|people operations)\b', re.I)
 FAMILIES = (
     ('ml_ai', r'\b(?:machine learning|mlops|ml|artificial intelligence|ai|research software|research engineer)\b'),
     ('platform_systems', r'\b(?:platform|infrastructure|developer tooling|developer tools|devops|systems engineer|site reliability|sre|compiler)\b'),
     ('backend', r'\b(?:backend|back.end|python|java|data engineer)\b'),
     ('software', r'\b(?:software|developer|swe|full.stack|front.end|product engineer|quantitative developer)\b'),
+    # Multi-discipline schemes (e.g. "Engineering Graduate Scheme") may include software; keep queued, not discarded.
+    ('engineering_programme', r'\b(?:engineering graduate|graduate engineering)\b'),
 )
 
 

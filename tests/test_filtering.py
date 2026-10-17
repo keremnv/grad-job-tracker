@@ -20,6 +20,16 @@ class ScreeningTests(unittest.TestCase):
         for title in ('Product Engineer Placement (6 Months)','Product Engineer Placement (1 year)','Software Engineering Intern','Senior Platform Engineer','Staff ML Engineer','Software Sales Engineer','AI Product Manager','Senior Software Engineer Graduate Mentor'):
             with self.subTest(title=title): self.assertEqual(classify(p(title))[0],'excluded')
 
+    def test_titles_from_boards_verified_17_october_2026(self):
+        # Riverlane's 2027 scheme was previously excluded as role family "other" and so never tracked.
+        self.assertEqual(role_family('Engineering Graduate Scheme 2027'),'engineering_programme')
+        self.assertEqual(classify(p('Engineering Graduate Scheme 2027','Cambridge, UK, Cambridge'))[0],'priority')
+        self.assertEqual(role_family('Graduate Software Engineer (2027 start)'),'software')
+        for title in ('Graduate Mechanical Engineer (2027 start)','Business & Operations Graduate 2027','Drug Delivery Business Developer','People Operations Associate (AI and Automation)','Technology Leader - Wireless Software Systems'):
+            with self.subTest(title=title): self.assertEqual(classify(p(title,'United Kingdom'))[0],'excluded')
+        self.assertEqual(classify(p('Software/Infrastructure Graduate - 2027 - Hong Kong','Hong Kong'))[0],'excluded')
+        self.assertEqual(classify(p('Software/Infrastructure Graduate - 2027 - London','London, London - Sloane Street'))[0],'review')
+
     def test_unknown_city_and_remote_are_reviewed(self):
         for location in ('London','Cambridge','Remote','EMEA','Worldwide','', 'Dublin'):
             with self.subTest(location=location):
