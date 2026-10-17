@@ -37,6 +37,18 @@ class OverviewTests(unittest.TestCase):
         row['description']='Changed description says Python'
         self.assertIn('samples: 0',requirements(s,evidence,NOW))
 
+    def test_skill_mentions_do_not_count_english_go_and_include_cpp(self):
+        s=state();key='lever:example:one';row=s['postings'][key]
+        row['description']='We go the extra mile. Experience with C++ and/or Python in Linux; TypeScript, PyTorch, Git and LLMs.'
+        evidence={key:{'description_verified_at':NOW,'description_sha256':description_hash(row['description']),'description_url':row['url']}}
+        out=requirements(s,evidence,NOW)
+        self.assertNotIn('**Go**',out)
+        for skill in ('C++','Python','Linux','TypeScript','PyTorch','Git','LLMs'):
+            self.assertIn(f'**{skill}**: 1/1',out)
+        row['description']='You will work in Go, TypeScript with React, and Postgres.'
+        evidence[key]['description_sha256']=description_hash(row['description'])
+        self.assertIn('**Go**: 1/1',requirements(s,evidence,NOW))
+
     def test_manual_only_rows_and_ledger_bytes_preserved(self):
         with TemporaryDirectory() as d:
             d=Path(d);p=d/'applications.csv'

@@ -11,10 +11,14 @@ from .render import text, link
 from .timing import deadline_window, stale
 
 STAGES = {'bookmarked','preparing','applied','assessment','interview','offer','rejected','withdrawn'}
-SKILLS = {'Python':r'\bpython\b','Java':r'\bjava\b','Go':r'\bgo\b',
-          'JavaScript':r'\bjavascript\b','SQL':r'\bsql\b','Linux':r'\blinux\b',
+SKILLS = {k:re.compile(v,re.I) for k,v in {'Python':r'\bpython\b','Java':r'\bjava\b',
+          'JavaScript':r'\bjavascript\b','TypeScript':r'\btypescript\b','C++':r'(?<![\w+])c\+\+','Rust':r'\brust\b',
+          'SQL':r'\bsql\b','Linux':r'\blinux\b','Git':r'\bgit\b',
           'distributed systems':r'\bdistributed systems\b', 'Kubernetes':r'\bkubernetes\b',
-          'Docker':r'\bdocker\b','AWS':r'\baws\b','machine learning':r'\bmachine learning\b'}
+          'Docker':r'\bdocker\b','AWS':r'\baws\b','Terraform':r'\bterraform\b',
+          'machine learning':r'\bmachine learning\b','PyTorch':r'\bpytorch\b','LLMs':r'\bllms?\b'}.items()}
+# Case-sensitive: the English verb ("go the extra mile") is not the language.
+SKILLS['Go']=re.compile(r'\bGo(?:lang)?\b(?! (?:the|to|beyond|ahead)\b)')
 
 
 def description_hash(value):
@@ -91,7 +95,7 @@ def requirements(state, verifications, now):
     for family,rows in sorted(groups.items()):
         lines += [f'## {text(family)} — {len(rows)} checked descriptions','']
         for skill,pattern in SKILLS.items():
-            matches=[(key,row,evidence) for key,row,evidence in rows if re.search(pattern,plain(row['description']),re.I)]
+            matches=[(key,row,evidence) for key,row,evidence in rows if pattern.search(plain(row['description']))]
             if not matches:continue
             lines.append(f'- **{text(skill)}**: {len(matches)}/{len(rows)} postings.')
             for key,row,evidence in matches:
