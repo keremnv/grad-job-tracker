@@ -23,7 +23,18 @@
       "status": "unknown",
       "url": "https://jobs.ashbyhq.com/incident/743b1624-7267-49a9-84a0-6223e414fbf0",
       "checked_at": "2026-10-17T16:41:55Z",
-      "method": "Official page returns JavaScript shell; application page inaccessible through web reader. No browser automation used."
+      "method": "Official page returns JavaScript shell; application page inaccessible through web reader. No browser automation used.",
+      "deadlines": [
+        {
+          "value": "2026-10-29",
+          "wording": "Applications for our 2027 internships and graduate roles are open until 29 October 2026.",
+          "url": "https://incident.io/careers/candidate-hub/early-careers/events-calendar",
+          "verified_at": "2026-10-17T19:07:57Z",
+          "scope": "2027 internship and graduate roles; linked from the graduate posting via the official early-careers hub",
+          "timezone": "unknown",
+          "expiry_time": "unknown"
+        }
+      ]
     }
   }
 }

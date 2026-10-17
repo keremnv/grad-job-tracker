@@ -23,7 +23,8 @@ Listed candidates: **23** · Changes in last scan: **2** · Failed boards: **0**
 
 ## Source-stated deadlines
 
-Urgency evaluated as of 2026-10-17T16:49:22Z; missing deadline remains unknown.
+Urgency evaluated as of 2026-10-17T19:07:57Z; missing deadline remains unknown.
+- incident.io — [Product Engineer Graduate](https://incident.io/careers/candidate-hub/early-careers/events-calendar): Applications for our 2027 internships and graduate roles are open until 29 October 2026.; within 14 calendar days \(UTC reference\); source supplies date only, expiry time/timezone unknown; observed 2026-10-17T19:07:57Z.
 - Monzo — [Backend Engineer III ](https://job-boards.greenhouse.io/monzo/jobs/6635595): We're usually always hiring for Backend Engineers, so there's no closing date for this job.; manual review: source wording only; exact deadline unknown; observed 2026-10-17T16:49:22Z.
 
 ## Ranked review queue (first 15)

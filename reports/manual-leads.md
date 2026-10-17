@@ -15,3 +15,13 @@ These leads are not included in the 23 automatically screened candidates.
 
 No collection integration, application submission, registration or contact was
 performed. Continue monitoring the employer's official careers page manually.
+
+## incident.io deadline independently checked
+
+On 17 October 2026 UTC, the official [early-careers dates page](https://incident.io/careers/candidate-hub/early-careers/events-calendar)
+confirmed that applications for its 2027 internships and graduate roles close
+on **29 October 2026**. This programme-wide date is separately attributed in
+`data/verifications.json` for the existing Product Engineer Graduate candidate.
+No expiry time or timezone is stated; neither is inferred. The public posting
+feed confirms London and a June or September 2027 start. The individual
+application form remains unverified because its page requires JavaScript.
