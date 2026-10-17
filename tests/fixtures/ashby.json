@@ -1,0 +1,60 @@
+{
+  "jobs": [
+    {
+      "id": "743b1624-7267-49a9-84a0-6223e414fbf0",
+      "title": "Product Engineer Graduate",
+      "department": "Product Development",
+      "team": "Engineering",
+      "employmentType": "FullTime",
+      "location": "London",
+      "shouldDisplayCompensationOnJobPostings": true,
+      "secondaryLocations": [],
+      "publishedAt": "2026-09-07T08:54:48.441+00:00",
+      "isListed": true,
+      "isRemote": null,
+      "workplaceType": null,
+      "address": {
+        "postalAddress": {
+          "addressRegion": "London",
+          "addressCountry": "United Kingdom",
+          "addressLocality": "London"
+        }
+      },
+      "jobUrl": "https://jobs.ashbyhq.com/incident/743b1624-7267-49a9-84a0-6223e414fbf0",
+      "applyUrl": "https://jobs.ashbyhq.com/incident/743b1624-7267-49a9-84a0-6223e414fbf0/application",
+      "compensation": {
+        "compensationTierSummary": "\u00a370K \u2013 \u00a385K",
+        "scrapeableCompensationSalarySummary": "\u00a370K - \u00a385K",
+        "compensationTiers": [
+          {
+            "id": "f68f87fb-f4a0-4c2f-b590-41f7303d6eef",
+            "tierSummary": "\u00a370K \u2013 \u00a385K",
+            "title": null,
+            "additionalInformation": null,
+            "components": [
+              {
+                "id": "e69cd15f-d1a0-4e72-abee-006a3d213b38",
+                "summary": "\u00a370K \u2013 \u00a385K",
+                "compensationType": "Salary",
+                "interval": "1 YEAR",
+                "currencyCode": "GBP",
+                "minValue": 70000,
+                "maxValue": 85000
+              }
+            ]
+          }
+        ],
+        "summaryComponents": [
+          {
+            "compensationType": "Salary",
+            "interval": "1 YEAR",
+            "currencyCode": "GBP",
+            "minValue": 70000,
+            "maxValue": 85000
+          }
+        ]
+      }
+    }
+  ],
+  "apiVersion": "1"
+}

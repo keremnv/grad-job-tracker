@@ -1,0 +1,56 @@
+name: Job watch scan
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '27 7 * * *' # 07:27 GMT / 08:27 BST; best-effort UTC schedule.
+permissions:
+  contents: write
+concurrency:
+  group: jobwatch-state
+  cancel-in-progress: false
+jobs:
+  scan:
+    if: github.event.repository.private == true && github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install package
+        run: python -m pip install -e .
+      - name: Test offline
+        run: python -m unittest discover -s tests -v
+      - name: Collect public ATS feeds
+        id: collect
+        continue-on-error: true
+        run: python -m jobwatch.cli scan
+      - name: Publish report in GitHub Actions summary
+        if: always() && (steps.collect.outcome == 'success' || steps.collect.outcome == 'failure')
+        shell: bash
+        run: |
+          if [[ -f reports/latest.md ]]; then
+            cat reports/latest.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Commit updated observations
+        if: always() && (steps.collect.outcome == 'success' || steps.collect.outcome == 'failure')
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/jobs.json reports/latest.md
+          if ! git diff --cached --quiet; then
+            git commit -m 'data: refresh observed job postings'
+            # A concurrent owner push is rejected; never force, reset or auto-merge.
+            git push origin HEAD
+          else
+            echo 'No changes to commit'
+          fi
+      - name: Surface scan failures
+        if: steps.collect.outcome == 'failure'
+        run: |
+          echo 'One or more feeds failed. Check log and report; failed boards retain previous state.'
+          exit 1

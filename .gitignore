@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.env
+.env.*
+*.db
+*.sqlite
+.DS_Store
+*.egg-info/
+build/
+dist/
+.local-reports/
+*.scan.lock
+.jobwatch-*

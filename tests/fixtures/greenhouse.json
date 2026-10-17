@@ -1,0 +1,53 @@
+{
+  "jobs": [
+    {
+      "absolute_url": "https://job-boards.greenhouse.io/monzo/jobs/8143930",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": true
+        }
+      ],
+      "internal_job_id": 3524371,
+      "location": {
+        "name": "Cardiff, London or Remote (UK)"
+      },
+      "metadata": null,
+      "id": 8143930,
+      "updated_at": "2026-09-25T05:17:09-04:00",
+      "requisition_id": "3422",
+      "title": "Anaplan Support Analyst",
+      "company_name": "Monzo",
+      "first_published": "2026-08-24T09:04:42-04:00",
+      "language": "en",
+      "application_deadline": null,
+      "departments": [
+        {
+          "id": 54075,
+          "name": "Finance",
+          "child_ids": [],
+          "parent_id": 396395
+        }
+      ],
+      "offices": [
+        {
+          "id": 14736,
+          "name": "London",
+          "location": null,
+          "child_ids": [],
+          "parent_id": 114746
+        }
+      ],
+      "ai_disclaimer": null,
+      "include_ai_disclaimer": false,
+      "ai_opt_out_request_url": null
+    }
+  ],
+  "meta": {
+    "total": 1
+  }
+}

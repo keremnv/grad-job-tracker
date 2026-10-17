@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "postings": {
+    "lever:palantir:cadc0eb2-2703-43e4-8e4f-41edf5b071c6": {
+      "status": "open_verified",
+      "url": "https://jobs.lever.co/palantir/cadc0eb2-2703-43e4-8e4f-41edf5b071c6/apply",
+      "verified_at": "2026-10-17T16:41:55Z",
+      "method": "Read-only inspection of official application page: fields and Submit application control present. No form interaction or submission.",
+      "description_verified_at": "2026-10-17T16:41:55Z",
+      "description_url": "https://jobs.lever.co/palantir/cadc0eb2-2703-43e4-8e4f-41edf5b071c6",
+      "description_sha256": "427e15408a6c09e6216b976de15fed0c435182f5e7fe82393399977d147e1749"
+    },
+    "greenhouse:monzo:6635595": {
+      "status": "open_verified",
+      "url": "https://job-boards.greenhouse.io/monzo/jobs/6635595",
+      "verified_at": "2026-10-17T16:41:55Z",
+      "method": "Read-only inspection of official posting/application page: fields and Submit application control present. No form interaction or submission.",
+      "description_verified_at": "2026-10-17T16:41:55Z",
+      "description_url": "https://job-boards.greenhouse.io/monzo/jobs/6635595",
+      "description_sha256": "cc36865a1aa8132d07cac08642efda72261bb223f0ad87b879f600173102de3c"
+    },
+    "ashby:incident:743b1624-7267-49a9-84a0-6223e414fbf0": {
+      "status": "unknown",
+      "url": "https://jobs.ashbyhq.com/incident/743b1624-7267-49a9-84a0-6223e414fbf0",
+      "checked_at": "2026-10-17T16:41:55Z",
+      "method": "Official page returns JavaScript shell; application page inaccessible through web reader. No browser automation used."
+    }
+  }
+}

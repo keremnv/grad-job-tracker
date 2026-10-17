@@ -1,0 +1,30 @@
+import copy
+import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
+import unittest
+from jobwatch.config import load_config, watchlist
+
+
+class ConfigTests(unittest.TestCase):
+    def test_real_config_has_dated_sources_and_only_original_feeds(self):
+        cfg = load_config(Path('config/employers.json'))
+        self.assertGreaterEqual(sum(bool(e.get('careers_verified_at')) for e in cfg['employers']),30)
+        self.assertEqual({(e['provider'],e['board']) for e in cfg['employers'] if e.get('enabled')}, {('lever','palantir'),('greenhouse','monzo'),('ashby','incident')})
+        self.assertGreaterEqual(len(cfg['employers']),30)
+        for e in cfg['employers']:
+            self.assertTrue(e.get('verification_notes'))
+        self.assertIn('manual watch',watchlist(cfg))
+
+    def test_enabling_unverified_mapping_fails(self):
+        base=json.loads(Path('config/employers.json').read_text())
+        for field,value in [('mapping_verified_at',None),('mapping_verified_at','2026-10-17'),('validation_url','javascript:bad'),('provider','manual'),('board','../x')]:
+            cfg=copy.deepcopy(base);cfg['employers'][0][field]=value
+            with TemporaryDirectory() as d:
+                path=Path(d)/'config';path.write_text(json.dumps(cfg))
+                with self.subTest(field=field),self.assertRaises(ValueError):load_config(path)
+
+    def test_watchlist_escapes_and_is_not_vacancy_verification(self):
+        cfg={'employers':[{'company':'<b>fake</b>', 'enabled':False,'careers_url':'https://example.org/', 'relevance_notes':'[click](javascript:bad)'}]}
+        out=watchlist(cfg)
+        self.assertNotIn('<b>',out); self.assertIn('unverified',out); self.assertIn('unknown',out)

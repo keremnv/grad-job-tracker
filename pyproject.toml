@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "grad-job-watch"
+version = "0.1.0"
+description = "Conservative monitoring of public UK early-career software and AI job postings"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+grad-job-watch = "jobwatch.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
