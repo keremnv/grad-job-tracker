@@ -1,77 +1,46 @@
 # UK early-career job watch
 
-Last scan attempt (UTC): 2026-10-18T12:08:45Z
+Last scan attempt (UTC): 2026-10-19T14:52:08Z
 
 Feed appearance is **not** confirmation that an application form is accepting submissions.
 Deadlines, graduation eligibility, work authorisation and sponsorship require manual review.
 
-Listed candidates: **51** · Changes in last scan: **28** · Failed boards: **0**
+Listed candidates: **51** · Changes in last scan: **0** · Failed boards: **0**
 
 ## Board health
 
-- ashby:hyperexponential: **success**; last successful observation: 2026-10-18T12:08:45Z; last attempt: 2026-10-18T12:08:45Z; last successful count: 33.
+- ashby:hyperexponential: **success**; last successful observation: 2026-10-19T14:52:08Z; last attempt: 2026-10-19T14:52:08Z; last successful count: 33.
   Screening judgments: \{'excluded': 32, 'review': 1\}.
-- ashby:incident: **success**; last successful observation: 2026-10-18T12:08:44Z; last attempt: 2026-10-18T12:08:44Z; last successful count: 34.
+- ashby:incident: **success**; last successful observation: 2026-10-19T14:52:07Z; last attempt: 2026-10-19T14:52:07Z; last successful count: 34.
   Screening judgments: \{'excluded': 30, 'review': 3, 'priority': 1\}.
-- ashby:tracebit: **success**; last successful observation: 2026-10-18T12:08:45Z; last attempt: 2026-10-18T12:08:45Z; last successful count: 4.
+- ashby:tracebit: **success**; last successful observation: 2026-10-19T14:52:08Z; last attempt: 2026-10-19T14:52:08Z; last successful count: 4.
   Screening judgments: \{'excluded': 4\}.
-- greenhouse:cambridgeconsultantslimited: **success**; last successful observation: 2026-10-18T12:08:45Z; last attempt: 2026-10-18T12:08:45Z; last successful count: 88.
+- greenhouse:cambridgeconsultantslimited: **success**; last successful observation: 2026-10-19T14:52:08Z; last attempt: 2026-10-19T14:52:08Z; last successful count: 88.
   Screening judgments: \{'priority': 4, 'review': 15, 'excluded': 69\}.
-- greenhouse:monzo: **success**; last successful observation: 2026-10-18T12:08:44Z; last attempt: 2026-10-18T12:08:44Z; last successful count: 71.
-  Screening judgments: \{'excluded': 69, 'review': 2\}.
-- greenhouse:mw-tech-grad: **success**; last successful observation: 2026-10-18T12:08:45Z; last attempt: 2026-10-18T12:08:45Z; last successful count: 6.
+- greenhouse:monzo: **success**; last successful observation: 2026-10-19T14:52:07Z; last attempt: 2026-10-19T14:52:07Z; last successful count: 72.
+  Screening judgments: \{'excluded': 70, 'review': 2\}.
+- greenhouse:mw-tech-grad: **success**; last successful observation: 2026-10-19T14:52:08Z; last attempt: 2026-10-19T14:52:08Z; last successful count: 6.
   Screening judgments: \{'excluded': 4, 'review': 2\}.
-- greenhouse:riverlane: **success**; last successful observation: 2026-10-18T12:08:45Z; last attempt: 2026-10-18T12:08:45Z; last successful count: 36.
-  Screening judgments: \{'excluded': 34, 'review': 1, 'priority': 1\}.
-- lever:palantir: **success**; last successful observation: 2026-10-18T12:08:44Z; last attempt: 2026-10-18T12:08:38Z; last successful count: 310.
+- greenhouse:riverlane: **success**; last successful observation: 2026-10-19T14:52:08Z; last attempt: 2026-10-19T14:52:08Z; last successful count: 35.
+  Screening judgments: \{'excluded': 33, 'review': 1, 'priority': 1\}.
+- lever:palantir: **success**; last successful observation: 2026-10-19T14:52:07Z; last attempt: 2026-10-19T14:51:44Z; last successful count: 310.
   Screening judgments: \{'excluded': 293, 'review': 12, 'priority': 5\}.
-- lever:scottlogic: **success**; last successful observation: 2026-10-18T12:08:45Z; last attempt: 2026-10-18T12:08:44Z; last successful count: 44.
-  Screening judgments: \{'review': 4, 'excluded': 40\}.
-
-## Changes in last scan
-
-- **new**: hyperexponential — hx Model Developer  (ashby:hyperexponential:4891dc70-5308-40c7-b2fc-92001d0a2de7)
-- **new**: Cambridge Consultants — 2027 Graduate Software Engineer - Healthcare \(2027 start\) (greenhouse:cambridgeconsultantslimited:4908214101)
-- **new**: Cambridge Consultants — Agentic AI Engineer \(Defence &amp; Security\) (greenhouse:cambridgeconsultantslimited:4983437101)
-- **new**: Cambridge Consultants — Agentic Systems Engineer \(Digital Services\) (greenhouse:cambridgeconsultantslimited:4941908101)
-- **new**: Cambridge Consultants — AI &amp; Algorithms Engineer \(Defence &amp; Security\)  (greenhouse:cambridgeconsultantslimited:4937034101)
-- **new**: Cambridge Consultants — Contractors - Electronics or Software (greenhouse:cambridgeconsultantslimited:4537706101)
-- **new**: Cambridge Consultants — Electronics / Software Engineer (greenhouse:cambridgeconsultantslimited:4817244101)
-- **new**: Cambridge Consultants — Graduate AI and Secure Technologies Engineer \(2026 start\)  (greenhouse:cambridgeconsultantslimited:4889141101)
-- **new**: Cambridge Consultants — Graduate AI and Secure Technologies Engineer \(2027 start\)  (greenhouse:cambridgeconsultantslimited:4981284101)
-- **new**: Cambridge Consultants — Graduate AI Engineer \(2027 start\)  (greenhouse:cambridgeconsultantslimited:4995814101)
-- **new**: Cambridge Consultants —  Graduate Cloud Software Engineer \(2027 start\) (greenhouse:cambridgeconsultantslimited:4908202101)
-- **new**: Cambridge Consultants — Graduate Electronics &amp; Software Engineer \(2026 start\)  (greenhouse:cambridgeconsultantslimited:4854472101)
-- **new**: Cambridge Consultants — Graduate Electronics &amp; Software Engineer \(2027 start\) (greenhouse:cambridgeconsultantslimited:4908205101)
-- **new**: Cambridge Consultants — Graduate Electronic Systems Engineer \(2026 start\) (greenhouse:cambridgeconsultantslimited:4696780101)
-- **new**: Cambridge Consultants — Graduate Human-Centric AI Engineer \(2027 start\) (greenhouse:cambridgeconsultantslimited:4971959101)
-- **new**: Cambridge Consultants — Graduate Software Engineer \(2027 start\) (greenhouse:cambridgeconsultantslimited:4908176101)
-- **new**: Cambridge Consultants — Graduate Software Engineer - Defence &amp; Security \(2027 start\) (greenhouse:cambridgeconsultantslimited:4908188101)
-- **new**: Cambridge Consultants — Graduate Software Test Engineer \(2027 start\) (greenhouse:cambridgeconsultantslimited:4908225101)
-- **new**: Cambridge Consultants — OpenCPI Engineer \(FPGA or software\) (greenhouse:cambridgeconsultantslimited:4982334101)
-- **new**: Cambridge Consultants — PhD Graduate AI &amp; Algorithms Engineer \(2026 start\) (greenhouse:cambridgeconsultantslimited:4718809101)
-- **new**: Marshall Wace — Quant Developer - Quant Associate Programme - 2027 (greenhouse:mw-tech-grad:8646947002)
-- **new**: Marshall Wace — Software/Infrastructure Graduate - 2027 - London (greenhouse:mw-tech-grad:8645263002)
-- **new**: Riverlane — Compiler Engineer  (greenhouse:riverlane:4784641101)
-- **new**: Riverlane — Engineering Graduate Scheme 2027 (greenhouse:riverlane:5000685101)
-- **new**: Scott Logic — Data Engineer (lever:scottlogic:46628ab4-a3ec-45e7-98a4-921cdd57a3ca)
-- **new**: Scott Logic — Software Engineer \(CI/CD\) (lever:scottlogic:14e64e83-723f-4e77-bdc4-cf6e49f8207d)
-- **new**: Scott Logic — Software Engineer \(CI/CD\) (lever:scottlogic:242f4b6c-f74c-4b66-bb36-6c3ccff5b9fc)
-- **new**: Scott Logic — Software Engineer \(CI/CD\) (lever:scottlogic:3226a865-fba6-4e9b-b113-74e277cb9a5c)
+- lever:scottlogic: **success**; last successful observation: 2026-10-19T14:52:08Z; last attempt: 2026-10-19T14:52:07Z; last successful count: 43.
+  Screening judgments: \{'review': 4, 'excluded': 39\}.
 
 ## Source-stated deadlines
 
-Urgency evaluated as of 2026-10-18T12:08:45Z; missing deadline remains unknown.
+Urgency evaluated as of 2026-10-19T14:52:08Z; missing deadline remains unknown.
 - incident.io — [Product Engineer Graduate](https://incident.io/careers/candidate-hub/early-careers/events-calendar): Applications for our 2027 internships and graduate roles are open until 29 October 2026.; within 14 calendar days \(UTC reference\); source supplies date only, expiry time/timezone unknown; observed 2026-10-17T19:07:57Z.
-- Monzo — [Backend Engineer III ](https://job-boards.greenhouse.io/monzo/jobs/6635595): We're usually always hiring for Backend Engineers, so there's no closing date for this job.; manual review: source wording only; exact deadline unknown; observed 2026-10-18T12:08:45Z.
-- Cambridge Consultants — [2027 Graduate Software Engineer - Healthcare \(2027 start\)](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908214101): There is no deadline for this role, as we recruit on a rolling basis.; manual review: source wording only; exact deadline unknown; observed 2026-10-18T12:08:45Z.
-- Cambridge Consultants — [Graduate AI Engineer \(2027 start\) ](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4995814101): There is no deadline for this role, as we recruit on a rolling basis.; manual review: source wording only; exact deadline unknown; observed 2026-10-18T12:08:45Z.
-- Cambridge Consultants — [ Graduate Cloud Software Engineer \(2027 start\)](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908202101): There is no deadline for this role, as we recruit on a rolling basis.; manual review: source wording only; exact deadline unknown; observed 2026-10-18T12:08:45Z.
-- Cambridge Consultants — [Graduate Human-Centric AI Engineer \(2027 start\)](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4971959101): There is no deadline for this role, as we recruit on a rolling basis.; manual review: source wording only; exact deadline unknown; observed 2026-10-18T12:08:45Z.
-- Cambridge Consultants — [Graduate Software Engineer \(2027 start\)](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908176101): There is no deadline for this role, as we recruit on a rolling basis.; manual review: source wording only; exact deadline unknown; observed 2026-10-18T12:08:45Z.
-- Cambridge Consultants — [Graduate Software Engineer - Defence &amp; Security \(2027 start\)](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908188101): There is no deadline for this role, as we recruit on a rolling basis.; manual review: source wording only; exact deadline unknown; observed 2026-10-18T12:08:45Z.
-- Cambridge Consultants — [Graduate Software Test Engineer \(2027 start\)](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908225101): There is no deadline for this role, as we recruit on a rolling basis.; manual review: source wording only; exact deadline unknown; observed 2026-10-18T12:08:45Z.
-- Riverlane — [Engineering Graduate Scheme 2027](https://job-boards.eu.greenhouse.io/riverlane/jobs/5000685101): Application Deadline &amp;amp; Selection Process; manual review: source wording only; exact deadline unknown; observed 2026-10-18T12:08:45Z.
+- Cambridge Consultants — [Graduate Software Engineer \(2027 start\)](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908176101): There is no deadline for this role, as we recruit on a rolling basis.; manual review: source wording only; exact deadline unknown; observed 2026-10-19T14:52:08Z.
+- Cambridge Consultants — [Graduate Software Engineer - Defence &amp; Security \(2027 start\)](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908188101): There is no deadline for this role, as we recruit on a rolling basis.; manual review: source wording only; exact deadline unknown; observed 2026-10-19T14:52:08Z.
+- Cambridge Consultants — [ Graduate Cloud Software Engineer \(2027 start\)](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908202101): There is no deadline for this role, as we recruit on a rolling basis.; manual review: source wording only; exact deadline unknown; observed 2026-10-19T14:52:08Z.
+- Cambridge Consultants — [2027 Graduate Software Engineer - Healthcare \(2027 start\)](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908214101): There is no deadline for this role, as we recruit on a rolling basis.; manual review: source wording only; exact deadline unknown; observed 2026-10-19T14:52:08Z.
+- Cambridge Consultants — [Graduate Software Test Engineer \(2027 start\)](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908225101): There is no deadline for this role, as we recruit on a rolling basis.; manual review: source wording only; exact deadline unknown; observed 2026-10-19T14:52:08Z.
+- Cambridge Consultants — [Graduate Human-Centric AI Engineer \(2027 start\)](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4971959101): There is no deadline for this role, as we recruit on a rolling basis.; manual review: source wording only; exact deadline unknown; observed 2026-10-19T14:52:08Z.
+- Cambridge Consultants — [Graduate AI Engineer \(2027 start\) ](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4995814101): There is no deadline for this role, as we recruit on a rolling basis.; manual review: source wording only; exact deadline unknown; observed 2026-10-19T14:52:08Z.
+- Monzo — [Backend Engineer III ](https://job-boards.greenhouse.io/monzo/jobs/6635595): We're usually always hiring for Backend Engineers, so there's no closing date for this job.; manual review: source wording only; exact deadline unknown; observed 2026-10-19T14:52:08Z.
+- Riverlane — [Engineering Graduate Scheme 2027](https://job-boards.eu.greenhouse.io/riverlane/jobs/5000685101): Application Deadline &amp;amp; Selection Process; manual review: source wording only; exact deadline unknown; observed 2026-10-19T14:52:08Z.
 - Riverlane — [Engineering Graduate Scheme 2027](https://job-boards.eu.greenhouse.io/riverlane/jobs/5000685101): Please submit your application by Friday 6 November 2026.; later than 14 calendar days \(UTC reference\); expiry time/timezone unknown; observed 2026-10-17T22:24:22Z.
 
 ## Ranked review queue (first 15)
@@ -79,36 +48,36 @@ Urgency evaluated as of 2026-10-18T12:08:45Z; missing deadline remains unknown.
 Order: priority judgments, then early-career title signals; company/title/ID break ties. Employer prestige and personal weights are not used.
 
 - **priority** · Cambridge Consultants — [ Graduate Cloud Software Engineer \(2027 start\)](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908202101) — United Kingdom
-  role family: software; UK source signal; location arrangements require review; early-career title signal; graduation eligibility, start date and application status unverified. First observed: 2026-10-18T12:08:45Z; last observed: 2026-10-18T12:08:45Z. Application status: unknown.
+  role family: software; UK source signal; location arrangements require review; early-career title signal; graduation eligibility, start date and application status unverified. First observed: 2026-10-18T12:08:45Z; last observed: 2026-10-19T14:52:08Z. Application status: unknown.
 - **priority** · Cambridge Consultants — [2027 Graduate Software Engineer - Healthcare \(2027 start\)](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908214101) — United Kingdom
-  role family: software; UK source signal; location arrangements require review; early-career title signal; graduation eligibility, start date and application status unverified. First observed: 2026-10-18T12:08:45Z; last observed: 2026-10-18T12:08:45Z. Application status: unknown.
+  role family: software; UK source signal; location arrangements require review; early-career title signal; graduation eligibility, start date and application status unverified. First observed: 2026-10-18T12:08:45Z; last observed: 2026-10-19T14:52:08Z. Application status: unknown.
 - **priority** · Cambridge Consultants — [Graduate Software Engineer \(2027 start\)](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908176101) — United Kingdom
-  role family: software; UK source signal; location arrangements require review; early-career title signal; graduation eligibility, start date and application status unverified. First observed: 2026-10-18T12:08:45Z; last observed: 2026-10-18T12:08:45Z. Application status: unknown.
+  role family: software; UK source signal; location arrangements require review; early-career title signal; graduation eligibility, start date and application status unverified. First observed: 2026-10-18T12:08:45Z; last observed: 2026-10-19T14:52:08Z. Application status: unknown.
 - **priority** · Cambridge Consultants — [Graduate Software Test Engineer \(2027 start\)](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908225101) — United Kingdom, Asia
-  role family: software; UK source signal; location arrangements require review; early-career title signal; graduation eligibility, start date and application status unverified. First observed: 2026-10-18T12:08:45Z; last observed: 2026-10-18T12:08:45Z. Application status: unknown.
+  role family: software; UK source signal; location arrangements require review; early-career title signal; graduation eligibility, start date and application status unverified. First observed: 2026-10-18T12:08:45Z; last observed: 2026-10-19T14:52:08Z. Application status: unknown.
 - **priority** · incident.io — [Product Engineer Graduate](https://jobs.ashbyhq.com/incident/743b1624-7267-49a9-84a0-6223e414fbf0) — London
-  role family: software; UK source signal; location arrangements require review; early-career title signal; graduation eligibility, start date and application status unverified. First observed: 2026-10-17T16:37:44Z; last observed: 2026-10-18T12:08:45Z. Application status: unknown.
+  role family: software; UK source signal; location arrangements require review; early-career title signal; graduation eligibility, start date and application status unverified. First observed: 2026-10-17T16:37:44Z; last observed: 2026-10-19T14:52:08Z. Application status: unknown.
 - **priority** · Palantir — [Forward Deployed Infrastructure Engineer, New Grad - UK Government](https://jobs.lever.co/palantir/cadc0eb2-2703-43e4-8e4f-41edf5b071c6) — London, United Kingdom
-  role family: platform\_systems; UK source signal; location arrangements require review; early-career title signal; work-authorisation/clearance wording present; owner eligibility unknown; graduation eligibility, start date and application status unverified. First observed: 2026-10-17T16:37:44Z; last observed: 2026-10-18T12:08:45Z. Application status: open\_verified.
+  role family: platform\_systems; UK source signal; location arrangements require review; early-career title signal; work-authorisation/clearance wording present; owner eligibility unknown; graduation eligibility, start date and application status unverified. First observed: 2026-10-17T16:37:44Z; last observed: 2026-10-19T14:52:08Z. Application status: open\_verified.
   Application page inspected: [2026-10-17T16:41:55Z](https://jobs.lever.co/palantir/cadc0eb2-2703-43e4-8e4f-41edf5b071c6/apply); recheck before applying.
 - **priority** · Palantir — [Forward Deployed Software Engineer, New Grad - Commercial](https://jobs.lever.co/palantir/2aa14e4f-d406-486e-9aa8-6ff3358d70a0) — London, United Kingdom
-  role family: software; UK source signal; location arrangements require review; early-career title signal; graduation eligibility, start date and application status unverified. First observed: 2026-10-17T16:37:44Z; last observed: 2026-10-18T12:08:45Z. Application status: unknown.
+  role family: software; UK source signal; location arrangements require review; early-career title signal; graduation eligibility, start date and application status unverified. First observed: 2026-10-17T16:37:44Z; last observed: 2026-10-19T14:52:08Z. Application status: unknown.
 - **priority** · Palantir — [Forward Deployed Software Engineer, New Grad - UK Government](https://jobs.lever.co/palantir/b4aa51a2-bc43-4d67-bf55-12db7feefb3a) — London, United Kingdom
-  role family: software; UK source signal; location arrangements require review; early-career title signal; work-authorisation/clearance wording present; owner eligibility unknown; graduation eligibility, start date and application status unverified. First observed: 2026-10-17T16:37:44Z; last observed: 2026-10-18T12:08:45Z. Application status: unknown.
+  role family: software; UK source signal; location arrangements require review; early-career title signal; work-authorisation/clearance wording present; owner eligibility unknown; graduation eligibility, start date and application status unverified. First observed: 2026-10-17T16:37:44Z; last observed: 2026-10-19T14:52:08Z. Application status: unknown.
 - **priority** · Palantir — [Software Engineer, New Grad](https://jobs.lever.co/palantir/d372c805-d0cd-4a10-9522-fbecc78d6f3e) — London, United Kingdom
-  role family: software; UK source signal; location arrangements require review; early-career title signal; graduation eligibility, start date and application status unverified. First observed: 2026-10-17T16:37:44Z; last observed: 2026-10-18T12:08:45Z. Application status: unknown.
+  role family: software; UK source signal; location arrangements require review; early-career title signal; graduation eligibility, start date and application status unverified. First observed: 2026-10-17T16:37:44Z; last observed: 2026-10-19T14:52:08Z. Application status: unknown.
 - **priority** · Palantir — [Software Engineer, New Grad - Infrastructure](https://jobs.lever.co/palantir/9265acce-12cd-4179-8c50-55d15963532b) — London, United Kingdom
-  role family: platform\_systems; UK source signal; location arrangements require review; early-career title signal; graduation eligibility, start date and application status unverified. First observed: 2026-10-17T16:37:44Z; last observed: 2026-10-18T12:08:45Z. Application status: unknown.
+  role family: platform\_systems; UK source signal; location arrangements require review; early-career title signal; graduation eligibility, start date and application status unverified. First observed: 2026-10-17T16:37:44Z; last observed: 2026-10-19T14:52:08Z. Application status: unknown.
 - **priority** · Riverlane — [Engineering Graduate Scheme 2027](https://job-boards.eu.greenhouse.io/riverlane/jobs/5000685101) — Cambridge, UK, Cambridge
-  role family: engineering\_programme; UK source signal; location arrangements require review; early-career title signal; graduation eligibility, start date and application status unverified. First observed: 2026-10-18T12:08:45Z; last observed: 2026-10-18T12:08:45Z. Application status: unknown.
+  role family: engineering\_programme; UK source signal; location arrangements require review; early-career title signal; graduation eligibility, start date and application status unverified. First observed: 2026-10-18T12:08:45Z; last observed: 2026-10-19T14:52:08Z. Application status: unknown.
 - **review** · Cambridge Consultants — [Graduate AI and Secure Technologies Engineer \(2026 start\) ](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4889141101) — United Kingdom
-  role family: ml\_ai; UK source signal; location arrangements require review; title year differs from June 2027 graduation; intake/start flexibility unknown; early-career title signal; doctoral wording needs review for BSc suitability; work-authorisation/clearance wording present; owner eligibility unknown; graduation eligibility, start date and application status unverified. First observed: 2026-10-18T12:08:45Z; last observed: 2026-10-18T12:08:45Z. Application status: unknown.
+  role family: ml\_ai; UK source signal; location arrangements require review; title year differs from June 2027 graduation; intake/start flexibility unknown; early-career title signal; doctoral wording needs review for BSc suitability; work-authorisation/clearance wording present; owner eligibility unknown; graduation eligibility, start date and application status unverified. First observed: 2026-10-18T12:08:45Z; last observed: 2026-10-19T14:52:08Z. Application status: unknown.
 - **review** · Cambridge Consultants — [Graduate AI and Secure Technologies Engineer \(2027 start\) ](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4981284101) — United Kingdom
-  role family: ml\_ai; UK source signal; location arrangements require review; early-career title signal; doctoral wording needs review for BSc suitability; work-authorisation/clearance wording present; owner eligibility unknown; graduation eligibility, start date and application status unverified. First observed: 2026-10-18T12:08:45Z; last observed: 2026-10-18T12:08:45Z. Application status: unknown.
+  role family: ml\_ai; UK source signal; location arrangements require review; early-career title signal; doctoral wording needs review for BSc suitability; work-authorisation/clearance wording present; owner eligibility unknown; graduation eligibility, start date and application status unverified. First observed: 2026-10-18T12:08:45Z; last observed: 2026-10-19T14:52:08Z. Application status: unknown.
 - **review** · Cambridge Consultants — [Graduate AI Engineer \(2027 start\) ](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4995814101) — United Kingdom
-  role family: ml\_ai; UK source signal; location arrangements require review; early-career title signal; doctoral wording needs review for BSc suitability; graduation eligibility, start date and application status unverified. First observed: 2026-10-18T12:08:45Z; last observed: 2026-10-18T12:08:45Z. Application status: unknown.
+  role family: ml\_ai; UK source signal; location arrangements require review; early-career title signal; doctoral wording needs review for BSc suitability; graduation eligibility, start date and application status unverified. First observed: 2026-10-18T12:08:45Z; last observed: 2026-10-19T14:52:08Z. Application status: unknown.
 - **review** · Cambridge Consultants — [Graduate Electronic Systems Engineer \(2026 start\)](https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4696780101) — United Kingdom
-  role family: platform\_systems; UK source signal; location arrangements require review; title year differs from June 2027 graduation; intake/start flexibility unknown; early-career title signal; experience wording in description needs review; doctoral wording needs review for BSc suitability; work-authorisation/clearance wording present; owner eligibility unknown; graduation eligibility, start date and application status unverified. First observed: 2026-10-18T12:08:45Z; last observed: 2026-10-18T12:08:45Z. Application status: unknown.
+  role family: platform\_systems; UK source signal; location arrangements require review; title year differs from June 2027 graduation; intake/start flexibility unknown; early-career title signal; experience wording in description needs review; doctoral wording needs review for BSc suitability; work-authorisation/clearance wording present; owner eligibility unknown; graduation eligibility, start date and application status unverified. First observed: 2026-10-18T12:08:45Z; last observed: 2026-10-19T14:52:08Z. Application status: unknown.
 
 ## Remaining candidates
 
