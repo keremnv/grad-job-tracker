@@ -2,8 +2,8 @@
   "boards": {
     "ashby:hyperexponential": {
       "count": 33,
-      "last_attempt": "2026-10-19T14:52:08Z",
-      "last_success": "2026-10-19T14:52:08Z",
+      "last_attempt": "2026-10-20T12:51:30Z",
+      "last_success": "2026-10-20T12:51:30Z",
       "screening": {
         "excluded": 32,
         "review": 1
@@ -12,8 +12,8 @@
     },
     "ashby:incident": {
       "count": 34,
-      "last_attempt": "2026-10-19T14:52:07Z",
-      "last_success": "2026-10-19T14:52:07Z",
+      "last_attempt": "2026-10-20T12:51:29Z",
+      "last_success": "2026-10-20T12:51:29Z",
       "screening": {
         "excluded": 30,
         "priority": 1,
@@ -23,8 +23,8 @@
     },
     "ashby:tracebit": {
       "count": 4,
-      "last_attempt": "2026-10-19T14:52:08Z",
-      "last_success": "2026-10-19T14:52:08Z",
+      "last_attempt": "2026-10-20T12:51:30Z",
+      "last_success": "2026-10-20T12:51:30Z",
       "screening": {
         "excluded": 4
       },
@@ -32,8 +32,8 @@
     },
     "greenhouse:cambridgeconsultantslimited": {
       "count": 88,
-      "last_attempt": "2026-10-19T14:52:08Z",
-      "last_success": "2026-10-19T14:52:08Z",
+      "last_attempt": "2026-10-20T12:51:30Z",
+      "last_success": "2026-10-20T12:51:30Z",
       "screening": {
         "excluded": 69,
         "priority": 4,
@@ -42,19 +42,19 @@
       "status": "success"
     },
     "greenhouse:monzo": {
-      "count": 72,
-      "last_attempt": "2026-10-19T14:52:07Z",
-      "last_success": "2026-10-19T14:52:07Z",
+      "count": 70,
+      "last_attempt": "2026-10-20T12:51:29Z",
+      "last_success": "2026-10-20T12:51:29Z",
       "screening": {
-        "excluded": 70,
+        "excluded": 68,
         "review": 2
       },
       "status": "success"
     },
     "greenhouse:mw-tech-grad": {
       "count": 6,
-      "last_attempt": "2026-10-19T14:52:08Z",
-      "last_success": "2026-10-19T14:52:08Z",
+      "last_attempt": "2026-10-20T12:51:30Z",
+      "last_success": "2026-10-20T12:51:30Z",
       "screening": {
         "excluded": 4,
         "review": 2
@@ -62,31 +62,31 @@
       "status": "success"
     },
     "greenhouse:riverlane": {
-      "count": 35,
-      "last_attempt": "2026-10-19T14:52:08Z",
-      "last_success": "2026-10-19T14:52:08Z",
+      "count": 36,
+      "last_attempt": "2026-10-20T12:51:30Z",
+      "last_success": "2026-10-20T12:51:30Z",
       "screening": {
-        "excluded": 33,
+        "excluded": 34,
         "priority": 1,
         "review": 1
       },
       "status": "success"
     },
     "lever:palantir": {
-      "count": 310,
-      "last_attempt": "2026-10-19T14:51:44Z",
-      "last_success": "2026-10-19T14:52:07Z",
+      "count": 309,
+      "last_attempt": "2026-10-20T12:51:21Z",
+      "last_success": "2026-10-20T12:51:29Z",
       "screening": {
-        "excluded": 293,
+        "excluded": 291,
         "priority": 5,
-        "review": 12
+        "review": 13
       },
       "status": "success"
     },
     "lever:scottlogic": {
       "count": 43,
-      "last_attempt": "2026-10-19T14:52:07Z",
-      "last_success": "2026-10-19T14:52:08Z",
+      "last_attempt": "2026-10-20T12:51:29Z",
+      "last_success": "2026-10-20T12:51:30Z",
       "screening": {
         "excluded": 39,
         "review": 4
@@ -95,10 +95,18 @@
     }
   },
   "last_scan": {
-    "at": "2026-10-19T14:52:08Z",
-    "events": [],
+    "at": "2026-10-20T12:51:30Z",
+    "events": [
+      {
+        "at": "2026-10-20T12:51:30Z",
+        "company": "Palantir",
+        "key": "lever:palantir:0f7d1e01-1f74-4786-944d-910208d390fa",
+        "title": "Software Engineer, New Grad - Query Engines",
+        "type": "new"
+      }
+    ],
     "failures": [],
-    "started_at": "2026-10-19T14:51:44Z"
+    "started_at": "2026-10-20T12:51:21Z"
   },
   "postings": {
     "ashby:hyperexponential:4891dc70-5308-40c7-b2fc-92001d0a2de7": {
@@ -116,7 +124,7 @@
       "external_id": "4891dc70-5308-40c7-b2fc-92001d0a2de7",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London (hybrid)",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -218,7 +226,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -366,7 +374,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London",
       "location_judgment": "uk_signal",
       "priority": "excluded",
@@ -414,7 +422,7 @@
           ]
         },
         "department": "Product Development",
-        "descriptionHtml": "<h1>A little about us</h1><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"http://incident.io\">incident.io</a> is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.</p><p style=\"min-height:1.5em\">The stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.</p><p style=\"min-height:1.5em\">We've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.</p><p style=\"min-height:1.5em\"></p><h3><em><strong>This is a full-time, one year placement starting in June 2027 and finishing in June 2028.</strong></em></h3><p style=\"min-height:1.5em\"></p><h1>The role in one line</h1><p style=\"min-height:1.5em\">Whether you join as an intern or a grad, your first real code here doesn't sit in a sandbox- it ships to the teams keeping the internet online, even in week 1.</p><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h1>What that looks like day to day</h1><p style=\"min-height:1.5em\">You'll sit inside one of our product teams from day one- same stand-ups, same code review, same production access as everyone else. You'll pick up real work alongside full-time engineers, and you'll own at least one meaningful project end to end: idea, build, ship, watch people use it.</p><p style=\"min-height:1.5em\">Our engineers know what it's like to be paged at 3am- the adrenaline, the scramble to pull the right people in, the frustration of piecing context together from a dozen scattered tools. Everything we build is aimed at killing that experience. Which means the stakes are real: thousands of companies are mid-incident when they open <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"http://incident.io\">incident.io</a>, so we care about polish as much as we care about speed.</p><p style=\"min-height:1.5em\">You'll work in Go, TypeScript with React, and Postgres, deployed on Google Cloud using GKE and Cloud SQL. Infrastructure is Terraform, with BigQuery, PubSub and Cloud Storage in the mix. Sentry, Grafana + Prometheus and Kibana for monitoring, CircleCI for testing and deploys. You won't know all of that on day one, and nobody expects you to.</p><p style=\"min-height:1.5em\">Over the past year we've built some of the most ambitious AI-native features in our space- agents that investigate incidents, explain what's happening, and increasingly fix things themselves. Interns and grads work on this, not around it. We're all-in on AI internally too, and you'll have <em>unlimited</em> AI spend from your first week.</p><p style=\"min-height:1.5em\">We'll be straight with you about the bar: we'll treat you like a full-time engineer. Full ownership, hard deadlines and shipping fast enough that you'll break things and learn from it. There's genuine support around you- senior engineers, proper mentorship, people invested in you doing well- but nobody's going to hold your hand through it.</p><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h1><strong>What your background looks like:</strong></h1><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>You're enrolled in a full-time Bachelors degree</strong> in Computer Science (or a related field)</p></li><li><p style=\"min-height:1.5em\"><strong>Know any programming language</strong> such as: Go, C#, Python, Ruby on Rails or Javascript.</p></li></ul><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h1><strong>What you need to be successful:</strong></h1><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>Have a bias for action and ownership</strong> and like to get things shipped, learn from mistakes, and take responsibility for your work.</p></li><li><p style=\"min-height:1.5em\"><strong>Stay curious</strong> and don’t just accept things as they are, enjoying asking “why?” and “what if?”</p></li><li><p style=\"min-height:1.5em\"><strong>Collaborate in person</strong> and get energy from being around others, bouncing around ideas, asking questions, and giving and receiving feedback.</p></li><li><p style=\"min-height:1.5em\"><strong>Love building</strong> whether it’s features, tools, or ideas, and enjoy creating things and seeing them make an impact.</p></li><li><p style=\"min-height:1.5em\"><strong>Enjoy fast-paced environments</strong> and feel comfortable with change and the energy that comes with moving quickly.</p></li><li><p style=\"min-height:1.5em\"><strong>Keep a low ego</strong> by staying humble and staying focused on the wider mission.</p></li></ul><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h2><em>Check out our </em><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://incident.io/careers/candidate-hub/early-careers#content\"><em>early careers candidate hub</em></a><em> for more info!</em></h2>",
+        "descriptionHtml": "<h1>A little about us</h1><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"http://incident.io\">incident.io</a> is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.</p><p style=\"min-height:1.5em\">The stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.</p><p style=\"min-height:1.5em\">We've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.</p><p style=\"min-height:1.5em\"></p><h3><em><strong>This is a full-time, one year placement starting in June 2027 and finishing in June 2028.</strong></em></h3><p style=\"min-height:1.5em\"></p><h1>The role in one line</h1><p style=\"min-height:1.5em\">Whether you join as an intern or a grad, your first real code here doesn't sit in a sandbox- it ships to the teams keeping the internet online, even in week 1.</p><div style=\"min-height:1.2em;margin-top:0px;margin-bottom:0px\"> </div><h1>What that looks like day to day</h1><p style=\"min-height:1.5em\">You'll sit inside one of our product teams from day one- same stand-ups, same code review, same production access as everyone else. You'll pick up real work alongside full-time engineers, and you'll own at least one meaningful project end to end: idea, build, ship, watch people use it.</p><p style=\"min-height:1.5em\">Our engineers know what it's like to be paged at 3am- the adrenaline, the scramble to pull the right people in, the frustration of piecing context together from a dozen scattered tools. Everything we build is aimed at killing that experience. Which means the stakes are real: thousands of companies are mid-incident when they open <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"http://incident.io\">incident.io</a>, so we care about polish as much as we care about speed.</p><p style=\"min-height:1.5em\">You'll work in Go, TypeScript with React, and Postgres, deployed on Google Cloud using GKE and Cloud SQL. Infrastructure is Terraform, with BigQuery, PubSub and Cloud Storage in the mix. Sentry, Grafana + Prometheus and Kibana for monitoring, CircleCI for testing and deploys. You won't know all of that on day one, and nobody expects you to.</p><p style=\"min-height:1.5em\">Over the past year we've built some of the most ambitious AI-native features in our space- agents that investigate incidents, explain what's happening, and increasingly fix things themselves. Interns and grads work on this, not around it. We're all-in on AI internally too, and you'll have <em>unlimited</em> AI spend from your first week.</p><p style=\"min-height:1.5em\">We'll be straight with you about the bar: we'll treat you like a full-time engineer. Full ownership, hard deadlines and shipping fast enough that you'll break things and learn from it. There's genuine support around you- senior engineers, proper mentorship, people invested in you doing well- but nobody's going to hold your hand through it.</p><div style=\"min-height:1.2em;margin-top:0px;margin-bottom:0px\"> </div><h1><strong>What your background looks like:</strong></h1><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>You're enrolled in a full-time Bachelors degree</strong> in Computer Science (or a related field)</p></li><li><p style=\"min-height:1.5em\"><strong>Know any programming language</strong> such as: Go, C#, Python, Ruby on Rails or Javascript.</p></li></ul><div style=\"min-height:1.2em;margin-top:0px;margin-bottom:0px\"> </div><h1><strong>What you need to be successful:</strong></h1><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>Have a bias for action and ownership</strong> and like to get things shipped, learn from mistakes, and take responsibility for your work.</p></li><li><p style=\"min-height:1.5em\"><strong>Stay curious</strong> and don’t just accept things as they are, enjoying asking “why?” and “what if?”</p></li><li><p style=\"min-height:1.5em\"><strong>Collaborate in person</strong> and get energy from being around others, bouncing around ideas, asking questions, and giving and receiving feedback.</p></li><li><p style=\"min-height:1.5em\"><strong>Love building</strong> whether it’s features, tools, or ideas, and enjoy creating things and seeing them make an impact.</p></li><li><p style=\"min-height:1.5em\"><strong>Enjoy fast-paced environments</strong> and feel comfortable with change and the energy that comes with moving quickly.</p></li><li><p style=\"min-height:1.5em\"><strong>Keep a low ego</strong> by staying humble and staying focused on the wider mission.</p></li></ul><div style=\"min-height:1.2em;margin-top:0px;margin-bottom:0px\"> </div><h2><em>Check out our </em><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://incident.io/careers/candidate-hub/early-careers#content\"><em>early careers candidate hub</em></a><em> for more info!</em></h2>",
         "descriptionPlain": "A LITTLE ABOUT US\n\nincident.io http://incident.io is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.\n\nThe stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.\n\nWe've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.\n\n\n\n\nTHIS IS A FULL-TIME, ONE YEAR PLACEMENT STARTING IN JUNE 2027 AND FINISHING IN JUNE 2028.\n\n\n\n\nTHE ROLE IN ONE LINE\n\nWhether you join as an intern or a grad, your first real code here doesn't sit in a sandbox- it ships to the teams keeping the internet online, even in week 1.\n\n \n\n\nWHAT THAT LOOKS LIKE DAY TO DAY\n\nYou'll sit inside one of our product teams from day one- same stand-ups, same code review, same production access as everyone else. You'll pick up real work alongside full-time engineers, and you'll own at least one meaningful project end to end: idea, build, ship, watch people use it.\n\nOur engineers know what it's like to be paged at 3am- the adrenaline, the scramble to pull the right people in, the frustration of piecing context together from a dozen scattered tools. Everything we build is aimed at killing that experience. Which means the stakes are real: thousands of companies are mid-incident when they open incident.io http://incident.io, so we care about polish as much as we care about speed.\n\nYou'll work in Go, TypeScript with React, and Postgres, deployed on Google Cloud using GKE and Cloud SQL. Infrastructure is Terraform, with BigQuery, PubSub and Cloud Storage in the mix. Sentry, Grafana + Prometheus and Kibana for monitoring, CircleCI for testing and deploys. You won't know all of that on day one, and nobody expects you to.\n\nOver the past year we've built some of the most ambitious AI-native features in our space- agents that investigate incidents, explain what's happening, and increasingly fix things themselves. Interns and grads work on this, not around it. We're all-in on AI internally too, and you'll have unlimited AI spend from your first week.\n\nWe'll be straight with you about the bar: we'll treat you like a full-time engineer. Full ownership, hard deadlines and shipping fast enough that you'll break things and learn from it. There's genuine support around you- senior engineers, proper mentorship, people invested in you doing well- but nobody's going to hold your hand through it.\n\n \n\n\nWHAT YOUR BACKGROUND LOOKS LIKE:\n\n - You're enrolled in a full-time Bachelors degree in Computer Science (or a related field)\n\n - Know any programming language such as: Go, C#, Python, Ruby on Rails or Javascript.\n\n \n\n\nWHAT YOU NEED TO BE SUCCESSFUL:\n\n - Have a bias for action and ownership and like to get things shipped, learn from mistakes, and take responsibility for your work.\n\n - Stay curious and don’t just accept things as they are, enjoying asking “why?” and “what if?”\n\n - Collaborate in person and get energy from being around others, bouncing around ideas, asking questions, and giving and receiving feedback.\n\n - Love building whether it’s features, tools, or ideas, and enjoy creating things and seeing them make an impact.\n\n - Enjoy fast-paced environments and feel comfortable with change and the energy that comes with moving quickly.\n\n - Keep a low ego by staying humble and staying focused on the wider mission.\n\n \n\n\nCHECK OUT OUR EARLY CAREERS CANDIDATE HUB https://incident.io/careers/candidate-hub/early-careers#content FOR MORE INFO!",
         "employmentType": "FullTime",
         "id": "2f692a4d-91b4-4d0f-ae39-b38b68a24a27",
@@ -498,7 +506,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London",
       "location_judgment": "uk_signal",
       "priority": "excluded",
@@ -546,7 +554,7 @@
           ]
         },
         "department": "Product Development",
-        "descriptionHtml": "<h1>A little about us</h1><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"http://incident.io\">incident.io</a> is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.</p><p style=\"min-height:1.5em\">The stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.</p><p style=\"min-height:1.5em\">We've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.</p><p style=\"min-height:1.5em\"></p><h3><em>This is a full-time, 6 month placement starting in March 2027 and finishing in September 2027.</em></h3><p style=\"min-height:1.5em\"></p><h1>The role in one line</h1><p style=\"min-height:1.5em\">Whether you join as an intern or a grad, your first real code here doesn't sit in a sandbox- it ships to the teams keeping the internet online, even in week 1.</p><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h1>What that looks like day to day</h1><p style=\"min-height:1.5em\">You'll sit inside one of our product teams from day one- same stand-ups, same code review, same production access as everyone else. You'll pick up real work alongside full-time engineers, and you'll own at least one meaningful project end to end: idea, build, ship, watch people use it.</p><p style=\"min-height:1.5em\">Our engineers know what it's like to be paged at 3am- the adrenaline, the scramble to pull the right people in, the frustration of piecing context together from a dozen scattered tools. Everything we build is aimed at killing that experience. Which means the stakes are real: thousands of companies are mid-incident when they open <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"http://incident.io\">incident.io</a>, so we care about polish as much as we care about speed.</p><p style=\"min-height:1.5em\">You'll work in Go, TypeScript with React, and Postgres, deployed on Google Cloud using GKE and Cloud SQL. Infrastructure is Terraform, with BigQuery, PubSub and Cloud Storage in the mix. Sentry, Grafana + Prometheus and Kibana for monitoring, CircleCI for testing and deploys. You won't know all of that on day one, and nobody expects you to.</p><p style=\"min-height:1.5em\">Over the past year we've built some of the most ambitious AI-native features in our space- agents that investigate incidents, explain what's happening, and increasingly fix things themselves. Interns and grads work on this, not around it. We're all-in on AI internally too, and you'll have <em>unlimited</em> AI spend from your first week.</p><p style=\"min-height:1.5em\">We'll be straight with you about the bar: we'll treat you like a full-time engineer. Full ownership, hard deadlines and shipping fast enough that you'll break things and learn from it. There's genuine support around you- senior engineers, proper mentorship, people invested in you doing well- but nobody's going to hold your hand through it.</p><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h1><strong>What your background looks like:</strong></h1><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>You're enrolled in a full-time Bachelors or Masters degree</strong> in Computer Science (or a related field)</p></li><li><p style=\"min-height:1.5em\"><strong>Know any programming language</strong> such as: Go, C#, Python, Ruby on Rails or Javascript.</p></li></ul><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h1><strong>What you need to be successful:</strong></h1><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>Have a bias for action and ownership</strong> and like to get things shipped, learn from mistakes, and take responsibility for your work.</p></li><li><p style=\"min-height:1.5em\"><strong>Stay curious</strong> and don’t just accept things as they are, enjoying asking “why?” and “what if?”</p></li><li><p style=\"min-height:1.5em\"><strong>Collaborate in person</strong> and get energy from being around others, bouncing around ideas, asking questions, and giving and receiving feedback.</p></li><li><p style=\"min-height:1.5em\"><strong>Love building</strong> whether it’s features, tools, or ideas, and enjoy creating things and seeing them make an impact.</p></li><li><p style=\"min-height:1.5em\"><strong>Enjoy fast-paced environments</strong> and feel comfortable with change and the energy that comes with moving quickly.</p></li><li><p style=\"min-height:1.5em\"><strong>Keep a low ego</strong> by staying humble and staying focused on the wider mission.</p></li></ul><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h2><em>Check out our </em><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://incident.io/careers/candidate-hub/early-careers#content\"><em>early careers candidate hub</em></a><em> for more info!</em></h2>",
+        "descriptionHtml": "<h1>A little about us</h1><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"http://incident.io\">incident.io</a> is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.</p><p style=\"min-height:1.5em\">The stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.</p><p style=\"min-height:1.5em\">We've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.</p><p style=\"min-height:1.5em\"></p><h3><em>This is a full-time, 6 month placement starting in March 2027 and finishing in September 2027.</em></h3><p style=\"min-height:1.5em\"></p><h1>The role in one line</h1><p style=\"min-height:1.5em\">Whether you join as an intern or a grad, your first real code here doesn't sit in a sandbox- it ships to the teams keeping the internet online, even in week 1.</p><div style=\"min-height:1.2em;margin-top:0px;margin-bottom:0px\"> </div><h1>What that looks like day to day</h1><p style=\"min-height:1.5em\">You'll sit inside one of our product teams from day one- same stand-ups, same code review, same production access as everyone else. You'll pick up real work alongside full-time engineers, and you'll own at least one meaningful project end to end: idea, build, ship, watch people use it.</p><p style=\"min-height:1.5em\">Our engineers know what it's like to be paged at 3am- the adrenaline, the scramble to pull the right people in, the frustration of piecing context together from a dozen scattered tools. Everything we build is aimed at killing that experience. Which means the stakes are real: thousands of companies are mid-incident when they open <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"http://incident.io\">incident.io</a>, so we care about polish as much as we care about speed.</p><p style=\"min-height:1.5em\">You'll work in Go, TypeScript with React, and Postgres, deployed on Google Cloud using GKE and Cloud SQL. Infrastructure is Terraform, with BigQuery, PubSub and Cloud Storage in the mix. Sentry, Grafana + Prometheus and Kibana for monitoring, CircleCI for testing and deploys. You won't know all of that on day one, and nobody expects you to.</p><p style=\"min-height:1.5em\">Over the past year we've built some of the most ambitious AI-native features in our space- agents that investigate incidents, explain what's happening, and increasingly fix things themselves. Interns and grads work on this, not around it. We're all-in on AI internally too, and you'll have <em>unlimited</em> AI spend from your first week.</p><p style=\"min-height:1.5em\">We'll be straight with you about the bar: we'll treat you like a full-time engineer. Full ownership, hard deadlines and shipping fast enough that you'll break things and learn from it. There's genuine support around you- senior engineers, proper mentorship, people invested in you doing well- but nobody's going to hold your hand through it.</p><div style=\"min-height:1.2em;margin-top:0px;margin-bottom:0px\"> </div><h1><strong>What your background looks like:</strong></h1><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>You're enrolled in a full-time Bachelors or Masters degree</strong> in Computer Science (or a related field)</p></li><li><p style=\"min-height:1.5em\"><strong>Know any programming language</strong> such as: Go, C#, Python, Ruby on Rails or Javascript.</p></li></ul><div style=\"min-height:1.2em;margin-top:0px;margin-bottom:0px\"> </div><h1><strong>What you need to be successful:</strong></h1><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>Have a bias for action and ownership</strong> and like to get things shipped, learn from mistakes, and take responsibility for your work.</p></li><li><p style=\"min-height:1.5em\"><strong>Stay curious</strong> and don’t just accept things as they are, enjoying asking “why?” and “what if?”</p></li><li><p style=\"min-height:1.5em\"><strong>Collaborate in person</strong> and get energy from being around others, bouncing around ideas, asking questions, and giving and receiving feedback.</p></li><li><p style=\"min-height:1.5em\"><strong>Love building</strong> whether it’s features, tools, or ideas, and enjoy creating things and seeing them make an impact.</p></li><li><p style=\"min-height:1.5em\"><strong>Enjoy fast-paced environments</strong> and feel comfortable with change and the energy that comes with moving quickly.</p></li><li><p style=\"min-height:1.5em\"><strong>Keep a low ego</strong> by staying humble and staying focused on the wider mission.</p></li></ul><div style=\"min-height:1.2em;margin-top:0px;margin-bottom:0px\"> </div><h2><em>Check out our </em><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://incident.io/careers/candidate-hub/early-careers#content\"><em>early careers candidate hub</em></a><em> for more info!</em></h2>",
         "descriptionPlain": "A LITTLE ABOUT US\n\nincident.io http://incident.io is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.\n\nThe stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.\n\nWe've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.\n\n\n\n\nTHIS IS A FULL-TIME, 6 MONTH PLACEMENT STARTING IN MARCH 2027 AND FINISHING IN SEPTEMBER 2027.\n\n\n\n\nTHE ROLE IN ONE LINE\n\nWhether you join as an intern or a grad, your first real code here doesn't sit in a sandbox- it ships to the teams keeping the internet online, even in week 1.\n\n \n\n\nWHAT THAT LOOKS LIKE DAY TO DAY\n\nYou'll sit inside one of our product teams from day one- same stand-ups, same code review, same production access as everyone else. You'll pick up real work alongside full-time engineers, and you'll own at least one meaningful project end to end: idea, build, ship, watch people use it.\n\nOur engineers know what it's like to be paged at 3am- the adrenaline, the scramble to pull the right people in, the frustration of piecing context together from a dozen scattered tools. Everything we build is aimed at killing that experience. Which means the stakes are real: thousands of companies are mid-incident when they open incident.io http://incident.io, so we care about polish as much as we care about speed.\n\nYou'll work in Go, TypeScript with React, and Postgres, deployed on Google Cloud using GKE and Cloud SQL. Infrastructure is Terraform, with BigQuery, PubSub and Cloud Storage in the mix. Sentry, Grafana + Prometheus and Kibana for monitoring, CircleCI for testing and deploys. You won't know all of that on day one, and nobody expects you to.\n\nOver the past year we've built some of the most ambitious AI-native features in our space- agents that investigate incidents, explain what's happening, and increasingly fix things themselves. Interns and grads work on this, not around it. We're all-in on AI internally too, and you'll have unlimited AI spend from your first week.\n\nWe'll be straight with you about the bar: we'll treat you like a full-time engineer. Full ownership, hard deadlines and shipping fast enough that you'll break things and learn from it. There's genuine support around you- senior engineers, proper mentorship, people invested in you doing well- but nobody's going to hold your hand through it.\n\n \n\n\nWHAT YOUR BACKGROUND LOOKS LIKE:\n\n - You're enrolled in a full-time Bachelors or Masters degree in Computer Science (or a related field)\n\n - Know any programming language such as: Go, C#, Python, Ruby on Rails or Javascript.\n\n \n\n\nWHAT YOU NEED TO BE SUCCESSFUL:\n\n - Have a bias for action and ownership and like to get things shipped, learn from mistakes, and take responsibility for your work.\n\n - Stay curious and don’t just accept things as they are, enjoying asking “why?” and “what if?”\n\n - Collaborate in person and get energy from being around others, bouncing around ideas, asking questions, and giving and receiving feedback.\n\n - Love building whether it’s features, tools, or ideas, and enjoy creating things and seeing them make an impact.\n\n - Enjoy fast-paced environments and feel comfortable with change and the energy that comes with moving quickly.\n\n - Keep a low ego by staying humble and staying focused on the wider mission.\n\n \n\n\nCHECK OUT OUR EARLY CAREERS CANDIDATE HUB https://incident.io/careers/candidate-hub/early-careers#content FOR MORE INFO!",
         "employmentType": "FullTime",
         "id": "470989ec-6ac5-4800-beb1-0ba1684ec1ee",
@@ -626,7 +634,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -754,7 +762,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -898,7 +906,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -999,7 +1007,7 @@
       "external_id": "4537706101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "UK - Contractors",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -1104,7 +1112,7 @@
       "external_id": "4696780101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -1211,7 +1219,7 @@
       "external_id": "4718809101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -1318,7 +1326,7 @@
       "external_id": "4817244101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -1426,7 +1434,7 @@
       "external_id": "4854472101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -1533,7 +1541,7 @@
       "external_id": "4889141101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -1637,7 +1645,7 @@
       "country": "",
       "deadlines": [
         {
-          "observed_at": "2026-10-19T14:52:08Z",
+          "observed_at": "2026-10-20T12:51:30Z",
           "source_field": "description",
           "url": "https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908176101",
           "wording": "&lt;p&gt;&lt;strong&gt;&lt;span data-contrast=&quot;auto&quot;&gt;There is no deadline for this role, as we recruit on a rolling basis."
@@ -1647,7 +1655,7 @@
       "external_id": "4908176101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -1751,7 +1759,7 @@
       "country": "",
       "deadlines": [
         {
-          "observed_at": "2026-10-19T14:52:08Z",
+          "observed_at": "2026-10-20T12:51:30Z",
           "source_field": "description",
           "url": "https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908188101",
           "wording": "&lt;p&gt;&lt;strong&gt;There is no deadline for this role, as we recruit on a rolling basis."
@@ -1761,7 +1769,7 @@
       "external_id": "4908188101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -1865,7 +1873,7 @@
       "country": "",
       "deadlines": [
         {
-          "observed_at": "2026-10-19T14:52:08Z",
+          "observed_at": "2026-10-20T12:51:30Z",
           "source_field": "description",
           "url": "https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908202101",
           "wording": "&lt;p&gt;&lt;span data-contrast=&quot;auto&quot;&gt;&lt;strong&gt;There is no deadline for this role, as we recruit on a rolling basis."
@@ -1875,7 +1883,7 @@
       "external_id": "4908202101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -1982,7 +1990,7 @@
       "external_id": "4908205101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -2087,7 +2095,7 @@
       "country": "",
       "deadlines": [
         {
-          "observed_at": "2026-10-19T14:52:08Z",
+          "observed_at": "2026-10-20T12:51:30Z",
           "source_field": "description",
           "url": "https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908214101",
           "wording": "&lt;p class=&quot;isSelectedEnd&quot;&gt;There is no deadline for this role, as we recruit on a rolling basis."
@@ -2097,7 +2105,7 @@
       "external_id": "4908214101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -2201,7 +2209,7 @@
       "country": "",
       "deadlines": [
         {
-          "observed_at": "2026-10-19T14:52:08Z",
+          "observed_at": "2026-10-20T12:51:30Z",
           "source_field": "description",
           "url": "https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908225101",
           "wording": "&lt;p&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&lt;span class=&quot;TextRun SCXW97298115 BCX8&quot; lang=&quot;EN-GB&quot; data-contrast=&quot;auto&quot;&gt;&lt;span class=&quot;NormalTextRun SCXW97298115 BCX8&quot;&gt;There is no deadline for this role, as we recruit on a rolling basis."
@@ -2211,7 +2219,7 @@
       "external_id": "4908225101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "United Kingdom, Asia",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -2328,7 +2336,7 @@
       "external_id": "4937034101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -2435,7 +2443,7 @@
       "external_id": "4941908101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -2539,7 +2547,7 @@
       "country": "",
       "deadlines": [
         {
-          "observed_at": "2026-10-19T14:52:08Z",
+          "observed_at": "2026-10-20T12:51:30Z",
           "source_field": "description",
           "url": "https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4971959101",
           "wording": "&lt;p&gt;&lt;strong&gt;&lt;span data-contrast=&quot;auto&quot;&gt;There is no deadline for this role, as we recruit on a rolling basis."
@@ -2549,7 +2557,7 @@
       "external_id": "4971959101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -2658,7 +2666,7 @@
       "external_id": "4981284101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -2775,7 +2783,7 @@
       "external_id": "4982334101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -2883,7 +2891,7 @@
       "external_id": "4983437101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -2987,7 +2995,7 @@
       "country": "",
       "deadlines": [
         {
-          "observed_at": "2026-10-19T14:52:08Z",
+          "observed_at": "2026-10-20T12:51:30Z",
           "source_field": "description",
           "url": "https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4995814101",
           "wording": "&lt;p&gt;&lt;span data-contrast=&quot;auto&quot;&gt;&lt;strong&gt;There is no deadline for this role, as we recruit on a rolling basis."
@@ -2997,7 +3005,7 @@
       "external_id": "4995814101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -3098,7 +3106,7 @@
       "country": "",
       "deadlines": [
         {
-          "observed_at": "2026-10-19T14:52:08Z",
+          "observed_at": "2026-10-20T12:51:30Z",
           "source_field": "description",
           "url": "https://job-boards.greenhouse.io/monzo/jobs/6635595",
           "wording": "&lt;p&gt;&lt;em&gt;We&#39;re usually always hiring for Backend Engineers, so there&#39;s no closing date for this job.&lt;/em&gt;&lt;/p&gt;"
@@ -3162,7 +3170,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "Cardiff, London or Remote (UK)",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -3238,7 +3246,7 @@
       "external_id": "6758449",
       "feed_status": "listed",
       "first_seen": "2026-10-17T16:46:41Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "Barcelona",
       "location_judgment": "unknown",
       "priority": "review",
@@ -3314,7 +3322,7 @@
       "external_id": "8645263002",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London, London - Sloane Street",
       "location_judgment": "unknown",
       "priority": "review",
@@ -3398,7 +3406,7 @@
       "external_id": "8646947002",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London, New York, London - Sloane Street",
       "location_judgment": "unknown",
       "priority": "review",
@@ -3481,7 +3489,7 @@
       "external_id": "4784641101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "Cambridge, UK, Cambridge",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -3554,7 +3562,7 @@
       "country": "",
       "deadlines": [
         {
-          "observed_at": "2026-10-19T14:52:08Z",
+          "observed_at": "2026-10-20T12:51:30Z",
           "source_field": "description",
           "url": "https://job-boards.eu.greenhouse.io/riverlane/jobs/5000685101",
           "wording": "&lt;p data-pm-slice=&quot;1 1 []&quot;&gt;&lt;strong&gt;Application Deadline &amp;amp; Selection Process&lt;/strong&gt;&lt;/p&gt;"
@@ -3564,7 +3572,7 @@
       "external_id": "5000685101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "Cambridge, UK, Cambridge",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -3627,6 +3635,75 @@
       "title": "Engineering Graduate Scheme 2027",
       "url": "https://job-boards.eu.greenhouse.io/riverlane/jobs/5000685101"
     },
+    "lever:palantir:0f7d1e01-1f74-4786-944d-910208d390fa": {
+      "application_verification": {
+        "status": "unknown"
+      },
+      "board": "palantir",
+      "company": "Palantir",
+      "countries": [
+        "GB"
+      ],
+      "country": "GB",
+      "deadlines": [],
+      "description": "A World-Changing Company\n \nPalantir builds the world’s leading software for data-driven decisions and operations. By bringing the right data to the people who need it, our platforms empower our partners to develop lifesaving drugs, forecast supply chain disruptions, locate missing children, and more.\n\n\nThe Role\nWe are a software engineering team applying open-source data technologies to some of the world's hardest and most important problems. We build the data processing infrastructure that underpins Palantir Foundry, supporting applications that help hospitals care for more patients, help clinical teams coordinate timely diagnoses, and keep essential supplies moving through global disruption.\n \nYou will work deep inside the systems that make this possible: how computations are represented, how query plans are optimised, how operators execute, and how data is read and written efficiently. We build on and extend Apache Spark, Apache DataFusion, and Apache Iceberg, bringing advances in open-source engines and table formats into the demanding environments our customers operate in. Our work serves many products and workloads across Foundry, including no-code pipelines, interactive analysis, and the processing that keeps the Ontology up to date.\n \nWorking alongside experienced engineers, you will take on real problems in our production systems. That could mean writing a new planning rule, adding a capability to a native execution engine, or making large tables faster to scan. You will see your work through design, code review, testing, and release. Correctness, compatibility, and predictable performance are central to everything we build, and you will learn how to deliver all three.\n \nJoin us if you want to learn how modern data systems work from the inside and apply that knowledge to consequential problems.\n\n<div>\n\n<li style=\"list-style-type: disc;\">Java, Scala, Rust, and Python</li>\n<li style=\"list-style-type: disc;\">Apache Spark, Apache DataFusion, Apache Comet, and Velox for data processing and query execution</li>\n<li style=\"list-style-type: disc;\">Apache Iceberg for table management and catalog interoperability</li>\n<li style=\"list-style-type: disc;\">Apache Arrow and Apache Parquet for in-memory data processing and columnar storage</li>\n<li style=\"list-style-type: disc;\">Gradle and Cargo for builds, and GitHub for collaboration</li>\n\n<div>You do not need prior experience with these technologies. We expect you to learn them here.</div>\n</div>\n<div>\n\n<li style=\"list-style-type: disc;\">Curiosity about how data systems work, from query optimisers and execution operators to file formats and distributed processing</li>\n<li style=\"list-style-type: disc;\">A high bar for correctness and a willingness to dig until you understand why something behaves the way it does</li>\n<li style=\"list-style-type: disc;\">Comfort following a problem across languages, services, and layers of the stack</li>\n<li style=\"list-style-type: disc;\">A practical approach to performance, grounded in measurement rather than intuition</li>\n<li style=\"list-style-type: disc;\">Eagerness to learn, ask questions, and incorporate feedback</li>\n<li style=\"list-style-type: disc;\">Interest in applying deep systems engineering to real-world problems, with empathy for the people who depend on our software</li>\n\n</div>\n<div>\n\n<li style=\"list-style-type: disc;\">Currently pursuing or recently completed a Bachelor's, Master's, or PhD in Computer Science, Mathematics, Software Engineering, Physics, or a similar field, or equivalent practical experience</li>\n<li style=\"list-style-type: disc;\">Proficiency in at least one language such as Java, Rust, Scala, C++, or C</li>\n<li style=\"list-style-type: disc;\">Strong foundations in algorithms, data structures, and concurrency</li>\n<li style=\"list-style-type: disc;\">Strong written and verbal communication skills</li>\n<li style=\"list-style-type: disc;\">Coursework or projects in databases, compilers, operating systems, or distributed systems</li>\n<li style=\"list-style-type: disc;\">Contributions to open-source projects</li>\n\n</div>\nLife at Palantir\n \nWe want every Palantirian to achieve their best outcomes, that’s why we celebrate individuals’ strengths, skills, and interests, from your first interview to your longterm growth, rather than rely on traditional career ladders. Paying attention to the needs of our community enables us to optimize our opportunities to grow and helps ensure many pathways to success at Palantir. Promoting health and well-being across all areas of Palantirians’ lives is just one of the ways we’re investing in our community. Learn more at Life at Palantir and note that our offerings may vary by region.\n \nIn keeping consistent with Palantir’s values and culture, we believe employees are “better together” and in-person work affords the opportunity for more creative outcomes. Therefore, we encourage employees to work from our offices to foster connectivity and innovation. Many teams do offer hybrid options (WFH a day or two a week), allowing our employees to strike the right trade-off for their personal productivity. Based on business need, there are a few roles that allow for “Remote” work on an exceptional basis. If you are applying for one of these roles, you must work from the city and or country in which you are employed. If the posting is specified as Onsite, you are required to work from an office.\n \nIf you want to empower the world's most important institutions, you belong here. Palantir values excellence regardless of background. We are committed to making the application and hiring process accessible to everyone and will provide a reasonable accommodation for those living with a disability. If you need an accommodation for the application or hiring process, please reach out and let us know how we can help.\n \nPlease note that you will never be asked to submit a payment or share financial information to participate in our interview process. If you suspect that you've been contacted by a scammer, we recommend you cease all communication with the individual and consider reporting them to the relevant authorities, such as the US FBI Internet Crime Complaint Center (IC3).\n",
+      "external_id": "0f7d1e01-1f74-4786-944d-910208d390fa",
+      "feed_status": "listed",
+      "first_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-20T12:51:30Z",
+      "location": "London, United Kingdom",
+      "location_judgment": "uk_signal",
+      "priority": "review",
+      "provider": "lever",
+      "published_at": "",
+      "raw": {
+        "additional": "<div><strong><span style=\"font-size: 18px;\">Life at Palantir</span></strong></div>\n<div>&nbsp;</div>\n<div>We want every Palantirian to achieve their best outcomes, that’s why we celebrate individuals’ strengths, skills, and interests, from your first interview to your longterm growth, rather than rely on traditional career ladders. Paying attention to the needs of our community enables us to optimize our opportunities to grow and helps ensure many pathways to success at Palantir. Promoting health and well-being across all areas of Palantirians’ lives is just one of the ways we’re investing in our community. Learn more at <a href=\"https://www.palantir.com/careers/life-at-palantir/\">Life at Palantir</a> and note that our offerings may vary by region.</div>\n<div>&nbsp;</div>\n<div>In keeping consistent with Palantir’s values and culture, we believe employees are “better together” and in-person work affords the opportunity for more creative outcomes. Therefore, we encourage employees to work from our offices to foster connectivity and innovation. Many teams do offer hybrid options (WFH a day or two a week), allowing our employees to strike the right trade-off for their personal productivity. Based on business need, there are a few roles that allow for “Remote” work on an exceptional basis. If you are applying for one of these roles, you must work from the city and or country in which you are employed. If the posting is specified as Onsite, you are required to work from an office.</div>\n<div>&nbsp;</div>\n<div>If you want to empower the world's most important institutions, you belong here. Palantir values excellence regardless of background. We are committed to making the application and hiring process accessible to everyone and will provide a reasonable accommodation for those living with a disability. If you need an accommodation for the application or hiring process<em>, </em>please <a href=\"mailto:accommodations@palantir.com\">reach out</a> and let us know how we can help.</div>\n<div>&nbsp;</div>\n<div><em>Please note that you will never be asked to submit a payment or share financial information to participate in our interview process. If you suspect that you've been contacted by a scammer, we recommend you cease all communication with the individual and consider reporting them to the relevant authorities, such as the US <a href=\"https://www.ic3.gov/\">FBI Internet Crime Complaint Center (IC3)</a>.</em></div>",
+        "additionalPlain": "Life at Palantir\n \nWe want every Palantirian to achieve their best outcomes, that’s why we celebrate individuals’ strengths, skills, and interests, from your first interview to your longterm growth, rather than rely on traditional career ladders. Paying attention to the needs of our community enables us to optimize our opportunities to grow and helps ensure many pathways to success at Palantir. Promoting health and well-being across all areas of Palantirians’ lives is just one of the ways we’re investing in our community. Learn more at Life at Palantir and note that our offerings may vary by region.\n \nIn keeping consistent with Palantir’s values and culture, we believe employees are “better together” and in-person work affords the opportunity for more creative outcomes. Therefore, we encourage employees to work from our offices to foster connectivity and innovation. Many teams do offer hybrid options (WFH a day or two a week), allowing our employees to strike the right trade-off for their personal productivity. Based on business need, there are a few roles that allow for “Remote” work on an exceptional basis. If you are applying for one of these roles, you must work from the city and or country in which you are employed. If the posting is specified as Onsite, you are required to work from an office.\n \nIf you want to empower the world's most important institutions, you belong here. Palantir values excellence regardless of background. We are committed to making the application and hiring process accessible to everyone and will provide a reasonable accommodation for those living with a disability. If you need an accommodation for the application or hiring process, please reach out and let us know how we can help.\n \nPlease note that you will never be asked to submit a payment or share financial information to participate in our interview process. If you suspect that you've been contacted by a scammer, we recommend you cease all communication with the individual and consider reporting them to the relevant authorities, such as the US FBI Internet Crime Complaint Center (IC3).\n",
+        "applyUrl": "https://jobs.lever.co/palantir/0f7d1e01-1f74-4786-944d-910208d390fa/apply",
+        "categories": {
+          "allLocations": [
+            "London, United Kingdom"
+          ],
+          "commitment": "Full-time",
+          "location": "London, United Kingdom",
+          "team": "Dev"
+        },
+        "country": "GB",
+        "createdAt": 1792453774147,
+        "description": "<div><strong><span style=\"font-size: 18px;\">A World-Changing Company</span></strong></div>\n<div>&nbsp;</div>\n<div>Palantir builds the world’s leading software for data-driven decisions and operations. By bringing the right data to the people who need it, our platforms empower our partners to develop lifesaving drugs, forecast supply chain disruptions, locate missing children, and more.</div><div><br></div><div>\n<h3>The Role</h3>\n<div>We are a software engineering team applying open-source data technologies to some of the world's hardest and most important problems. We build the data processing infrastructure that underpins Palantir Foundry, supporting applications that help hospitals care for more patients, help clinical teams coordinate timely diagnoses, and keep essential supplies moving through global disruption.</div>\n<div>&nbsp;</div>\n<div>You will work deep inside the systems that make this possible: how computations are represented, how query plans are optimised, how operators execute, and how data is read and written efficiently. We build on and extend Apache Spark, Apache DataFusion, and Apache Iceberg, bringing advances in open-source engines and table formats into the demanding environments our customers operate in. Our work serves many products and workloads across Foundry, including no-code pipelines, interactive analysis, and the processing that keeps the Ontology up to date.</div>\n<div>&nbsp;</div>\n<div>Working alongside experienced engineers, you will take on real problems in our production systems. That could mean writing a new planning rule, adding a capability to a native execution engine, or making large tables faster to scan. You will see your work through design, code review, testing, and release. Correctness, compatibility, and predictable performance are central to everything we build, and you will learn how to deliver all three.</div>\n<div>&nbsp;</div>\n<div>Join us if you want to learn how modern data systems work from the inside and apply that knowledge to consequential problems.</div>\n</div>",
+        "descriptionBody": "<div>\n<h3>The Role</h3>\n<div>We are a software engineering team applying open-source data technologies to some of the world's hardest and most important problems. We build the data processing infrastructure that underpins Palantir Foundry, supporting applications that help hospitals care for more patients, help clinical teams coordinate timely diagnoses, and keep essential supplies moving through global disruption.</div>\n<div>&nbsp;</div>\n<div>You will work deep inside the systems that make this possible: how computations are represented, how query plans are optimised, how operators execute, and how data is read and written efficiently. We build on and extend Apache Spark, Apache DataFusion, and Apache Iceberg, bringing advances in open-source engines and table formats into the demanding environments our customers operate in. Our work serves many products and workloads across Foundry, including no-code pipelines, interactive analysis, and the processing that keeps the Ontology up to date.</div>\n<div>&nbsp;</div>\n<div>Working alongside experienced engineers, you will take on real problems in our production systems. That could mean writing a new planning rule, adding a capability to a native execution engine, or making large tables faster to scan. You will see your work through design, code review, testing, and release. Correctness, compatibility, and predictable performance are central to everything we build, and you will learn how to deliver all three.</div>\n<div>&nbsp;</div>\n<div>Join us if you want to learn how modern data systems work from the inside and apply that knowledge to consequential problems.</div>\n</div>",
+        "descriptionBodyPlain": "The Role\nWe are a software engineering team applying open-source data technologies to some of the world's hardest and most important problems. We build the data processing infrastructure that underpins Palantir Foundry, supporting applications that help hospitals care for more patients, help clinical teams coordinate timely diagnoses, and keep essential supplies moving through global disruption.\n \nYou will work deep inside the systems that make this possible: how computations are represented, how query plans are optimised, how operators execute, and how data is read and written efficiently. We build on and extend Apache Spark, Apache DataFusion, and Apache Iceberg, bringing advances in open-source engines and table formats into the demanding environments our customers operate in. Our work serves many products and workloads across Foundry, including no-code pipelines, interactive analysis, and the processing that keeps the Ontology up to date.\n \nWorking alongside experienced engineers, you will take on real problems in our production systems. That could mean writing a new planning rule, adding a capability to a native execution engine, or making large tables faster to scan. You will see your work through design, code review, testing, and release. Correctness, compatibility, and predictable performance are central to everything we build, and you will learn how to deliver all three.\n \nJoin us if you want to learn how modern data systems work from the inside and apply that knowledge to consequential problems.\n",
+        "descriptionPlain": "A World-Changing Company\n \nPalantir builds the world’s leading software for data-driven decisions and operations. By bringing the right data to the people who need it, our platforms empower our partners to develop lifesaving drugs, forecast supply chain disruptions, locate missing children, and more.\n\n\nThe Role\nWe are a software engineering team applying open-source data technologies to some of the world's hardest and most important problems. We build the data processing infrastructure that underpins Palantir Foundry, supporting applications that help hospitals care for more patients, help clinical teams coordinate timely diagnoses, and keep essential supplies moving through global disruption.\n \nYou will work deep inside the systems that make this possible: how computations are represented, how query plans are optimised, how operators execute, and how data is read and written efficiently. We build on and extend Apache Spark, Apache DataFusion, and Apache Iceberg, bringing advances in open-source engines and table formats into the demanding environments our customers operate in. Our work serves many products and workloads across Foundry, including no-code pipelines, interactive analysis, and the processing that keeps the Ontology up to date.\n \nWorking alongside experienced engineers, you will take on real problems in our production systems. That could mean writing a new planning rule, adding a capability to a native execution engine, or making large tables faster to scan. You will see your work through design, code review, testing, and release. Correctness, compatibility, and predictable performance are central to everything we build, and you will learn how to deliver all three.\n \nJoin us if you want to learn how modern data systems work from the inside and apply that knowledge to consequential problems.\n",
+        "hostedUrl": "https://jobs.lever.co/palantir/0f7d1e01-1f74-4786-944d-910208d390fa",
+        "id": "0f7d1e01-1f74-4786-944d-910208d390fa",
+        "lists": [
+          {
+            "content": "<div>\n\n<li style=\"list-style-type: disc;\">Java, Scala, Rust, and Python</li>\n<li style=\"list-style-type: disc;\">Apache Spark, Apache DataFusion, Apache Comet, and Velox for data processing and query execution</li>\n<li style=\"list-style-type: disc;\">Apache Iceberg for table management and catalog interoperability</li>\n<li style=\"list-style-type: disc;\">Apache Arrow and Apache Parquet for in-memory data processing and columnar storage</li>\n<li style=\"list-style-type: disc;\">Gradle and Cargo for builds, and GitHub for collaboration</li>\n\n<div>You do not need prior experience with these technologies. We expect you to learn them here.</div>\n</div>",
+            "text": "Technologies We Use"
+          },
+          {
+            "content": "<div>\n\n<li style=\"list-style-type: disc;\">Curiosity about how data systems work, from query optimisers and execution operators to file formats and distributed processing</li>\n<li style=\"list-style-type: disc;\">A high bar for correctness and a willingness to dig until you understand why something behaves the way it does</li>\n<li style=\"list-style-type: disc;\">Comfort following a problem across languages, services, and layers of the stack</li>\n<li style=\"list-style-type: disc;\">A practical approach to performance, grounded in measurement rather than intuition</li>\n<li style=\"list-style-type: disc;\">Eagerness to learn, ask questions, and incorporate feedback</li>\n<li style=\"list-style-type: disc;\">Interest in applying deep systems engineering to real-world problems, with empathy for the people who depend on our software</li>\n\n</div>",
+            "text": "What We Value"
+          },
+          {
+            "content": "<div>\n\n<li style=\"list-style-type: disc;\">Currently pursuing or recently completed a Bachelor's, Master's, or PhD in Computer Science, Mathematics, Software Engineering, Physics, or a similar field, or equivalent practical experience</li>\n<li style=\"list-style-type: disc;\">Proficiency in at least one language such as Java, Rust, Scala, C++, or C</li>\n<li style=\"list-style-type: disc;\">Strong foundations in algorithms, data structures, and concurrency</li>\n<li style=\"list-style-type: disc;\">Strong written and verbal communication skills</li>\n<li style=\"list-style-type: disc;\">Coursework or projects in databases, compilers, operating systems, or distributed systems</li>\n<li style=\"list-style-type: disc;\">Contributions to open-source projects</li>\n\n</div>",
+            "text": "What We Require"
+          }
+        ],
+        "opening": "<div><strong><span style=\"font-size: 18px;\">A World-Changing Company</span></strong></div>\n<div>&nbsp;</div>\n<div>Palantir builds the world&rsquo;s leading software for data-driven decisions and operations. By bringing the right data to the people who need it, our platforms empower our partners to develop lifesaving drugs, forecast supply chain disruptions, locate missing children, and more.</div>",
+        "openingPlain": "A World-Changing Company\n \nPalantir builds the world’s leading software for data-driven decisions and operations. By bringing the right data to the people who need it, our platforms empower our partners to develop lifesaving drugs, forecast supply chain disruptions, locate missing children, and more.\n",
+        "text": "Software Engineer, New Grad - Query Engines",
+        "workplaceType": "hybrid"
+      },
+      "reason": "role family: software; UK source signal; location arrangements require review; early-career title signal; doctoral wording needs review for BSc suitability; graduation eligibility, start date and application status unverified",
+      "role_family": "software",
+      "salary": "",
+      "source_dates": {
+        "createdAt": 1792453774147
+      },
+      "title": "Software Engineer, New Grad - Query Engines",
+      "url": "https://jobs.lever.co/palantir/0f7d1e01-1f74-4786-944d-910208d390fa"
+    },
     "lever:palantir:10dfc8bc-99ad-4ca2-ab76-853cb90a92c2": {
       "board": "palantir",
       "company": "Palantir",
@@ -3683,7 +3760,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -3840,7 +3917,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -3950,7 +4027,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -4064,7 +4141,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -4174,7 +4251,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -4280,7 +4357,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -4390,7 +4467,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -4500,7 +4577,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -4569,7 +4646,7 @@
       "external_id": "98bbe55b-f591-4272-a486-d82404d2c576",
       "feed_status": "listed",
       "first_seen": "2026-10-17T16:46:41Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -4679,7 +4756,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -4836,7 +4913,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -4946,7 +5023,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -5060,7 +5137,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -5170,7 +5247,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -5280,7 +5357,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -5394,7 +5471,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -5504,7 +5581,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -5569,7 +5646,7 @@
       "external_id": "14e64e83-723f-4e77-bdc4-cf6e49f8207d",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "Bristol",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -5634,7 +5711,7 @@
       "external_id": "242f4b6c-f74c-4b66-bb36-6c3ccff5b9fc",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "Newcastle",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -5699,7 +5776,7 @@
       "external_id": "3226a865-fba6-4e9b-b113-74e277cb9a5c",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "Leeds",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -5764,7 +5841,7 @@
       "external_id": "46628ab4-a3ec-45e7-98a4-921cdd57a3ca",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-19T14:52:08Z",
+      "last_seen": "2026-10-20T12:51:30Z",
       "location": "Bristol",
       "location_judgment": "uk_signal",
       "priority": "review",
