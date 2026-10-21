@@ -2,8 +2,8 @@
   "boards": {
     "ashby:hyperexponential": {
       "count": 33,
-      "last_attempt": "2026-10-20T12:51:30Z",
-      "last_success": "2026-10-20T12:51:30Z",
+      "last_attempt": "2026-10-21T13:04:33Z",
+      "last_success": "2026-10-21T13:04:34Z",
       "screening": {
         "excluded": 32,
         "review": 1
@@ -12,8 +12,8 @@
     },
     "ashby:incident": {
       "count": 34,
-      "last_attempt": "2026-10-20T12:51:29Z",
-      "last_success": "2026-10-20T12:51:29Z",
+      "last_attempt": "2026-10-21T13:04:33Z",
+      "last_success": "2026-10-21T13:04:33Z",
       "screening": {
         "excluded": 30,
         "priority": 1,
@@ -23,8 +23,8 @@
     },
     "ashby:tracebit": {
       "count": 4,
-      "last_attempt": "2026-10-20T12:51:30Z",
-      "last_success": "2026-10-20T12:51:30Z",
+      "last_attempt": "2026-10-21T13:04:34Z",
+      "last_success": "2026-10-21T13:04:34Z",
       "screening": {
         "excluded": 4
       },
@@ -32,8 +32,8 @@
     },
     "greenhouse:cambridgeconsultantslimited": {
       "count": 88,
-      "last_attempt": "2026-10-20T12:51:30Z",
-      "last_success": "2026-10-20T12:51:30Z",
+      "last_attempt": "2026-10-21T13:04:33Z",
+      "last_success": "2026-10-21T13:04:33Z",
       "screening": {
         "excluded": 69,
         "priority": 4,
@@ -42,19 +42,19 @@
       "status": "success"
     },
     "greenhouse:monzo": {
-      "count": 70,
-      "last_attempt": "2026-10-20T12:51:29Z",
-      "last_success": "2026-10-20T12:51:29Z",
+      "count": 67,
+      "last_attempt": "2026-10-21T13:04:32Z",
+      "last_success": "2026-10-21T13:04:33Z",
       "screening": {
-        "excluded": 68,
+        "excluded": 65,
         "review": 2
       },
       "status": "success"
     },
     "greenhouse:mw-tech-grad": {
       "count": 6,
-      "last_attempt": "2026-10-20T12:51:30Z",
-      "last_success": "2026-10-20T12:51:30Z",
+      "last_attempt": "2026-10-21T13:04:33Z",
+      "last_success": "2026-10-21T13:04:33Z",
       "screening": {
         "excluded": 4,
         "review": 2
@@ -62,22 +62,22 @@
       "status": "success"
     },
     "greenhouse:riverlane": {
-      "count": 36,
-      "last_attempt": "2026-10-20T12:51:30Z",
-      "last_success": "2026-10-20T12:51:30Z",
+      "count": 38,
+      "last_attempt": "2026-10-21T13:04:33Z",
+      "last_success": "2026-10-21T13:04:33Z",
       "screening": {
-        "excluded": 34,
+        "excluded": 36,
         "priority": 1,
         "review": 1
       },
       "status": "success"
     },
     "lever:palantir": {
-      "count": 309,
-      "last_attempt": "2026-10-20T12:51:21Z",
-      "last_success": "2026-10-20T12:51:29Z",
+      "count": 306,
+      "last_attempt": "2026-10-21T13:04:11Z",
+      "last_success": "2026-10-21T13:04:32Z",
       "screening": {
-        "excluded": 291,
+        "excluded": 288,
         "priority": 5,
         "review": 13
       },
@@ -85,8 +85,8 @@
     },
     "lever:scottlogic": {
       "count": 43,
-      "last_attempt": "2026-10-20T12:51:29Z",
-      "last_success": "2026-10-20T12:51:30Z",
+      "last_attempt": "2026-10-21T13:04:33Z",
+      "last_success": "2026-10-21T13:04:33Z",
       "screening": {
         "excluded": 39,
         "review": 4
@@ -95,18 +95,34 @@
     }
   },
   "last_scan": {
-    "at": "2026-10-20T12:51:30Z",
+    "at": "2026-10-21T13:04:34Z",
     "events": [
       {
-        "at": "2026-10-20T12:51:30Z",
-        "company": "Palantir",
-        "key": "lever:palantir:0f7d1e01-1f74-4786-944d-910208d390fa",
-        "title": "Software Engineer, New Grad - Query Engines",
-        "type": "new"
+        "at": "2026-10-21T13:04:34Z",
+        "changes": {
+          "description": {
+            "after": "&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;Introduction&lt;/strong&gt;&lt;/h3&gt;\n&lt;p&gt;&lt;span data-contrast=&quot;auto&quot;&gt;We are looking for bright graduates with a passion for software and a curiosity for how things work and how technology can help us solve problems.&lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt;  &lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;You will join our embedded software team and contribute to the development of innovative technologies for healthcare devices.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Candidates can start between May–October 2027.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;There is no deadline for this role, as we recruit on a rolling basis. Once the position is filled, we will close the advert. We encourage you to &lt;strong&gt;apply as soon as possible&lt;/strong&gt;.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What we do&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Each project we undertake is different, and at the cutting edge of technology. This means we can&#39;t talk about much of our ongoing work, but here are some examples of completed projects that we are excited to share:&lt;/p&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;1&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/uk-government-ventilator-challenge&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;An emergency-use ventilator, developed in just over six weeks in response to the government’s Ventilator Challenge&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;2&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/press-releases/device-treating-gait-deficit-caused-multiple-sclerosis-receives-fda-marketing&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;A neurostimulation device allowing treatment to improve, or even restore, someone’s ability to walk&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;3&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/universal-autoinjector-platform&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;An autoinjector capable of delivering&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/universal-autoinjector-platform&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt; a wide range of drugs, while being intuitive to use and beautiful to look at&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What you&#39;ll be doing&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;From day one, you’ll be part of our multidisciplinary medical development team, tackling real technical problems while receiving guidance and training from experienced engineers. You’ll gain access to designing and developing embedded software to a high standard. You will be part of a team developing&lt;strong&gt; &lt;/strong&gt;technologies that can make a meaningful difference to people’s lives.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Within your role you&#39;ll likely:&amp;nbsp;&lt;/p&gt;\n&lt;ul data-spread=&quot;true&quot;&gt;\n&lt;li&gt;Design, develop, and test embedded software for complex medical systems used in diagnostic, surgical, implantable device, and drug-delivery applications.&lt;/li&gt;\n&lt;li&gt;Contribute to a wide range of projects that span the full software development lifecycle.&lt;/li&gt;\n&lt;li&gt;Collaborate with a multidisciplinary and supportive team, gaining exposure to systems involving electronics, optics, fluidics, robotics, and user-interface components.&lt;/li&gt;\n&lt;li&gt;Work with industry best practices such as continuous integration, automated testing and analysis, and model-based systems engineering.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What You Can Bring&lt;/strong&gt;&lt;/h3&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;Application requirements&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;To apply for this role you must:&lt;/p&gt;\n&lt;ul data-spread=&quot;false&quot;&gt;\n&lt;li&gt;Be currently completing or have recent completed a degree in a relevant field such as Engineering, Computer Science, Mathematics, or Physics.&lt;/li&gt;\n&lt;li&gt;Have experience programming in C.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;The most important technical skill for this role is &lt;strong&gt;programming in C&lt;/strong&gt;.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;The following skills and experience are advantageous:&lt;/p&gt;\n&lt;ul data-spread=&quot;false&quot;&gt;\n&lt;li&gt;Experience with other languages such as Rust, Python or C++&lt;/li&gt;\n&lt;li&gt;Working in a team using version control (ideally Git) and peer code reviews&lt;/li&gt;\n&lt;li&gt;Contributing to open-source software&lt;/li&gt;\n&lt;li&gt;Unit testing or other verification techniques&lt;/li&gt;\n&lt;li&gt;Experience developing embedded software&lt;/li&gt;\n&lt;li&gt;Knowledge of electronics and controlling peripherals using interfaces such as UART/I2C/SPI&lt;/li&gt;\n&lt;li&gt;Signal processing and/or control theory&lt;/li&gt;\n&lt;li&gt;Data science and/or AI&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Knowledge of biology or medical subjects is not a requirement, though you should be enthusiastic about applying your technical skills to this field of application.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Your CV should include all your A Level (or equivalent) subjects and grades, where applicable, as well as university modules, coursework, projects or other experience that demonstrates your relevant skills.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;A covering statement is welcome but is not required.&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;&lt;div class=&quot;content-conclusion&quot;&gt;&lt;hr&gt;\n&lt;p style=&quot;text-align: center;&quot;&gt;&lt;strong&gt;By submitting an application to Cambridge Consultants, you confirm that the information provided in this application, together with any supporting documentation, is true, complete, and accurate to the best of your knowledge and belief. You understand that any false statement, misleading information, or material omission may render you liable to disqualification from the recruitment process, withdrawal of any offer of employment, or dismissal without notice if discovered following appointment. You acknowledge that the organisation reserves the right to verify the information supplied.&lt;/strong&gt;&lt;br&gt;&lt;/p&gt;\n&lt;hr&gt;\n&lt;p style=&quot;text-align: center;&quot;&gt;&amp;nbsp;&lt;/p&gt;&lt;/div&gt;",
+            "before": "&lt;p&gt;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;Introduction&lt;/strong&gt;&lt;/h3&gt;\n&lt;p&gt;&lt;strong&gt;&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;&lt;span data-contrast=&quot;auto&quot;&gt;We are looking for bright graduates with a passion for software and a curiosity for how things work and how technology can help us solve problems.&lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt;  &lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;&lt;/strong&gt;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;You will join our embedded software team and contribute to the development of innovative technologies for healthcare devices.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Candidates can start between May–October 2027.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;There is no deadline for this role, as we recruit on a rolling basis. Once the position is filled, we will close the advert. We encourage you to &lt;strong&gt;apply as soon as possible&lt;/strong&gt;.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What we do&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Each project we undertake is different, and at the cutting edge of technology. This means we can&#39;t talk about much of our ongoing work, but here are some examples of completed projects that we are excited to share:&lt;/p&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;1&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/uk-government-ventilator-challenge&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;An emergency-use ventilator, developed in just over six weeks in response to the government’s Ventilator Challenge&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;2&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/press-releases/device-treating-gait-deficit-caused-multiple-sclerosis-receives-fda-marketing&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;A neurostimulation device allowing treatment to improve, or even restore, someone’s ability to walk&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;3&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/universal-autoinjector-platform&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;An autoinjector capable of delivering&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/universal-autoinjector-platform&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt; a wide range of drugs, while being intuitive to use and beautiful to look at&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What you&#39;ll be doing&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;From day one, you’ll be part of our multidisciplinary medical development team, tackling real technical problems while receiving guidance and training from experienced engineers. You’ll gain access to designing and developing embedded software to a high standard. You will be part of a team developing&lt;strong&gt; &lt;/strong&gt;technologies that can make a meaningful difference to people’s lives.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Within your role you&#39;ll likely:&amp;nbsp;&lt;/p&gt;\n&lt;ul data-spread=&quot;true&quot;&gt;\n&lt;li&gt;Design, develop, and test embedded software for complex medical systems used in diagnostic, surgical, implantable device, and drug-delivery applications.&lt;/li&gt;\n&lt;li&gt;Contribute to a wide range of projects that span the full software development lifecycle.&lt;/li&gt;\n&lt;li&gt;Collaborate with a multidisciplinary and supportive team, gaining exposure to systems involving electronics, optics, fluidics, robotics, and user-interface components.&lt;/li&gt;\n&lt;li&gt;Work with industry best practices such as continuous integration, automated testing and analysis, and model-based systems engineering.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What You Can Bring&lt;/strong&gt;&lt;/h3&gt;\n&lt;p&gt;&lt;strong&gt;&lt;/strong&gt;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;Application requirements&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;To apply for this role you must:&lt;/p&gt;\n&lt;ul data-spread=&quot;false&quot;&gt;\n&lt;li&gt;Be currently completing or have recent completed a degree in a relevant field such as Engineering, Computer Science, Mathematics, or Physics.&lt;/li&gt;\n&lt;li&gt;Have experience programming in C.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;&lt;/strong&gt;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;The most important technical skill for this role is &lt;strong&gt;programming in C&lt;/strong&gt;.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;The following skills and experience are advantageous:&lt;/p&gt;\n&lt;ul data-spread=&quot;false&quot;&gt;\n&lt;li&gt;Experience with other languages such as Rust, Python or C++&lt;/li&gt;\n&lt;li&gt;Working in a team using version control (ideally Git) and peer code reviews&lt;/li&gt;\n&lt;li&gt;Contributing to open-source software&lt;/li&gt;\n&lt;li&gt;Unit testing or other verification techniques&lt;/li&gt;\n&lt;li&gt;Experience developing embedded software&lt;/li&gt;\n&lt;li&gt;Knowledge of electronics and controlling peripherals using interfaces such as UART/I2C/SPI&lt;/li&gt;\n&lt;li&gt;Signal processing and/or control theory&lt;/li&gt;\n&lt;li&gt;Data science and/or AI&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Knowledge of biology or medical subjects is not a requirement, though you should be enthusiastic about applying your technical skills to this field of application.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Your CV should include all your A Level (or equivalent) subjects and grades, where applicable, as well as university modules, coursework, projects or other experience that demonstrates your relevant skills.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;A covering statement is welcome but is not required.&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;&lt;/p&gt;&lt;div class=&quot;content-conclusion&quot;&gt;&lt;hr&gt;\n&lt;p style=&quot;text-align: center;&quot;&gt;&lt;strong&gt;By submitting an application to Cambridge Consultants, you confirm that the information provided in this application, together with any supporting documentation, is true, complete, and accurate to the best of your knowledge and belief. You understand that any false statement, misleading information, or material omission may render you liable to disqualification from the recruitment process, withdrawal of any offer of employment, or dismissal without notice if discovered following appointment. You acknowledge that the organisation reserves the right to verify the information supplied.&lt;/strong&gt;&lt;br&gt;&lt;/p&gt;\n&lt;hr&gt;\n&lt;p style=&quot;text-align: center;&quot;&gt;&amp;nbsp;&lt;/p&gt;&lt;/div&gt;"
+          },
+          "source_dates": {
+            "after": {
+              "first_published": "2026-10-14T09:02:34-04:00",
+              "updated_at": "2026-10-21T08:14:35-04:00"
+            },
+            "before": {
+              "first_published": "2026-10-14T09:02:34-04:00",
+              "updated_at": "2026-10-14T09:02:34-04:00"
+            }
+          }
+        },
+        "company": "Cambridge Consultants",
+        "key": "greenhouse:cambridgeconsultantslimited:4908214101",
+        "title": "2027 Graduate Software Engineer - Healthcare (2027 start)",
+        "type": "changed"
       }
     ],
     "failures": [],
-    "started_at": "2026-10-20T12:51:21Z"
+    "started_at": "2026-10-21T13:04:11Z"
   },
   "postings": {
     "ashby:hyperexponential:4891dc70-5308-40c7-b2fc-92001d0a2de7": {
@@ -124,7 +140,7 @@
       "external_id": "4891dc70-5308-40c7-b2fc-92001d0a2de7",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London (hybrid)",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -226,7 +242,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -374,7 +390,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London",
       "location_judgment": "uk_signal",
       "priority": "excluded",
@@ -422,7 +438,7 @@
           ]
         },
         "department": "Product Development",
-        "descriptionHtml": "<h1>A little about us</h1><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"http://incident.io\">incident.io</a> is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.</p><p style=\"min-height:1.5em\">The stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.</p><p style=\"min-height:1.5em\">We've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.</p><p style=\"min-height:1.5em\"></p><h3><em><strong>This is a full-time, one year placement starting in June 2027 and finishing in June 2028.</strong></em></h3><p style=\"min-height:1.5em\"></p><h1>The role in one line</h1><p style=\"min-height:1.5em\">Whether you join as an intern or a grad, your first real code here doesn't sit in a sandbox- it ships to the teams keeping the internet online, even in week 1.</p><div style=\"min-height:1.2em;margin-top:0px;margin-bottom:0px\"> </div><h1>What that looks like day to day</h1><p style=\"min-height:1.5em\">You'll sit inside one of our product teams from day one- same stand-ups, same code review, same production access as everyone else. You'll pick up real work alongside full-time engineers, and you'll own at least one meaningful project end to end: idea, build, ship, watch people use it.</p><p style=\"min-height:1.5em\">Our engineers know what it's like to be paged at 3am- the adrenaline, the scramble to pull the right people in, the frustration of piecing context together from a dozen scattered tools. Everything we build is aimed at killing that experience. Which means the stakes are real: thousands of companies are mid-incident when they open <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"http://incident.io\">incident.io</a>, so we care about polish as much as we care about speed.</p><p style=\"min-height:1.5em\">You'll work in Go, TypeScript with React, and Postgres, deployed on Google Cloud using GKE and Cloud SQL. Infrastructure is Terraform, with BigQuery, PubSub and Cloud Storage in the mix. Sentry, Grafana + Prometheus and Kibana for monitoring, CircleCI for testing and deploys. You won't know all of that on day one, and nobody expects you to.</p><p style=\"min-height:1.5em\">Over the past year we've built some of the most ambitious AI-native features in our space- agents that investigate incidents, explain what's happening, and increasingly fix things themselves. Interns and grads work on this, not around it. We're all-in on AI internally too, and you'll have <em>unlimited</em> AI spend from your first week.</p><p style=\"min-height:1.5em\">We'll be straight with you about the bar: we'll treat you like a full-time engineer. Full ownership, hard deadlines and shipping fast enough that you'll break things and learn from it. There's genuine support around you- senior engineers, proper mentorship, people invested in you doing well- but nobody's going to hold your hand through it.</p><div style=\"min-height:1.2em;margin-top:0px;margin-bottom:0px\"> </div><h1><strong>What your background looks like:</strong></h1><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>You're enrolled in a full-time Bachelors degree</strong> in Computer Science (or a related field)</p></li><li><p style=\"min-height:1.5em\"><strong>Know any programming language</strong> such as: Go, C#, Python, Ruby on Rails or Javascript.</p></li></ul><div style=\"min-height:1.2em;margin-top:0px;margin-bottom:0px\"> </div><h1><strong>What you need to be successful:</strong></h1><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>Have a bias for action and ownership</strong> and like to get things shipped, learn from mistakes, and take responsibility for your work.</p></li><li><p style=\"min-height:1.5em\"><strong>Stay curious</strong> and don’t just accept things as they are, enjoying asking “why?” and “what if?”</p></li><li><p style=\"min-height:1.5em\"><strong>Collaborate in person</strong> and get energy from being around others, bouncing around ideas, asking questions, and giving and receiving feedback.</p></li><li><p style=\"min-height:1.5em\"><strong>Love building</strong> whether it’s features, tools, or ideas, and enjoy creating things and seeing them make an impact.</p></li><li><p style=\"min-height:1.5em\"><strong>Enjoy fast-paced environments</strong> and feel comfortable with change and the energy that comes with moving quickly.</p></li><li><p style=\"min-height:1.5em\"><strong>Keep a low ego</strong> by staying humble and staying focused on the wider mission.</p></li></ul><div style=\"min-height:1.2em;margin-top:0px;margin-bottom:0px\"> </div><h2><em>Check out our </em><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://incident.io/careers/candidate-hub/early-careers#content\"><em>early careers candidate hub</em></a><em> for more info!</em></h2>",
+        "descriptionHtml": "<h1>A little about us</h1><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"http://incident.io\">incident.io</a> is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.</p><p style=\"min-height:1.5em\">The stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.</p><p style=\"min-height:1.5em\">We've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.</p><p style=\"min-height:1.5em\"></p><h3><em><strong>This is a full-time, one year placement starting in June 2027 and finishing in June 2028.</strong></em></h3><p style=\"min-height:1.5em\"></p><h1>The role in one line</h1><p style=\"min-height:1.5em\">Whether you join as an intern or a grad, your first real code here doesn't sit in a sandbox- it ships to the teams keeping the internet online, even in week 1.</p><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h1>What that looks like day to day</h1><p style=\"min-height:1.5em\">You'll sit inside one of our product teams from day one- same stand-ups, same code review, same production access as everyone else. You'll pick up real work alongside full-time engineers, and you'll own at least one meaningful project end to end: idea, build, ship, watch people use it.</p><p style=\"min-height:1.5em\">Our engineers know what it's like to be paged at 3am- the adrenaline, the scramble to pull the right people in, the frustration of piecing context together from a dozen scattered tools. Everything we build is aimed at killing that experience. Which means the stakes are real: thousands of companies are mid-incident when they open <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"http://incident.io\">incident.io</a>, so we care about polish as much as we care about speed.</p><p style=\"min-height:1.5em\">You'll work in Go, TypeScript with React, and Postgres, deployed on Google Cloud using GKE and Cloud SQL. Infrastructure is Terraform, with BigQuery, PubSub and Cloud Storage in the mix. Sentry, Grafana + Prometheus and Kibana for monitoring, CircleCI for testing and deploys. You won't know all of that on day one, and nobody expects you to.</p><p style=\"min-height:1.5em\">Over the past year we've built some of the most ambitious AI-native features in our space- agents that investigate incidents, explain what's happening, and increasingly fix things themselves. Interns and grads work on this, not around it. We're all-in on AI internally too, and you'll have <em>unlimited</em> AI spend from your first week.</p><p style=\"min-height:1.5em\">We'll be straight with you about the bar: we'll treat you like a full-time engineer. Full ownership, hard deadlines and shipping fast enough that you'll break things and learn from it. There's genuine support around you- senior engineers, proper mentorship, people invested in you doing well- but nobody's going to hold your hand through it.</p><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h1><strong>What your background looks like:</strong></h1><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>You're enrolled in a full-time Bachelors degree</strong> in Computer Science (or a related field)</p></li><li><p style=\"min-height:1.5em\"><strong>Know any programming language</strong> such as: Go, C#, Python, Ruby on Rails or Javascript.</p></li></ul><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h1><strong>What you need to be successful:</strong></h1><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>Have a bias for action and ownership</strong> and like to get things shipped, learn from mistakes, and take responsibility for your work.</p></li><li><p style=\"min-height:1.5em\"><strong>Stay curious</strong> and don’t just accept things as they are, enjoying asking “why?” and “what if?”</p></li><li><p style=\"min-height:1.5em\"><strong>Collaborate in person</strong> and get energy from being around others, bouncing around ideas, asking questions, and giving and receiving feedback.</p></li><li><p style=\"min-height:1.5em\"><strong>Love building</strong> whether it’s features, tools, or ideas, and enjoy creating things and seeing them make an impact.</p></li><li><p style=\"min-height:1.5em\"><strong>Enjoy fast-paced environments</strong> and feel comfortable with change and the energy that comes with moving quickly.</p></li><li><p style=\"min-height:1.5em\"><strong>Keep a low ego</strong> by staying humble and staying focused on the wider mission.</p></li></ul><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h2><em>Check out our </em><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://incident.io/careers/candidate-hub/early-careers#content\"><em>early careers candidate hub</em></a><em> for more info!</em></h2>",
         "descriptionPlain": "A LITTLE ABOUT US\n\nincident.io http://incident.io is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.\n\nThe stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.\n\nWe've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.\n\n\n\n\nTHIS IS A FULL-TIME, ONE YEAR PLACEMENT STARTING IN JUNE 2027 AND FINISHING IN JUNE 2028.\n\n\n\n\nTHE ROLE IN ONE LINE\n\nWhether you join as an intern or a grad, your first real code here doesn't sit in a sandbox- it ships to the teams keeping the internet online, even in week 1.\n\n \n\n\nWHAT THAT LOOKS LIKE DAY TO DAY\n\nYou'll sit inside one of our product teams from day one- same stand-ups, same code review, same production access as everyone else. You'll pick up real work alongside full-time engineers, and you'll own at least one meaningful project end to end: idea, build, ship, watch people use it.\n\nOur engineers know what it's like to be paged at 3am- the adrenaline, the scramble to pull the right people in, the frustration of piecing context together from a dozen scattered tools. Everything we build is aimed at killing that experience. Which means the stakes are real: thousands of companies are mid-incident when they open incident.io http://incident.io, so we care about polish as much as we care about speed.\n\nYou'll work in Go, TypeScript with React, and Postgres, deployed on Google Cloud using GKE and Cloud SQL. Infrastructure is Terraform, with BigQuery, PubSub and Cloud Storage in the mix. Sentry, Grafana + Prometheus and Kibana for monitoring, CircleCI for testing and deploys. You won't know all of that on day one, and nobody expects you to.\n\nOver the past year we've built some of the most ambitious AI-native features in our space- agents that investigate incidents, explain what's happening, and increasingly fix things themselves. Interns and grads work on this, not around it. We're all-in on AI internally too, and you'll have unlimited AI spend from your first week.\n\nWe'll be straight with you about the bar: we'll treat you like a full-time engineer. Full ownership, hard deadlines and shipping fast enough that you'll break things and learn from it. There's genuine support around you- senior engineers, proper mentorship, people invested in you doing well- but nobody's going to hold your hand through it.\n\n \n\n\nWHAT YOUR BACKGROUND LOOKS LIKE:\n\n - You're enrolled in a full-time Bachelors degree in Computer Science (or a related field)\n\n - Know any programming language such as: Go, C#, Python, Ruby on Rails or Javascript.\n\n \n\n\nWHAT YOU NEED TO BE SUCCESSFUL:\n\n - Have a bias for action and ownership and like to get things shipped, learn from mistakes, and take responsibility for your work.\n\n - Stay curious and don’t just accept things as they are, enjoying asking “why?” and “what if?”\n\n - Collaborate in person and get energy from being around others, bouncing around ideas, asking questions, and giving and receiving feedback.\n\n - Love building whether it’s features, tools, or ideas, and enjoy creating things and seeing them make an impact.\n\n - Enjoy fast-paced environments and feel comfortable with change and the energy that comes with moving quickly.\n\n - Keep a low ego by staying humble and staying focused on the wider mission.\n\n \n\n\nCHECK OUT OUR EARLY CAREERS CANDIDATE HUB https://incident.io/careers/candidate-hub/early-careers#content FOR MORE INFO!",
         "employmentType": "FullTime",
         "id": "2f692a4d-91b4-4d0f-ae39-b38b68a24a27",
@@ -506,7 +522,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London",
       "location_judgment": "uk_signal",
       "priority": "excluded",
@@ -554,7 +570,7 @@
           ]
         },
         "department": "Product Development",
-        "descriptionHtml": "<h1>A little about us</h1><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"http://incident.io\">incident.io</a> is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.</p><p style=\"min-height:1.5em\">The stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.</p><p style=\"min-height:1.5em\">We've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.</p><p style=\"min-height:1.5em\"></p><h3><em>This is a full-time, 6 month placement starting in March 2027 and finishing in September 2027.</em></h3><p style=\"min-height:1.5em\"></p><h1>The role in one line</h1><p style=\"min-height:1.5em\">Whether you join as an intern or a grad, your first real code here doesn't sit in a sandbox- it ships to the teams keeping the internet online, even in week 1.</p><div style=\"min-height:1.2em;margin-top:0px;margin-bottom:0px\"> </div><h1>What that looks like day to day</h1><p style=\"min-height:1.5em\">You'll sit inside one of our product teams from day one- same stand-ups, same code review, same production access as everyone else. You'll pick up real work alongside full-time engineers, and you'll own at least one meaningful project end to end: idea, build, ship, watch people use it.</p><p style=\"min-height:1.5em\">Our engineers know what it's like to be paged at 3am- the adrenaline, the scramble to pull the right people in, the frustration of piecing context together from a dozen scattered tools. Everything we build is aimed at killing that experience. Which means the stakes are real: thousands of companies are mid-incident when they open <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"http://incident.io\">incident.io</a>, so we care about polish as much as we care about speed.</p><p style=\"min-height:1.5em\">You'll work in Go, TypeScript with React, and Postgres, deployed on Google Cloud using GKE and Cloud SQL. Infrastructure is Terraform, with BigQuery, PubSub and Cloud Storage in the mix. Sentry, Grafana + Prometheus and Kibana for monitoring, CircleCI for testing and deploys. You won't know all of that on day one, and nobody expects you to.</p><p style=\"min-height:1.5em\">Over the past year we've built some of the most ambitious AI-native features in our space- agents that investigate incidents, explain what's happening, and increasingly fix things themselves. Interns and grads work on this, not around it. We're all-in on AI internally too, and you'll have <em>unlimited</em> AI spend from your first week.</p><p style=\"min-height:1.5em\">We'll be straight with you about the bar: we'll treat you like a full-time engineer. Full ownership, hard deadlines and shipping fast enough that you'll break things and learn from it. There's genuine support around you- senior engineers, proper mentorship, people invested in you doing well- but nobody's going to hold your hand through it.</p><div style=\"min-height:1.2em;margin-top:0px;margin-bottom:0px\"> </div><h1><strong>What your background looks like:</strong></h1><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>You're enrolled in a full-time Bachelors or Masters degree</strong> in Computer Science (or a related field)</p></li><li><p style=\"min-height:1.5em\"><strong>Know any programming language</strong> such as: Go, C#, Python, Ruby on Rails or Javascript.</p></li></ul><div style=\"min-height:1.2em;margin-top:0px;margin-bottom:0px\"> </div><h1><strong>What you need to be successful:</strong></h1><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>Have a bias for action and ownership</strong> and like to get things shipped, learn from mistakes, and take responsibility for your work.</p></li><li><p style=\"min-height:1.5em\"><strong>Stay curious</strong> and don’t just accept things as they are, enjoying asking “why?” and “what if?”</p></li><li><p style=\"min-height:1.5em\"><strong>Collaborate in person</strong> and get energy from being around others, bouncing around ideas, asking questions, and giving and receiving feedback.</p></li><li><p style=\"min-height:1.5em\"><strong>Love building</strong> whether it’s features, tools, or ideas, and enjoy creating things and seeing them make an impact.</p></li><li><p style=\"min-height:1.5em\"><strong>Enjoy fast-paced environments</strong> and feel comfortable with change and the energy that comes with moving quickly.</p></li><li><p style=\"min-height:1.5em\"><strong>Keep a low ego</strong> by staying humble and staying focused on the wider mission.</p></li></ul><div style=\"min-height:1.2em;margin-top:0px;margin-bottom:0px\"> </div><h2><em>Check out our </em><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://incident.io/careers/candidate-hub/early-careers#content\"><em>early careers candidate hub</em></a><em> for more info!</em></h2>",
+        "descriptionHtml": "<h1>A little about us</h1><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"http://incident.io\">incident.io</a> is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.</p><p style=\"min-height:1.5em\">The stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.</p><p style=\"min-height:1.5em\">We've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.</p><p style=\"min-height:1.5em\"></p><h3><em>This is a full-time, 6 month placement starting in March 2027 and finishing in September 2027.</em></h3><p style=\"min-height:1.5em\"></p><h1>The role in one line</h1><p style=\"min-height:1.5em\">Whether you join as an intern or a grad, your first real code here doesn't sit in a sandbox- it ships to the teams keeping the internet online, even in week 1.</p><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h1>What that looks like day to day</h1><p style=\"min-height:1.5em\">You'll sit inside one of our product teams from day one- same stand-ups, same code review, same production access as everyone else. You'll pick up real work alongside full-time engineers, and you'll own at least one meaningful project end to end: idea, build, ship, watch people use it.</p><p style=\"min-height:1.5em\">Our engineers know what it's like to be paged at 3am- the adrenaline, the scramble to pull the right people in, the frustration of piecing context together from a dozen scattered tools. Everything we build is aimed at killing that experience. Which means the stakes are real: thousands of companies are mid-incident when they open <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"http://incident.io\">incident.io</a>, so we care about polish as much as we care about speed.</p><p style=\"min-height:1.5em\">You'll work in Go, TypeScript with React, and Postgres, deployed on Google Cloud using GKE and Cloud SQL. Infrastructure is Terraform, with BigQuery, PubSub and Cloud Storage in the mix. Sentry, Grafana + Prometheus and Kibana for monitoring, CircleCI for testing and deploys. You won't know all of that on day one, and nobody expects you to.</p><p style=\"min-height:1.5em\">Over the past year we've built some of the most ambitious AI-native features in our space- agents that investigate incidents, explain what's happening, and increasingly fix things themselves. Interns and grads work on this, not around it. We're all-in on AI internally too, and you'll have <em>unlimited</em> AI spend from your first week.</p><p style=\"min-height:1.5em\">We'll be straight with you about the bar: we'll treat you like a full-time engineer. Full ownership, hard deadlines and shipping fast enough that you'll break things and learn from it. There's genuine support around you- senior engineers, proper mentorship, people invested in you doing well- but nobody's going to hold your hand through it.</p><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h1><strong>What your background looks like:</strong></h1><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>You're enrolled in a full-time Bachelors or Masters degree</strong> in Computer Science (or a related field)</p></li><li><p style=\"min-height:1.5em\"><strong>Know any programming language</strong> such as: Go, C#, Python, Ruby on Rails or Javascript.</p></li></ul><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h1><strong>What you need to be successful:</strong></h1><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>Have a bias for action and ownership</strong> and like to get things shipped, learn from mistakes, and take responsibility for your work.</p></li><li><p style=\"min-height:1.5em\"><strong>Stay curious</strong> and don’t just accept things as they are, enjoying asking “why?” and “what if?”</p></li><li><p style=\"min-height:1.5em\"><strong>Collaborate in person</strong> and get energy from being around others, bouncing around ideas, asking questions, and giving and receiving feedback.</p></li><li><p style=\"min-height:1.5em\"><strong>Love building</strong> whether it’s features, tools, or ideas, and enjoy creating things and seeing them make an impact.</p></li><li><p style=\"min-height:1.5em\"><strong>Enjoy fast-paced environments</strong> and feel comfortable with change and the energy that comes with moving quickly.</p></li><li><p style=\"min-height:1.5em\"><strong>Keep a low ego</strong> by staying humble and staying focused on the wider mission.</p></li></ul><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h2><em>Check out our </em><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://incident.io/careers/candidate-hub/early-careers#content\"><em>early careers candidate hub</em></a><em> for more info!</em></h2>",
         "descriptionPlain": "A LITTLE ABOUT US\n\nincident.io http://incident.io is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.\n\nThe stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.\n\nWe've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.\n\n\n\n\nTHIS IS A FULL-TIME, 6 MONTH PLACEMENT STARTING IN MARCH 2027 AND FINISHING IN SEPTEMBER 2027.\n\n\n\n\nTHE ROLE IN ONE LINE\n\nWhether you join as an intern or a grad, your first real code here doesn't sit in a sandbox- it ships to the teams keeping the internet online, even in week 1.\n\n \n\n\nWHAT THAT LOOKS LIKE DAY TO DAY\n\nYou'll sit inside one of our product teams from day one- same stand-ups, same code review, same production access as everyone else. You'll pick up real work alongside full-time engineers, and you'll own at least one meaningful project end to end: idea, build, ship, watch people use it.\n\nOur engineers know what it's like to be paged at 3am- the adrenaline, the scramble to pull the right people in, the frustration of piecing context together from a dozen scattered tools. Everything we build is aimed at killing that experience. Which means the stakes are real: thousands of companies are mid-incident when they open incident.io http://incident.io, so we care about polish as much as we care about speed.\n\nYou'll work in Go, TypeScript with React, and Postgres, deployed on Google Cloud using GKE and Cloud SQL. Infrastructure is Terraform, with BigQuery, PubSub and Cloud Storage in the mix. Sentry, Grafana + Prometheus and Kibana for monitoring, CircleCI for testing and deploys. You won't know all of that on day one, and nobody expects you to.\n\nOver the past year we've built some of the most ambitious AI-native features in our space- agents that investigate incidents, explain what's happening, and increasingly fix things themselves. Interns and grads work on this, not around it. We're all-in on AI internally too, and you'll have unlimited AI spend from your first week.\n\nWe'll be straight with you about the bar: we'll treat you like a full-time engineer. Full ownership, hard deadlines and shipping fast enough that you'll break things and learn from it. There's genuine support around you- senior engineers, proper mentorship, people invested in you doing well- but nobody's going to hold your hand through it.\n\n \n\n\nWHAT YOUR BACKGROUND LOOKS LIKE:\n\n - You're enrolled in a full-time Bachelors or Masters degree in Computer Science (or a related field)\n\n - Know any programming language such as: Go, C#, Python, Ruby on Rails or Javascript.\n\n \n\n\nWHAT YOU NEED TO BE SUCCESSFUL:\n\n - Have a bias for action and ownership and like to get things shipped, learn from mistakes, and take responsibility for your work.\n\n - Stay curious and don’t just accept things as they are, enjoying asking “why?” and “what if?”\n\n - Collaborate in person and get energy from being around others, bouncing around ideas, asking questions, and giving and receiving feedback.\n\n - Love building whether it’s features, tools, or ideas, and enjoy creating things and seeing them make an impact.\n\n - Enjoy fast-paced environments and feel comfortable with change and the energy that comes with moving quickly.\n\n - Keep a low ego by staying humble and staying focused on the wider mission.\n\n \n\n\nCHECK OUT OUR EARLY CAREERS CANDIDATE HUB https://incident.io/careers/candidate-hub/early-careers#content FOR MORE INFO!",
         "employmentType": "FullTime",
         "id": "470989ec-6ac5-4800-beb1-0ba1684ec1ee",
@@ -634,7 +650,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -762,7 +778,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -906,7 +922,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -1007,7 +1023,7 @@
       "external_id": "4537706101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "UK - Contractors",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -1112,7 +1128,7 @@
       "external_id": "4696780101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -1219,7 +1235,7 @@
       "external_id": "4718809101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -1326,7 +1342,7 @@
       "external_id": "4817244101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -1434,7 +1450,7 @@
       "external_id": "4854472101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -1541,7 +1557,7 @@
       "external_id": "4889141101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -1645,7 +1661,7 @@
       "country": "",
       "deadlines": [
         {
-          "observed_at": "2026-10-20T12:51:30Z",
+          "observed_at": "2026-10-21T13:04:34Z",
           "source_field": "description",
           "url": "https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908176101",
           "wording": "&lt;p&gt;&lt;strong&gt;&lt;span data-contrast=&quot;auto&quot;&gt;There is no deadline for this role, as we recruit on a rolling basis."
@@ -1655,7 +1671,7 @@
       "external_id": "4908176101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -1759,7 +1775,7 @@
       "country": "",
       "deadlines": [
         {
-          "observed_at": "2026-10-20T12:51:30Z",
+          "observed_at": "2026-10-21T13:04:34Z",
           "source_field": "description",
           "url": "https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908188101",
           "wording": "&lt;p&gt;&lt;strong&gt;There is no deadline for this role, as we recruit on a rolling basis."
@@ -1769,7 +1785,7 @@
       "external_id": "4908188101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -1873,7 +1889,7 @@
       "country": "",
       "deadlines": [
         {
-          "observed_at": "2026-10-20T12:51:30Z",
+          "observed_at": "2026-10-21T13:04:34Z",
           "source_field": "description",
           "url": "https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908202101",
           "wording": "&lt;p&gt;&lt;span data-contrast=&quot;auto&quot;&gt;&lt;strong&gt;There is no deadline for this role, as we recruit on a rolling basis."
@@ -1883,7 +1899,7 @@
       "external_id": "4908202101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -1990,7 +2006,7 @@
       "external_id": "4908205101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -2095,17 +2111,42 @@
       "country": "",
       "deadlines": [
         {
-          "observed_at": "2026-10-20T12:51:30Z",
+          "observed_at": "2026-10-21T13:04:34Z",
           "source_field": "description",
           "url": "https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908214101",
           "wording": "&lt;p class=&quot;isSelectedEnd&quot;&gt;There is no deadline for this role, as we recruit on a rolling basis."
         }
       ],
-      "description": "&lt;p&gt;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;Introduction&lt;/strong&gt;&lt;/h3&gt;\n&lt;p&gt;&lt;strong&gt;&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;&lt;span data-contrast=&quot;auto&quot;&gt;We are looking for bright graduates with a passion for software and a curiosity for how things work and how technology can help us solve problems.&lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt;  &lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;&lt;/strong&gt;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;You will join our embedded software team and contribute to the development of innovative technologies for healthcare devices.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Candidates can start between May–October 2027.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;There is no deadline for this role, as we recruit on a rolling basis. Once the position is filled, we will close the advert. We encourage you to &lt;strong&gt;apply as soon as possible&lt;/strong&gt;.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What we do&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Each project we undertake is different, and at the cutting edge of technology. This means we can&#39;t talk about much of our ongoing work, but here are some examples of completed projects that we are excited to share:&lt;/p&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;1&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/uk-government-ventilator-challenge&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;An emergency-use ventilator, developed in just over six weeks in response to the government’s Ventilator Challenge&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;2&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/press-releases/device-treating-gait-deficit-caused-multiple-sclerosis-receives-fda-marketing&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;A neurostimulation device allowing treatment to improve, or even restore, someone’s ability to walk&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;3&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/universal-autoinjector-platform&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;An autoinjector capable of delivering&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/universal-autoinjector-platform&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt; a wide range of drugs, while being intuitive to use and beautiful to look at&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What you&#39;ll be doing&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;From day one, you’ll be part of our multidisciplinary medical development team, tackling real technical problems while receiving guidance and training from experienced engineers. You’ll gain access to designing and developing embedded software to a high standard. You will be part of a team developing&lt;strong&gt; &lt;/strong&gt;technologies that can make a meaningful difference to people’s lives.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Within your role you&#39;ll likely:&amp;nbsp;&lt;/p&gt;\n&lt;ul data-spread=&quot;true&quot;&gt;\n&lt;li&gt;Design, develop, and test embedded software for complex medical systems used in diagnostic, surgical, implantable device, and drug-delivery applications.&lt;/li&gt;\n&lt;li&gt;Contribute to a wide range of projects that span the full software development lifecycle.&lt;/li&gt;\n&lt;li&gt;Collaborate with a multidisciplinary and supportive team, gaining exposure to systems involving electronics, optics, fluidics, robotics, and user-interface components.&lt;/li&gt;\n&lt;li&gt;Work with industry best practices such as continuous integration, automated testing and analysis, and model-based systems engineering.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What You Can Bring&lt;/strong&gt;&lt;/h3&gt;\n&lt;p&gt;&lt;strong&gt;&lt;/strong&gt;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;Application requirements&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;To apply for this role you must:&lt;/p&gt;\n&lt;ul data-spread=&quot;false&quot;&gt;\n&lt;li&gt;Be currently completing or have recent completed a degree in a relevant field such as Engineering, Computer Science, Mathematics, or Physics.&lt;/li&gt;\n&lt;li&gt;Have experience programming in C.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;&lt;/strong&gt;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;The most important technical skill for this role is &lt;strong&gt;programming in C&lt;/strong&gt;.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;The following skills and experience are advantageous:&lt;/p&gt;\n&lt;ul data-spread=&quot;false&quot;&gt;\n&lt;li&gt;Experience with other languages such as Rust, Python or C++&lt;/li&gt;\n&lt;li&gt;Working in a team using version control (ideally Git) and peer code reviews&lt;/li&gt;\n&lt;li&gt;Contributing to open-source software&lt;/li&gt;\n&lt;li&gt;Unit testing or other verification techniques&lt;/li&gt;\n&lt;li&gt;Experience developing embedded software&lt;/li&gt;\n&lt;li&gt;Knowledge of electronics and controlling peripherals using interfaces such as UART/I2C/SPI&lt;/li&gt;\n&lt;li&gt;Signal processing and/or control theory&lt;/li&gt;\n&lt;li&gt;Data science and/or AI&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Knowledge of biology or medical subjects is not a requirement, though you should be enthusiastic about applying your technical skills to this field of application.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Your CV should include all your A Level (or equivalent) subjects and grades, where applicable, as well as university modules, coursework, projects or other experience that demonstrates your relevant skills.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;A covering statement is welcome but is not required.&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;&lt;/p&gt;&lt;div class=&quot;content-conclusion&quot;&gt;&lt;hr&gt;\n&lt;p style=&quot;text-align: center;&quot;&gt;&lt;strong&gt;By submitting an application to Cambridge Consultants, you confirm that the information provided in this application, together with any supporting documentation, is true, complete, and accurate to the best of your knowledge and belief. You understand that any false statement, misleading information, or material omission may render you liable to disqualification from the recruitment process, withdrawal of any offer of employment, or dismissal without notice if discovered following appointment. You acknowledge that the organisation reserves the right to verify the information supplied.&lt;/strong&gt;&lt;br&gt;&lt;/p&gt;\n&lt;hr&gt;\n&lt;p style=&quot;text-align: center;&quot;&gt;&amp;nbsp;&lt;/p&gt;&lt;/div&gt;",
+      "description": "&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;Introduction&lt;/strong&gt;&lt;/h3&gt;\n&lt;p&gt;&lt;span data-contrast=&quot;auto&quot;&gt;We are looking for bright graduates with a passion for software and a curiosity for how things work and how technology can help us solve problems.&lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt;  &lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;You will join our embedded software team and contribute to the development of innovative technologies for healthcare devices.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Candidates can start between May–October 2027.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;There is no deadline for this role, as we recruit on a rolling basis. Once the position is filled, we will close the advert. We encourage you to &lt;strong&gt;apply as soon as possible&lt;/strong&gt;.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What we do&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Each project we undertake is different, and at the cutting edge of technology. This means we can&#39;t talk about much of our ongoing work, but here are some examples of completed projects that we are excited to share:&lt;/p&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;1&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/uk-government-ventilator-challenge&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;An emergency-use ventilator, developed in just over six weeks in response to the government’s Ventilator Challenge&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;2&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/press-releases/device-treating-gait-deficit-caused-multiple-sclerosis-receives-fda-marketing&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;A neurostimulation device allowing treatment to improve, or even restore, someone’s ability to walk&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;3&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/universal-autoinjector-platform&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;An autoinjector capable of delivering&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/universal-autoinjector-platform&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt; a wide range of drugs, while being intuitive to use and beautiful to look at&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What you&#39;ll be doing&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;From day one, you’ll be part of our multidisciplinary medical development team, tackling real technical problems while receiving guidance and training from experienced engineers. You’ll gain access to designing and developing embedded software to a high standard. You will be part of a team developing&lt;strong&gt; &lt;/strong&gt;technologies that can make a meaningful difference to people’s lives.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Within your role you&#39;ll likely:&amp;nbsp;&lt;/p&gt;\n&lt;ul data-spread=&quot;true&quot;&gt;\n&lt;li&gt;Design, develop, and test embedded software for complex medical systems used in diagnostic, surgical, implantable device, and drug-delivery applications.&lt;/li&gt;\n&lt;li&gt;Contribute to a wide range of projects that span the full software development lifecycle.&lt;/li&gt;\n&lt;li&gt;Collaborate with a multidisciplinary and supportive team, gaining exposure to systems involving electronics, optics, fluidics, robotics, and user-interface components.&lt;/li&gt;\n&lt;li&gt;Work with industry best practices such as continuous integration, automated testing and analysis, and model-based systems engineering.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What You Can Bring&lt;/strong&gt;&lt;/h3&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;Application requirements&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;To apply for this role you must:&lt;/p&gt;\n&lt;ul data-spread=&quot;false&quot;&gt;\n&lt;li&gt;Be currently completing or have recent completed a degree in a relevant field such as Engineering, Computer Science, Mathematics, or Physics.&lt;/li&gt;\n&lt;li&gt;Have experience programming in C.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;The most important technical skill for this role is &lt;strong&gt;programming in C&lt;/strong&gt;.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;The following skills and experience are advantageous:&lt;/p&gt;\n&lt;ul data-spread=&quot;false&quot;&gt;\n&lt;li&gt;Experience with other languages such as Rust, Python or C++&lt;/li&gt;\n&lt;li&gt;Working in a team using version control (ideally Git) and peer code reviews&lt;/li&gt;\n&lt;li&gt;Contributing to open-source software&lt;/li&gt;\n&lt;li&gt;Unit testing or other verification techniques&lt;/li&gt;\n&lt;li&gt;Experience developing embedded software&lt;/li&gt;\n&lt;li&gt;Knowledge of electronics and controlling peripherals using interfaces such as UART/I2C/SPI&lt;/li&gt;\n&lt;li&gt;Signal processing and/or control theory&lt;/li&gt;\n&lt;li&gt;Data science and/or AI&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Knowledge of biology or medical subjects is not a requirement, though you should be enthusiastic about applying your technical skills to this field of application.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Your CV should include all your A Level (or equivalent) subjects and grades, where applicable, as well as university modules, coursework, projects or other experience that demonstrates your relevant skills.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;A covering statement is welcome but is not required.&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;&lt;div class=&quot;content-conclusion&quot;&gt;&lt;hr&gt;\n&lt;p style=&quot;text-align: center;&quot;&gt;&lt;strong&gt;By submitting an application to Cambridge Consultants, you confirm that the information provided in this application, together with any supporting documentation, is true, complete, and accurate to the best of your knowledge and belief. You understand that any false statement, misleading information, or material omission may render you liable to disqualification from the recruitment process, withdrawal of any offer of employment, or dismissal without notice if discovered following appointment. You acknowledge that the organisation reserves the right to verify the information supplied.&lt;/strong&gt;&lt;br&gt;&lt;/p&gt;\n&lt;hr&gt;\n&lt;p style=&quot;text-align: center;&quot;&gt;&amp;nbsp;&lt;/p&gt;&lt;/div&gt;",
       "external_id": "4908214101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "history": [
+        {
+          "at": "2026-10-21T13:04:34Z",
+          "changes": {
+            "description": {
+              "after": "&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;Introduction&lt;/strong&gt;&lt;/h3&gt;\n&lt;p&gt;&lt;span data-contrast=&quot;auto&quot;&gt;We are looking for bright graduates with a passion for software and a curiosity for how things work and how technology can help us solve problems.&lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt;  &lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;You will join our embedded software team and contribute to the development of innovative technologies for healthcare devices.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Candidates can start between May–October 2027.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;There is no deadline for this role, as we recruit on a rolling basis. Once the position is filled, we will close the advert. We encourage you to &lt;strong&gt;apply as soon as possible&lt;/strong&gt;.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What we do&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Each project we undertake is different, and at the cutting edge of technology. This means we can&#39;t talk about much of our ongoing work, but here are some examples of completed projects that we are excited to share:&lt;/p&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;1&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/uk-government-ventilator-challenge&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;An emergency-use ventilator, developed in just over six weeks in response to the government’s Ventilator Challenge&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;2&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/press-releases/device-treating-gait-deficit-caused-multiple-sclerosis-receives-fda-marketing&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;A neurostimulation device allowing treatment to improve, or even restore, someone’s ability to walk&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;3&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/universal-autoinjector-platform&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;An autoinjector capable of delivering&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/universal-autoinjector-platform&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt; a wide range of drugs, while being intuitive to use and beautiful to look at&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What you&#39;ll be doing&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;From day one, you’ll be part of our multidisciplinary medical development team, tackling real technical problems while receiving guidance and training from experienced engineers. You’ll gain access to designing and developing embedded software to a high standard. You will be part of a team developing&lt;strong&gt; &lt;/strong&gt;technologies that can make a meaningful difference to people’s lives.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Within your role you&#39;ll likely:&amp;nbsp;&lt;/p&gt;\n&lt;ul data-spread=&quot;true&quot;&gt;\n&lt;li&gt;Design, develop, and test embedded software for complex medical systems used in diagnostic, surgical, implantable device, and drug-delivery applications.&lt;/li&gt;\n&lt;li&gt;Contribute to a wide range of projects that span the full software development lifecycle.&lt;/li&gt;\n&lt;li&gt;Collaborate with a multidisciplinary and supportive team, gaining exposure to systems involving electronics, optics, fluidics, robotics, and user-interface components.&lt;/li&gt;\n&lt;li&gt;Work with industry best practices such as continuous integration, automated testing and analysis, and model-based systems engineering.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What You Can Bring&lt;/strong&gt;&lt;/h3&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;Application requirements&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;To apply for this role you must:&lt;/p&gt;\n&lt;ul data-spread=&quot;false&quot;&gt;\n&lt;li&gt;Be currently completing or have recent completed a degree in a relevant field such as Engineering, Computer Science, Mathematics, or Physics.&lt;/li&gt;\n&lt;li&gt;Have experience programming in C.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;The most important technical skill for this role is &lt;strong&gt;programming in C&lt;/strong&gt;.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;The following skills and experience are advantageous:&lt;/p&gt;\n&lt;ul data-spread=&quot;false&quot;&gt;\n&lt;li&gt;Experience with other languages such as Rust, Python or C++&lt;/li&gt;\n&lt;li&gt;Working in a team using version control (ideally Git) and peer code reviews&lt;/li&gt;\n&lt;li&gt;Contributing to open-source software&lt;/li&gt;\n&lt;li&gt;Unit testing or other verification techniques&lt;/li&gt;\n&lt;li&gt;Experience developing embedded software&lt;/li&gt;\n&lt;li&gt;Knowledge of electronics and controlling peripherals using interfaces such as UART/I2C/SPI&lt;/li&gt;\n&lt;li&gt;Signal processing and/or control theory&lt;/li&gt;\n&lt;li&gt;Data science and/or AI&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Knowledge of biology or medical subjects is not a requirement, though you should be enthusiastic about applying your technical skills to this field of application.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Your CV should include all your A Level (or equivalent) subjects and grades, where applicable, as well as university modules, coursework, projects or other experience that demonstrates your relevant skills.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;A covering statement is welcome but is not required.&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;&lt;div class=&quot;content-conclusion&quot;&gt;&lt;hr&gt;\n&lt;p style=&quot;text-align: center;&quot;&gt;&lt;strong&gt;By submitting an application to Cambridge Consultants, you confirm that the information provided in this application, together with any supporting documentation, is true, complete, and accurate to the best of your knowledge and belief. You understand that any false statement, misleading information, or material omission may render you liable to disqualification from the recruitment process, withdrawal of any offer of employment, or dismissal without notice if discovered following appointment. You acknowledge that the organisation reserves the right to verify the information supplied.&lt;/strong&gt;&lt;br&gt;&lt;/p&gt;\n&lt;hr&gt;\n&lt;p style=&quot;text-align: center;&quot;&gt;&amp;nbsp;&lt;/p&gt;&lt;/div&gt;",
+              "before": "&lt;p&gt;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;Introduction&lt;/strong&gt;&lt;/h3&gt;\n&lt;p&gt;&lt;strong&gt;&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;&lt;span data-contrast=&quot;auto&quot;&gt;We are looking for bright graduates with a passion for software and a curiosity for how things work and how technology can help us solve problems.&lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt;  &lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;&lt;/strong&gt;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;You will join our embedded software team and contribute to the development of innovative technologies for healthcare devices.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Candidates can start between May–October 2027.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;There is no deadline for this role, as we recruit on a rolling basis. Once the position is filled, we will close the advert. We encourage you to &lt;strong&gt;apply as soon as possible&lt;/strong&gt;.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What we do&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Each project we undertake is different, and at the cutting edge of technology. This means we can&#39;t talk about much of our ongoing work, but here are some examples of completed projects that we are excited to share:&lt;/p&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;1&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/uk-government-ventilator-challenge&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;An emergency-use ventilator, developed in just over six weeks in response to the government’s Ventilator Challenge&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;2&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/press-releases/device-treating-gait-deficit-caused-multiple-sclerosis-receives-fda-marketing&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;A neurostimulation device allowing treatment to improve, or even restore, someone’s ability to walk&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;3&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/universal-autoinjector-platform&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;An autoinjector capable of delivering&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/universal-autoinjector-platform&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt; a wide range of drugs, while being intuitive to use and beautiful to look at&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What you&#39;ll be doing&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;From day one, you’ll be part of our multidisciplinary medical development team, tackling real technical problems while receiving guidance and training from experienced engineers. You’ll gain access to designing and developing embedded software to a high standard. You will be part of a team developing&lt;strong&gt; &lt;/strong&gt;technologies that can make a meaningful difference to people’s lives.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Within your role you&#39;ll likely:&amp;nbsp;&lt;/p&gt;\n&lt;ul data-spread=&quot;true&quot;&gt;\n&lt;li&gt;Design, develop, and test embedded software for complex medical systems used in diagnostic, surgical, implantable device, and drug-delivery applications.&lt;/li&gt;\n&lt;li&gt;Contribute to a wide range of projects that span the full software development lifecycle.&lt;/li&gt;\n&lt;li&gt;Collaborate with a multidisciplinary and supportive team, gaining exposure to systems involving electronics, optics, fluidics, robotics, and user-interface components.&lt;/li&gt;\n&lt;li&gt;Work with industry best practices such as continuous integration, automated testing and analysis, and model-based systems engineering.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What You Can Bring&lt;/strong&gt;&lt;/h3&gt;\n&lt;p&gt;&lt;strong&gt;&lt;/strong&gt;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;Application requirements&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;To apply for this role you must:&lt;/p&gt;\n&lt;ul data-spread=&quot;false&quot;&gt;\n&lt;li&gt;Be currently completing or have recent completed a degree in a relevant field such as Engineering, Computer Science, Mathematics, or Physics.&lt;/li&gt;\n&lt;li&gt;Have experience programming in C.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;&lt;/strong&gt;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;The most important technical skill for this role is &lt;strong&gt;programming in C&lt;/strong&gt;.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;The following skills and experience are advantageous:&lt;/p&gt;\n&lt;ul data-spread=&quot;false&quot;&gt;\n&lt;li&gt;Experience with other languages such as Rust, Python or C++&lt;/li&gt;\n&lt;li&gt;Working in a team using version control (ideally Git) and peer code reviews&lt;/li&gt;\n&lt;li&gt;Contributing to open-source software&lt;/li&gt;\n&lt;li&gt;Unit testing or other verification techniques&lt;/li&gt;\n&lt;li&gt;Experience developing embedded software&lt;/li&gt;\n&lt;li&gt;Knowledge of electronics and controlling peripherals using interfaces such as UART/I2C/SPI&lt;/li&gt;\n&lt;li&gt;Signal processing and/or control theory&lt;/li&gt;\n&lt;li&gt;Data science and/or AI&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Knowledge of biology or medical subjects is not a requirement, though you should be enthusiastic about applying your technical skills to this field of application.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Your CV should include all your A Level (or equivalent) subjects and grades, where applicable, as well as university modules, coursework, projects or other experience that demonstrates your relevant skills.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;A covering statement is welcome but is not required.&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;&lt;/p&gt;&lt;div class=&quot;content-conclusion&quot;&gt;&lt;hr&gt;\n&lt;p style=&quot;text-align: center;&quot;&gt;&lt;strong&gt;By submitting an application to Cambridge Consultants, you confirm that the information provided in this application, together with any supporting documentation, is true, complete, and accurate to the best of your knowledge and belief. You understand that any false statement, misleading information, or material omission may render you liable to disqualification from the recruitment process, withdrawal of any offer of employment, or dismissal without notice if discovered following appointment. You acknowledge that the organisation reserves the right to verify the information supplied.&lt;/strong&gt;&lt;br&gt;&lt;/p&gt;\n&lt;hr&gt;\n&lt;p style=&quot;text-align: center;&quot;&gt;&amp;nbsp;&lt;/p&gt;&lt;/div&gt;"
+            },
+            "source_dates": {
+              "after": {
+                "first_published": "2026-10-14T09:02:34-04:00",
+                "updated_at": "2026-10-21T08:14:35-04:00"
+              },
+              "before": {
+                "first_published": "2026-10-14T09:02:34-04:00",
+                "updated_at": "2026-10-14T09:02:34-04:00"
+              }
+            }
+          },
+          "company": "Cambridge Consultants",
+          "key": "greenhouse:cambridgeconsultantslimited:4908214101",
+          "title": "2027 Graduate Software Engineer - Healthcare (2027 start)",
+          "type": "changed"
+        }
+      ],
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -2117,7 +2158,7 @@
         "ai_opt_out_request_url": "http://s101.recruiting.eu.greenhouse.io/ai_opt_out_request/job_post/4908214101/ai_opt_out",
         "application_deadline": null,
         "company_name": "Cambridge Consultants",
-        "content": "&lt;p&gt;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;Introduction&lt;/strong&gt;&lt;/h3&gt;\n&lt;p&gt;&lt;strong&gt;&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;&lt;span data-contrast=&quot;auto&quot;&gt;We are looking for bright graduates with a passion for software and a curiosity for how things work and how technology can help us solve problems.&lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt;  &lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;&lt;/strong&gt;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;You will join our embedded software team and contribute to the development of innovative technologies for healthcare devices.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Candidates can start between May–October 2027.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;There is no deadline for this role, as we recruit on a rolling basis. Once the position is filled, we will close the advert. We encourage you to &lt;strong&gt;apply as soon as possible&lt;/strong&gt;.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What we do&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Each project we undertake is different, and at the cutting edge of technology. This means we can&#39;t talk about much of our ongoing work, but here are some examples of completed projects that we are excited to share:&lt;/p&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;1&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/uk-government-ventilator-challenge&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;An emergency-use ventilator, developed in just over six weeks in response to the government’s Ventilator Challenge&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;2&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/press-releases/device-treating-gait-deficit-caused-multiple-sclerosis-receives-fda-marketing&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;A neurostimulation device allowing treatment to improve, or even restore, someone’s ability to walk&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;3&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/universal-autoinjector-platform&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;An autoinjector capable of delivering&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/universal-autoinjector-platform&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt; a wide range of drugs, while being intuitive to use and beautiful to look at&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What you&#39;ll be doing&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;From day one, you’ll be part of our multidisciplinary medical development team, tackling real technical problems while receiving guidance and training from experienced engineers. You’ll gain access to designing and developing embedded software to a high standard. You will be part of a team developing&lt;strong&gt; &lt;/strong&gt;technologies that can make a meaningful difference to people’s lives.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Within your role you&#39;ll likely:&amp;nbsp;&lt;/p&gt;\n&lt;ul data-spread=&quot;true&quot;&gt;\n&lt;li&gt;Design, develop, and test embedded software for complex medical systems used in diagnostic, surgical, implantable device, and drug-delivery applications.&lt;/li&gt;\n&lt;li&gt;Contribute to a wide range of projects that span the full software development lifecycle.&lt;/li&gt;\n&lt;li&gt;Collaborate with a multidisciplinary and supportive team, gaining exposure to systems involving electronics, optics, fluidics, robotics, and user-interface components.&lt;/li&gt;\n&lt;li&gt;Work with industry best practices such as continuous integration, automated testing and analysis, and model-based systems engineering.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What You Can Bring&lt;/strong&gt;&lt;/h3&gt;\n&lt;p&gt;&lt;strong&gt;&lt;/strong&gt;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;Application requirements&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;To apply for this role you must:&lt;/p&gt;\n&lt;ul data-spread=&quot;false&quot;&gt;\n&lt;li&gt;Be currently completing or have recent completed a degree in a relevant field such as Engineering, Computer Science, Mathematics, or Physics.&lt;/li&gt;\n&lt;li&gt;Have experience programming in C.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;&lt;/strong&gt;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;The most important technical skill for this role is &lt;strong&gt;programming in C&lt;/strong&gt;.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;The following skills and experience are advantageous:&lt;/p&gt;\n&lt;ul data-spread=&quot;false&quot;&gt;\n&lt;li&gt;Experience with other languages such as Rust, Python or C++&lt;/li&gt;\n&lt;li&gt;Working in a team using version control (ideally Git) and peer code reviews&lt;/li&gt;\n&lt;li&gt;Contributing to open-source software&lt;/li&gt;\n&lt;li&gt;Unit testing or other verification techniques&lt;/li&gt;\n&lt;li&gt;Experience developing embedded software&lt;/li&gt;\n&lt;li&gt;Knowledge of electronics and controlling peripherals using interfaces such as UART/I2C/SPI&lt;/li&gt;\n&lt;li&gt;Signal processing and/or control theory&lt;/li&gt;\n&lt;li&gt;Data science and/or AI&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Knowledge of biology or medical subjects is not a requirement, though you should be enthusiastic about applying your technical skills to this field of application.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Your CV should include all your A Level (or equivalent) subjects and grades, where applicable, as well as university modules, coursework, projects or other experience that demonstrates your relevant skills.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;A covering statement is welcome but is not required.&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;&lt;/p&gt;&lt;div class=&quot;content-conclusion&quot;&gt;&lt;hr&gt;\n&lt;p style=&quot;text-align: center;&quot;&gt;&lt;strong&gt;By submitting an application to Cambridge Consultants, you confirm that the information provided in this application, together with any supporting documentation, is true, complete, and accurate to the best of your knowledge and belief. You understand that any false statement, misleading information, or material omission may render you liable to disqualification from the recruitment process, withdrawal of any offer of employment, or dismissal without notice if discovered following appointment. You acknowledge that the organisation reserves the right to verify the information supplied.&lt;/strong&gt;&lt;br&gt;&lt;/p&gt;\n&lt;hr&gt;\n&lt;p style=&quot;text-align: center;&quot;&gt;&amp;nbsp;&lt;/p&gt;&lt;/div&gt;",
+        "content": "&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;Introduction&lt;/strong&gt;&lt;/h3&gt;\n&lt;p&gt;&lt;span data-contrast=&quot;auto&quot;&gt;We are looking for bright graduates with a passion for software and a curiosity for how things work and how technology can help us solve problems.&lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt;  &lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;You will join our embedded software team and contribute to the development of innovative technologies for healthcare devices.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Candidates can start between May–October 2027.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;There is no deadline for this role, as we recruit on a rolling basis. Once the position is filled, we will close the advert. We encourage you to &lt;strong&gt;apply as soon as possible&lt;/strong&gt;.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What we do&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Each project we undertake is different, and at the cutting edge of technology. This means we can&#39;t talk about much of our ongoing work, but here are some examples of completed projects that we are excited to share:&lt;/p&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;1&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/uk-government-ventilator-challenge&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;An emergency-use ventilator, developed in just over six weeks in response to the government’s Ventilator Challenge&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;2&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/press-releases/device-treating-gait-deficit-caused-multiple-sclerosis-receives-fda-marketing&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;A neurostimulation device allowing treatment to improve, or even restore, someone’s ability to walk&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li data-leveltext=&quot;&quot; data-font=&quot;Symbol&quot; data-listid=&quot;3&quot; data-list-defn-props=&quot;{&amp;quot;335552541&amp;quot;:1,&amp;quot;335559685&amp;quot;:720,&amp;quot;335559991&amp;quot;:360,&amp;quot;469769226&amp;quot;:&amp;quot;Symbol&amp;quot;,&amp;quot;469769242&amp;quot;:[8226],&amp;quot;469777803&amp;quot;:&amp;quot;left&amp;quot;,&amp;quot;469777804&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;469777815&amp;quot;:&amp;quot;multilevel&amp;quot;}&quot; data-aria-posinset=&quot;1&quot; data-aria-level=&quot;1&quot;&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/universal-autoinjector-platform&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt;An autoinjector capable of delivering&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;a href=&quot;https://www.cambridgeconsultants.com/case-studies/universal-autoinjector-platform&quot;&gt;&lt;span data-contrast=&quot;none&quot;&gt;&lt;span data-ccp-charstyle=&quot;Hyperlink&quot;&gt; a wide range of drugs, while being intuitive to use and beautiful to look at&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-contrast=&quot;auto&quot;&gt; &lt;/span&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What you&#39;ll be doing&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;From day one, you’ll be part of our multidisciplinary medical development team, tackling real technical problems while receiving guidance and training from experienced engineers. You’ll gain access to designing and developing embedded software to a high standard. You will be part of a team developing&lt;strong&gt; &lt;/strong&gt;technologies that can make a meaningful difference to people’s lives.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Within your role you&#39;ll likely:&amp;nbsp;&lt;/p&gt;\n&lt;ul data-spread=&quot;true&quot;&gt;\n&lt;li&gt;Design, develop, and test embedded software for complex medical systems used in diagnostic, surgical, implantable device, and drug-delivery applications.&lt;/li&gt;\n&lt;li&gt;Contribute to a wide range of projects that span the full software development lifecycle.&lt;/li&gt;\n&lt;li&gt;Collaborate with a multidisciplinary and supportive team, gaining exposure to systems involving electronics, optics, fluidics, robotics, and user-interface components.&lt;/li&gt;\n&lt;li&gt;Work with industry best practices such as continuous integration, automated testing and analysis, and model-based systems engineering.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;What You Can Bring&lt;/strong&gt;&lt;/h3&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h3&gt;&lt;strong&gt;Application requirements&lt;/strong&gt;&lt;/h3&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;To apply for this role you must:&lt;/p&gt;\n&lt;ul data-spread=&quot;false&quot;&gt;\n&lt;li&gt;Be currently completing or have recent completed a degree in a relevant field such as Engineering, Computer Science, Mathematics, or Physics.&lt;/li&gt;\n&lt;li&gt;Have experience programming in C.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;The most important technical skill for this role is &lt;strong&gt;programming in C&lt;/strong&gt;.&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;The following skills and experience are advantageous:&lt;/p&gt;\n&lt;ul data-spread=&quot;false&quot;&gt;\n&lt;li&gt;Experience with other languages such as Rust, Python or C++&lt;/li&gt;\n&lt;li&gt;Working in a team using version control (ideally Git) and peer code reviews&lt;/li&gt;\n&lt;li&gt;Contributing to open-source software&lt;/li&gt;\n&lt;li&gt;Unit testing or other verification techniques&lt;/li&gt;\n&lt;li&gt;Experience developing embedded software&lt;/li&gt;\n&lt;li&gt;Knowledge of electronics and controlling peripherals using interfaces such as UART/I2C/SPI&lt;/li&gt;\n&lt;li&gt;Signal processing and/or control theory&lt;/li&gt;\n&lt;li&gt;Data science and/or AI&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Knowledge of biology or medical subjects is not a requirement, though you should be enthusiastic about applying your technical skills to this field of application.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p class=&quot;isSelectedEnd&quot;&gt;Your CV should include all your A Level (or equivalent) subjects and grades, where applicable, as well as university modules, coursework, projects or other experience that demonstrates your relevant skills.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;A covering statement is welcome but is not required.&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;&lt;div class=&quot;content-conclusion&quot;&gt;&lt;hr&gt;\n&lt;p style=&quot;text-align: center;&quot;&gt;&lt;strong&gt;By submitting an application to Cambridge Consultants, you confirm that the information provided in this application, together with any supporting documentation, is true, complete, and accurate to the best of your knowledge and belief. You understand that any false statement, misleading information, or material omission may render you liable to disqualification from the recruitment process, withdrawal of any offer of employment, or dismissal without notice if discovered following appointment. You acknowledge that the organisation reserves the right to verify the information supplied.&lt;/strong&gt;&lt;br&gt;&lt;/p&gt;\n&lt;hr&gt;\n&lt;p style=&quot;text-align: center;&quot;&gt;&amp;nbsp;&lt;/p&gt;&lt;/div&gt;",
         "data_compliance": [
           {
             "demographic_data_consent_applies": true,
@@ -2170,7 +2211,7 @@
           {
             "id": 4721141101,
             "name": "Job Summary",
-            "value": "tbc",
+            "value": "We are looking for bright graduates with a passion for software and a curiosity for how things work and how technology can help us solve problems.    \n\nYou will join our embedded software team and contribute to the development of innovative technologies for healthcare devices.",
             "value_type": "long_text"
           }
         ],
@@ -2187,14 +2228,14 @@
         ],
         "requisition_id": "2085",
         "title": "2027 Graduate Software Engineer - Healthcare (2027 start)",
-        "updated_at": "2026-10-14T09:02:34-04:00"
+        "updated_at": "2026-10-21T08:14:35-04:00"
       },
       "reason": "role family: software; UK source signal; location arrangements require review; early-career title signal; graduation eligibility, start date and application status unverified",
       "role_family": "software",
       "salary": "",
       "source_dates": {
         "first_published": "2026-10-14T09:02:34-04:00",
-        "updated_at": "2026-10-14T09:02:34-04:00"
+        "updated_at": "2026-10-21T08:14:35-04:00"
       },
       "title": "2027 Graduate Software Engineer - Healthcare (2027 start)",
       "url": "https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908214101"
@@ -2209,7 +2250,7 @@
       "country": "",
       "deadlines": [
         {
-          "observed_at": "2026-10-20T12:51:30Z",
+          "observed_at": "2026-10-21T13:04:34Z",
           "source_field": "description",
           "url": "https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4908225101",
           "wording": "&lt;p&gt;&lt;span data-ccp-props=&quot;{}&quot;&gt;&lt;span class=&quot;TextRun SCXW97298115 BCX8&quot; lang=&quot;EN-GB&quot; data-contrast=&quot;auto&quot;&gt;&lt;span class=&quot;NormalTextRun SCXW97298115 BCX8&quot;&gt;There is no deadline for this role, as we recruit on a rolling basis."
@@ -2219,7 +2260,7 @@
       "external_id": "4908225101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "United Kingdom, Asia",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -2336,7 +2377,7 @@
       "external_id": "4937034101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -2443,7 +2484,7 @@
       "external_id": "4941908101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -2547,7 +2588,7 @@
       "country": "",
       "deadlines": [
         {
-          "observed_at": "2026-10-20T12:51:30Z",
+          "observed_at": "2026-10-21T13:04:34Z",
           "source_field": "description",
           "url": "https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4971959101",
           "wording": "&lt;p&gt;&lt;strong&gt;&lt;span data-contrast=&quot;auto&quot;&gt;There is no deadline for this role, as we recruit on a rolling basis."
@@ -2557,7 +2598,7 @@
       "external_id": "4971959101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -2666,7 +2707,7 @@
       "external_id": "4981284101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -2783,7 +2824,7 @@
       "external_id": "4982334101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -2891,7 +2932,7 @@
       "external_id": "4983437101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -2995,7 +3036,7 @@
       "country": "",
       "deadlines": [
         {
-          "observed_at": "2026-10-20T12:51:30Z",
+          "observed_at": "2026-10-21T13:04:34Z",
           "source_field": "description",
           "url": "https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/4995814101",
           "wording": "&lt;p&gt;&lt;span data-contrast=&quot;auto&quot;&gt;&lt;strong&gt;There is no deadline for this role, as we recruit on a rolling basis."
@@ -3005,7 +3046,7 @@
       "external_id": "4995814101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -3106,7 +3147,7 @@
       "country": "",
       "deadlines": [
         {
-          "observed_at": "2026-10-20T12:51:30Z",
+          "observed_at": "2026-10-21T13:04:34Z",
           "source_field": "description",
           "url": "https://job-boards.greenhouse.io/monzo/jobs/6635595",
           "wording": "&lt;p&gt;&lt;em&gt;We&#39;re usually always hiring for Backend Engineers, so there&#39;s no closing date for this job.&lt;/em&gt;&lt;/p&gt;"
@@ -3170,7 +3211,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "Cardiff, London or Remote (UK)",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -3246,7 +3287,7 @@
       "external_id": "6758449",
       "feed_status": "listed",
       "first_seen": "2026-10-17T16:46:41Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "Barcelona",
       "location_judgment": "unknown",
       "priority": "review",
@@ -3322,7 +3363,7 @@
       "external_id": "8645263002",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London, London - Sloane Street",
       "location_judgment": "unknown",
       "priority": "review",
@@ -3406,7 +3447,7 @@
       "external_id": "8646947002",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London, New York, London - Sloane Street",
       "location_judgment": "unknown",
       "priority": "review",
@@ -3489,7 +3530,7 @@
       "external_id": "4784641101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "Cambridge, UK, Cambridge",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -3562,7 +3603,7 @@
       "country": "",
       "deadlines": [
         {
-          "observed_at": "2026-10-20T12:51:30Z",
+          "observed_at": "2026-10-21T13:04:34Z",
           "source_field": "description",
           "url": "https://job-boards.eu.greenhouse.io/riverlane/jobs/5000685101",
           "wording": "&lt;p data-pm-slice=&quot;1 1 []&quot;&gt;&lt;strong&gt;Application Deadline &amp;amp; Selection Process&lt;/strong&gt;&lt;/p&gt;"
@@ -3572,7 +3613,7 @@
       "external_id": "5000685101",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "Cambridge, UK, Cambridge",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -3650,7 +3691,7 @@
       "external_id": "0f7d1e01-1f74-4786-944d-910208d390fa",
       "feed_status": "listed",
       "first_seen": "2026-10-20T12:51:30Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -3760,7 +3801,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -3917,7 +3958,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -4027,7 +4068,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -4141,7 +4182,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -4251,7 +4292,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -4357,7 +4398,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -4467,7 +4508,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -4577,7 +4618,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -4646,7 +4687,7 @@
       "external_id": "98bbe55b-f591-4272-a486-d82404d2c576",
       "feed_status": "listed",
       "first_seen": "2026-10-17T16:46:41Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -4756,7 +4797,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -4913,7 +4954,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -5023,7 +5064,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -5137,7 +5178,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -5247,7 +5288,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "priority",
@@ -5357,7 +5398,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -5471,7 +5512,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -5581,7 +5622,7 @@
           "type": "changed"
         }
       ],
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "London, United Kingdom",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -5646,7 +5687,7 @@
       "external_id": "14e64e83-723f-4e77-bdc4-cf6e49f8207d",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "Bristol",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -5711,7 +5752,7 @@
       "external_id": "242f4b6c-f74c-4b66-bb36-6c3ccff5b9fc",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "Newcastle",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -5776,7 +5817,7 @@
       "external_id": "3226a865-fba6-4e9b-b113-74e277cb9a5c",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "Leeds",
       "location_judgment": "uk_signal",
       "priority": "review",
@@ -5841,7 +5882,7 @@
       "external_id": "46628ab4-a3ec-45e7-98a4-921cdd57a3ca",
       "feed_status": "listed",
       "first_seen": "2026-10-18T12:08:45Z",
-      "last_seen": "2026-10-20T12:51:30Z",
+      "last_seen": "2026-10-21T13:04:34Z",
       "location": "Bristol",
       "location_judgment": "uk_signal",
       "priority": "review",
