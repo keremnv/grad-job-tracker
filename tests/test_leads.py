@@ -33,15 +33,19 @@ def load(data):
 
 
 class LeadRegistryTests(unittest.TestCase):
-    def test_real_registry_validates_and_separates_previous_cycles(self):
-        data = load_leads(Path('data/leads.json'))
+    def test_registry_separates_previous_cycles_and_flags_near_deadlines(self):
+        # Synthetic registry; the live data/leads.json is checked by `jobwatch validate-data`.
+        data = load({'schema': 1,
+                     'vacancies': [vacancy(deadline={'wording': 'Apply by 29 October 2026', 'value': '2026-10-29'})],
+                     'programmes': [programme(), programme(company='Next', cycle='2027', state='open_2027',
+                                                           url='https://example.org/2027', wording='Our 2027 programme is open.')]})
         out = render_leads(data, NOW)
         current, previous = out.split('## Previous-cycle programmes')
         for row in data['programmes']:
             if row['state'] == 'previous_cycle':
                 self.assertNotIn(row['url'], current.split('## Programmes stating a 2027 intake')[1])
         self.assertIn('2026', previous)
-        self.assertIn('within 14 calendar days', out)  # incident.io, 29 October 2026
+        self.assertIn('within 14 calendar days', out)
         self.assertIn('never** evidence of a 2027 intake', out)
 
     def test_2027_intake_must_be_quoted_not_inferred(self):
@@ -81,27 +85,16 @@ class LeadRegistryTests(unittest.TestCase):
         self.assertIn("not verified as the employer's own source", out)
         self.assertIn('without a quoted 2027 intake', out)
 
-    def test_role_sample_is_sourced_and_spans_families(self):
-        from collections import Counter
-        from jobwatch.config import timestamp
-        from jobwatch.feeds import public_url
-        data = json.loads(Path('data/role_sample.json').read_text())
-        checks = json.loads(Path('data/verifications.json').read_text())['postings']
-        rows = data['postings']
-        self.assertGreaterEqual(len(rows), 12)
-        self.assertEqual(len({r['id'] for r in rows}), len(rows))
-        families = Counter(r['family'] for r in rows)
-        self.assertEqual(set(families), set(data['families']))
-        self.assertTrue(all(n >= 3 for n in families.values()))
-        self.assertGreaterEqual(len({r['company'] for r in rows}), 8)
-        for r in rows:
-            with self.subTest(id=r['id']):
-                self.assertTrue(public_url(r['url'])); timestamp(r['checked_at'])
-                self.assertIs(type(r['official']), bool)
-                for field in ('mandatory', 'preferred', 'unclear'):
-                    self.assertIsInstance(r[field], list)
-                if r['posting_key']:  # description hash recorded at the same check
-                    self.assertEqual(checks[r['posting_key']]['description_url'], r['url'])
+    def test_role_sample_checker_flags_inconsistent_records(self):
+        from jobwatch.datacheck import role_sample_problems
+        good = {'families': ['software'], 'postings': [{'id': 'S1', 'family': 'software', 'url': 'https://example.org/a',
+                'checked_at': '2026-10-17T00:00:00Z', 'official': True, 'posting_key': 'lever:x:1'}]}
+        checks = {'lever:x:1': {'description_url': 'https://example.org/a'}}
+        self.assertEqual(role_sample_problems(good, checks), [])
+        bad = copy.deepcopy(good); bad['postings'].append({**bad['postings'][0], 'family': 'ml', 'url': 'http://x', 'official': 'yes'})
+        problems = role_sample_problems(bad, {})
+        self.assertTrue(any('duplicate' in p for p in problems)); self.assertTrue(any('family' in p for p in problems))
+        self.assertTrue(any('HTTPS' in p for p in problems)); self.assertTrue(any('disagrees' in p for p in problems))
 
     def test_cli_writes_report_and_protects_registry(self):
         with TemporaryDirectory() as d:

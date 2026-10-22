@@ -15,6 +15,7 @@ from . import evaluation
 from . import verifications as ver
 from .applications import read_applications
 from .config import load_config
+from .datacheck import validate_data
 from .contract import ERROR_CODES, WARNING_CODES, JobwatchError, dumps, envelope, error_from, warning
 from .filtering import CODES, RULES_VERSION
 from .render import text
@@ -106,6 +107,10 @@ def configure(commands):
     p.add_argument('--text', action='store_true', help='Also search retained source text (scores only; text not returned)')
     p.add_argument('--include-excluded', action='store_true')
     p.add_argument('--limit', type=int, default=20)
+    p = commands.add_parser('validate-data', help='Validate current operational data files')
+    _common(p)
+    p.add_argument('--leads', default='data/leads.json')
+    p.add_argument('--role-sample', default='data/role_sample.json')
     p = commands.add_parser('eval', help='Offline screening diagnostics')
     sub = p.add_subparsers(dest='eval_command', required=True)
     s = sub.add_parser('run'); _common(s)
@@ -145,7 +150,7 @@ def configure(commands):
             s.add_argument('--wording', required=True); s.add_argument('--value')
 
 
-HANDLED = {'capabilities', 'queue', 'recent', 'show', 'excluded', 'changes', 'health', 'rescreen', 'triage', 'verify', 'search', 'eval'}
+HANDLED = {'capabilities', 'queue', 'recent', 'show', 'excluded', 'changes', 'health', 'rescreen', 'triage', 'verify', 'search', 'eval', 'validate-data'}
 
 
 def context(ns, now, need_config=False) -> opp.Context:
@@ -166,17 +171,20 @@ def run(ns) -> int:
     now = ns.as_of or utcnow()
     name = _name(ns)
     try:
-        data, notes = dispatch(ns, now)
-        result = envelope(name, now, data, notes)
+        out = dispatch(ns, now)
+        if len(out) == 3:  # partial report with its own errors (validate-data)
+            result = envelope(name, now, *out, partial=True)
+        else:
+            result = envelope(name, now, *out)
     except Exception as exc:  # noqa: BLE001 - mapped to stable codes, re-raised if unknown
         result = envelope(name, now, errors=[error_from(exc)])
     if ns.json:
         print(dumps(result))
-    elif result['ok']:
+    elif result['ok'] or result['data'] is not None:
         print(render(name, result['data']), end='')
         for w in result['warnings']:
             print(f"WARNING [{w['code']}]: {text(w['message'])}", file=sys.stderr)
-    else:
+    if not ns.json:
         for e in result['errors']:
             print(f"ERROR [{e['code']}]: {text(e['message'])}", file=sys.stderr)
     return 0 if result['ok'] else 2
@@ -203,6 +211,9 @@ def dispatch(ns, now):
         return evaluate(ns, now)
     if ns.command == 'search':
         return search(ns, now)
+    if ns.command == 'validate-data':
+        return validate_data({'config': ns.config, 'state': ns.state, 'verifications': ns.verifications, 'leads': ns.leads,
+                              'applications': ns.applications, 'triage': ns.triage_file, 'role_sample': ns.role_sample}, now)
     if ns.command == 'verify':
         return verify(ns, now)
     ctx = context(ns, now, need_config=ns.command == 'health')
@@ -343,7 +354,7 @@ def render(name, data) -> str:
     fn = {'queue': _render_items, 'recent': _render_items, 'excluded': _render_excluded, 'changes': _render_changes,
           'health': _render_health, 'show': _render_show, 'rescreen': _render_rescreen,
           'capabilities': _render_capabilities, 'triage list': _render_triage_list, 'eval run': _render_eval,
-          'search': _render_search}.get(name)
+          'search': _render_search, 'validate-data': _render_validate}.get(name)
     if fn:
         return fn(data)
     return '\n'.join(f'{k}: {text(v)}' for k, v in data.items()) + '\n'
@@ -444,4 +455,12 @@ def _render_eval(data):
         b = m['bm25_baseline']
         lines.append('BM25 baseline precision@k: ' + '; '.join(f"@{x['k']}={x['precision']}" for x in b['precision_at_k'])
                      + f"; relevant with zero score: {b['relevant_with_zero_score']}")
+    return '\n'.join(lines) + '\n'
+
+
+def _render_validate(data):
+    lines = [f"Operational data: {data['errors']} error(s), {data['warnings']} warning(s)."]
+    for name, info in data['files'].items():
+        extra = ', '.join(f'{k}={v}' for k, v in info.items() if k not in ('path', 'status'))
+        lines.append(f"- {name}: {info['status']} ({info['path']})" + (f"; {extra}" if extra else ''))
     return '\n'.join(lines) + '\n'

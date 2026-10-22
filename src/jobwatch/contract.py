@@ -39,6 +39,10 @@ WARNING_CODES = {
     'source_text_unavailable': 'Source text was not retained for at least one record.',
     'results_truncated': 'More results exist than were returned; raise --limit.',
     'application_exists': 'An application ledger row already exists for this opportunity.',
+    'undocumented_watchlist_entry': 'Watchlist entries lack verification_notes.',
+    'migration_pending': 'State is schema 1 on disk; the next scan migrates it and starts complete indexing.',
+    'stale_description_check': 'A description check no longer matches the indexed text; recheck before using it.',
+    'calendar_evidence_problem': 'Deadline evidence was omitted from calendar export (conflict, provenance or format).',
 }
 
 
@@ -55,9 +59,10 @@ def warning(code: str, message: str | None = None, **detail) -> dict:
     return {'code': code, 'message': message or WARNING_CODES[code], **detail}
 
 
-def envelope(command: str, now: str, data=None, warnings=(), errors=()) -> dict:
+def envelope(command: str, now: str, data=None, warnings=(), errors=(), partial=False) -> dict:
+    """`data` is null when there are errors, unless the command reports a partial result."""
     return {'schema': ENVELOPE, 'command': command, 'ok': not errors, 'generated_at': now,
-            'data': data if not errors else None, 'warnings': list(warnings), 'errors': list(errors)}
+            'data': data if not errors or partial else None, 'warnings': list(warnings), 'errors': list(errors)}
 
 
 def error_from(exc: Exception) -> dict:

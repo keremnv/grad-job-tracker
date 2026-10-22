@@ -142,18 +142,6 @@ class CalendarEvidenceTests(unittest.TestCase):
         events, warnings = cal.deadline_events(state(), verification(d), {})
         self.assertFalse(events); self.assertTrue(warnings)
 
-    def test_current_incident_riverlane_once_each_and_cambridge_rolling_omitted(self):
-        source_state = json.loads((ROOT/'data/jobs.json').read_text())
-        verified = json.loads((ROOT/'data/verifications.json').read_text())['postings']
-        leads = json.loads((ROOT/'data/leads.json').read_text())
-        events, warnings = cal.deadline_events(source_state, verified, leads)
-        self.assertFalse(warnings)
-        selected = [e for e in events if 'incident.io' in e['summary'] or 'Riverlane' in e['summary']]
-        self.assertEqual(len(selected), 2)
-        self.assertEqual({e['date'][2] for e in selected}, {'date:2026-10-29', 'date:2026-11-06'})
-        self.assertFalse(any('Cambridge Consultants' in e['summary'] for e in events))
-        self.assertEqual(len({e['uid'] for e in events}), len(events))
-
     def test_exact_url_reconciles_lead_with_orphan_verification_id(self):
         events, warnings = cal.deadline_events({'postings': {}}, verification(),
                     {'vacancies': [lead(url='https://JOBS.LEVER.CO:443/example/one')]})

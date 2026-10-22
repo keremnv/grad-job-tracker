@@ -246,7 +246,7 @@ def main(argv: list[str] | None = None) -> int:
         if ns.command in {"weekly", "requirements"}:
             now = utcnow()
             rendered = weekly(state, read_applications(Path(ns.applications)), verifications, now,
-                              load_leads(Path(ns.leads))) if ns.command == "weekly" else requirements(state, verifications, now)
+                              load_leads(Path(ns.leads)) if Path(ns.leads).exists() else None) if ns.command == "weekly" else requirements(state, verifications, now)
             dest = Path(ns.output or (".local-reports/weekly.md" if ns.command == "weekly" else "reports/requirements.md"))
             protected = {Path(p).resolve() for p in (ns.config, ns.state, ns.applications, ns.verifications, ns.leads)}
             if dest.resolve() in protected:
