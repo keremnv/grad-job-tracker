@@ -239,7 +239,7 @@ class ApplicationTests(unittest.TestCase):
         verification = self.root / 'verifications.json'; verification.write_text('{"schema":1,"postings":{}}')
         leads = self.root / 'leads.json'; leads.write_text('OWNER LEADS')
         state_path = self.root / 'jobs.json'; output = self.root / 'latest.md'
-        def collect(_):
+        def collect(_, **__):
             app.update(self.path, 'manual:one', {'stage': 'interview'})
             return [Posting('Example', 'lever', 'example', 'one', 'Graduate Software Engineer', 'UK', 'https://example.org/jobs/one')]
         with patch('jobwatch.cli.collect_board', side_effect=collect), contextlib.redirect_stdout(io.StringIO()) as out, contextlib.redirect_stderr(io.StringIO()) as err:

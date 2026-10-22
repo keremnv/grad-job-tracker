@@ -5,6 +5,7 @@ import unittest
 from unittest.mock import patch
 from jobwatch.cli import scan
 from jobwatch.feeds import Posting
+from jobwatch.state import load_state
 
 
 class CLITests(unittest.TestCase):
@@ -17,7 +18,7 @@ class CLITests(unittest.TestCase):
             config.write_text(json.dumps({'employers': [
                 {'company': 'Good', 'provider': 'lever', 'board': 'good', 'enabled': True, 'careers_url': 'https://example.org/careers', 'validation_url': 'https://example.org/careers', 'mapping_verified_at': '2026-10-17T00:00:00Z'},
                 {'company': 'Broken', 'provider': 'lever', 'board': 'broken', 'enabled': True, 'careers_url': 'https://example.org/careers', 'validation_url': 'https://example.org/careers', 'mapping_verified_at': '2026-10-17T00:00:00Z'}]}))
-            def fake(entry):
+            def fake(entry, **_):
                 if entry['board'] == 'broken':
                     raise ValueError('bad response')
                 return [Posting('Good', 'lever', 'good', 'a', 'Software Engineer New Grad',
@@ -42,8 +43,9 @@ class CLITests(unittest.TestCase):
                 code = scan(config, state, report)
             self.assertEqual(code, 2)
             self.assertIn('bad response', report.read_text())
-            saved = json.loads(state.read_text())
+            saved = load_state(state)
             self.assertEqual(saved['postings'], {})
+            # Board health lives beside the index so unchanged scans do not rewrite jobs.json.
             self.assertEqual(saved['boards']['lever:broken']['status'], 'failed')
 
 

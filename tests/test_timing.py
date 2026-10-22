@@ -31,7 +31,7 @@ class TimingTests(unittest.TestCase):
         s,_=merge(s,{'greenhouse:x':[p('2026-10-31')]},NOW)
         s,events=merge(s,{'greenhouse:x':[p('2026-10-31')]},'2026-10-18T12:00:00Z');self.assertEqual(events,[])
         s,events=merge(s,{'greenhouse:x':[p('2026-11-01','Changed conditions')]},'2026-10-19T12:00:00Z')
-        self.assertIn('deadlines',events[0]['changes']);self.assertIn('description',events[0]['changes'])
+        self.assertIn('deadlines',events[0]['changes']);self.assertIn('description_sha256',events[0]['changes'])
         self.assertEqual(s['postings']['greenhouse:x:1']['first_seen'],NOW)
 
     def test_stale_report_as_of_does_not_refresh_scan_time(self):

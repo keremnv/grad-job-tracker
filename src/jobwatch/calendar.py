@@ -14,6 +14,7 @@ from .applications import iso_date, read_applications
 from .config import timestamp
 from .feeds import public_url
 from .identity import POSTING_KEY, exact_url
+from .filtering import verdict_of
 from .state import load_state, utcnow
 
 POSTING_ID = POSTING_KEY
@@ -151,6 +152,10 @@ def deadline_events(state, verifications, leads):
         return values
 
     for key, row in sorted(postings.items()):
+        # The index records excluded postings too; their feed dates are not owner deadlines
+        # unless the posting was independently checked.
+        if verdict_of(row) == 'excluded' and key not in verifications:
+            continue
         expected = f"{row.get('provider')}:{str(row.get('board', '')).lower()}:{row.get('external_id')}"
         for d in checked_deadlines(row):
             # Only a structured official API date is sufficient feed provenance.

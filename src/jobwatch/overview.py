@@ -7,7 +7,8 @@ import re
 from .applications import STAGES, read_applications, url_identity
 from .feeds import public_url
 from .config import timestamp
-from .filtering import plain, rank, role_family
+from .filtering import plain, rank, role_family, verdict_of
+from .state import description_of, description_sha, last_seen
 from .render import text, link
 from .timing import deadline_window, stale
 
@@ -33,7 +34,7 @@ def _verified_deadlines(state, verifications, leads, now, applications):
                  if r.get('url') and r['stage'] not in {'bookmarked', 'preparing'}}
     for key, row in state['postings'].items():
         verification = verifications.get(key, {})
-        if row['priority'] == 'excluded' or verification.get('status') == 'closed_verified':
+        if verdict_of(row) == 'excluded' or verification.get('status') == 'closed_verified':
             continue
         # Raw feed dates are observations, not independent verification.
         for deadline in verification.get('deadlines', []):
@@ -75,8 +76,9 @@ def weekly(state, applications, verifications, now, leads=None):
     current = timestamp(now); since = current - timedelta(days=7)
     today = current.astimezone(ZoneInfo('Europe/London')).date()
     horizon = today + timedelta(days=7)
-    candidates = [r for r in state['postings'].values() if r['priority'] != 'excluded']
-    recent = [r for r in candidates if since <= timestamp(r['first_seen']) <= current]
+    candidates = [r for r in state['postings'].values() if verdict_of(r) != 'excluded']
+    # Backfilled records were listed before complete recording began; their first listing is unknown.
+    recent = [r for r in candidates if r.get('first_seen_basis') != 'index_backfill' and since <= timestamp(r['first_seen']) <= current]
     lines = ['# Weekly job review (private local output)', '',
              f'As of {text(now)}; previous seven days. Last feed scan: {text(state.get("last_scan", {}).get("at", "unknown"))}.',
              'Owner action dates use Europe/London calendar days. Source deadlines retain their stated dates/timezones.',
@@ -118,7 +120,7 @@ def weekly(state, applications, verifications, now, leads=None):
     if other:
         lines += ['', 'Other owner actions (later or date unknown):', ''] + [action(r) for r in other]
     lines += ['', f'## New relevant vacancies — first observed within seven days ({len(recent)})', '']
-    lines += [f"- {text(r['priority'])} · {text(r['company'])} — {link(r['title'], r['url'])}; feed: {text(r['feed_status'])}; first observed {text(r['first_seen'])}." for r in sorted(recent, key=rank)]
+    lines += [f"- {text(verdict_of(r))} · {text(r['company'])} — {link(r['title'], r['url'])}; feed: {text(r['feed_status'])}; first observed {text(r['first_seen'])}." for r in sorted(recent, key=rank)]
     if not recent:
         lines.append('None recorded on configured feeds in this window.')
     lines += ['', '## Stale feeds and collection failures', '']
@@ -126,7 +128,7 @@ def weekly(state, applications, verifications, now, leads=None):
     for key, health in sorted(state.get('boards', {}).items()):
         warning = '; STALE/unknown (>3 days)' if stale(health.get('last_success'), now) else ''
         if warning or health.get('status') == 'failed':
-            problems.append(f"- {text(key)}: {text(health['status'])}; last success {text(health.get('last_success', 'unknown'))}{warning}; {text(health.get('error', ''))}.")
+            problems.append(f"- {text(key)}: {text(health.get('status', 'unknown'))}; last success {text(health.get('last_success', 'unknown'))}{warning}; {text(health.get('error', ''))}.")
     problems += [f"- Last scan failure: {text(failure)}" for failure in state.get('last_scan', {}).get('failures', [])]
     lines += problems or ['No stale/failed boards recorded.' if state.get('boards') else 'No board-health history recorded; collection health unknown.']
     lines += ['', 'Private owner notes and CV versions are not reproduced. This report stays local and is never included in the scheduled Actions summary.', '']
@@ -136,24 +138,25 @@ def weekly(state, applications, verifications, now, leads=None):
 def requirements(state, verifications, now):
     groups=defaultdict(list); omitted=0
     for key,row in state['postings'].items():
-        if row['priority']=='excluded' or row['feed_status']!='listed':continue
+        if verdict_of(row)=='excluded' or row['feed_status']!='listed':continue
         evidence=verifications.get(key,{})
-        description=row.get('description','')
-        if not evidence.get('description_verified_at') or evidence.get('description_sha256')!=description_hash(description):
+        description=description_of(state,row)
+        if description is None or not evidence.get('description_verified_at') or evidence.get('description_sha256')!=description_sha(row):
             omitted+=1;continue
         timestamp(evidence['description_verified_at'])
-        groups[row.get('role_family') or role_family(row['title'])].append((key,row,evidence))
+        groups[(row.get('screening') or {}).get('family') or row.get('role_family') or role_family(row['title'])].append((key,row,description))
     total=sum(len(rows) for rows in groups.values())
     lines=['# Attributed requirement mentions', '', f'Generated {text(now)}. Independently checked description samples: {total}; candidates omitted without matching verification: {omitted}.',
            '', 'Counts are per posting, grouped by title-derived role family. A mention can describe the stack, a preference or a requirement; it is not proof that every applicant needs it. Reposts are retained separately and may bias counts. This sample does not establish how many CV variants are useful.', '']
     for family,rows in sorted(groups.items()):
         lines += [f'## {text(family)} — {len(rows)} checked descriptions','']
         for skill,pattern in SKILLS.items():
-            matches=[(key,row,evidence) for key,row,evidence in rows if pattern.search(plain(row['description']))]
+            matches=[(key,row) for key,row,description in rows if pattern.search(plain(description))]
             if not matches:continue
             lines.append(f'- **{text(skill)}**: {len(matches)}/{len(rows)} postings.')
-            for key,row,evidence in matches:
-                lines.append(f"  {text(key)}: {link(row['title'],evidence['description_url'])}; checked {text(evidence['description_verified_at'])}; feed observation {text(row['last_seen'])}.")
+            for key,row in matches:
+                evidence=verifications[key]
+                lines.append(f"  {text(key)}: {link(row['title'],evidence['description_url'])}; checked {text(evidence['description_verified_at'])}; feed observation {text(last_seen(row,state.get('boards')) or 'unknown')}.")
     if not groups:lines.append('No independently verified matching descriptions yet; no skill-demand inference made.')
     lines += ['', 'This is a small convenience sample from configured boards, not UK hiring-market evidence. Expand checked descriptions across SWE, platform and ML/AI before deciding on CV variants. No applicant project claims or CV wording are generated.','']
     return '\n'.join(lines)

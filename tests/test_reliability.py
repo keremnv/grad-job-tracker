@@ -159,9 +159,12 @@ class ReliabilityStateTests(unittest.TestCase):
         s, events = merge(s, {'greenhouse:monzo': [senior]}, '2026-10-18T00:00:00Z')
         row = s['postings'][posting().key]
         self.assertEqual(row['feed_status'], 'listed')
-        self.assertEqual(row['priority'], 'excluded')
+        self.assertEqual(row['screening']['verdict'], 'excluded')
         self.assertEqual(events[0]['changes']['title']['before'], posting().title)
-        self.assertEqual(len(row['history']), 1)
+        self.assertEqual(len(row['source_events']), 1)
+        # The judgment change is a separate screening event, not part of the source edit.
+        self.assertNotIn('priority', events[0]['changes'])
+        self.assertEqual([e['type'] for e in events], ['changed', 'rescreened'])
 
     def test_manual_fields_and_verification_preserved(self):
         s, _ = merge({'schema': 1, 'postings': {}}, {'greenhouse:monzo': [posting()]}, '2026-10-17T00:00:00Z')
@@ -193,7 +196,7 @@ class ReliabilityStateTests(unittest.TestCase):
             d = Path(d); state=d/'jobs.json'; config=d/'config.json'; output=d/'report.md'; ledger=d/'applications.csv'
             config.write_text(json.dumps({'employers': [dict(ENTRIES['greenhouse'], enabled=True, careers_url='https://monzo.com/careers', validation_url='https://monzo.com/careers', mapping_verified_at='2026-10-17T00:00:00Z')]}))
             state.write_text('{"schema":1,"postings":{}}'); ledger.write_bytes(b'manual,private\r\n')
-            def get(entry):
+            def get(entry, **_):
                 state.write_text('OWNER EDIT')
                 return [posting()]
             with patch('jobwatch.cli.collect_board', side_effect=get): self.assertEqual(scan(config,state,output),2)
@@ -211,9 +214,10 @@ class ReliabilityStateTests(unittest.TestCase):
             d=Path(d); state=d/'jobs.json'; config=d/'config.json'; output=d/'report.md'
             config.write_text(json.dumps({'employers': [dict(ENTRIES['greenhouse'], enabled=True, careers_url='https://monzo.com/careers', validation_url='https://monzo.com/careers', mapping_verified_at='2026-10-17T00:00:00Z')]}))
             with patch('jobwatch.cli.collect_board', return_value=[posting()]): self.assertEqual(scan(config,state,output),0)
-            before=json.loads(state.read_text())
+            before=load_state(state); before_bytes=state.read_bytes()
             with patch('jobwatch.cli.collect_board', side_effect=TimeoutError('timeout')): self.assertEqual(scan(config,state,output),2)
-            after=json.loads(state.read_text()); self.assertEqual(before['postings'], after['postings'])
+            after=load_state(state); self.assertEqual(before['postings'], after['postings'])
+            self.assertEqual(before_bytes, state.read_bytes())
             self.assertEqual(before['boards']['greenhouse:monzo']['last_success'], after['boards']['greenhouse:monzo']['last_success'])
             self.assertIn('board failed', output.read_text())
 

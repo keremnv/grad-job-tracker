@@ -41,7 +41,13 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add data/jobs.json reports/latest.md
+          # Index, health and content-addressed source text (deletions included).
+          git add -A -- data/jobs.json reports/latest.md
+          for path in data/jobs-health.json data/jobs-text; do
+            if [[ -e "$path" ]] || git ls-files --error-unmatch -- "$path" >/dev/null 2>&1; then
+              git add -A -- "$path"
+            fi
+          done
           if ! git diff --cached --quiet; then
             git commit -m 'data: refresh observed job postings'
             # A concurrent owner push is rejected; never force, reset or auto-merge.

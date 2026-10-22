@@ -1,7 +1,7 @@
 import unittest
 from jobwatch.feeds import Posting
 from jobwatch.filtering import classify
-from jobwatch.state import merge
+from jobwatch.state import last_seen, merge
 
 
 def post(identifier='a', title='Product Engineer Graduate', location='London', country='GB'):
@@ -47,7 +47,7 @@ class StateTests(unittest.TestCase):
         state, events = merge(state, {}, '2026-10-18T00:00:00Z')
         self.assertEqual(events, [])
         self.assertEqual(state['postings']['ashby:incident:a']['feed_status'], 'listed')
-        self.assertEqual(state['postings']['ashby:incident:a']['last_seen'], '2026-10-17T00:00:00Z')
+        self.assertEqual(last_seen(state['postings']['ashby:incident:a'], state['boards']), '2026-10-17T00:00:00Z')
 
     def test_title_change_reported(self):
         state, _ = merge(self.state, {self.board: [post()]}, '2026-10-17T00:00:00Z')

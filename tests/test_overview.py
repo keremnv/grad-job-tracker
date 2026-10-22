@@ -8,7 +8,7 @@ from unittest.mock import patch
 from jobwatch.cli import main, load_verifications, scan
 from jobwatch.overview import weekly, requirements, description_hash, read_applications
 from jobwatch.feeds import Posting
-from jobwatch.state import merge
+from jobwatch.state import description_of, merge
 from jobwatch.applications import COLUMNS
 
 NOW='2026-10-17T12:00:00Z'
@@ -32,7 +32,7 @@ class OverviewTests(unittest.TestCase):
     def test_only_checked_matching_description_hash_can_supply_skill_counts(self):
         s=state();key='lever:example:one';row=s['postings'][key]
         self.assertIn('samples: 0',requirements(s,{},NOW))
-        evidence={key:{'description_verified_at':NOW,'description_sha256':description_hash(row['description']),'description_url':row['url']}}
+        evidence={key:{'description_verified_at':NOW,'description_sha256':description_hash(description_of(s,row)),'description_url':row['url']}}
         out=requirements(s,evidence,NOW)
         self.assertIn('samples: 1',out);self.assertIn('**Python**: 1/1',out);self.assertIn(row['url'],out)
         row['description']='Changed description says Python'
@@ -41,13 +41,13 @@ class OverviewTests(unittest.TestCase):
     def test_skill_mentions_do_not_count_english_go_and_include_cpp(self):
         s=state();key='lever:example:one';row=s['postings'][key]
         row['description']='We go the extra mile. Experience with C++ and/or Python in Linux; TypeScript, PyTorch, Git and LLMs.'
-        evidence={key:{'description_verified_at':NOW,'description_sha256':description_hash(row['description']),'description_url':row['url']}}
+        evidence={key:{'description_verified_at':NOW,'description_sha256':description_hash(description_of(s,row)),'description_url':row['url']}}
         out=requirements(s,evidence,NOW)
         self.assertNotIn('**Go**',out)
         for skill in ('C++','Python','Linux','TypeScript','PyTorch','Git','LLMs'):
             self.assertIn(f'**{skill}**: 1/1',out)
         row['description']='You will work in Go, TypeScript with React, and Postgres.'
-        evidence[key]['description_sha256']=description_hash(row['description'])
+        evidence[key]['description_sha256']=description_hash(description_of(s,row))
         self.assertIn('**Go**: 1/1',requirements(s,evidence,NOW))
 
     def test_manual_only_rows_and_ledger_bytes_preserved(self):
