@@ -218,15 +218,22 @@ def screen(inputs: dict) -> dict:
     exclusions = list(dict.fromkeys(exclusions))
     if exclusions:
         verdict = 'excluded'
-        shown = exclusions
     else:
         uncertain = any(c in UNCERTAIN for c in codes)
         verdict = 'priority' if family in CORE_FAMILIES and early_title and not uncertain else 'review'
-        shown = codes
-    explanation = '; '.join([f'role family: {family}'] + [CODES[c] for c in shown if c in CODES])
-    return {'verdict': verdict, 'family': family, 'codes': exclusions + codes, 'explanation': explanation,
-            'rules_version': RULES_VERSION, 'basis': 'title_metadata_only' if description is None else 'full',
-            'input_sha256': input_fingerprint(inputs)}
+    result = {'verdict': verdict, 'family': family, 'codes': exclusions + codes, 'rules_version': RULES_VERSION,
+              'basis': 'title_metadata_only' if description is None else 'full', 'input_sha256': input_fingerprint(inputs)}
+    return {**result, 'explanation': explanation_of(result)}
+
+
+def explanation_of(screening: dict | None) -> str:
+    """Readable explanation derived from stored codes (legacy records keep their stored text)."""
+    screening = screening or {}
+    if screening.get('explanation') and not screening.get('codes'):
+        return screening['explanation']
+    codes = screening.get('codes', [])
+    shown = [c for c in codes if c.startswith('exclude.')] if screening.get('verdict') == 'excluded' else codes
+    return '; '.join([f"role family: {screening.get('family', 'other')}"] + [CODES[c] for c in shown if c in CODES])
 
 
 def classify(p: Posting) -> tuple[str, str]:

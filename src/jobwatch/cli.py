@@ -14,7 +14,7 @@ from .applications import read_applications, configure_parser, run_cli
 from . import calendar
 from . import commands as agent_commands
 from .leads import load_leads, render_leads
-from .filtering import RULES_VERSION, rank, plain, verdict_of
+from .filtering import RULES_VERSION, explanation_of, rank, plain, verdict_of
 from .render import text, link
 from .timing import deadline_window, stale
 from .verifications import load_verifications
@@ -22,7 +22,7 @@ from .state import atomic_write, health_path, last_seen, load_state, merge, save
 
 
 def _explanation(row):
-    return (row.get("screening") or {}).get("explanation") or row.get("reason", "")
+    return explanation_of(row["screening"]) if row.get("screening") else row.get("reason", "")
 
 
 def _fields(event):

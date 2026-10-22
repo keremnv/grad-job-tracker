@@ -20,7 +20,7 @@ from zoneinfo import ZoneInfo
 
 from .config import timestamp
 from .contract import JobwatchError, warning
-from .filtering import EARLY, RULES_VERSION, plain, verdict_of
+from .filtering import EARLY, RULES_VERSION, explanation_of, plain, verdict_of
 from .identity import link_application
 from .state import description_of, last_seen
 from .timing import deadline_window, stale
@@ -118,8 +118,8 @@ def view(ctx: Context, key: str, include_text=False) -> tuple[dict, list]:
                         'first_seen_basis': row.get('first_seen_basis', 'observed'),
                         'last_seen': last_seen(row, ctx.state.get('boards')), 'missing_since': row.get('missing_since'),
                         'board': _board(ctx, row)},
-        'judgment': {k: screening.get(k) for k in ('verdict', 'family', 'codes', 'explanation', 'rules_version', 'basis', 'screened_at')}
-                    | {'current_rules': screening.get('rules_version') == RULES_VERSION},
+        'judgment': {k: screening.get(k) for k in ('verdict', 'family', 'codes', 'rules_version', 'basis', 'screened_at')}
+                    | {'explanation': explanation_of(screening), 'current_rules': screening.get('rules_version') == RULES_VERSION},
         'verification': ({k: verification.get(k) for k in ('status', 'url', 'verified_at', 'method', 'verified_by')
                           if k in verification} if verification else {'status': 'unknown'}) | {'deadlines': checked},
         'owner': {'action_state': state, 'triage': public_view(ctx.triage.get(key)), 'application': application},
@@ -261,7 +261,7 @@ def excluded(ctx: Context, code=None, board=None, since=None, include_not_seen=F
         items.append({'key': key, 'company': row['company'], 'title': row['title'], 'url': row['url'],
                       'location': row.get('location', ''), 'department': row.get('department', ''),
                       'family': screening.get('family'), 'exclusion_codes': reasons,
-                      'explanation': screening.get('explanation'), 'feed_status': row['feed_status'],
+                      'explanation': explanation_of(screening), 'feed_status': row['feed_status'],
                       'first_seen': row['first_seen'], 'first_seen_basis': row.get('first_seen_basis', 'observed'),
                       'rules_version': screening.get('rules_version'), 'basis': screening.get('basis')})
         rows.append(row)

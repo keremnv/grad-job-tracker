@@ -215,13 +215,14 @@ def stored_inputs(state: dict, row: dict) -> dict:
 def _apply_screening(key, row, result, now, events):
     """Record a judgment. Only verdict/code changes produce a `rescreened` event."""
     prior = row.get('screening')
-    current = {**result, 'screened_at': now}
+    # Explanations are derived from codes on read (filtering.explanation_of); only codes are stored.
+    current = {**{k: v for k, v in result.items() if k != 'explanation'}, 'screened_at': now}
     if prior is None:
         row['screening'] = current
         return
     same = prior.get('verdict') == result['verdict'] and prior.get('codes') == result['codes']
     if same and prior.get('rules_version') == result['rules_version'] and prior.get('input_sha256') == result['input_sha256'] \
-            and prior.get('basis') == result['basis'] and prior.get('explanation') == result['explanation']:
+            and prior.get('basis') == result['basis'] and 'explanation' not in prior:
         return
     if not same:
         rules_changed = prior.get('rules_version') != result['rules_version']
