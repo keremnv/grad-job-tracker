@@ -42,6 +42,11 @@ class MetricTests(unittest.TestCase):
         self.assertEqual(m['abstention'], {'review_verdicts': 2, 'uncertain_labels': 1})
         self.assertEqual(m['per_category']['x']['false_negatives'], 1)
 
+    def test_alternative_screener_plugs_into_the_same_harness(self):
+        keep_all = lambda inputs: {'verdict': 'review', 'codes': ['model.uncertain'], 'rules_version': 'alt-1'}
+        m = ev.evaluate([case('d', 'Senior Accountant', 'not_relevant'), case('a', 'Graduate Software Engineer', 'relevant')], screener=keep_all)
+        self.assertEqual((m['rules_version'], m['relevant_recall_kept'], m['not_relevant_excluded_rate']), ('alt-1', 1.0, 0.0))
+
     def test_empty_denominators_are_null_not_zero(self):
         m = ev.evaluate([case('u', 'Graduate Engineer', 'uncertain')])
         self.assertIsNone(m['relevant_recall_kept']); self.assertIsNone(m['queue_precision_at_k'][0]['precision'])

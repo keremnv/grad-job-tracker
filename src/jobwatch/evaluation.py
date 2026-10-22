@@ -124,8 +124,11 @@ def _at_k(ordered, k):
             'precision': _ratio(sum(c['label'] == 'relevant' for c in judged), len(judged))}
 
 
-def evaluate(cases, baseline=False):
-    results = {c['id']: screen(c['inputs']) for c in cases}
+def evaluate(cases, baseline=False, screener=screen):
+    """Score any screener with the `filtering.screen` signature: inputs dict ->
+    {verdict, codes, rules_version, ...}. Alternative screeners (lexical, model-based)
+    plug in here without changing identity, evidence or label handling."""
+    results = {c['id']: screener(c['inputs']) for c in cases}
     relevant = [c for c in cases if c['label'] == 'relevant']
     negative = [c for c in cases if c['label'] == 'not_relevant']
     verdict = lambda c: results[c['id']]['verdict']
@@ -147,7 +150,7 @@ def evaluate(cases, baseline=False):
         bucket['uncertain_labels'] += c['label'] == 'uncertain'
         bucket['review_verdicts'] += verdict(c) == 'review'
     out = {
-        'rules_version': RULES_VERSION, 'cases': len(cases),
+        'rules_version': next(iter(results.values()))['rules_version'] if results else RULES_VERSION, 'cases': len(cases),
         'labels': {l: sum(c['label'] == l for c in cases) for l in LABELS},
         'label_sources': sorted({c['label_source'] for c in cases}),
         'verdicts': {v: sum(verdict(c) == v for c in cases) for v in ('priority', 'review', 'excluded')},
