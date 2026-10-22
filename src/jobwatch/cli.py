@@ -11,6 +11,7 @@ from .feeds import collect_board
 from .config import load_config, watchlist
 from .overview import weekly, requirements
 from .applications import read_applications, configure_parser, run_cli
+from . import calendar
 from .leads import load_leads, render_leads
 from .filtering import classify, rank, plain
 from .render import text, link
@@ -180,8 +181,11 @@ def main(argv: list[str] | None = None) -> int:
         p.add_argument("--leads", default="data/leads.json")
         p.add_argument("--output", help="Local report output; weekly defaults to ignored .local-reports/weekly.md")
     configure_parser(commands)
+    calendar.configure_parser(commands)
     ns = ap.parse_args(argv)
     try:
+        if ns.command == "calendar":
+            return calendar.run_cli(ns)
         if ns.command == "applications":
             return run_cli(ns)
         if ns.command == "scan":

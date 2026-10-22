@@ -25,6 +25,7 @@ submissions or browser/LinkedIn scraping are implemented.
 - Marks vanished postings `not_seen` **rather than declaring them closed**.
 - Maintains a separate manual applications table, `data/applications.csv`.
 - Adds, updates, lists and validates bulk imports of owner applications with a local CLI.
+- Exports separate private employer-deadline and owner-follow-up calendars for manual import.
 - Runs offline tests on push and a daily scheduled GitHub Actions scan on the default branch.
 
 Important: A live ATS entry establishes only *that the feed listed the posting*.
@@ -236,9 +237,85 @@ force or automatic merge. Scanner output paths are checked against the owner
 application, lead and verification files. No collector adapters were changed.
 
 Stage 1 review evidence is in [`docs/STAGE1_REVIEW.md`](docs/STAGE1_REVIEW.md).
-Stage 2 is calendar export after owner review: define event/date/timezone and
-privacy choices, stable event IDs, deterministic offline export tests and local
-ignored output. Calendar export and notifications are not implemented here.
+Stage 2 calendar export is the final planned feature; see below and
+[`docs/STAGE2_REVIEW.md`](docs/STAGE2_REVIEW.md). Notifications remain unimplemented.
+
+## Proton Calendar export (Stage 2)
+
+With `.venv` activated, from the repository root:
+
+```bash
+python -m jobwatch.cli calendar export
+python -m jobwatch.cli calendar export --help
+# Optional: rehearse with a synthetic ledger and separate local exports.
+python -m jobwatch.cli calendar export \
+  --applications .local-reports/stage2-demo/applications.csv \
+  --output-dir .local-reports/stage2-demo
+```
+
+The default writes `.local-reports/deadlines.ics` and
+`.local-reports/followups.ics`. Input overrides are `--state`, `--verifications`,
+`--leads` and `--applications`. Outputs must remain inside the repository's
+Git-ignored `.local-reports/`; tracked files, symlinks, hardlinks and collisions
+with selected inputs are refused. Files are UTF-8 plain text with mode 0600;
+keep them private. The command prints counts, paths and non-sensitive warnings.
+It never uploads, imports, subscribes, or connects to Proton.
+
+- **Deadlines** use explicit dates from structured ATS `application_deadline`
+  fields with observation timestamps, independently dated verification evidence,
+  or checked official manual leads. Prose-only/missing/rolling dates are omitted.
+  Posting IDs and exact vacancy URLs reconcile duplicates, including verification
+  IDs absent from the feed. URL identity lowercases the host, removes default
+  HTTPS port, and preserves paths/query parameters/fragments. Similar titles and
+  shared deadline pages never merge different vacancies. Unresolved contradictory
+  dates omit the vacancy and print a conflict fingerprint. Recheck the existing
+  evidence files manually; no newest-source precedence or inferred resolution.
+  Source URLs, check/observation times and wording remain in descriptions. Past
+  recorded dates are retained; a missing posting never establishes closure.
+- **Follow-ups** use the existing validated ledger's `job_key`, `next_action`
+  and `next_action_date`, excluding rejected/withdrawn applications and rows
+  missing either action or date. Titles include the entered action, company
+  and role. Notes, CV versions and other application fields are omitted.
+
+Date-only values are all-day **date markers**, with the following day as the
+exclusive end. They imply neither a midnight closing time nor a timezone.
+Explicit ISO timestamps with `Z` or numeric UTC offsets become instantaneous
+UTC markers without an assumed duration; timezone-free, unknown `-00:00`, named
+zones and fractional-second values are warned about and omitted. Owner dates
+stay all-day because the ledger contains dates only. No alarms are generated;
+check your destination calendar's own notification defaults. A recorded deadline
+is never independent proof that an application form is currently open.
+
+### Manual import and reimport
+
+Create a **dedicated private calendar** in Proton, preferably separate calendars
+for deadlines and personal follow-ups. On Proton Calendar's web app, open
+**Settings → All settings → Import/export → Import from ICS**, select one file
+and its destination calendar, then click **Import** and wait for completion.
+These steps follow [Proton's import instructions](https://proton.me/support/how-to-import-calendar-to-proton-calendar).
+Check the dates and descriptions after import; Proton import compatibility has
+**not** been tested in an account during development.
+
+Hashed UIDs use a fixed Jobwatch namespace and stay stable when dates, titles or
+actions change (follow-ups use the application key; deadlines prefer a posting
+ID, otherwise the exact vacancy URL). Keep keys/URL-only identities stable.
+These IDs support matching events on reimport; Proton documents that importing
+the same events again overwrites them. Verify changes in your dedicated calendar
+when reimporting. Exports require **manual reimport**, not live sync.
+**An event removed from a later file is not guaranteed to disappear from Proton.**
+Delete obsolete imported events manually, or recreate the dedicated calendar
+before importing a fresh snapshot.
+
+Troubleshooting: exit 0 means exports completed without warnings; exit 1 means
+files were written with omissions/conflicts to review; exit 2 means an error.
+Fix the ledger/source evidence and rerun. Do not infer a missing date. Skip
+0-event files if Proton reports nothing to import. Proton currently documents
+10 MB/15,000-event import limits and supported event years 1970–2037; consult
+its linked guide if an import fails. A stale `.calendar-export.lock` can be
+removed only after confirming no export is running. Each output replacement
+is atomic, but the two-file pair is not one transaction: rerun after a disk or
+interruption error and check both counts before importing. File permissions are
+not encryption; never commit or publish these exports.
 
 ### Public API documentation
 
