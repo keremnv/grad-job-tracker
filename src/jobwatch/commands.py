@@ -11,13 +11,15 @@ import sys
 
 from . import opportunities as opp
 from . import triage as tri
+from . import evaluation
 from . import verifications as ver
 from .applications import read_applications
 from .config import load_config
 from .contract import ERROR_CODES, WARNING_CODES, JobwatchError, dumps, envelope, error_from, warning
 from .filtering import CODES, RULES_VERSION
 from .render import text
-from .state import description_sha, load_state, rescreen_preview, utcnow
+from .search import BM25, document
+from .state import atomic_write, description_of, description_sha, load_state, rescreen_preview, utcnow
 
 READ = 'read_only'
 OWNER = 'owner_instruction_required'
@@ -33,7 +35,8 @@ CAPABILITIES = [
     ('health', READ, 'Board freshness/failures, index counts and rules version.'),
     ('rescreen', READ, 'Preview what the current rules would change. Writes nothing; scans apply rules.'),
     ('search', READ, 'BM25 lexical search over indexed titles, metadata and (optionally) source text.'),
-    ('eval', READ, 'Offline screening diagnostics on labelled cases; never treats unlabelled postings as negatives.'),
+    ('eval run', READ, 'Offline screening diagnostics on labelled cases; never treats unlabelled postings as negatives.'),
+    ('eval template', 'private_local_output', 'Write a blind stratified labelling template to .local-reports/.'),
     ('validate-data', READ, 'Validate operational data files and their cross-references.'),
     ('triage list', READ, 'Owner triage decisions (notes omitted unless --include-notes).'),
     ('triage set', OWNER, 'Record interested/dismissed/later for an indexed posting. Idempotent; --replace to change.'),
@@ -97,6 +100,23 @@ def configure(commands):
     p = commands.add_parser('rescreen', help='Preview current-rule judgments; writes nothing')
     _common(p)
     p.add_argument('--limit', type=int, default=200)
+    p = commands.add_parser('search', help='BM25 lexical search over the index')
+    _common(p)
+    p.add_argument('query')
+    p.add_argument('--text', action='store_true', help='Also search retained source text (scores only; text not returned)')
+    p.add_argument('--include-excluded', action='store_true')
+    p.add_argument('--limit', type=int, default=20)
+    p = commands.add_parser('eval', help='Offline screening diagnostics')
+    sub = p.add_subparsers(dest='eval_command', required=True)
+    s = sub.add_parser('run'); _common(s)
+    s.add_argument('--dataset', choices=('synthetic', 'owner', 'triage'), default='synthetic')
+    s.add_argument('--cases', default='evaluation/synthetic_cases.json', help='Synthetic case file')
+    s.add_argument('--labels', default='data/eval_labels.json', help='Owner label file (from eval template)')
+    s.add_argument('--baseline', action='store_true', help='Add a BM25 lexical-ranking baseline')
+    s = sub.add_parser('template'); _common(s)
+    s.add_argument('--out', default='.local-reports/eval-label-template.json')
+    s.add_argument('--per-stratum', type=int, default=15)
+    s.add_argument('--seed', type=int, default=2027)
     p = commands.add_parser('triage', help='Private owner triage decisions')
     sub = p.add_subparsers(dest='triage_command', required=True)
     s = sub.add_parser('set'); _common(s)
@@ -125,7 +145,7 @@ def configure(commands):
             s.add_argument('--wording', required=True); s.add_argument('--value')
 
 
-HANDLED = {'capabilities', 'queue', 'recent', 'show', 'excluded', 'changes', 'health', 'rescreen', 'triage', 'verify'}
+HANDLED = {'capabilities', 'queue', 'recent', 'show', 'excluded', 'changes', 'health', 'rescreen', 'triage', 'verify', 'search', 'eval'}
 
 
 def context(ns, now, need_config=False) -> opp.Context:
@@ -138,8 +158,8 @@ def context(ns, now, need_config=False) -> opp.Context:
 
 
 def _name(ns):
-    sub = getattr(ns, 'triage_command', None) or getattr(ns, 'verify_command', None)
-    return ns.command + (' ' + sub if sub and ns.command in ('triage', 'verify') else '')
+    sub = getattr(ns, 'triage_command', None) or getattr(ns, 'verify_command', None) or getattr(ns, 'eval_command', None)
+    return ns.command + (' ' + sub if sub and ns.command in ('triage', 'verify', 'eval') else '')
 
 
 def run(ns) -> int:
@@ -179,6 +199,10 @@ def dispatch(ns, now):
                 'note': 'Preview only. The next scan applies current rules and records screening events.'}, notes
     if ns.command == 'triage':
         return triage(ns, now)
+    if ns.command == 'eval':
+        return evaluate(ns, now)
+    if ns.command == 'search':
+        return search(ns, now)
     if ns.command == 'verify':
         return verify(ns, now)
     ctx = context(ns, now, need_config=ns.command == 'health')
@@ -254,6 +278,52 @@ def verify(ns, now):
             'record': {k: v for k, v in (stored or {}).items() if k != 'deadlines'} | {'deadlines': len((stored or {}).get('deadlines', []))}}, []
 
 
+def search(ns, now):
+    ctx = context(ns, now)
+    postings = ctx.state['postings']
+    docs = {k: document(r, description_of(ctx.state, r) if ns.text else None) for k, r in postings.items()
+            if ns.include_excluded or (r.get('screening') or {}).get('verdict') != 'excluded'}
+    ranked = BM25(docs).rank(ns.query)
+    items = []
+    for key, score in ranked[:ns.limit]:
+        item, _ = opp.summary(ctx, key, postings[key])
+        items.append({'score': round(score, 4), **{k: item[k] for k in ('key', 'company', 'title', 'url', 'location', 'verdict', 'action_state', 'feed_status')}})
+    notes = [warning('results_truncated', total=len(ranked), returned=ns.limit)] if len(ranked) > ns.limit else []
+    return {'query': ns.query, 'searched_text': ns.text, 'documents': len(docs), 'matches': len(ranked), 'items': items,
+            'note': 'Lexical relevance to the query only; not a suitability judgment.'}, notes
+
+
+def evaluate(ns, now):
+    if ns.eval_command == 'template':
+        out = Path(ns.out)
+        if '.local-reports' not in out.resolve().parts:
+            raise JobwatchError('invalid_argument', 'label templates are private; --out must be inside .local-reports/')
+        data = evaluation.template(load_state(Path(ns.state)), ns.per_stratum, ns.seed)
+        atomic_write(out, dumps(data) + '\n')
+        out.chmod(0o600)
+        return {'written': str(out), 'items': len(data['items']), 'strata_sizes': data['strata_sizes'],
+                'next': f'Fill each "label", save it (for example as data/eval_labels.json), then run: eval run --dataset owner --labels PATH'}, []
+    notes, meta = [], {}
+    if ns.dataset == 'synthetic':
+        cases = evaluation.synthetic_cases(ns.cases)
+        meta = {'source': ns.cases, 'independent': False,
+                'caveat': 'Author-labelled synthetic cases; a sanity check, not evidence of real-world accuracy.'}
+    else:
+        state = load_state(Path(ns.state))
+        if ns.dataset == 'owner':
+            if not Path(ns.labels).exists():
+                raise JobwatchError('invalid_argument', f'no owner label file at {ns.labels}; create one with `eval template`')
+            cases, meta = evaluation.owner_cases(state, ns.labels)
+        else:
+            cases, meta = evaluation.triage_cases(state, tri.load(Path(ns.triage_file)))
+        meta['coverage'] = evaluation.index_coverage(state)
+        meta['independent'] = True
+    if not cases:
+        return {'dataset': ns.dataset, 'meta': meta, 'metrics': None,
+                'status': 'pending: no labelled cases; no performance claim is possible'}, []
+    return {'dataset': ns.dataset, 'meta': meta, 'metrics': evaluation.evaluate(cases, ns.baseline), 'status': 'computed'}, notes
+
+
 def capabilities():
     return {'envelope': 'jobwatch.cli/1', 'rules_version': RULES_VERSION,
             'invocation': '.venv/bin/python -m jobwatch.cli <command> --json',
@@ -272,7 +342,8 @@ def capabilities():
 def render(name, data) -> str:
     fn = {'queue': _render_items, 'recent': _render_items, 'excluded': _render_excluded, 'changes': _render_changes,
           'health': _render_health, 'show': _render_show, 'rescreen': _render_rescreen,
-          'capabilities': _render_capabilities, 'triage list': _render_triage_list}.get(name)
+          'capabilities': _render_capabilities, 'triage list': _render_triage_list, 'eval run': _render_eval,
+          'search': _render_search}.get(name)
     if fn:
         return fn(data)
     return '\n'.join(f'{k}: {text(v)}' for k, v in data.items()) + '\n'
@@ -349,4 +420,28 @@ def _render_capabilities(data):
 def _render_triage_list(data):
     lines = [f"{data['total']} decision(s)."]
     lines += [f"- {i['key']}: {i['decision']} ({i['reason_code'] or 'no reason'}) {i['decided_at']}" + (' [note]' if i['has_note'] else '') for i in data['items']]
+    return '\n'.join(lines) + '\n'
+
+
+def _render_search(data):
+    lines = [f"{data['matches']} match(es) for {data['query']!r} over {data['documents']} document(s). {data['note']}", '']
+    lines += [f"- {i['score']:.2f} [{i['verdict']}/{i['action_state']}] {i['company']} — {i['title']} {i['key']}" for i in data['items']]
+    return '\n'.join(lines) + '\n'
+
+
+def _render_eval(data):
+    if data['metrics'] is None:
+        return f"{data['dataset']}: {data['status']}\n"
+    m = data['metrics']
+    lines = [f"Dataset {data['dataset']} ({'independent labels' if data['meta'].get('independent') else 'NOT independent'}); rules {m['rules_version']}; {m['cases']} case(s); labels {m['labels']}.",
+             data['meta'].get('caveat', ''),
+             f"Relevant kept (not excluded): {m['relevant_recall_kept']}; relevant as priority: {m['relevant_recall_priority']}; not-relevant excluded: {m['not_relevant_excluded_rate']}.",
+             'Queue precision@k: ' + '; '.join(f"@{x['k']}={x['precision']} ({x['judged']} judged)" for x in m['queue_precision_at_k']),
+             f"Abstention: {m['abstention']}", 'False negatives (relevant but excluded):']
+    lines += [f"  - {f['id']}: {f['title']} {f['codes']}" for f in m['false_negatives']] or ['  - none']
+    lines += ['Not-relevant cases kept in the queue:'] + ([f"  - {f['id']}: {f['title']} ({f['verdict']})" for f in m['false_positives_kept']] or ['  - none'])
+    if 'bm25_baseline' in m:
+        b = m['bm25_baseline']
+        lines.append('BM25 baseline precision@k: ' + '; '.join(f"@{x['k']}={x['precision']}" for x in b['precision_at_k'])
+                     + f"; relevant with zero score: {b['relevant_with_zero_score']}")
     return '\n'.join(lines) + '\n'
