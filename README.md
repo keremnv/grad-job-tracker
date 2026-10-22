@@ -24,6 +24,7 @@ submissions or browser/LinkedIn scraping are implemented.
 - Generates [`reports/latest.md`](reports/latest.md) with URLs, changes and failures.
 - Marks vanished postings `not_seen` **rather than declaring them closed**.
 - Maintains a separate manual applications table, `data/applications.csv`.
+- Adds, updates, lists and validates bulk imports of owner applications with a local CLI.
 - Runs offline tests on push and a daily scheduled GitHub Actions scan on the default branch.
 
 Important: A live ATS entry establishes only *that the feed listed the posting*.
@@ -92,6 +93,152 @@ The 17 October 2026 evidence pass is summarised in
 requirements sample (`data/role_sample.json`), a dated lead and programme-cycle
 registry, and a provisional CV-variant recommendation. Infrastructure expansion has
 stopped; the next milestone is owner review and applications. **No dashboard.**
+
+## Application management (Stage 1)
+
+Run these commands from the repository root with `.venv` activated. No command
+in this section fetches vacancy URLs, scrapes LinkedIn or submits applications.
+The ten CSV columns stay unchanged:
+
+```csv
+job_key,company,role,url,stage,date_applied,cv_version,next_action,next_action_date,notes
+```
+
+Save a manually checked vacancy, including one absent from all feeds:
+
+```bash
+python -m jobwatch.cli applications add \
+  --company 'Example Ltd' --role 'Graduate Software Engineer' \
+  --url 'https://example.org/careers/graduate-2027' --job-key manual:example-grad-2027
+python -m jobwatch.cli applications list
+```
+
+The example uses your explicitly chosen stable key. Replace `--job-key ...`
+with `--verified-url` to derive the key from a manually checked URL.
+`--verified-url` is your confirmation that you checked a vacancy-specific URL;
+it does **not** perform independent verification or mark an application form open.
+It creates `manual:` plus the first 24 hex digits of SHA-256 of the URL identity.
+Identity lowercases the host, removes port 443 and fragments, and treats an empty
+path as `/`. It preserves path, trailing slashes and query parameters; review
+alternate URLs yourself.
+Duplicate keys **or** URL identities are refused, even for identical rows.
+Reused/generic URLs cannot safely distinguish vacancies: use a vacancy-specific
+URL rather than merging separate roles. Existing keys never change on update.
+
+Link to a posting already in `data/jobs.json`, using its exact dictionary key:
+
+```bash
+python -m jobwatch.cli applications add --posting-id 'ashby:incident:743b1624-7267-49a9-84a0-6223e414fbf0'
+```
+
+That uses the posting ID as `job_key` and copies company, title and URL; it also
+accepts manually supplied `--company` and `--role`. A conflicting URL/key is
+rejected. This only links records; it does not infer eligibility, stage or dates.
+
+Update an existing record and filter the list:
+
+```bash
+python -m jobwatch.cli applications update --job-key manual:example-grad-2027 \
+  --stage applied --date-applied 2026-10-22 --cv-version swe-v1 \
+  --next-action 'Review application status' --next-action-date 2026-10-29
+python -m jobwatch.cli applications list --stage applied \
+  --due-on-or-after 2026-10-22 --due-on-or-before 2026-10-29
+python -m jobwatch.cli weekly
+```
+
+Use the key printed by `add`/`list` if you chose the URL-derived identity. Update
+supports `--stage`, `--date-applied`, `--cv-version`, `--next-action`,
+`--next-action-date` and `--notes`. Unspecified fields are preserved exactly;
+`--notes ''`, `--date-applied ''` or `--next-action-date ''` explicitly clears
+an optional field. All dates must be `YYYY-MM-DD` or blank; unknown historical
+application dates stay blank. The stages are `bookmarked` (default on add),
+`preparing`, `applied`, `assessment`, `interview`, `offer`, `rejected`, `withdrawn`.
+List date filters are inclusive owner next-action dates and exclude blank dates.
+Notes, CV versions and next-action text are omitted from console listings.
+Avoid placing sensitive correspondence in command arguments/shell history; use
+a private reviewed CSV for private notes. Public reports never read the ledger.
+
+### Import about 20 historical applications
+
+1. Make a private backup as described below. Export or manually prepare roughly
+   20 rows in UTF-8 CSV with the exact ten columns above. Use unique stable keys
+   such as `history:example-grad-2026` and checked vacancy-specific HTTPS URLs.
+   Set the actual known stage; leave `date_applied` blank wherever unknown.
+   Keep the source outside Git, for example `.local-reports/history-reviewed.csv`.
+2. Review every row yourself (including dates, keys and URLs). Do not import CVs,
+   assessment answers or correspondence. A spreadsheet must export actual ISO
+   date strings, not localised dates or formula cells.
+3. Validate and preview, then explicitly approve the import:
+
+   ```bash
+   python -m jobwatch.cli applications import-csv .local-reports/history-reviewed.csv --dry-run
+   python -m jobwatch.cli applications import-csv .local-reports/history-reviewed.csv --confirm
+   python -m jobwatch.cli applications list
+   python -m jobwatch.cli weekly
+   ```
+
+Import defaults to a dry run even without `--dry-run`. Preview shows keys,
+company, role, stage and application dates, never notes. `--confirm` revalidates
+and appends all rows in one transaction. Any duplicate ID/URL, malformed row,
+unknown/extra/missing column, stage or date aborts the entire batch. It never
+updates existing applications; remove conflicting source rows after review or
+use `applications update` deliberately. Reimporting the same file is refused.
+`--dry-run` and `--confirm` are mutually exclusive.
+
+All four commands accept `--applications PATH` after `add`, `update`, `list` or
+`import-csv`, so you can rehearse against a private scratch ledger first.
+Use each subcommand's `--help` for its exact options.
+
+### Integrity, privacy and review order
+
+Writes use a mode-0600 temporary CSV in the same directory, flush/fsync and
+atomic replacement, with an exclusive `applications.csv.lock`. A concurrent
+CLI writer is refused. Byte/file-identity checks refuse owner edits detected
+before replacement, including edits made during import preview. Interrupted
+writes leave the old complete ledger or the new complete ledger; an abandoned
+lock needs manual recovery only after confirming no writer is running.
+No network filesystem/distributed lock guarantees are provided. Spreadsheet
+editors do not honour the CLI lock: close them before using a write command;
+an edit in the final check-to-replace interval cannot be excluded. Atomic
+replacement is not a backup or a guarantee against power-loss/filesystem failure.
+
+CSV quoting preserves commas, Unicode and multiline notes. To prevent spreadsheet
+formula execution without silently altering owner fields, validation rejects
+values whose first non-whitespace character is `=`, `+`, `-` or `@`, and unsafe
+control characters. Rephrase such text yourself; existing invalid rows must be
+reviewed before any write. Errors identify fields/row numbers without echoing
+private values. Ledger symlinks are refused. Keep the repo and backups private;
+Git history still contains any application data you choose to commit.
+
+The weekly report remains ignored `.local-reports/weekly.md` (mode 0600), with:
+
+1. Overdue owner actions, oldest first.
+2. Owner actions due today through seven days ahead, earliest first.
+3. Source-verified application deadlines within 14 days, passed dates needing
+   recheck, and undated verified wording needing manual review.
+4. Applications by stage, plus later/undated owner actions.
+5. Relevant vacancies first observed within seven days.
+6. Stale feeds and collection failures.
+
+Owner dates use Europe/London calendar days. Source date-only deadlines retain
+unknown expiry time/timezone; timestamps retain their supplied offsets. Only
+independently dated deadline evidence in `verifications.json` or official checked
+manual leads is included in this weekly section; feed-only observations remain
+in the public discovery report. Overlapping verified deadlines are deduplicated.
+Application deadlines are omitted for already-applied/terminal applications;
+bookmarked/preparing vacancies remain visible. Rejected/withdrawn rows have no
+active owner follow-up actions. `not_seen` and a passed deadline never establish
+closure. Notes and CV versions are omitted even from the private weekly report.
+
+The scheduled workflow only stages `data/jobs.json` and `reports/latest.md`,
+never generates the weekly report, and rejects a concurrent owner push without
+force or automatic merge. Scanner output paths are checked against the owner
+application, lead and verification files. No collector adapters were changed.
+
+Stage 1 review evidence is in [`docs/STAGE1_REVIEW.md`](docs/STAGE1_REVIEW.md).
+Stage 2 is calendar export after owner review: define event/date/timezone and
+privacy choices, stable event IDs, deterministic offline export tests and local
+ignored output. Calendar export and notifications are not implemented here.
 
 ### Public API documentation
 

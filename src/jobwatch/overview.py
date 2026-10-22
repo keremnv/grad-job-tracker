@@ -1,16 +1,16 @@
 """Local-only weekly overview and narrowly attributed requirement mentions."""
 from collections import Counter, defaultdict
-import csv
 from datetime import timedelta
+from zoneinfo import ZoneInfo
 from hashlib import sha256
-from pathlib import Path
 import re
+from .applications import STAGES, read_applications, url_identity
+from .feeds import public_url
 from .config import timestamp
 from .filtering import plain, rank, role_family
 from .render import text, link
 from .timing import deadline_window, stale
 
-STAGES = {'bookmarked','preparing','applied','assessment','interview','offer','rejected','withdrawn'}
 SKILLS = {k:re.compile(v,re.I) for k,v in {'Python':r'\bpython\b','Java':r'\bjava\b',
           'JavaScript':r'\bjavascript\b','TypeScript':r'\btypescript\b','C++':r'(?<![\w+])c\+\+','Rust':r'\brust\b',
           'SQL':r'\bsql\b','Linux':r'\blinux\b','Git':r'\bgit\b',
@@ -25,57 +25,111 @@ def description_hash(value):
     return sha256(value.encode('utf-8')).hexdigest()
 
 
-def read_applications(path: Path):
-    """Read owner rows without normalising or writing the ledger."""
-    with path.open(encoding='utf-8-sig', newline='') as f:
-        reader=csv.DictReader(f)
-        required={'job_key','company','role','url','stage','next_action','next_action_date'}
-        if not reader.fieldnames or not required.issubset(reader.fieldnames):
-            raise ValueError('application ledger is missing required columns')
-        rows=list(reader)
-    if any(None in row for row in rows):
-        raise ValueError('malformed application CSV row')
-    return rows
+def _verified_deadlines(state, verifications, leads, now, applications):
+    """Only independently checked evidence, including manual-only leads."""
+    evidence = []
+    done_keys = {r.get('job_key') for r in applications if r['stage'] not in {'bookmarked', 'preparing'}}
+    done_urls = {url_identity(r['url']) for r in applications
+                 if r.get('url') and r['stage'] not in {'bookmarked', 'preparing'}}
+    for key, row in state['postings'].items():
+        verification = verifications.get(key, {})
+        if row['priority'] == 'excluded' or verification.get('status') == 'closed_verified':
+            continue
+        # Raw feed dates are observations, not independent verification.
+        for deadline in verification.get('deadlines', []):
+            evidence.append((key, row, deadline))
+    for row in (leads or {}).get('vacancies', []):
+        if row.get('official') and row.get('deadline') and row.get('status') != 'unverified':
+            deadline = {**row['deadline']}
+            deadline.setdefault('url', row['url'])
+            deadline.setdefault('verified_at', row['checked_at'])
+            evidence.append((None, row, deadline))
+    selected = []
+    for key, row, deadline in evidence:
+        if key in done_keys or url_identity(row['url']) in done_urls:
+            continue
+        try:
+            checked = timestamp(deadline.get('verified_at'))
+        except (ValueError, TypeError):
+            continue
+        if checked > timestamp(now) or not public_url(deadline.get('url', '')) or not deadline.get('wording'):
+            continue
+        urgency = deadline_window(deadline, now)
+        if urgency.startswith('later than'):
+            continue
+        selected.append((checked, row, deadline, urgency))
+    # Keep the newest check when the lead and verification registries overlap.
+    seen_vacancies, seen_sources, result = set(), set(), []
+    for checked, row, deadline, urgency in sorted(selected, key=lambda item: item[0], reverse=True):
+        value = deadline.get('value') or ' '.join(deadline['wording'].split())
+        vacancy = (url_identity(row['url']), value)
+        source = (row['company'].casefold(), url_identity(deadline['url']), value)
+        if vacancy in seen_vacancies or source in seen_sources:
+            continue
+        seen_vacancies.add(vacancy); seen_sources.add(source)
+        result.append((row, deadline, urgency))
+    return sorted(result, key=lambda item: (item[1].get('value') or '9999', item[0]['company'], item[0]['title']))
 
 
-def weekly(state, applications, verifications, now):
-    current=timestamp(now); since=current-timedelta(days=7)
-    candidates=[r for r in state['postings'].values() if r['priority']!='excluded']
-    recent=[]
-    for r in candidates:
-        seen=timestamp(r['first_seen'])
-        if since <= seen <= current:
-            recent.append(r)
-    lines=['# Weekly job review (private local output)', '', f'As of {text(now)}; previous seven days. Last feed scan: {text(state.get("last_scan",{}).get("at","unknown"))}.',
-           '', 'Feed observations do not verify an open application or eligibility. The owner ledger is read only; no stages are inferred.', '', '## Collection health', '']
-    for key,health in sorted(state.get('boards',{}).items()):
-        warning='; STALE/unknown (>3 days)' if stale(health.get('last_success'),now) else ''
-        lines.append(f"- {text(key)}: {text(health['status'])}; last success {text(health.get('last_success','unknown'))}{warning}.")
-    lines += ['',f'## First observed within seven days ({len(recent)})','']
-    lines += [f"- {text(r['priority'])} · {text(r['company'])} — {link(r['title'],r['url'])}; feed: {text(r['feed_status'])}; first observed {text(r['first_seen'])}." for r in sorted(recent,key=rank)]
-    if not recent:lines.append('None recorded on configured feeds in this window.')
-    lines += ['','## Source deadlines awaiting review','']
-    deadlines=[]
-    for key,r in state['postings'].items():
-        if r['priority']=='excluded':continue
-        for d in r.get('deadlines',[])+verifications.get(key,{}).get('deadlines',[]):
-            deadlines.append(f"- {text(r['company'])} — {link(r['title'],d.get('url',r['url']))}: {text(plain(d['wording']))}; {text(deadline_window(d,now))}; evidence dated {text(d.get('verified_at',d.get('observed_at','unknown')))}.")
-    lines += deadlines or ['No source deadline evidence; missing dates remain unknown.']
-    lines += ['','## Owner application stages','']
-    counts=Counter(row['stage'] or 'unspecified' for row in applications)
-    lines += [f'- {text(stage)}: {count}' for stage,count in sorted(counts.items())] or ['Ledger has no application rows.']
-    lines += ['','## Actions awaiting the owner','']
-    actions=0
-    for row in applications:
-        if row['stage'] in {'rejected','withdrawn'}:continue
-        if row.get('next_action'):
-            actions+=1
-            due=row.get('next_action_date') or 'unknown'
-            lines.append(f"- {text(row['company'])} — {text(row['role'])}: {text(row['next_action'])}; owner-stated date {text(due)}; stage {text(row['stage'] or 'unspecified')}.")
-        if row['stage'] and row['stage'] not in STAGES:
-            lines.append(f"- Unknown owner stage {text(row['stage'])}; review the ledger manually.")
-    if not actions:lines.append('No owner next-actions recorded. Review the ranked vacancy queue and manual watchlist as needed.')
-    lines += ['','Private owner notes, CV versions and correspondence are not reproduced. This report is local and is not included in the scheduled Actions summary.','']
+def weekly(state, applications, verifications, now, leads=None):
+    current = timestamp(now); since = current - timedelta(days=7)
+    today = current.astimezone(ZoneInfo('Europe/London')).date()
+    horizon = today + timedelta(days=7)
+    candidates = [r for r in state['postings'].values() if r['priority'] != 'excluded']
+    recent = [r for r in candidates if since <= timestamp(r['first_seen']) <= current]
+    lines = ['# Weekly job review (private local output)', '',
+             f'As of {text(now)}; previous seven days. Last feed scan: {text(state.get("last_scan", {}).get("at", "unknown"))}.',
+             'Owner action dates use Europe/London calendar days. Source deadlines retain their stated dates/timezones.',
+             'Feed observations do not verify an open application or eligibility. Not seen in a feed never proves closure.', '']
+    active = sorted((r for r in applications if r['stage'] not in {'rejected', 'withdrawn'}
+                     and (r.get('next_action') or r.get('next_action_date'))),
+                    key=lambda r: (r.get('next_action_date') or '9999', r['company'], r['role'], r.get('job_key', '')))
+
+    def action(row):
+        return (f"- {text(row['company'])} — {link(row['role'], row.get('url', ''))}: "
+                f"{text(row.get('next_action') or 'Review next action')}; owner-stated date "
+                f"{text(row.get('next_action_date') or 'unknown')}; stage {text(row['stage'])}.")
+
+    for heading, rows in (
+        ('Overdue owner-entered actions', [r for r in active if r.get('next_action_date') and r['next_action_date'] < today.isoformat()]),
+        ('Actions due within seven days', [r for r in active if r.get('next_action_date') and today.isoformat() <= r['next_action_date'] <= horizon.isoformat()]),
+    ):
+        lines += [f'## {heading}', ''] + ([action(r) for r in rows] or ['None recorded.']) + ['']
+    lines += ['## Source-verified application deadlines requiring attention', '',
+              'Checked source evidence within 14 days, passed dates to recheck, and undated wording for manual review. Recheck before acting; a passed date does not establish closure.', '']
+    for row, deadline, urgency in _verified_deadlines(state, verifications, leads, now, applications):
+        lines.append(f"- {text(row['company'])} — {link(row['title'], row['url'])}: "
+                     f"{text(plain(deadline['wording']))}; source value {text(deadline.get('value', 'unknown'))}; "
+                     f"{text(urgency)}; {link('deadline source', deadline['url'])}; checked {text(deadline['verified_at'])}.")
+    if not lines[-1].startswith('- '):
+        lines.append('No verified source deadlines requiring attention; missing dates remain unknown.')
+    lines += ['', '## Applications by stage', '']
+    counts = Counter(r['stage'] for r in applications)
+    for stage in STAGES:
+        rows = [r for r in applications if r['stage'] == stage]
+        if not rows:
+            continue
+        lines.append(f'- {text(stage)}: {counts[stage]}')
+        for row in sorted(rows, key=lambda r: (r['company'], r['role'])):
+            lines.append(f"  - {text(row['company'])} — {link(row['role'], row.get('url', ''))}; applied {text(row.get('date_applied') or 'unknown')}.")
+    if not applications:
+        lines.append('Ledger has no application rows.')
+    other = [r for r in active if not r.get('next_action_date') or r['next_action_date'] > horizon.isoformat()]
+    if other:
+        lines += ['', 'Other owner actions (later or date unknown):', ''] + [action(r) for r in other]
+    lines += ['', f'## New relevant vacancies — first observed within seven days ({len(recent)})', '']
+    lines += [f"- {text(r['priority'])} · {text(r['company'])} — {link(r['title'], r['url'])}; feed: {text(r['feed_status'])}; first observed {text(r['first_seen'])}." for r in sorted(recent, key=rank)]
+    if not recent:
+        lines.append('None recorded on configured feeds in this window.')
+    lines += ['', '## Stale feeds and collection failures', '']
+    problems = []
+    for key, health in sorted(state.get('boards', {}).items()):
+        warning = '; STALE/unknown (>3 days)' if stale(health.get('last_success'), now) else ''
+        if warning or health.get('status') == 'failed':
+            problems.append(f"- {text(key)}: {text(health['status'])}; last success {text(health.get('last_success', 'unknown'))}{warning}; {text(health.get('error', ''))}.")
+    problems += [f"- Last scan failure: {text(failure)}" for failure in state.get('last_scan', {}).get('failures', [])]
+    lines += problems or ['No stale/failed boards recorded.' if state.get('boards') else 'No board-health history recorded; collection health unknown.']
+    lines += ['', 'Private owner notes and CV versions are not reproduced. This report stays local and is never included in the scheduled Actions summary.', '']
     return '\n'.join(lines)
 
 

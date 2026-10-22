@@ -1,4 +1,4 @@
-"""Read-only vacancy collection and local Markdown reports."""
+"""Owner application management, read-only vacancy collection and local reports."""
 from __future__ import annotations
 
 import argparse
@@ -9,7 +9,8 @@ from pathlib import Path
 import sys
 from .feeds import collect_board
 from .config import load_config, watchlist
-from .overview import read_applications, weekly, requirements
+from .overview import weekly, requirements
+from .applications import read_applications, configure_parser, run_cli
 from .leads import load_leads, render_leads
 from .filtering import classify, rank, plain
 from .render import text, link
@@ -104,9 +105,13 @@ def _bytes(path):
     return path.read_bytes() if path.exists() else None
 
 
-def scan(config_path: Path, state_path: Path, report_path: Path, verification_path: Path | None = None) -> int:
+def scan(config_path: Path, state_path: Path, report_path: Path, verification_path: Path | None = None,
+         application_path: Path | None = None, lead_path: Path | None = None) -> int:
     verification_path = verification_path or state_path.parent / "verifications.json"
     protected = {verification_path.resolve(), config_path.resolve(), (state_path.parent / 'applications.csv').resolve(), (state_path.parent / 'verifications.json').resolve()}
+    protected.update(p.resolve() for p in (Path('data/applications.csv'), Path('data/leads.json'),
+                                          application_path or state_path.parent / 'applications.csv',
+                                          lead_path or state_path.parent / 'leads.json', state_path.parent / 'leads.json'))
     if state_path.resolve() == report_path.resolve() or state_path.resolve() in protected or report_path.resolve() in protected:
         raise ValueError('scan output collides with protected owner/config data')
     state_path.parent.mkdir(parents=True, exist_ok=True)
@@ -164,18 +169,24 @@ def scan(config_path: Path, state_path: Path, report_path: Path, verification_pa
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("command", choices=["scan", "report", "watchlist", "weekly", "requirements", "leads"])
-    ap.add_argument("--config", default="config/employers.json")
-    ap.add_argument("--state", default="data/jobs.json")
-    ap.add_argument("--report", default="reports/latest.md")
-    ap.add_argument("--verifications", default="data/verifications.json")
-    ap.add_argument("--applications", default="data/applications.csv")
-    ap.add_argument("--leads", default="data/leads.json")
-    ap.add_argument("--output", help="Local report output; weekly defaults to ignored .local-reports/weekly.md")
+    commands = ap.add_subparsers(dest="command", required=True)
+    for command in ("scan", "report", "watchlist", "weekly", "requirements", "leads"):
+        p = commands.add_parser(command)
+        p.add_argument("--config", default="config/employers.json")
+        p.add_argument("--state", default="data/jobs.json")
+        p.add_argument("--report", default="reports/latest.md")
+        p.add_argument("--verifications", default="data/verifications.json")
+        p.add_argument("--applications", default="data/applications.csv")
+        p.add_argument("--leads", default="data/leads.json")
+        p.add_argument("--output", help="Local report output; weekly defaults to ignored .local-reports/weekly.md")
+    configure_parser(commands)
     ns = ap.parse_args(argv)
     try:
+        if ns.command == "applications":
+            return run_cli(ns)
         if ns.command == "scan":
-            return scan(Path(ns.config), Path(ns.state), Path(ns.report), Path(ns.verifications))
+            return scan(Path(ns.config), Path(ns.state), Path(ns.report), Path(ns.verifications),
+                        Path(ns.applications), Path(ns.leads))
         if ns.command == "watchlist":
             print(watchlist(load_config(Path(ns.config))), end="")
             return 0
@@ -190,12 +201,13 @@ def main(argv: list[str] | None = None) -> int:
         state = load_state(Path(ns.state))
         if ns.command in {"weekly", "requirements"}:
             now = utcnow()
-            rendered = weekly(state, read_applications(Path(ns.applications)), verifications, now) if ns.command == "weekly" else requirements(state, verifications, now)
+            rendered = weekly(state, read_applications(Path(ns.applications)), verifications, now,
+                              load_leads(Path(ns.leads))) if ns.command == "weekly" else requirements(state, verifications, now)
             dest = Path(ns.output or (".local-reports/weekly.md" if ns.command == "weekly" else "reports/requirements.md"))
-            protected = {Path(p).resolve() for p in (ns.config, ns.state, ns.applications, ns.verifications)}
+            protected = {Path(p).resolve() for p in (ns.config, ns.state, ns.applications, ns.verifications, ns.leads)}
             if dest.resolve() in protected:
                 raise ValueError("report output collides with protected owner/config data")
-            if ns.command == "weekly" and ".local-reports" not in dest.parts:
+            if ns.command == "weekly" and ".local-reports" not in dest.resolve().parts:
                 raise ValueError("private weekly output must be inside ignored .local-reports directory")
             atomic_write(dest, rendered)
             if ns.command == "weekly":
