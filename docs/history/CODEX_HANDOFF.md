@@ -1,3 +1,5 @@
+> **Historical document — not operating instructions.** This was the original Codex setup handoff and phased build plan. It was superseded on 22 October 2026 by the operating contract in `AGENTS.md`. Do not treat its backlog or phases as permission to start implementation work.
+
 # Codex handoff — UK graduate job tracker
 
 **Read `AGENTS.md` first.** That file now contains the full goal, all standing
