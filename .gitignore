@@ -13,4 +13,5 @@ dist/
 .local-reports/
 *.scan.lock
 *.csv.lock
+*.json.lock
 .jobwatch-*

@@ -12,10 +12,12 @@ from .config import load_config, watchlist
 from .overview import weekly, requirements
 from .applications import read_applications, configure_parser, run_cli
 from . import calendar
+from . import commands as agent_commands
 from .leads import load_leads, render_leads
 from .filtering import RULES_VERSION, rank, plain, verdict_of
 from .render import text, link
 from .timing import deadline_window, stale
+from .verifications import load_verifications
 from .state import atomic_write, health_path, last_seen, load_state, merge, save_state, utcnow
 
 
@@ -110,24 +112,6 @@ def report(state: dict, events=None, failures=None, when=None, verifications=Non
               "- Screening is heuristic; eligibility and location uncertainty require owner review.",
               f"- {len(excluded)} listed posting(s) were excluded by screening but are recorded with reason codes; inspect them with `jobwatch excluded`.", ""]
     return "\n".join(lines)
-
-
-def load_verifications(path):
-    if not path.exists():
-        return {}
-    data = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(data, dict) or data.get("schema") != 1 or not isinstance(data.get("postings"), dict):
-        raise ValueError("invalid verification ledger")
-    for row in data["postings"].values():
-        if not isinstance(row, dict) or row.get("status") not in {"unknown", "open_verified", "closed_verified"}:
-            raise ValueError("invalid verification status")
-        if row["status"] != "unknown":
-            from .config import timestamp
-            from .feeds import public_url
-            timestamp(row.get("verified_at"))
-            if not public_url(row.get("url", "")):
-                raise ValueError("verification requires source URL")
-    return data["postings"]
 
 
 def _bytes(path):
@@ -235,7 +219,10 @@ def main(argv: list[str] | None = None) -> int:
         p.add_argument("--output", help="Local report output; weekly defaults to ignored .local-reports/weekly.md")
     configure_parser(commands)
     calendar.configure_parser(commands)
+    agent_commands.configure(commands)
     ns = ap.parse_args(argv)
+    if ns.command in agent_commands.HANDLED:
+        return agent_commands.run(ns)
     try:
         if ns.command == "calendar":
             return calendar.run_cli(ns)
