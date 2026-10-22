@@ -29,6 +29,11 @@ class Posting:
     countries: tuple[str, ...] = ()
     source_dates: dict = field(default_factory=dict)
     raw: dict = field(default_factory=dict)
+    # Optional ATS classification metadata used for screening. Never validated
+    # strictly: a missing or oddly shaped category must not fail a board.
+    department: str = ""
+    team: str = ""
+    employment_type: str = ""
 
     @property
     def key(self) -> str:
@@ -113,8 +118,17 @@ def _link(value, kind, board, region="global") -> tuple[str, str]:
     return value, _identity(parts[-1])
 
 
-def collect_board(entry: dict, get_json=request_json, pause=time.sleep) -> list[Posting]:
-    """Any malformed record invalidates the board, preserving previous observations."""
+def _meta(*values) -> str:
+    """Join optional string metadata; ignore anything that is not text."""
+    return ", ".join(dict.fromkeys(v.strip() for v in values if isinstance(v, str) and v.strip()))
+
+
+def collect_board(entry: dict, get_json=request_json, pause=time.sleep, stats: dict | None = None) -> list[Posting]:
+    """Any malformed record invalidates the board, preserving previous observations.
+
+    `stats`, when supplied, receives counts of source records that were not
+    vacancies (Greenhouse prospects, unlisted Ashby jobs) so every returned
+    record can be accounted for."""
     kind, board = entry["provider"], entry.get("board")
     if not isinstance(board, str) or not BOARD.fullmatch(board):
         raise ValueError("invalid board identifier: expected a single ATS board slug")
@@ -158,13 +172,16 @@ def collect_board(entry: dict, get_json=request_json, pause=time.sleep) -> list[
         raise ValueError(f"unsupported provider: {kind!r}")
 
     identities = set()
+    skipped = 0
     for item in jobs:
         j = _object(item, "posting")
         countries, dates = [], {}
+        department = team = employment_type = ""
         if kind == "greenhouse":
             if "internal_job_id" not in j:
                 raise ValueError("Greenhouse record lacks internal_job_id; cannot distinguish prospects")
             if j["internal_job_id"] is None:
+                skipped += 1
                 continue  # documented prospect, not a vacancy
             identifier = _identity(j.get("id"))
             link, link_id = _link(j.get("absolute_url"), kind, board, region)
@@ -181,6 +198,8 @@ def collect_board(entry: dict, get_json=request_json, pause=time.sleep) -> list[
                 _text(j["application_deadline"], "application_deadline", True)
             published = dates.get("first_published", "")
             salary = ""
+            departments = j.get("departments") if isinstance(j.get("departments"), list) else []
+            department = _meta(*(d.get("name") for d in departments if isinstance(d, dict)))
         elif kind == "lever":
             identifier = _identity(j.get("id"))
             link, link_id = _link(j.get("hostedUrl") or j.get("applyUrl"), kind, board, region)
@@ -202,10 +221,13 @@ def collect_board(entry: dict, get_json=request_json, pause=time.sleep) -> list[
                     raise ValueError("invalid createdAt")
                 dates["createdAt"] = j["createdAt"]  # not documented as publication time
             published, salary = "", ""
+            department, team = _meta(categories.get("department")), _meta(categories.get("team"))
+            employment_type = _meta(categories.get("commitment"))
         else:
             if "isListed" in j and type(j["isListed"]) is not bool:
                 raise ValueError("invalid isListed")
             if j.get("isListed") is False:
+                skipped += 1
                 continue
             link, identifier = _link(j.get("jobUrl") or j.get("applyUrl"), kind, board)
             link_id = identifier
@@ -225,6 +247,7 @@ def collect_board(entry: dict, get_json=request_json, pause=time.sleep) -> list[
             if published:
                 dates["publishedAt"] = published  # last published, per Ashby documentation
             salary = _text(_optional_object(j.get("compensation"), "compensation").get("compensationTierSummary"), "compensation summary")
+            department, team, employment_type = _meta(j.get("department")), _meta(j.get("team")), _meta(j.get("employmentType"))
         if link_id != identifier:
             raise ValueError("posting ID and URL disagree")
         if identifier in identities:
@@ -233,5 +256,9 @@ def collect_board(entry: dict, get_json=request_json, pause=time.sleep) -> list[
         rows.append(Posting(company, kind, board, identifier, title,
                             ", ".join(dict.fromkeys(x for x in locations if x)), link,
                             description, published, salary, countries[0] if countries else "",
-                            tuple(dict.fromkeys(x for x in countries if x)), dates, j))
+                            tuple(dict.fromkeys(x for x in countries if x)), dates, j,
+                            department, team, employment_type))
+    if stats is not None:
+        stats["skipped_non_vacancies"] = skipped
+        stats["source_records"] = len(jobs)
     return rows

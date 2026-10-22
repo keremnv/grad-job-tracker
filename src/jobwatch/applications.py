@@ -10,9 +10,8 @@ import os
 from pathlib import Path
 import re
 import tempfile
-from urllib.parse import urlsplit, urlunsplit
 
-from .feeds import public_url
+from .identity import loose_url
 from .render import text, link
 
 COLUMNS = ('job_key', 'company', 'role', 'url', 'stage', 'date_applied',
@@ -30,12 +29,10 @@ def iso_date(value):
 
 
 def url_identity(url):
-    if not public_url(url):
-        raise ValueError('application URL must be HTTPS without credentials or whitespace')
-    u = urlsplit(url)
-    # Ignore fragments/default port only. Query parameters and paths can identify
-    # distinct vacancies, so never guess which parts are tracking parameters.
-    return urlunsplit(('https', u.hostname.lower(), u.path or '/', u.query, ''))
+    # Ledger duplicates are refused on the loose identity (fragment ignored):
+    # refusing a near-duplicate row is safe; merging distinct rows is not.
+    # Query parameters and paths are kept. See identity.py for all levels.
+    return loose_url(url)
 
 
 def validate(rows):

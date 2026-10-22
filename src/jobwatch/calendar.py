@@ -8,14 +8,15 @@ from pathlib import Path
 import re
 import subprocess
 import tempfile
-from urllib.parse import parse_qsl, quote, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, quote, urlsplit
 
 from .applications import iso_date, read_applications
 from .config import timestamp
 from .feeds import public_url
+from .identity import POSTING_KEY, exact_url
 from .state import load_state, utcnow
 
-POSTING_ID = re.compile(r'(?:greenhouse|lever|ashby):[a-z0-9_.-]+:[A-Za-z0-9_.-]+')
+POSTING_ID = POSTING_KEY
 ZONED_TIME = re.compile(r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?(?:Z|[+-]\d{2}:\d{2})')
 ROLLING = re.compile(r'\brolling\b|\bno (?:fixed |application )?deadline\b', re.I)
 SECRET_KEYS = {'token', 'access_token', 'api_key', 'apikey', 'auth', 'authorization',
@@ -31,12 +32,9 @@ def safe_url(value):
         key = key.casefold().replace('-', '_')
         if key in SECRET_KEYS or key.startswith(('x_amz_', 'x_goog_')):
             raise ValueError('credential-bearing calendar URL omitted')
-    host = u.hostname.lower()
-    if ':' in host:
-        host = '[' + host + ']'
-    # Fragments can identify distinct openings on client-rendered careers sites.
-    # Unlike the Stage 1 manual-ID shortcut, reconciliation must preserve them.
-    return urlunsplit(('https', host, u.path or '/', u.query, u.fragment))
+    # Fragments can identify distinct openings on client-rendered careers sites,
+    # so reconciliation uses the exact identity (identity.exact_url).
+    return exact_url(value)
 
 
 def uid(kind, identity):
