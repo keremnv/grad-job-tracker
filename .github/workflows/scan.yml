@@ -24,19 +24,27 @@ jobs:
         run: python -m pip install -e .
       - name: Test offline
         run: python -m unittest discover -s tests -v
+      # Exit 0: written; 1: written, some or all boards failed; 2: error, outputs
+      # must not be committed (nothing written, or a write was interrupted).
       - name: Collect public ATS feeds
         id: collect
         continue-on-error: true
-        run: python -m jobwatch.cli scan
+        shell: bash
+        run: |
+          set +e
+          python -m jobwatch.cli scan
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit "$code"
       - name: Publish report in GitHub Actions summary
-        if: always() && (steps.collect.outcome == 'success' || steps.collect.outcome == 'failure')
+        if: always() && (steps.collect.outputs.exit_code == '0' || steps.collect.outputs.exit_code == '1')
         shell: bash
         run: |
           if [[ -f reports/latest.md ]]; then
             cat reports/latest.md >> "$GITHUB_STEP_SUMMARY"
           fi
       - name: Commit updated observations
-        if: always() && (steps.collect.outcome == 'success' || steps.collect.outcome == 'failure')
+        if: always() && (steps.collect.outputs.exit_code == '0' || steps.collect.outputs.exit_code == '1')
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
@@ -50,13 +58,22 @@ jobs:
           done
           if ! git diff --cached --quiet; then
             git commit -m 'data: refresh observed job postings'
-            # A concurrent owner push is rejected; never force, reset or auto-merge.
-            git push origin HEAD
+            # A concurrent owner push (triage, ledger) is rejected. Owner commits never
+            # touch scan files, so replay this one commit once; a conflict stops here.
+            # Never force, reset or merge.
+            if ! git push origin HEAD; then
+              git pull --rebase --no-autostash origin "$GITHUB_REF_NAME"
+              git push origin HEAD
+            fi
           else
             echo 'No changes to commit'
           fi
       - name: Surface scan failures
         if: steps.collect.outcome == 'failure'
         run: |
-          echo 'One or more feeds failed. Check log and report; failed boards retain previous state.'
+          if [[ '${{ steps.collect.outputs.exit_code }}' == '1' ]]; then
+            echo 'One or more feeds failed. Check log and report; failed boards retain previous state.'
+          else
+            echo 'Scan error (exit ${{ steps.collect.outputs.exit_code }}): nothing was committed; the repository data is unchanged.'
+          fi
           exit 1

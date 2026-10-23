@@ -41,7 +41,7 @@ class CLITests(unittest.TestCase):
             report.write_text('OLD REPORT')
             with patch('jobwatch.cli.collect_board', side_effect=ValueError('bad response')):
                 code = scan(config, state, report)
-            self.assertEqual(code, 2)
+            self.assertEqual(code, 1)  # failure recorded in health and report; safe to commit
             self.assertIn('bad response', report.read_text())
             saved = load_state(state)
             self.assertEqual(saved['postings'], {})

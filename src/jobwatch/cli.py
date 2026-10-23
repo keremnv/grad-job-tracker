@@ -18,7 +18,7 @@ from .filtering import RULES_VERSION, explanation_of, rank, plain, verdict_of
 from .render import text, link
 from .timing import deadline_window, stale
 from .verifications import load_verifications
-from .state import atomic_write, health_path, last_seen, load_state, merge, save_state, utcnow
+from .state import atomic_write, health_path, last_seen, load_state, merge, referenced_texts, save_state, utcnow
 
 
 def _explanation(row):
@@ -129,6 +129,16 @@ def _compact(event):
     return out
 
 
+def _verify_saved(state_path: Path, state: dict) -> None:
+    """Re-read what was written; the scheduled workflow commits only after this passes."""
+    saved = load_state(state_path)
+    if saved["postings"].keys() != state["postings"].keys() or saved.get("last_scan", {}).get("at") != state["last_scan"]["at"]:
+        raise ValueError("saved index or health does not match this scan; do not commit")
+    missing = [sha for sha in referenced_texts(saved) if sha not in saved["texts"]]
+    if missing:
+        raise ValueError(f"{len(missing)} referenced source text file(s) missing after save; do not commit")
+
+
 def scan(config_path: Path, state_path: Path, report_path: Path, verification_path: Path | None = None,
          application_path: Path | None = None, lead_path: Path | None = None) -> int:
     verification_path = verification_path or state_path.parent / "verifications.json"
@@ -199,8 +209,10 @@ def scan(config_path: Path, state_path: Path, report_path: Path, verification_pa
             return 2
         save_state(state_path, state, when)
         atomic_write(report_path, rendered)
+        _verify_saved(state_path, state)
         print(f"Success: {len(good)} boards; {len(failures)} failures; {len(events)} changes")
-        return 2 if not good else 1 if failures else 0
+        # 0/1: written and consistent (1 = some or all boards failed). 2: do not commit.
+        return 1 if failures else 0
     finally:
         lock.unlink(missing_ok=True)
 
@@ -229,8 +241,12 @@ def main(argv: list[str] | None = None) -> int:
         if ns.command == "applications":
             return run_cli(ns)
         if ns.command == "scan":
-            return scan(Path(ns.config), Path(ns.state), Path(ns.report), Path(ns.verifications),
-                        Path(ns.applications), Path(ns.leads))
+            try:
+                return scan(Path(ns.config), Path(ns.state), Path(ns.report), Path(ns.verifications),
+                            Path(ns.applications), Path(ns.leads))
+            except Exception as exc:  # noqa: BLE001 - any crash must exit 2 so the workflow does not commit
+                print(f"ERROR: {type(exc).__name__}: {text(exc)}; scan outputs must not be committed", file=sys.stderr)
+                return 2
         if ns.command == "watchlist":
             print(watchlist(load_config(Path(ns.config))), end="")
             return 0

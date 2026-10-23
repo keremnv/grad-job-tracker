@@ -10,14 +10,26 @@ On-disk layout for a state path such as ``data/jobs.json``:
   is the only file an unchanged scan rewrites.
 - ``data/jobs-text/<aa>/<sha256>.txt``: exact source description strings,
   content-addressed and immutable. Written before the state that references
-  them; unreferenced files are removed after the state is saved.
+  them; unreferenced files are removed after the state is saved. Every
+  indexed record keeps its current text (also once ``not_seen``), so any
+  record can be rescreened from full evidence. Removing a file from the
+  working tree does not remove it from Git history.
+
+Write order is texts → index → health → orphan-text removal. The index must
+never be behind the health file: health records ``index_complete_since``, and
+a health file ahead of an incomplete index would make the next scan report
+every previously unrecorded posting as new. Each file is replaced atomically,
+so an interrupted save leaves the previous index, or the new index with the
+previous health (none during the first migration: schema-1 board health lived
+in the old index and is then only in Git history). Either way the next
+complete save converges without false `new` events (tests/test_durability.py).
 
 In memory the three are combined: ``{"schema": 2, "postings", "boards",
 "last_scan", "texts"}``. Schema-1 files (and dicts) are upgraded on load.
 """
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from hashlib import sha256
 import json
 import os
@@ -32,7 +44,6 @@ SCHEMA = 2
 SOURCE_FIELDS = ('title', 'location', 'url', 'salary', 'country', 'countries', 'department', 'team',
                  'employment_type', 'published_at', 'source_dates', 'description_sha256')
 SCREENING_EVENT_LIMIT = 20
-TEXT_RETENTION_DAYS = 180
 LEGACY_RULES = 'legacy-schema-1'
 SHA = re.compile(r'[0-9a-f]{64}')
 
@@ -166,19 +177,13 @@ def _row_texts(row):
 
 
 def referenced_texts(state: dict, now: str | None = None) -> set[str]:
-    """Texts to retain. Postings unseen for longer than TEXT_RETENTION_DAYS
-    release their text; Git history still holds it."""
-    cutoff = _parse(now) - timedelta(days=TEXT_RETENTION_DAYS) if now else None
+    """Texts to retain: every record's current text and the 'before' side of its
+    latest description change. There is no age-based expiry; `now` is unused and
+    kept for call compatibility."""
     keep = set()
     for row in state['postings'].values():
-        if cutoff and row.get('feed_status') == 'not_seen' and row.get('missing_since') and _parse(row['missing_since']) < cutoff:
-            continue
         keep.update(_row_texts(row))
     return keep
-
-
-def _parse(value):
-    return datetime.fromisoformat(value.replace('Z', '+00:00'))
 
 
 def description_of(state: dict, row: dict):

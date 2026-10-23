@@ -215,7 +215,7 @@ class ReliabilityStateTests(unittest.TestCase):
             config.write_text(json.dumps({'employers': [dict(ENTRIES['greenhouse'], enabled=True, careers_url='https://monzo.com/careers', validation_url='https://monzo.com/careers', mapping_verified_at='2026-10-17T00:00:00Z')]}))
             with patch('jobwatch.cli.collect_board', return_value=[posting()]): self.assertEqual(scan(config,state,output),0)
             before=load_state(state); before_bytes=state.read_bytes()
-            with patch('jobwatch.cli.collect_board', side_effect=TimeoutError('timeout')): self.assertEqual(scan(config,state,output),2)
+            with patch('jobwatch.cli.collect_board', side_effect=TimeoutError('timeout')): self.assertEqual(scan(config,state,output),1)  # health written: commit
             after=load_state(state); self.assertEqual(before['postings'], after['postings'])
             self.assertEqual(before_bytes, state.read_bytes())
             self.assertEqual(before['boards']['greenhouse:monzo']['last_success'], after['boards']['greenhouse:monzo']['last_success'])

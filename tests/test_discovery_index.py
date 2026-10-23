@@ -63,7 +63,7 @@ class CompletenessTests(unittest.TestCase):
             ws = Workspace(d)
             ws.scan(board(10))
             before = ws.state.read_bytes()
-            self.assertEqual(ws.scan(TimeoutError('timeout')), 2)
+            self.assertEqual(ws.scan(TimeoutError('timeout')), 1)
             self.assertEqual(ws.state.read_bytes(), before)
             loaded = st.load_state(ws.state)
             self.assertTrue(all(r['feed_status'] == 'listed' for r in loaded['postings'].values()))
@@ -208,8 +208,12 @@ class MigrationTests(unittest.TestCase):
             with self.assertRaises(ValueError): st.load_state(path)
 
 
+def screen_basis(state, row):
+    return real_screen(st.stored_inputs(state, row))['basis']
+
+
 class TextStoreTests(unittest.TestCase):
-    def test_texts_are_immutable_garbage_collected_and_retention_bounded(self):
+    def test_texts_are_immutable_garbage_collected_and_kept_for_unseen_records(self):
         with TemporaryDirectory() as d:
             path = Path(d) / 'jobs.json'
             s, _ = st.merge({'schema': 2, 'postings': {}}, {'lever:example': [post(1, description='v1')]}, T1)
@@ -221,12 +225,13 @@ class TextStoreTests(unittest.TestCase):
             stored = {p.read_text() for p in st.text_dir(path).glob('*/*.txt')}
             self.assertEqual(stored, {'v2', 'v3'})  # current + the 'before' of the latest change
             s, _ = st.merge(st.load_state(path), {'lever:example': []}, '2026-10-20T07:00:00Z')
-            st.save_state(path, s, '2027-06-01T00:00:00Z')  # more than 180 days unseen
-            self.assertEqual(list(st.text_dir(path).glob('*/*.txt')), [])
+            st.save_state(path, s, '2028-06-01T00:00:00Z')  # long unseen: no age-based expiry
             loaded = st.load_state(path)
             row = loaded['postings']['lever:example:1']
-            self.assertIsNone(st.description_of(loaded, row))
-            self.assertEqual(st.rescreen_preview(loaded, T3)[0]['basis'], 'title_metadata_only')
+            self.assertEqual(st.description_of(loaded, row), 'v3')
+            self.assertEqual(screen_basis(loaded, row), 'full')  # rescreening keeps full evidence
+            del loaded['postings']['lever:example:1']['description_sha256']
+            self.assertEqual(screen_basis(loaded, row), 'title_metadata_only')
 
 
 if __name__ == '__main__':
