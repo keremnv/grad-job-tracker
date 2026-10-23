@@ -1,6 +1,6 @@
 # Opportunity corpus: architecture decisions and source contract
 
-**Status:** Revised design baseline after independent review; proposed implementation, no runtime changes. See §10 for reviewed findings and exact corrections.  
+**Status:** Revised design baseline after independent review and owner-selected PostgreSQL authority; no runtime changes. **Section 11 supersedes earlier storage, search-engine and Qdrant suggestions wherever inconsistent.** See §10 for independent-review findings.  
 **Recorded:** 2026-10-23  
 **Scope:** Source discovery, ATS collection, common posting representation, source/version history, and agent retrieval.  
 **Current deployment:** Schema-2 discovery index, nine monitored ATS boards, private Git-backed state, read-only JSON CLI, deterministic screening, standard-library BM25. The first schema-2 GitHub scan has completed.  
@@ -15,7 +15,7 @@
 | D03 | ACCEPTED | **External agent, session context.** The tracker stores no CV, GitHub-project profile or permanent fit context for this prototype. | User/agent supply context per session when needed. |
 | D04 | ACCEPTED | **No Jev in initial prototype.** | No decision-model dependency or stored personal fit score. |
 | D05 | ACCEPTED | **BM25 remains the current retrieval baseline.** Add real vector-database retrieval as an optional derived capability, not source authority. | Useful for semantic retrieval and genuine vector-database engineering experience; improvement claims require evidence. |
-| D06 | ACCEPTED | **One agent-facing search capability.** Retrieval mode may later be lexical, vector or hybrid, with the same opportunity identities and provenance. | Avoid forcing agents to manage separate retrieval contracts. |
+| D06 | REFINED / ACCEPTED | **Agents get ordinary PostgreSQL SQL as their primary exploratory interface.** Search convenience commands may coexist with raw SQL and future lexical/vector/hybrid queries. | No unnecessary agent-only query DSL, MCP service or mandatory high-level wrapper; use standard database capabilities. |
 | D07 | ACCEPTED | **Curated plus agent-discovered sources.** Borrow Aboard's candidate/validation/monitoring distinction. | Expand source coverage without conflating a plausible ATS URL with a trusted monitored board. |
 | D08 | ACCEPTED | **Agents may write new source candidates and evidenced manual leads through validated operations.** | Do not require manual JSON editing; do not allow agents to invent collector observations. |
 | D09 | ACCEPTED | **Material history, not an unchanged-event log.** | Keep meaningful source and judgment changes, while board health captures successful unchanged scans. |
@@ -24,8 +24,12 @@
 | D12 | REVISED / PROPOSED | **One selected-native-evidence and material-revision mechanism, plus a current normalized view.** | Keep attributable source evidence and representation fingerprints, without separate authoritative histories for normalized records and sections. |
 | D13 | REVISED / PROPOSED | **Retain all referenced historical wording and selected-native evidence.** | References must remain readable across v1→v2→v3. Avoid retaining duplicate unchanged payloads and unnecessary independent section histories. |
 | D14 | REVISED / PROPOSED | **A minimal, provider-grounded common posting contract.** | Preserve posting keys and CLI compatibility; storage schema may become 3 if needed for a clean, safe migration. |
-| D15 | PROPOSED / OPTIONAL IMPLEMENTATION | **A local, rebuildable vector index (Qdrant currently favoured).** | Genuine vector database engineering is desired; index is a non-authoritative derivative, not a gate for prototype utility. |
+| D15 | REVISED / ACCEPTED DIRECTION | **Use pgvector inside the authoritative PostgreSQL database for optional derived embedding retrieval.** | No second vector store by default; content, model, chunking and revision references remain reproducible. Index structures can be rebuilt. |
 | D16 | ACCEPTED | **Material history retrieval, not arbitrary as-of replay.** | Reconstructing a complete historical system state is costly and not required by the demonstrated use cases. |
+| D17 | ACCEPTED | **PostgreSQL is the authoritative operational store, reachable independently by GitHub Actions and external coding agents.** | Chosen for future growth, network access, and PostgreSQL engineering experience; replaces Git-managed JSON/CSV as production authority after safe cutover. |
+| D18 | ACCEPTED | **SQL-first exploration with ordinary tools.** | Agents can use psql, Python/psycopg and SQL freely for read/analysis. Validated writes or SQL transactions protect actual integrity requirements, not artificial distrust of agents. |
+| D19 | ACCEPTED DIRECTION | **Hosted managed PostgreSQL with native full-text search and pgvector.** | Provider, plan, backup policy, embedding model and precise access roles remain deployment details; pgvector vectors are derived evidence-linked data. |
+| D20 | PROPOSED MIGRATION | **Cut over collector and owner state transactionally; preserve a reproducible export/backup path.** | Do not run two authorities or commit a live PostgreSQL dump to Git as if it were a mergeable database. |
 
 These are design commitments, not a claim that the PROPOSED mechanics are implemented. Change this register via documented decisions; do not silently alter agreed semantics during implementation.
 
@@ -161,7 +165,7 @@ The user wants flexible agent writes; the contract should expose safe write capa
 
 One agent-facing search/query capability should eventually support structured filters plus lexical, vector and hybrid modes. **BM25 is the current functioning default.** A real vector database is an explicit desired engineering capability, even if the evaluation does not show a quality win. **Research search should default to all currently listed postings including excluded verdicts;** attention queues remain screened. Historical/not_seen content should be an explicit inclusion filter. Description matching, matched passages, corpus coverage and board-health warnings must be easy for agents to obtain. The existing search currently excludes excluded postings by default, includes not_seen, requires --text for descriptions and suppresses board warnings; fix these semantics before evaluating a better retriever.
 
-A local Qdrant-derived index is the current candidate, not part of canonical persistence. It should use deterministic integer/UUID point IDs (with canonical posting key in payload), posting-level result grouping, exact embedding-input hash, embedding-model revision, input/chunking revision, dimensions, and indexing timestamp. Section identity need only persist within its source version. Compare indexed payload versions against canonical state; explicitly remove stale/superseded points. Index builds must be reproducible, idempotent and non-destructive to source data. The vector DB may be rebuilt; no CV, personal context, or private query-derived embeddings are stored for this prototype.
+A local Qdrant-derived index was an earlier candidate, **now superseded by the PostgreSQL + pgvector decision in §11**; the semantic index is not authoritative. It should use deterministic integer/UUID point IDs (with canonical posting key in payload), posting-level result grouping, exact embedding-input hash, embedding-model revision, input/chunking revision, dimensions, and indexing timestamp. Section identity need only persist within its source version. Compare indexed payload versions against canonical state; explicitly remove stale/superseded points. Index builds must be reproducible, idempotent and non-destructive to source data. The vector DB may be rebuilt; no CV, personal context, or private query-derived embeddings are stored for this prototype.
 
 Hybrid rankings, if implemented, must label methods and not sum incomparable raw lexical and vector scores blindly. Every matched section links back to original source evidence and a stable posting key. When the vector index is unavailable, BM25 should work and the missing mode must be reported accurately.
 
@@ -246,3 +250,45 @@ An independent senior engineer examined this document at 52bd87b, the deployed m
 **Pre-implementation decision:** Choose the **small native-evidence extension** over the simpler normalized-only adapter-epoch option because source/parser attribution and exact historical wording are user-valued. If a proof-of-concept demonstrates that native evidence is disproportionately complex, the normalized-only alternative remains valid, but must explicitly disclaim attribution across normalizer epochs.
 
 **Implementation request:** Do not implement from this branch automatically. Review and approve this revised design, then start in a new implementation branch with fixture expansion and scratch evidence/version tests. No merge to main here.
+
+## 11. Database and agent access decision (2026-10-23; supersedes earlier storage options)
+
+The owner explicitly chose **authoritative PostgreSQL + pgvector, accessible independently by GitHub Actions and external agent sessions**. Reasons: possible future expansion, ordinary SQL-first agent work, and meaningful PostgreSQL experience (the owner already has SQLite experience). This replaces the earlier generated SQLite read cache, local authoritative SQLite, and default separate Qdrant proposals.
+
+### 11.1 Storage authority and scope
+
+- **PostgreSQL is the sole production authority after migration** for postings, selected native evidence, normalized content, one material revision history, source registry and observations, verifications, leads, triage and the application ledger.
+- Existing Git-tracked JSON/CSV/text files are **migration inputs and possible export formats**, not continuously synchronized parallel authorities after cutover. Decide whether/how to retain existing snapshots and purge stale sensitive repo files in a separate privacy-aware migration plan; do not equate removing Git working-tree files with erasing historical commits.
+- Keep SQL tables conventional and queryable, with useful views for current records. A minimal logical starting set: sources; collection_runs/source_observations; postings; evidence_versions; posting_revisions; current posting_sections (where justified); leads/programmes; verification; triage; applications. Avoid independently authoritative description/section event stores. Use JSONB selectively for source-specific details.
+- Source observations and every posting/evidence/revision/health update from one qualifying board collection should be committed atomically in PostgreSQL. Fetch and validate network responses before beginning the database transaction. On failure or partial collection, no false absence/closure claims. Preserve idempotency and source-identity collision invariants.
+- A successful collection is not an atomic snapshot of the upstream ATS. The database can make **our publication atomic**, not the remote employer's API.
+
+### 11.2 SQL-first interface, ordinary privileges
+
+- Agents are **competent programmers**, not clients requiring a special restrictive query language. Provide standard PostgreSQL connections via `psql`, Python/psycopg and SQL over readable tables/views; document schema, keys, evidence and freshness. Arbitrary SQL SELECT/joins/aggregations are first-class supported research operations.
+- Existing `queue`, `show`, `health`, `changes`, `triage` and `verify` commands can remain useful conveniences and domain-safe write operations, but should not be mandatory for reading. No agent-specific MCP framework or general query DSL is required.
+- Give independent agents and GitHub Actions **separate normal PostgreSQL credentials/roles** with privileges appropriate to their operational purpose (e.g., read/reporting, collector, owner writes, schema migrations). Database constraints, transactions and source-specific validation enforce meaningful integrity; do not impose extra read gates merely because the caller is an agent.
+- Ordinary SQL writes may be appropriate for tables whose invariants can be expressed by database constraints. Multi-record transitions such as source promotion, verified claims, scan publication or owner-state changes may use small transactional application operations if required by their actual invariants. Avoid blanket permission to overwrite scan evidence.
+- Use managed TLS connections and securely stored credentials. GitHub Actions secrets/agent secret management must not result in checked-in database URLs, private CVs or credentials.
+
+### 11.3 Search and vectors in PostgreSQL
+
+- PostgreSQL **native full-text search** supports `tsvector`/`tsquery`, `ts_rank`/`ts_rank_cd`, GIN indexes and snippets. These built-in rankers are **not BM25**. Keep the existing Python BM25 as a baseline initially, then compare with PostgreSQL ranking before changing claimed retrieval semantics. Research queries include excluded postings by default, with explicit source freshness/coverage.
+- Install/enable **pgvector**, using a table of derived embeddings or chunks joined to immutable source evidence/current posting keys. Record input hash, embedding model/revision, chunking/normalizer revision, vector dimensions, creation time, and current-vs-stale status. Do not store session CV/context embeddings persistently.
+- Start with **exact nearest-neighbor search** at the present small scale. Benchmark before adding an approximate HNSW/IVFFlat index. pgvector supports both exact and ANN search. Keep searchable source text and evidence retrievable independently of embedding availability.
+- Later hybrid search may fuse lexical and vector ranks, e.g., reciprocal rank fusion (RRF), without summing incomparable score scales. Raw SQL must remain available even if a convenience search command supports mode selection. The semantic match is a retrieval signal, not an eligibility or suitability fact.
+
+### 11.4 Deployment and migration consequences
+
+- **Current runtime is unchanged**: GitHub Actions presently commits JSON/text snapshots to Git, and the CLI reads those files. Nothing has been cut over or deployed by this decision.
+- Choose a managed PostgreSQL provider that supports a direct client connection for agents and GitHub Actions, pgvector at compatible versions, SSL/TLS, reliable backups/restore and an understandable pricing/data-retention policy. Provider choice (e.g., Neon or Supabase) is not yet authorised/selected; do not create infrastructure or incur costs without owner approval.
+- Use a local disposable PostgreSQL+pgvector instance for deterministic test runs and migration rehearsals. Develop a one-time, validated import from existing state that preserves posting keys, present content hashes/known versions, observation baselines, triage, verifications and application joins; **do not fabricate unavailable older native evidence**.
+- Cut over **once** from Git file writes to DB writes after a consistency/reconciliation check. Update the Actions workflow to call PostgreSQL-backed scanning and stop committing routine mutable data; continue committing source, migrations, docs and tests. Avoid a period in which both systems independently accept authoritative writes. Pause/sequence jobs during cutover.
+- Test that a complete board run commits all related records, failure rolls back, repeated runs are idempotent, source-history references remain readable, concurrent scans cannot publish conflicting observations, and owner writes are not overwritten by scans.
+- Define backup and *tested restore*, migration rollback, and cost constraints before using a live database. PostgreSQL transactionality does not substitute for backups. Migrate private data only to the owner's approved provider/location.
+
+### 11.5 What remains intentionally undecided
+
+Managed PostgreSQL vendor/region/plan, connection pooling, read/write role grants in detail, embedding provider/model, vector dimension and table layout, HNSW thresholds, exact migration cutover timing, retention/backup tier and whether search convenience commands use rank fusion in SQL or Python. These are implementation/deployment choices, not reasons to reopen the primary architecture.
+
+**Required independent review update:** Prior criticism of splitting native, normalized, description and section histories remains valid. Re-review should focus on transactional schema/migration, source and owner-state access, remote GitHub Actions credentials, backup/recovery, and whether the proposed relational design is overbuilt for the current corpus. No implementation is authorised by this documentation.
