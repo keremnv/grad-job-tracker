@@ -1,0 +1,167 @@
+Hi, I’m Ellie, People Lead at hx.
+
+I joined hx in January 2025 as a Senior People Partner and have recently stepped into the People Lead role. Outside of work, I’m an F1 fan and dog mum, so I’m no stranger to fast-paced environments or the occasional pit stop for walkies.
+
+Our People team supports all things people at hx, from performance and engagement to the systems, insights and day-to-day operations that help our teams do their best work.
+
+We’re growing the team and looking for someone to own our People reporting and analytics, while helping keep the operational side of the function running smoothly.
+
+It’s a great opportunity for someone who enjoys turning data into meaningful insights, wants to make a real impact and is excited to help shape how the People team grows alongside the business.
+
+Interested? Read more about the role and life at hx below.
+
+
+
+
+ABOUT HYPEREXPONENTIAL (HX)
+
+At hyperexponential, we're building the AI-powered platform that enables the world's most critical decisions in a $7 trillion industry, which risks to take, and how to price them. These are the decisions that shape real-world outcomes: whether rockets successfully launch into space, autonomous vehicles make it to market, or communities recover after major storms.
+
+Until now, insurance has been making billion-dollar decisions using outdated tools. We're changing that. Our platform brings together data, AI, and human expertise to give insurers the fastest path from submission to decision, helping them move faster, act smarter, and take on more risk with confidence.
+
+Backed by a16z, Highland Europe, and Battery Ventures, we're scaling globally, already trusted by nearly 50 of the world's largest insurers, with zero churn and billions in premiums flowing through hx.
+
+What began as a single product in one market has rapidly evolved into a multi-product, multi-territory platform powering every stage of pricing and underwriting. AI is at the core of what we do, from building the world's first domain-specific AI peer programmer for insurance (think GitHub Copilot with a PhD in actuarial science) to shaping agentic workflows that reinvent how this industry operates.
+
+What makes hx different is the people who build it. Here, impact isn't tied to title or tenure, it's defined by the challenges you take on and the discipline you bring. Surrounded by peers who stretch you, you'll do the best, hardest work of your life in a company engineered to endure. If that sounds like you, join us in building what comes next.
+
+
+
+
+
+ABOUT THE PEOPLE TEAM
+
+Our People team owns the systems and data that keep hx a high-performance, high-engagement place to work: performance and growth, people analytics, compensation and benefits, and HR compliance. We are building the reporting layer that lets the business make faster, better-evidenced decisions about its people rather than relying on instinct, and we work closely with Talent to connect hiring and pipeline data with performance and engagement data so leaders see the full employee lifecycle instead of fragments of it.
+
+Inside People and Talent, AI has already changed how we screen, how we write up interviews and how we surface insight to leaders. There is far more to do. Plenty of what we do still runs on manual effort that could be designed out, and this role exists to go after that. We care much more about what you have built and put in front of real users than about the size of the team you have sat in, and impact here isn't tied to title or tenure.
+
+You will work directly with People Leaders, with real scope to shape how the team works as we grow. One thing worth being direct about: there is no finished playbook here. If you need a well-defined remit and clear instruction to do your best work, this will be frustrating. If you would rather find the problem yourself and build the fix, you will have a lot of room..
+
+
+
+
+WHAT YOU'LL BE DOING
+
+ - Build the AI tooling that our People and Talent function runs on. Agents that answer the questions currently landing in our inbox, skills that draft the documents we write manually, workflows that pull our systems together. This is the core of the role rather than a project on the side.
+
+ - Build out the People reporting layer, including dashboards on retention, attrition and engagement, and get to the point where you can tell us what the numbers mean, not just what they are.
+
+ - Work with Talent to connect hiring and pipeline data to People data, and make that view something leaders can interrogate themselves.
+
+ - Learn our people processes properly, starting with onboarding, payroll data integrity and the performance cycle, then rebuild the parts that depend on manual effort.
+
+ - Support our performance review cycles in Lattice and our engagement surveys, help analyse what comes out of them, and automate the parts that should not need a person.
+
+ - Help keep our HRIS data accurate, including records, reporting and system troubleshooting.
+
+
+
+
+WHAT YOU'LL NEED TO HAVE DONE
+
+ - Built and shipped something with AI that other people used, whether that is an agent, a script, a tool, a bot or a side project.
+
+ - Got past the first version. We will ask how you tested it, what it got wrong with real users and what you changed as a result. If you have a long list of things you have experimented with, we want to hear what each one taught you.
+
+ - Worked with more than one model or platform, and formed a view on what each is good for.
+
+ - Worked with a real dataset, cleaned it up, and drawn a conclusion you could defend.
+
+ - Been responsible for keeping a system or record accurate, whether that is a tracker, a membership list, a codebase or admin for a part-time role.
+
+ - Handled something that needed to stay confidential, or can show us how you think about handling sensitive information.
+
+ - Genuine interest in how organisations work, and the willingness to learn a domain where the detail matters and the consequences of getting it wrong land on real colleagues.
+
+
+
+
+YOU'RE UNLIKELY TO THRIVE HERE IF
+
+ - You struggle to adapt to change or ambiguity, or find it difficult to collaborate across diverse teams.
+
+ - You're not energised by a culture that values ownership, feedback, and continuous learning.
+
+If reading our Culture Document https://hx.wiki/ leaves you feeling neutral rather than energised, hx may not be the place where you’ll do your best work. We’re building something that asks for commitment and conviction, and we want you to feel excited by the opportunity to grow with us.
+
+
+
+
+COMPENSATION
+
+This role sits within a £40,000 - £55,000 salary range. At hx, we're committed to salary transparency, you'll always have clarity on pay early in the process, and our Talent Partner will share more detail with you during initial conversations. We're also working towards publishing salary information for all roles globally.
+
+Because we're building at the intersection of technology/SaaS and insurance, our roles don't always map neatly onto traditional benchmarks. Our approach is to design compensation that's competitive in the market, fair across teams, and aligned with the impact our people make.
+
+Equity: We offer equity across all roles at hx, making it a significant component of total compensation. Your Talent Partner will be able to share more details about this.
+
+
+
+
+BENEFITS
+
+ - £5,000 training and conference budget for individual and group development.
+
+ - 25 days of holiday plus 8 bank holidays (33 days total).
+
+ - Company pension scheme via Penfold.
+
+ - Mental health support and therapy via Spectrum.life http://Spectrum.life.
+
+ - Individual wellbeing allowance via Juno.
+
+ - Private healthcare insurance through AXA.
+
+ - Income protection and Life Insurance.
+
+ - Cycle to Work Scheme.
+
+
+
+
+ADDITIONAL PERKS
+
+ - Top-spec equipment (laptop, screens, adjustable desks, etc.).
+
+ - Regular remote and in-person hackathons, lunch and learns, socials, and games nights.
+
+ - Team breakfasts and lunches, snacks, drinks fridge, and a fun office at The Ministry.
+
+ - Exceptional opportunities for personal development and growth as we build something remarkable together.
+
+
+INTERVIEW PROCESS
+
+ 1. Initial call with our Talent team to kick things off and learn more about your background.
+
+ 2. Manager interview with our People Lead to explore your experience in more depth.
+
+ 3. Skills assessment, presenting a People Analytics deliverable to the team.
+
+ 4. Values interview to get to know how you work and how that aligns with hx's culture with our VP of People and Senior Director of Finance and Operations.
+
+ 5. Meet the CEO
+
+
+OUR COMMITMENT TO DIVERSITY
+
+hxer's are at the centre of everything we build. We know that progress depends on diverse perspectives, and we are committed to creating an environment where everyone can thrive, grow, and make an impact. We recognise there is always more to do, and we take responsibility for shaping a workplace that is not only diverse but genuinely inclusive.
+
+Diversity is not just the right thing to do, it is key to solving the complex challenges we choose to take on. By welcoming people from all backgrounds and experiences, we strengthen our ability to question assumptions, push boundaries, and design solutions that endure.
+
+If you're energised by complexity and motivated to grow, we encourage you to apply and join our global team.
+
+
+
+
+NEXT STEPS
+
+If this opportunity resonates with you, we encourage you to apply or share it with your connections! Our dedicated talent team reviews all applications, and we promise to provide feedback regardless of the outcome.
+
+For more information about applying and to view other opportunities, you can visit our careers page.
+
+Check out our blog at Insights & Blog - hyperexponential https://www.hyperexponential.com/blog
+
+
+
+Please note that background checks will be conducted as part of the hiring process to ensure compliance with our governance policies. We handle all background checks sensitively and in full compliance with relevant regulations. All applicant data will be processed in accordance with data protection regulations and our privacy policy.

@@ -1,0 +1,79 @@
+FOUNDING SALES ENGINEER (NY, NY OR US REMOTE)
+
+Why we're hiring
+
+Tracebit is helping some of the world's best security teams at Snyk, Docker, Riot Games and many more to achieve an 'assume breach' strategy at scale. Tracebit detects intrusions in critical environments using canaries - decoy assets deployed to deceive attackers.
+
+We're at a massive inflection point and there has never been a more exciting time to join us:
+
+ - We've built a product that security teams love. You'll be our founding Sales Engineer (a key part of our Customer Engineering team), helping build the technical foundation for how we grow our customer base and deliver outcomes at scale.
+
+ - We are backed by some of the best investors in the space (Accel, FirstMark and more).
+
+ - We are growing very quickly (we doubled ARR last quarter), having recently closed some incredible customers that we can't disclose publicly!
+
+ - We are one of the most exciting startups to be part of in cybersecurity, have seen some great feedback from the market and are ready for explosive growth.
+
+ - We have strong traction in the US (80% of our customer base and forward-looking business). We've hit product-market fit and it's time to accelerate our growth by building our US presence.
+
+ - Regularly featured on top startup lists from industry veterans... Creandum's Euro Seed top 50 list https://euroseed50.com/, Sifted's 2025 London Startups To Watch https://sifted.eu/articles/london-based-startups-to-watch, Notions Cloud Top 100 https://cdn.prod.website-files.com/613b85712c9672dcafb125ed/67ee997d510af7304efdaecc_NOTION_cloud_challengers_report_2025_V18.pdf, AlbionVC's NHI Breakdown https://albion.vc/spotlight/perspectives/a-new-era-of-secure-identity-management/, MMCs Proactive Security Analysis https://mmc.vc/research/proactive-security-bringing-the-attackers-perspective/, Accel's Euroscape Top Startups 2024 https://cdn.prod.website-files.com/6643a08d305ab77f8c7566b6/670f22a19ea69a94f9710c1a_16%20October%20-%20Accel%202024%20Euroscape.pdf, etc.
+
+ - Trusted by teams at Docker, Chainguard, Xbow, Riot Games, Snyk and more.
+
+ - Our research https://www.techradar.com/pro/security/google-gemini-security-flaw-could-have-let-anyone-access-systems-or-run-code has recently helped fix a P1 security flaw in Google's Gemini CLI.
+
+
+WHO WE'RE LOOKING FOR
+
+You have strong technical sales experience. You've spent 3-5 years in a customer-facing technical role at a B2B SaaS company, ideally in cybersecurity or developer tooling. You don't need to code, but you understand and have experience in areas such as cloud infrastructure or DevOps and can explain technical concepts clearly to both engineers and executives.
+
+You learn technical concepts quickly. You can rapidly grasp new technical concepts and translate them into clear value propositions. You're comfortable diving into technical documentation and asking smart questions to fill knowledge gaps.
+
+You work well with GTM teams. You understand the sales process and know when to lead technical discussions versus when to support account executives. You can identify technical blockers and work collaboratively to overcome them.
+
+You're comfortable in startup environments. You've experienced the pace of an early-stage company and this pace excites you. You can handle ambiguity, build processes from scratch, and adapt quickly as priorities shift.
+
+
+ABOUT THE ROLE
+
+You'll report directly to Bryan O’Neil, our Director of Customer Engineering. You'll partner closely with sales, product, engineering, and directly with our customers to ensure successful evaluations and wider outcomes via our platform.
+
+
+
+
+Your core focus:
+
+ - Run discovery calls and product demos. Partner with sales to understand prospect requirements and deliver tailored demos that showcase how Tracebit solves their specific challenges. Adjust your approach based on whether you're talking to a CISO or a security engineer.
+
+ - Design and execute PoVs. Scope Proof-of-Values that demonstrate clear alignment within prospect environments. Guide customers through setup, monitor progress, and ensure successful outcomes and technical wins.
+
+ - Build technical sales collateral. Input on demo scripts, technical one-pagers, architecture diagrams, and FAQ documents that help prospects understand our platform. Make it easy for AEs to have informed technical conversations.
+
+ - Provide technical guidance throughout the sales cycle. Address questions about security, compliance, and integrations. Work with engineering when deeper expertise is needed. You will be a Tracebit SME.
+
+ - Feed product insights back to the team. Bring customer feedback, feature requests, and competitive intelligence to product discussions. Help shape what we build based on market needs.
+
+ - Represent Tracebit at events. Attend key cybersecurity conferences to run technical demos, answer questions, and build relationships with prospects.
+
+
+FAQS
+
+Where is the office?
+
+We're establishing our New York office in Manhattan. You'll work closely with our London team and other US team members as we grow.
+
+Are you doing hybrid/remote?
+
+This role can be based either in our New York office or fully remote in the US. To best support our teams in NY and London, remote locations should be in Eastern or Central US timezones.
+
+We are an office-first company - all of our team works together in the office 5 days a week. However, we're making an exception for this role given the nature of the work and the need to hire the best talent in this space.
+
+If you're based in New York, you'll work from our office. If you're remote, we expect you to come to the office at least quarterly to collaborate with the team in person.
+
+What are the working hours like?
+
+We think 9am-6pm will bring a great cadence to work. As a founding team member, there will definitely be times you need to pick up work outside of these hours, we're keen to limit this where we can but also offer flexibility in return.
+
+Can you sponsor visas?
+
+You must have the right to work in the US.

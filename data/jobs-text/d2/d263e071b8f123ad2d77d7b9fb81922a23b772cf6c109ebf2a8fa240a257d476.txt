@@ -1,0 +1,10 @@
+&lt;p&gt;&lt;/p&gt;
+&lt;div&gt;
+&lt;p&gt;&lt;strong&gt;Register your interest for future contract opportunities&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;We periodically engage contractors to support project delivery during busy periods and to provide specialist expertise.&lt;/p&gt;
+&lt;p&gt;If you are interested in being considered for future contract opportunities with Cambridge Consultants, we&#39;d welcome an application. By applying, your details will be added to our contractor talent pool and reviewed when suitable opportunities arise.&lt;/p&gt;
+&lt;p&gt;Please note that submitting your details does not guarantee work, and we may not contact all applicants. For information on how we process and retain your personal data, please refer to our Privacy Notice.&lt;/p&gt;
+&lt;/div&gt;&lt;div class=&quot;content-conclusion&quot;&gt;&lt;hr&gt;
+&lt;p style=&quot;text-align: center;&quot;&gt;&lt;strong&gt;By submitting an application to Cambridge Consultants, you confirm that the information provided in this application, together with any supporting documentation, is true, complete, and accurate to the best of your knowledge and belief. You understand that any false statement, misleading information, or material omission may render you liable to disqualification from the recruitment process, withdrawal of any offer of employment, or dismissal without notice if discovered following appointment. You acknowledge that the organisation reserves the right to verify the information supplied.&lt;/strong&gt;&lt;br&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p style=&quot;text-align: center;&quot;&gt;&amp;nbsp;&lt;/p&gt;&lt;/div&gt;

@@ -1,0 +1,90 @@
+FOUNDER’S ASSOCIATE (LONDON)
+
+
+WHY WE'RE HIRING
+
+Tracebit is helping some of the world's best security teams at Snyk, Docker, Chainguard, Riot Games and many more to achieve an 'assume breach' strategy at scale. Tracebit detects intrusions in critical environments using canaries - decoy assets deployed to deceive attackers.
+
+
+
+We're at a massive inflection point and there has never been a more exciting time to join us:
+
+ - We've built a product that security teams love. We've hit product-market fit and it's time to accelerate.
+
+ - We recently raised a $20m Series A https://tech.eu/2026/03/17/tracebit-raises-20m-series-a-to-expand-cloud-native-deception-tech/, backed by some of the best investors in the space (Accel, FirstMark and Tapestry).
+
+ - We've grown from 4 to 30 people in ~20 months, and we're growing very quickly (we doubled ARR last quarter), having recently closed some incredible customers that we can't disclose publicly!
+
+ - We have strong traction in the US (80% of our customer base and forward-looking business), run from our London HQ.
+
+ - We are one of the most exciting startups to be part of in cybersecurity, have seen some great feedback from the market and are ready for explosive growth.
+
+ - Regularly featured on top startup lists from industry veterans... Creandum's Euro Seed top 50 list https://euroseed50.com/, Sifted's 2025 London Startups To Watch https://sifted.eu/articles/london-based-startups-to-watch, Notions Cloud Top 100 https://cdn.prod.website-files.com/613b85712c9672dcafb125ed/67ee997d510af7304efdaecc_NOTION_cloud_challengers_report_2025_V18.pdf, AlbionVC's NHI Breakdown https://albion.vc/spotlight/perspectives/a-new-era-of-secure-identity-management/, MMCs Proactive Security Analysis https://mmc.vc/research/proactive-security-bringing-the-attackers-perspective/, Accel's Euroscape Top Startups 2024 https://cdn.prod.website-files.com/6643a08d305ab77f8c7566b6/670f22a19ea69a94f9710c1a_16%20October%20-%20Accel%202024%20Euroscape.pdf, etc.
+
+ - Deception technology is a key factor in stopping LLM-based attacks https://tracebit.com/blog/deception-openai-huggingface-agentic-breach.
+
+
+
+
+WHO WE'RE LOOKING FOR
+
+You have demonstrated extraordinary achievement early on. You have 0-2 years of professional experience (internships count) and a track record that stands out - a top institution, something you built or ran yourself, a competitive field you got very good at.
+
+
+
+You enjoy solving problems and building systems. When something breaks twice you fix the process, not the instance. You're comfortable getting into the weeds of things and you're the kind of person who automates the boring parts.
+
+
+
+You thrive on variety. One day you're rebuilding our interview pipeline, the next you're cleaning up CRM data, the next you're chasing an invoice. Context-switching energises you.
+
+
+
+You're organised and rigorous. You close loops without being chased. You take complete ownership of what you're given and you're hungry to solve problems that stump other people.
+
+
+
+You want to be at an early-stage startup. You understand that high growth means high pace, and you're excited by the chance to have outsized impact early in your career.
+
+
+
+
+ABOUT THE ROLE
+
+You'll report to Miquel https://www.linkedin.com/in/miquelcas/, our Chief of Staff, who runs talent, operations, legal and finance. He's grown the team from 3 to 30 and built our operations function from scratch. Before Tracebit he spent 4 years in Investment Banking. You'll work directly with him and with our Founders.
+
+
+
+Your core focus:
+
+ - Build and run our internal systems. Own the tooling and the processes that hold the company together - how work gets tracked, how data stays clean, how reporting happens. Document how we work, find the bottlenecks, and remove them before they become a problem.
+
+ - Help us hire a world-class team. Run candidate pipelines and interview coordination, keep our ATS honest, and make sure every candidate has a great experience. Help us identify trends and improve the processes to make our hiring more efficient.
+
+ - Support GTM operations. Work with sales and marketing on the operational side of growth - from marketing events & conferences to GTM enablement.
+
+ - Support finance operations. Invoicing, expenses, supplier management and budget tracking, help pull together the numbers for board and investor reporting.
+
+
+
+This is a generalist role with unusual exposure to how a company actually gets built. For the right person it's a launchpad - there will be opportunities to specialise as we grow.
+
+
+
+
+FAQS
+
+Where is the office?
+
+The whole team works together in an office right next to Warren Street tube station - there are lots of great places to grab lunch nearby.
+
+Are you doing hybrid/remote?
+
+Short answer: No, but flexible on a day to day basis.
+
+Long answer: We are set on building the company on a foundation of an office based culture. We think we'll build the best company at the fastest pace we can whilst also having a lot of fun by physically working together 5 days a week. On a case by case basis (e.g. leaving early for a holiday, staying home for a builder, working remote for a few days to visit family, etc. etc.) we're very reasonable and flexible. We respect that this is not for everyone.
+
+Can you sponsor visas?
+
+We are not able to sponsor visas for this role.
+

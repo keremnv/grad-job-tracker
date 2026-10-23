@@ -1,0 +1,105 @@
+
+<div>
+<div>
+
+<li><span data-contrast="auto">Planning, leading and delivering content design activities across public sector delivery teams.&nbsp;</span><span data-ccp-props="{}">&nbsp;</span></li>
+
+</div>
+<div>
+
+<li><span data-contrast="auto">Creating,&nbsp;editing&nbsp;and improving clear, accessible content across digital and offline service journeys.&nbsp;</span><span data-ccp-props="{}">&nbsp;</span></li>
+
+</div>
+<div>
+
+<li><span data-contrast="auto">Working closely with user research, service design, product, business analysis,&nbsp;delivery&nbsp;and technical colleagues to understand user needs and iterate content based on evidence.&nbsp;</span><span data-ccp-props="{}">&nbsp;</span></li>
+
+</div>
+<div>
+
+<li><span data-contrast="auto">Turning complex policy, legal,&nbsp;regulatory&nbsp;and operational information into content users can understand and act on.&nbsp;</span><span data-ccp-props="{}">&nbsp;</span></li>
+
+</div>
+<div>
+
+<li><span data-contrast="auto">Creating and iterating content patterns, prototypes, guidance, forms, notifications, error&nbsp;messages&nbsp;and service copy where needed.&nbsp;</span><span data-ccp-props="{}">&nbsp;</span></li>
+
+</div>
+<div>
+
+<li><span data-contrast="auto">Mapping content and service journeys to&nbsp;identify&nbsp;gaps, risks,&nbsp;assumptions&nbsp;and dependencies.&nbsp;</span><span data-ccp-props="{}">&nbsp;</span></li>
+
+</div>
+<div>
+
+<li><span data-contrast="auto">Engaging confidently with client stakeholders, including operational, policy and delivery colleagues.&nbsp;</span><span data-ccp-props="{}">&nbsp;</span></li>
+
+</div>
+<div>
+
+<li><span data-contrast="auto">Championing accessibility, inclusion, plain&nbsp;English&nbsp;and evidence-led content decisions within complex public sector programmes.&nbsp;</span><span data-ccp-props="{}">&nbsp;</span></li>
+
+</div>
+<div>
+
+<li><span data-contrast="auto">Supporting the continued growth of Scott Logic’s User-Centred Design capability by helping develop reusable approaches, patterns and delivery assets that strengthen future projects.</span></li>
+
+</div>
+</div>
+<div>
+<div>
+
+<li><span data-contrast="auto">Strong experience as a Senior Content Designer in multidisciplinary digital or service delivery teams.&nbsp;</span><span data-ccp-props="{}">&nbsp;</span></li>
+
+</div>
+<div>
+
+<li><span data-contrast="auto">Experience planning and leading content design independently, including shaping proportionate content approaches for complex services.&nbsp;</span><span data-ccp-props="{}">&nbsp;</span></li>
+
+</div>
+<div>
+
+<li><span data-contrast="auto">Strong understanding of user-centred design, accessibility, plain English, content&nbsp;testing&nbsp;and evidence-led iteration.&nbsp;</span><span data-ccp-props="{}">&nbsp;</span></li>
+
+</div>
+<div>
+
+<li><span data-contrast="auto">Strong content design skills, including content auditing, journey mapping, prototyping, pair writing and creating clear service content.&nbsp;</span><span data-ccp-props="{}">&nbsp;</span></li>
+
+</div>
+<div>
+
+<li><span data-contrast="auto">Ability to turn complex policy, process and domain information into clear content,&nbsp;guidance&nbsp;and service copy.&nbsp;</span><span data-ccp-props="{}">&nbsp;</span></li>
+
+</div>
+<div>
+
+<li><span data-contrast="auto">Ability to work closely with user research, service design, product, business analysis,&nbsp;delivery&nbsp;and technical colleagues.&nbsp;</span><span data-ccp-props="{}">&nbsp;</span></li>
+
+</div>
+<div>
+
+<li><span data-contrast="auto">Ability to engage confidently with users and stakeholders, including operational, policy and delivery colleagues.&nbsp;</span><span data-ccp-props="{}">&nbsp;</span></li>
+
+</div>
+<div>
+
+<li><span data-contrast="auto">Clear written and verbal communication, with strong judgement about how to explain content decisions to technical and non-technical audiences.&nbsp;</span><span data-ccp-props="{}">&nbsp;</span></li>
+
+</div>
+<div>
+
+<li><span data-contrast="auto">Experience working in complex public sector service environments.&nbsp;</span><span data-ccp-props="{}">&nbsp;</span></li>
+
+</div>
+<div>
+
+<li><span data-contrast="auto">A strong understanding of accessibility, inclusion and designing for diverse user needs.&nbsp;</span><span data-ccp-props="{}">&nbsp;</span></li>
+
+</div>
+<div>
+
+<li><span data-contrast="auto">Experience working on Discovery and Alpha phases of delivery</span></li>
+
+</div>
+</div>

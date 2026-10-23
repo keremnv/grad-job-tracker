@@ -1,0 +1,38 @@
+THE TEAM
+
+The Technical Support Team is usually the first line of communication between incident.io http://incident.io and our customers.
+
+We’re part of Product Development, and we’re crucial in ensuring our customers have the best possible experience with our product.
+
+It’s typical for us to jump on customer calls if needed, discuss best approaches, and provide support when a bug sneaks in.
+
+We also collaborate with Product and Engineering, being an essential part of delivering the best possible product.
+
+
+WHAT YOU’LL BE DOING:
+
+You’ll be joining as a Technical Support Engineer and be responsible for delighting our customers by solving their technical challenges.
+
+ - Delivering a world-class customer experience for inbound support questions over Slack and Pylon
+
+ - Acting as the voice of the customer, by capturing product feedback and feature requests for Product and Engineering
+
+ - Handling technical challenges that arise with customers in partnership with our Customer Success Managers
+
+ - Expanding our technical support processes in collaboration with the Head of Technical Support
+
+ - Resolving customer technical issues directly with Engineering, to debug integration issues, write custom scripts, and work with our API
+
+
+WHAT YOU NEED TO BE SUCCESSFUL:
+
+ - Proven experience in a similar role, preferably at a SaaS company, with some experience with monitoring and on-call systems
+
+ - Able to write code at least enough to be dangerous and proficient enough to tackle technical challenges
+
+ - Able to communicate complex technical information by conveying in a clear and simple manner
+
+ - Love products and are keen to understand how they work and how different parts interact with one another
+
+ - You are smartly persistent; have a knack for knowing when to dig deep and when to move on
+

@@ -1,0 +1,180 @@
+Hi 👋 I'm Deyan, Director of Corporate Marketing at hyperexponential.
+
+I lead Corporate Marketing: brand creative and design, PR and communications, flagship events, and owned media. We partner with teams across the business to produce a high volume of long-form and short-form content. A podcast episode or a report becomes clips, articles, exec posts, and social across everything the department touches.
+
+I'm hiring a Content Operations Associate to help turn that into a repeatable operation. You'll build the pipelines that carry our content from raw material to published output, run them day to day, and make each cycle better than the last. You'll work across every part of the department rather than sitting inside one slice of it.
+
+It's an operations role, not a strategy one. That's deliberate. You'll be close to the editorial thinking without owning it, and your job is the machinery underneath. If that's the kind of problem you want to solve, I'd love to hear from you.
+
+
+
+
+ABOUT HYPEREXPONENTIAL (HX)
+
+At hyperexponential, we're building the AI-powered platform that enables the world's most critical decisions in a £7 trillion industry: which risks to take and how to price them. These decisions shape real-world outcomes. Whether rockets successfully launch into space, autonomous vehicles make it to market, or communities recover after major storms.
+
+Until now, insurance has made billion-pound decisions using outdated tools. We're changing that. Our platform brings together data, AI, and human expertise to give insurers the fastest path from submission to decision, helping them move faster, act smarter, and take on more risk with confidence.
+
+Backed by a16z, Highland Europe, and Battery Ventures, we're scaling globally. We're already trusted by nearly 50 of the world's largest insurers, with zero churn and billions in premiums flowing through hx.
+
+What began as a single product in one market has evolved into a multi-product, multi-territory platform powering every stage of pricing and underwriting. AI is at the core of what we do. From building the world's first domain-specific AI peer programmer for insurance (think GitHub Copilot with a PhD in actuarial science) to shaping agentic workflows that reinvent how this industry operates.
+
+What makes hx different is the people who build it. Impact isn't tied to title or tenure. It's defined by the challenges you take on and the discipline you bring. Surrounded by peers who stretch you, you'll do the best, hardest work of your life in a company engineered to endure.
+
+If that sounds like you, join us in building what comes next.
+
+
+
+
+ABOUT THE TEAM
+
+Marketing at hx builds authority and demand in a niche, technically complex space. This isn't volume-driven marketing. It's deliberate, high-quality work where every output is expected to earn its place.
+
+This role sits in Corporate Marketing: brand, content, flagship events, PR and comms, design and multimedia, and owned media. We partner with teams across the business to produce a high volume of long-form and short-form content. The opportunity now is to turn that into a repeatable operation. The pipelines that take a podcast episode or a report and turn it into clips, articles, exec posts and social. You'll help build those pipelines, run them day to day, and make each cycle better than the last.
+
+It's an operations role rather than a strategy one. You'll be close to the editorial thinking and pick up plenty of it, but your job is the machinery that carries it.
+
+Check out our Marketing & GTM Engineering Candidate Hub https://www.hyperexponential.com/careers/hubs/marketing-gtm-engineering for a behind the scenes look at the team you would be joining.
+
+
+
+
+WHAT YOU'LL BE DOING
+
+Map how hx's content actually gets made. The tools, the sequence, the hand-offs, and where it breaks. Keep that picture current as the operation changes around it.
+
+Run the production cycle across our content programmes (customer stories, the podcast, thought leadership and executive comms). Brief our agency partners, hold the quality bar on what comes back, and hit the publish dates. Take a growing share of that work in-house as you learn how it runs.
+
+Draft copy for new web pages and projects. We draft with Claude against a codified brand voice, so you're never starting from blank. Work with input from internal SMEs and run the loop between programme owners, designers and agency partners. Brief in, feedback consolidated, builds QA'd, pages live on the date agreed.
+
+Keep the hx thought leadership calendar operationally sound. Set the schedule, make the call on what runs when, chase the drafts, and cut existing long-form into the clips, posts and articles that feed our channels.
+
+Keep the operations behind our named-voice programme running. The scheduling, the queue, the approvals, the chasing. So the experts and execs who carry our thought leadership post on cadence without having to manage the process themselves.
+
+Build the templates, prompts and share packs the wider team publishes from. Good work shouldn't depend on you being available.
+
+Learn how we stay visible in AI-generated answers as well as search results. Work out how that content gets published and distributed across the blog and website.
+
+You'll start by running these cycles with support. Within a year we'd expect you to own them end to end and have a view on what we build next.
+
+
+
+
+WHAT WE'RE LOOKING FOR
+
+ - You'll need to take on ownership and responsibility from the start, whatever your level. We care more about how you work than how long you've worked, and we don't expect you to have done all of this before.
+
+ - You've made and published something (a newsletter, a channel, a society page, client work) and found yourself more interested in how it got made than in the making.
+
+ - You're organised in a way other people can see. You track what's outstanding, you follow up, and you flag problems early rather than absorbing them.
+
+ - You use AI properly in your own work. Reusable prompts and templates that make a recurring task faster, not a tool you tried once.
+
+ - You pick things up by using them rather than waiting to be trained.
+
+ - Familiarity with a CMS, a scheduling tool, or a project tracker.
+
+ - Bonus points if you've got work out of someone you couldn't instruct (an agency, a freelancer, a collaborator) by writing a clear ask and going back when it wasn't right.
+
+
+
+
+YOU'RE UNLIKELY TO THRIVE HERE IF
+
+ - You expect full product maturity, clear roadmaps, and well-defined processes before taking action - hx moves fast and requires comfort operating in ambiguity where products, priorities, and messaging are still evolving.
+
+ - You focus primarily on flashy launch work or brand campaigns rather than the detail-oriented, outcomes-driven work of deepening adoption, engagement, and user understanding.
+
+ - You struggle to prioritise or make trade-offs without perfect information, waiting for others to decide rather than using judgment to move work forward with the context available.
+
+If reading our Culture Document https://hx.wiki/ leaves you feeling neutral rather than energised, hx may not be the place where you'll do your best work. We're building something that asks for commitment and conviction, and we want you to feel excited by the opportunity to grow with us.
+
+
+
+
+COMPENSATION
+
+At hx, we're committed to salary transparency. You'll always have clarity on pay early in the process. Our Talent Partner will share details with you during initial conversations. We're working towards publishing salary information for all roles globally.
+
+Because we're building at the intersection of technology/SaaS and insurance, our roles don't always map neatly onto traditional benchmarks. Our approach is to design compensation that's competitive in the market, fair across teams, and aligned with the impact our people make.
+
+Equity: We offer equity across all roles at hx, making it a significant component of total compensation. Your Talent Partner will be able to share more details about this.
+
+
+
+
+BENEFITS
+
+£5,000 training and conference budget for individual and group development.
+
+25 days of holiday plus 8 bank holidays (33 days total).
+
+Company pension scheme via Penfold.
+
+Mental health support and therapy via Spectrum.life http://Spectrum.life.
+
+Individual wellbeing allowance via Juno.
+
+Private healthcare insurance through AXA.
+
+Income protection and Life Insurance.
+
+Cycle to Work Scheme.
+
+
+
+
+ADDITIONAL PERKS
+
+Top-spec equipment (laptop, screens, adjustable desks, etc.).
+
+Regular remote and in-person hackathons, lunch and learns, socials, and game nights.
+
+Team breakfasts and lunches, snacks, drinks fridge, and a fun office at The Ministry.
+
+Exceptional opportunities for personal development and growth as we build something remarkable together.
+
+
+
+
+INTERVIEW PROCESS
+
+ 1. Talent Screening
+
+ 2. Hiring Manager Interview
+
+ 3. Skills Assessment: a take-home exercise, followed by a review session
+
+ 4. Values Interview
+
+ 5. Meet the CEO
+
+ 6. We offer!
+
+
+
+
+OUR COMMITMENT TO DIVERSITY
+
+hxers are at the centre of everything we build. We know that progress depends on diverse perspectives, and we are committed to creating an environment where everyone can thrive, grow, and make an impact. We recognise there is always more to do, and we take responsibility for shaping a workplace that is not only diverse but genuinely inclusive.
+
+Diversity is not just the right thing to do. It's key to solving the complex challenges we choose to take on. By welcoming people from all backgrounds and experiences, we strengthen our ability to question assumptions, push boundaries, and design solutions that endure.
+
+If you're energised by complexity and motivated to grow, we encourage you to apply and join our global team.
+
+
+
+
+NEXT STEPS
+
+If this opportunity resonates with you, apply or share it with your connections. Our dedicated talent team reviews all applications and we promise to provide feedback regardless of the outcome.
+
+For more information about applying and to view other opportunities, visit our careers page.
+
+
+
+Please note that background checks will be conducted as part of the hiring process to ensure compliance with our governance policies. We handle all background checks sensitively and in full compliance with relevant regulations. All applicant data will be processed in accordance with data protection regulations and our privacy policy.
+
+
+
+Please note that background checks will be conducted as part of the hiring process to ensure compliance with our governance policies. We handle all background checks sensitively and in full compliance with relevant regulations. All applicant data will be processed in accordance with data protection regulations and our privacy policy.

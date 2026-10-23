@@ -1,0 +1,171 @@
+Hi 👋 I’m Rich Ashworth, Director of Engineering at hyperexponential.
+
+I lead the Model Authoring value stream that owns the products our customers use to write and manage their pricing models. An actuary might start with an Excel rater and finish with a Python model that has been reviewed, approved, and is pricing live business. Our job is to turn that into an exceptional user experience and make every step of that credible enough to trust.
+
+I'm hiring a Staff Product Engineer to help set our technical direction and build the next version of our products. It's an individual contributor role, but influence is a huge part of it: the standards the pods work to, the shared enablers underneath the product, and the interfaces where our problems meet other teams'. You’ll be hands-on where the risk is highest.
+
+There's no established playbook for any of this, but there’s an incredible opportunity in front of us. If this sounds like a role that would excite you, I'd love to hear from you.
+
+
+
+
+ABOUT HYPEREXPONENTIAL (HX)
+
+At hyperexponential, we're building the AI-powered platform that enables the world's most critical decisions in a £7 trillion industry, which risks to take, and how to price them. These are the decisions that shape real-world outcomes: whether rockets successfully launch into space, autonomous vehicles make it to market, or communities recover after major storms.
+
+Until now, insurance has been making billion-pound decisions using outdated tools. We're changing that. Our platform brings together data, AI, and human expertise to give insurers the fastest path from submission to decision - helping them move faster, act smarter, and take on more risk with confidence.
+
+Backed by a16z, Highland Europe, and Battery Ventures, we're scaling globally - already trusted by nearly 50 of the world's largest insurers, with zero churn and billions in premiums flowing through hx.
+
+What began as a single product in one market has rapidly evolved into a multi-product, multi-territory platform powering every stage of pricing and underwriting. AI is at the core of what we do - from building the world's first domain-specific AI peer programmer for insurance (think GitHub Copilot with a PhD in actuarial science) to shaping agentic workflows that reinvent how this industry operates.
+
+What makes hx different is the people who build it. Here, impact isn't tied to title or tenure; it's defined by the challenges you take on and the discipline you bring. Surrounded by peers who stretch you, you'll do the best, hardest work of your life in a company engineered to endure.
+
+If that sounds like you, join us in building what comes next.
+
+
+
+
+ABOUT THE MODEL AUTHORING TEAM
+
+Model Authoring owns the products our customers use to write and manage their pricing models: the model developer experience and our actuarial agent. An actuary might start with an Excel-based rater and finish with a Python model that has been reviewed, approved and is pricing live business. Our job is to make every step of that credible enough to trust. The team is distributed across our Warsaw and London offices.
+
+As the Staff Product Engineer, you will help set the team's technical direction. This is an individual contributor role, but influence is a large part of it: you'll help define the standards the team works to, raise the technical bar across pods, and own the interfaces where our problems meet those of teams elsewhere in Technology. You'll be expected to move fast and start shaping technical conversations early. We work in an AI-native way, and you'll help define and evolve what that means here.
+
+
+
+
+WHAT YOU'LL BE DOING
+
+ - Establish a set of engineering standards across the Model Authoring pods. The standards are documented and actively referenced in code review, with new pod work conforming by default.
+
+ - Set and own the technical direction for the team's shared enablers, including how we represent and persist models, the model registry, secure context access, and shared agentic infrastructure.
+
+ - Establish the technical interfaces between Model Authoring and other parts of the business. Dependencies with other teams are agreed, documented, and progressing without needing to be brokered by someone else.
+
+ - Work hands-on on the hardest problems in the stream. This is not an advisory role: we would expect you in the code where the risk is highest.
+
+ - Help define how we work in an AI-native way. Which parts of model development and of our own engineering we hand to agents, what stays human, and what evidence we need before trusting either.
+
+ - Visibly lift the engineers around you. You're sought out for design input across pods, and there's at least one engineer whose growth is clearly attributable to your support.
+
+
+
+
+WHAT YOU'LL NEED TO HAVE DONE
+
+ - Worked in an AI-native environment, and genuinely want to keep doing so. You've used AI or agentic tools in your own engineering workflow, introduced or experimented with them, and have a real view on what's worked and what hasn't.
+
+ - Been product-focused rather than purely technical. You understand who your users are, where their pain points are, and how your technical decisions connect to commercial outcomes.
+
+ - Set technical direction while navigating genuine ambiguity. A proven track record of owning architecture in a domain with no established playbook, and making clear calls on imperfect information rather than deferring them.
+
+ - Owned a significant technical challenge or service end to end, with the depth to walk through it in detail - the trade-offs, the contracts, the things you'd do differently.
+
+ - Influenced across teams. You can hold a position under challenge, genuinely listen to pushback, and persuade others - not just present your own view and hope it lands.
+
+ - Worked effectively across distributed teams - this role spans our Warsaw and London offices, so you'll need to be comfortable building relationships and influence across both.
+
+
+
+
+
+
+
+YOU'RE UNLIKELY TO THRIVE HERE IF
+
+ - You'd rather focus purely on the technical problem than get close to users, customer pain points, and the commercial implications of what you build.
+
+ - You're not comfortable setting technical direction in ambiguity, or you'd rather wait for an established playbook than make a call on imperfect information.
+
+ - You're not excited about helping define what the future of software engineering looks like and are prepared to embrace tooling and new ways of working to support this.
+
+If reading our Culture Document https://hx.wiki/ leaves you feeling neutral rather than energised, hx may not be the place where you’ll do your best work. We’re building something that asks for commitment and conviction, and we want you to feel excited by the opportunity to grow with us.
+
+
+
+
+COMPENSATION
+
+At hx, we're committed to salary transparency. You'll always have clarity on pay early in the process - our Talent Partner will share details with you during initial conversations - and we're working towards publishing salary information for all roles globally.
+
+Because we're building at the intersection of technology/SaaS and insurance, our roles don't always map neatly onto traditional benchmarks. Our approach is to design compensation that's competitive in the market, fair across teams, and aligned with the impact our people make.
+
+Equity: We offer equity across all roles at hx, making it a significant component of total compensation. Your Talent Partner will be able to share more details about this.
+
+
+
+
+BENEFITS
+
+£5,000 training and conference budget for individual and group development.
+
+25 days of holiday plus 8 bank holidays (33 days total).
+
+Company pension scheme via Penfold.
+
+Mental health support and therapy via Spectrum.life http://Spectrum.life.
+
+Individual wellbeing allowance via Juno.
+
+Private healthcare insurance through AXA.
+
+Income protection and Life Insurance.
+
+Cycle to Work Scheme.
+
+
+
+
+ADDITIONAL PERKS
+
+Top-spec equipment (laptop, screens, adjustable desks, etc.).
+
+Regular remote and in-person hackathons, lunch and learns, socials, and game nights.
+
+Team breakfasts and lunches, snacks, drinks fridge, and a fun office at The Ministry.
+
+Exceptional opportunities for personal development and growth as we build something remarkable together.
+
+
+
+
+INTERVIEW PROCESS
+
+ 1. Initial call with our Talent team
+
+ 2. Hiring Manager Interview
+
+ 3. Skills Assessment & follow-up interview
+
+ 4. Values Interview
+
+ 5. Meet the CEO 
+
+
+
+
+OUR COMMITMENT TO DIVERSITY
+
+hxers are at the centre of everything we build. We know that progress depends on diverse perspectives, and we are committed to creating an environment where everyone can thrive, grow, and make an impact. We recognise there is always more to do, and we take responsibility for shaping a workplace that is not only diverse but genuinely inclusive.
+
+Diversity is not just the right thing to do, it is key to solving the complex challenges we choose to take on. By welcoming people from all backgrounds and experiences, we strengthen our ability to question assumptions, push boundaries, and design solutions that endure.
+
+If you're energised by complexity and motivated to grow, we encourage you to apply and join our global team.
+
+
+
+
+NEXT STEPS
+
+If this opportunity resonates with you, we encourage you to apply or share it with your connections! Our dedicated talent team reviews all applications, and we promise to provide feedback regardless of the outcome.
+
+For more information about applying and to view other opportunities, you can visit our careers page.
+
+
+
+Please note that background checks will be conducted as part of the hiring process to ensure compliance with our governance policies. We handle all background checks sensitively and in full compliance with relevant regulations. All applicant data will be processed in accordance with data protection regulations and our privacy policy.
+
+
+
+Please note that background checks will be conducted as part of the hiring process to ensure compliance with our governance policies. We handle all background checks sensitively and in full compliance with relevant regulations. All applicant data will be processed in accordance with data protection regulations and our privacy policy.

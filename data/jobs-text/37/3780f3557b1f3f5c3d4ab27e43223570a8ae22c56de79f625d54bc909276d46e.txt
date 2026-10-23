@@ -1,0 +1,38 @@
+Scott Logic builds large-scale, bespoke, business-critical systems for some of the world’s most high-profile organisations. The business is expanding and we’re in need of highly flexible, capable and technically proficient Business Analysts to join our growing delivery team.
+ 
+As a Lead Business Analyst you’ll be a key bridge between our user experience, development and test teams and client stakeholders, focusing on requirements elicitation, solution design, and working as part of an agile team to deliver the final product. You will be help guide and advise less experienced members of the BA team and work more closely with the Solutions Architecture team.
+ 
+We’re looking for people able to rapidly understand complex business environments and services, with the analysis skills to understand people, process and technical requirements and shape new technology solutions. You’ll be surrounded by smart, highly capable people in a collaborative and innovative environment that encourages helping and developing others by sharing knowledge and experience. 
+
+<div>
+<ul style="margin-top: 0cm; margin-bottom: 0cm;">
+<li style="margin: 0cm 0cm 0cm 32px; line-height: normal; background: white; font-size: 11pt; font-family: Calibri, sans-serif;"><span style="font-size: 10.5pt; font-family: Arial, sans-serif; color: #222326;">Experience as a business analyst in dynamic enterprise environments, preferably involving the delivery of multiple software development streams.&nbsp;</span></li>
+<li style="margin: 0cm 0cm 0cm 32px; line-height: normal; background: white; font-size: 11pt; font-family: Calibri, sans-serif;"><span style="font-size: 10.5pt; font-family: Arial, sans-serif; color: #222326;">Hands on experience as a Business Analyst within high performing Agile development teams, working closely with Product Owners</span></li>
+<li style="margin: 0cm 0cm 0cm 32px; line-height: normal; background: white; font-size: 11pt; font-family: Calibri, sans-serif;"><span style="font-size: 10.5pt; font-family: Arial, sans-serif; color: #222326;">A sound understanding of both Agile and Waterfall-based project delivery methods</span></li>
+<li style="margin: 0cm 0cm 0cm 32px; line-height: normal; background: white; font-size: 11pt; font-family: Calibri, sans-serif;"><span style="font-size: 10.5pt; font-family: Arial, sans-serif; color: #222326;">Experience of selecting and applying appropriate analysis techniques to&nbsp; elicit and analyse requirements, developing solutions that deliver real business value</span></li>
+<li style="margin: 0cm 0cm 0cm 32px; line-height: normal; background: white; font-size: 11pt; font-family: Calibri, sans-serif;"><span style="font-size: 10.5pt; font-family: Arial, sans-serif; color: #222326;">The ability to communicate and influence a variety of business and IT stakeholders at a senior level</span></li>
+<li style="margin: 0cm 0cm 0cm 32px; line-height: normal; background: white; font-size: 11pt; font-family: Calibri, sans-serif;"><span style="font-size: 10.5pt; font-family: Arial, sans-serif; color: #222326;">A flexible and collaborative approach to meeting business goals</span></li>
+<li style="margin: 0cm 0cm 0cm 32px; line-height: normal; background: white; font-size: 11pt; font-family: Calibri, sans-serif;"><span style="font-size: 10.5pt; font-family: Arial, sans-serif; color: #222326;">Excellent problem solving, communication and organisational skills</span></li>
+<li style="margin: 0cm 0cm 0cm 32px; line-height: normal; background: white; font-size: 11pt; font-family: Calibri, sans-serif;"><span style="font-size: 10.5pt; font-family: Arial, sans-serif; color: #222326;">An appreciation of modern software engineering and associated development technologies within the full software development lifecycle</span></li>
+
+</ul></div>
+<div>
+<ul style="margin-top: 0cm; margin-bottom: 0cm;">
+<li style="margin: 0cm 0cm 0cm 32px; line-height: normal; background: white; font-size: 11pt; font-family: Calibri, sans-serif;"><span style="font-size: 10.5pt; font-family: Arial, sans-serif; color: #222326;">Experience of working within businesses undertaking digital transformation</span></li>
+<li style="margin: 0cm 0cm 0cm 32px; line-height: normal; background: white; font-size: 11pt; font-family: Calibri, sans-serif;"><span style="font-size: 10.5pt; font-family: Arial, sans-serif; color: #222326;">Experience of working with user centred design principles and user research techniques</span></li>
+<li style="margin: 0cm 0cm 0cm 32px; line-height: normal; background: white; font-size: 11pt; font-family: Calibri, sans-serif;"><span style="font-size: 10.5pt; font-family: Arial, sans-serif; color: #222326;">Previous experience with a blue chip or high end technology consultancy</span></li>
+<li style="margin: 0cm 0cm 0cm 32px; line-height: normal; background: white; font-size: 11pt; font-family: Calibri, sans-serif;"><span style="font-size: 10.5pt; font-family: Arial, sans-serif; color: #222326;">Business Analysis certification (e.g. ISEB)</span></li>
+
+</ul></div>
+<div>
+<ul style="margin-top: 0cm; margin-bottom: 0cm;">
+<li style="margin: 0cm 0cm 0cm 32px; line-height: normal; background: white; font-size: 11pt; font-family: Calibri, sans-serif;"><span style="font-size: 10.5pt; font-family: Arial, sans-serif; color: #222326;">25 days’ annual leave, rising to 30 days with each year of service.</span></li>
+<li style="margin: 0cm 0cm 0cm 32px; line-height: normal; background: white; font-size: 11pt; font-family: Calibri, sans-serif;"><span style="font-size: 10.5pt; font-family: Arial, sans-serif; color: #222326;">Generous family leave policies.</span></li>
+<li style="margin: 0cm 0cm 0cm 32px; line-height: normal; background: white; font-size: 11pt; font-family: Calibri, sans-serif;"><span style="font-size: 10.5pt; font-family: Arial, sans-serif; color: #222326;">Access to an employer pension scheme and Group Life Assurance.</span></li>
+<li style="margin: 0cm 0cm 0cm 32px; line-height: normal; background: white; font-size: 11pt; font-family: Calibri, sans-serif;"><span style="font-size: 10.5pt; font-family: Arial, sans-serif; color: #222326;">A range of optional benefits such as discounted gym membership and a cycle to-work scheme.</span></li>
+<li style="margin: 0cm 0cm 0cm 32px; line-height: normal; background: white; font-size: 11pt; font-family: Calibri, sans-serif;"><span style="font-size: 10.5pt; font-family: Arial, sans-serif; color: #222326;">A meaningful approach to evaluating your performance and providing feedback on your progress.</span></li>
+
+</ul></div>
+At Scott Logic, we value the flexibility of remote working alongside the value gained from spending time with our colleagues and clients. In our offices you’ll find employee led clubs and events, as well as free games, books, and refreshments. We have shared values that govern our behaviour toward others and the environment.
+ 
+We are proud to be a B Corp, a global movement of businesses driving for a more inclusive, equitable, and regenerative economy. We believe diversity drives innovation, and embrace a culture where everyone can contribute, irrespective of race, religion, colour, national origin, gender, sexual orientation, age, marital status or disability.

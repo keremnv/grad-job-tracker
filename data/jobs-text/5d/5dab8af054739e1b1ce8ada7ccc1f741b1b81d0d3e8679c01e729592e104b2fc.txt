@@ -1,0 +1,60 @@
+A LITTLE ABOUT US
+
+incident.io http://incident.io is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.
+
+The stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.
+
+We've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.
+
+
+
+The role in one line
+You’ll build and run the software and systems our revenue team relies on, working directly with the people using them to find the right problems, build the right solutions, and own them end to end.
+
+What that looks like day to day
+You’ll work closely with BDRs, AEs, Customer Success, Marketing and GTM leadership to understand how work actually gets done: where people are spending time on repetitive tasks, where data or context gets lost between systems, and where the tools we have are getting in the way.
+From there, you’ll work out what the right solution is. Sometimes that will be an automation or integration. Sometimes it’ll be an internal tool, an AI workflow, or a piece of software you build yourself. Sometimes the right answer will be simplifying a process or getting rid of a tool entirely.
+You’ll spend plenty of time building, but this isn’t a role where requirements arrive neatly packaged. You’ll talk directly to the people using what you make, understand the underlying problem, ship something, and follow up to see whether it actually helped.
+You’ll also take a broader view of our GTM systems. You’ll understand how data and workflows move between tools, make decisions about where logic should live, and help us evolve the stack as the company changes. We want systems that are understandable and dependable, rather than a collection of one-off automations that happen to work today.
+And you’ll own what you build in production. If an integration breaks or a workflow behaves strangely, you’ll debug it, fix the underlying problem, and improve the system around it. Supporting the revenue team is part of the feedback loop, not a separate ticket queue.
+AI is already a normal part of how we work, and there’s a lot of opportunity to use it here. We’re interested in where agents and models can genuinely improve a workflow, as well as where conventional software is still the better answer. You’ll have room to experiment, measure what works, and turn the useful parts into things people can depend on.
+Who you are
+
+ - You’re a software builder who enjoys working on messy, real-world problems. You’ve built things that people rely on and you care about how they behave once they’re in use.
+
+ - You’re product minded. You want to understand the problem before reaching for a solution, and you’re comfortable talking directly to users to get there.
+
+ - You understand how modern go-to-market teams work. You’re familiar with the workflows and systems behind sales, outbound, customer success and marketing, and you can get up to speed quickly in an unfamiliar stack.
+
+ - You think in systems. APIs, integrations, data models, automation and reliability are interesting to you, and you notice when a local fix is creating a bigger problem elsewhere.
+
+ - You’re pragmatic about technology. You’re as happy configuring an existing tool when that’s the sensible answer as you are writing code when it isn’t.
+
+ - You use AI seriously in your own work. You’ve experimented enough to have a feel for what it’s good at, what needs careful evaluation, and where simpler approaches work better.
+
+ - You’re comfortable with ambiguity and ownership. Problems here won’t always come with a specification or an obvious owner, and you’re happy turning something fuzzy into something useful.
+
+ - You communicate clearly. A big part of the job is making technical systems understandable to the people who depend on them, and making their problems understandable to the people building them.
+
+ - You have taken ownership of software procurement in the past, and know how to get a new tool bought, configured and rolled-out.
+
+
+SUPPORTING YOU
+
+We work hard and we think life outside work matters just as much. Our benefits pack is built to support both.
+
+ - Private medical insurance. Seriously good cover - we want you and the people you love to be looked after.
+
+ - Competitive annual leave. Showing up at your best requires switching off, and we make sure you have time to do that.
+
+ - First Friday of every month off. Yes, seriously.
+
+ - Enhanced pension. We put real money in, because future-you deserves better than an afterthought.
+
+ - Meaningful equity. We're rapidly scaling, and everyone who helps shape the outcome should share in it.
+
+ - Unlimited AI spend. For everyone, not just engineers. We're all-in on AI across the company, and we expect you to be too.
+
+ - Generous parental leave. The early days with a new baby matter more than anything we're doing here, and we want you to be present for them.
+
+ - Two budgets that have your back. £1000 to invest in your setup, £500 a year to invest in yourself.

@@ -1,0 +1,32 @@
+At Scott Logic, we have a reputation for world-class software delivery. We are trusted by some of the world’s leading organisations to build reliable, high-performance, business-critical solutions – and expert advice.
+Many of our clients look to us to lead across the full software lifecycle, from initial conception through to production deployment and beyond. Our Platform Engineers are a vital part of this – designing, building and managing cloud infrastructure and delivery platforms to support modern DevOps practices. Their work includes CI/CD processes and deployment pipelines, building the platform infrastructure to deliver robust, cost-effective services to end users at scale, and supporting all stages of migrating complex systems from on-premises infrastructure to a multitude of cloud providers.
+These are hands-on, client-facing roles, with openings at senior or lead level to suit your experience. You may be leading teams, setting technical direction, advising clients or solving tough engineering challenges. Our clients include large global corporations and government departments, and you’ll be working on systems that make a difference to millions of people, within a company that is friendly, welcoming, and where individual contributions always make a difference.
+Our Platform Engineers combine a deep level of fundamental knowledge of how to deploy and maintain reliable and scalable systems, with a broad awareness of wider software engineering principles and experience with the latest DevOps tooling, both cloud and on-prem. We’re technology-agnostic and we’re open minded when it comes to your existing skillset.
+
+
+<li>You’ve worked with modern Infrastructure as Code tools such as Terraform, CloudFormation or Bicep.</li>
+<li>You are familiar with one or more major cloud platform, particularly AWS or Azure.</li>
+<li>You have good CI/CD and deployment automation experience.</li>
+<li>You’re comfortable using Python or other scripting languages for DevOps tasks.</li>
+<li>You’re a problem-solver, pragmatically exploring options and finding effective solutions.&nbsp;</li>
+<li>You have strong communication skills and take a collaborative approach to your work.</li>
+<li>You have an interest in good practices around security, reliability, observability, cost efficiency, performance and governance – collaborating with others to ensure these are in place.</li>
+<li>For lead roles, you have good technical leadership experience, understanding what makes a team successful and how to support colleagues in their own career development.</li>
+<li>Experience with containerisation, Kubernetes or working with data platforms is nice-to-have.</li>
+
+
+<li>25 days’ annual leave, rising incrementally to 30 days after six years of service.</li>
+<li>Generous family leave policies.</li>
+<li>Access to an employer pension scheme and Group Life Assurance.</li>
+<li>A range of optional benefits such as discounted gym membership and a cycle-to-work scheme.</li>
+<li>A meaningful approach to evaluating your performance and providing feedback on your progress.</li>
+
+<div>
+<div>
+<div data-olk-copy-source="MessageBody">At Scott Logic, we value the flexibility of remote working alongside the value gained from spending time with our colleagues and clients. In our offices&nbsp;you’ll&nbsp;find employee-led clubs and events, as well as free games, books, and refreshments.&nbsp;</div>
+<div data-olk-copy-source="MessageBody">&nbsp;</div>
+</div>
+<div>
+<div>We have shared values that govern our behaviour toward others and the environment. We are proud to be a B Corp, a global movement of businesses driving for a more inclusive,&nbsp;equitable, and regenerative economy.</div>
+</div>
+</div>

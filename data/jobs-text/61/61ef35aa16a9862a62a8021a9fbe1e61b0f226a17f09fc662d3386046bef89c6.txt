@@ -1,0 +1,163 @@
+Hi, I’m Richard Gunn, https://www.linkedin.com/in/richard-g-78017b19/ President at hx. Having joined hx as employee number 5 - and grown the Global Revenue team to >100 - I'm now responsible for leading our US expansion. I personally love this stage, as it is a chance to be building again - across all axes: team, capabilities, and product. And it's moving a lot faster with the advent of agents!
+
+What excites me about this role is that we've proven the motion works in the US, but there is a ton of work required to scale it. Agent Builders are the people who do that work: part engineer, part solutions lead, always in front of the customer.
+
+So this isn’t a traditional solutions or engineering role. You’ll sit with insurers from the first custom demo, run the bootcamp on their site, and build all the way through to live premium and expansion. You’ll build agent’s everyday and help define how both you and our customers work.
+
+I’m looking for a builder who is obsessed with two things: turning customer problems into agents they use every day, and putting more premium through our platform than the market thinks is possible. You should be as comfortable in a room with a Chief Underwriter as you are with your own agents!
+
+I hope to chat soon!
+
+Richard
+
+
+
+
+ABOUT HYPEREXPONENTIAL (HX)
+
+At hyperexponential, we’re building the agentic platform for commercial insurance underwriting.
+
+Underwriters make decisions that shape the real world: which risks to take, how to price them, and where capital gets deployed. Those decisions can determine whether a new technology gets built, a business can grow, or a community can recover after disaster.
+
+
+
+Yet much of the industry still makes billion-dollar decisions through fragmented systems, manual workflows and technology that wasn’t built for the complexity of modern risk.
+
+hx is changing that. We bring together data, models, AI and human judgement so insurers can understand risk more deeply, make better decisions faster and ultimately enable the world to take more risk with confidence.
+
+
+Born in London, hx is now a global team of nearly 300 people across London, New York and Warsaw. Leading global carriers and MGAs use hx to support underwriting across more than $75bn of annual commercial P&C premium. Backed by a16z, Highland Europe and Battery Ventures, we’re scaling rapidly across products, markets and geographies.
+
+
+AI is changing what great work looks like, and we’re building hx around that reality. People here get real ownership, high expectations and the space to use these tools to increase the quality and ambition of what they can do.
+
+
+
+
+ABOUT THE TEAM
+
+Field Engineering (FENG) is the technical core of our go-to-market organisation. The team sits at the intersection of product, sales, and customer success, owning the “technical win” in each opportunity and making hx platform real for some of the most demanding insurers in the world. We work with underwriters, actuaries, IT, and security leaders to design solutions they can trust with their most critical pricing and underwriting decisions.
+
+
+This is a team that thrives at the edge of what’s possible for our product and our customers. We specialise in the hardest integration and implementation challenges, where deep technical understanding, domain insight, and creativity are all required. As a Solutions Architect, you’ll be one of the first hx’ers many prospects meet, shaping how they understand our platform and what it can do for their business.
+
+
+Solutions Architects at hx are the voice of IT, security and infrastructure - both inside hx and in front of customers. We figure out how hx Renew fits into complex, often ancient system landscapes, translating between modern cloud architectures and 1990s reality without losing sight of the bigger transformation.
+
+
+The culture is high-ownership, collaborative, and very visible: every engagement is high stakes, every interaction leaves a lasting impression, and your work feeds directly into both revenue outcomes and product direction. You’ll partner closely with Sales and Product Engineering, acting as a trusted advisor throughout the sales cycle and beyond, and helping customers realise the full value of hx's core product suite.
+
+
+Have a look at our Field Engineering Candidate Hub https://www.hyperexponential.com/careers/hubs/field-engineering, for a sneak peak behind the scenes into our culture.
+
+
+
+
+WHAT YOU’LL BE DOING
+
+ - Run hands-on Bootcamps at customer sites, building working AI agents on their real problems in five days.
+
+ - Take those builds live, so customers use them to write real business.
+
+ - Agree on clear goals with each customer up front, then show them the results, which is how they decide to expand with us.
+
+ - Train customers' own teams to build on their own.
+
+ - Turn what you build into reusable pieces your teammates can pick up.
+
+ - Share what you learn in the field with our product team.
+
+ - Build and run a custom demo for prospective customers, alongside one of our sales leads.
+
+ - Lead bootcamps and technical conversations with senior underwriters and actuaries.
+   
+   
+
+
+WHAT YOU’LL NEED TO HAVE DONE
+
+ - 3+ years writing production code (Python) for large or regulated businesses.
+
+ - Recent, hands-on experience building with AI agents, and a habit of checking their output is right before anyone relies on it.
+
+ - Confidence in front of expert, skeptical customers, and examples of their feedback changing what you built.
+
+ - Experience owning an outcome, not just following a spec.
+
+ - The drive to push things through without being asked.
+
+ - Customer-facing engineering experience at an AI company.
+
+ - Public examples of things you've built.
+
+ - Insurance, actuarial or pricing experience (not required — we'll teach you).
+
+
+BENEFITS
+
+ - $6,000 training and conference budget
+
+ - Full medical, dental, and vision package
+
+ - Mental health support via Spring Health and Rula
+
+ - Access to One Medical
+
+ - Flexible vacation policy
+
+ - Pet discount plans, retirement plan (401K), and discount programmes
+
+Additional perks
+
+ - Top-spec equipment
+
+ - Regular remote and in-person hackathons, lunch and learns, socials, and game nights
+
+ - Team breakfasts and lunches, snacks, drinks fridge, and WeWork office space
+
+ - Exceptional opportunities for personal development and growth
+
+ 
+
+
+INTERVIEW PROCESS
+
+ - Initial call with our Talent team to kick things off
+
+ - Manager interview g
+
+ - Skills Assessment Stage
+
+ - Values Interview + Meet the CEO
+
+ - We offer!
+
+ 
+
+
+OUR COMMITMENT TO DIVERSITY
+
+hxer's are at the centre of everything we build. We know that progress depends on diverse perspectives, and we are committed to creating an environment where everyone can thrive, grow, and make an impact. We recognise there is always more to do, and we take responsibility for shaping a workplace that is not only diverse but genuinely inclusive.
+
+
+
+Diversity is not just the right thing to do, it is key to solving the complex challenges we choose to take on. By welcoming people from all backgrounds and experiences, we strengthen our ability to question assumptions, push boundaries, and design solutions that endure.
+
+
+
+If you're energised by complexity and motivated to grow, we encourage you to apply and join our global team.
+
+ 
+
+
+NEXT STEPS
+
+If this opportunity resonates with you, we encourage you to apply or share it with your connections! Our dedicated talent team reviews all applications, and we promise to provide feedback regardless of the outcome.
+
+
+
+For more information about applying and to view other opportunities, you can visit our careers page.
+
+
+
+Please note that background checks will be conducted as part of the hiring process to ensure compliance with our governance policies. We handle all background checks sensitively and in full compliance with relevant regulations. All applicant data will be processed in accordance with data protection regulations and our privacy policy.

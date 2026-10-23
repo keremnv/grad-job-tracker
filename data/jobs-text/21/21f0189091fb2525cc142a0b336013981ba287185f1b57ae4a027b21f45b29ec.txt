@@ -1,0 +1,147 @@
+ABOUT HYPEREXPONENTIAL (HX)
+
+At hyperexponential, we’re building the AI-powered platform that enables the world’s most critical decisions in a $7 trillion industry - which risks to take, and how to price them. These are the decisions that shape real-world outcomes: whether rockets successfully launch into space, autonomous vehicles make it to market, or communities recover after major storms.
+
+Until now, insurers have been making billion-dollar decisions using outdated tools. We’re changing that. Our platform brings together data, AI, and human expertise to give insurers the fastest path from submission to decision - helping them move faster, act smarter, and take on more risk with confidence.
+
+Backed by a16z, Highland Europe, and Battery Ventures, we’re scaling globally - already trusted by nearly 50 of the world’s largest insurers, with zero churn and billions in premiums flowing through hx.
+
+What began as a single product in one market has rapidly evolved into a multi-product, multi-territory platform powering every stage of pricing and underwriting. AI is at the core of what we do - from building the world’s first domain-specific AI peer programmer for insurance (think GitHub Copilot with a PhD in actuarial science) to shaping agentic workflows that reinvent how this industry operates.
+
+What makes hx different is the people who build it. Here, impact isn’t tied to title or tenure; it’s defined by the challenges you take on and the discipline you bring. Surrounded by peers who stretch you, you’ll do the best, hardest work of your life in a company engineered to endure.
+
+If that sounds like you, join us in building what comes next.
+
+
+
+
+ABOUT THE DELIVERY ENGINEERING TEAM
+
+The hyperexponential Delivery Engineering team is a unique blend of engineers, actuaries, mathematicians and data scientists. We don’t take on traditional “transformations” (we have brilliant partners for that) – we specialise in handling only the most difficult and interesting problems our customers face, where only a combination of technical depth, market expertise and hx knowledge will do.
+
+The Delivery Engineering team are the experts' experts of the hx platform, knowing it top-to-bottom, inside-out – both breadth and depth. You’ll learn its limits and which can be pushed. You’ll uncover every trick in the book, the secret combinations, and the shortcuts. You’ll combine all of this with a growing knowledge of insurance technology to present 'the art of the possible' to our customers and help shape cutting-edge tech, while working alongside some of the brightest, most ambitious people in the tech and insurance industries.
+
+
+
+
+WHAT YOU’LL BE DOING
+
+ - Own end-to-end model delivery on hx, from scoping and build through to testing, iteration, and customer delivery.
+
+ - Build and maintain production-grade Python models, applying modern engineering and modelling practices.
+
+ - Work directly with customer actuarial teams and internal stakeholders to solve complex, ambiguous modelling and coding problems.
+
+ - Raise quality across the team through code review, testing, and contributions to best-practice model development guidance.
+
+ - Support and mentor junior model developers through pairing, feedback, and day-to-day delivery support.
+
+ - Continuously look for ways to improve our model development standards, tooling, and ways of working.
+
+
+
+
+WHAT YOU’LL NEED TO HAVE DONE
+
+ - Shipped and maintained production-grade Python code in complex or data-heavy environments.
+
+ - Applied predictive modelling or advanced analytics in real-world settings (insurance or reinsurance exposure is a bonus, not a requirement).
+
+ - Taken ownership of ambiguous problems, creating structure and driving them through to high-quality outcomes.
+
+ - Worked directly with non-technical stakeholders or customers, translating requirements into robust technical solutions.
+
+ - Operated effectively in a high-trust, high-accountability environment, proactively driving your own development and learning.
+
+
+
+
+YOU’RE UNLIKELY TO THRIVE HERE IF
+
+ - You prefer following detailed instructions rather than experimenting and finding your own approach.
+
+ - You are uncomfortable working directly with non-technical stakeholders to understand their challenges.
+
+ - You avoid tackling ambiguous or open-ended problems where the solution isn’t obvious.
+
+If reading our Culture Document https://hx.wiki/ leaves you feeling neutral rather than energised, hx may not be the place where you’ll do your best work. We’re building something that asks for commitment and conviction, and we want you to feel excited by the opportunity to grow with us.
+
+
+
+
+COMPENSATION
+
+At hx, we’re committed to salary transparency. You’ll always have clarity on pay early in the process - our Talent Partner will share details with you during initial conversations - and we’re working towards publishing salary information for all roles globally.
+
+Because we’re building at the intersection of technology/SaaS and insurance, our roles don’t always map neatly onto traditional benchmarks. Our approach is to design compensation that’s competitive in the market, fair across teams, and aligned with the impact our people make.
+
+Equity: We offer equity across all roles at hx, making it a significant component of total compensation. Your talent partner will be able to share more details about this.
+
+
+
+
+BENEFITS
+
+ - £5,000 training and conference budget for individual and group development.
+
+ - 25 days of holiday plus 8 bank holidays (33 days total).
+
+ - Company pension scheme via Penfold.
+
+ - Mental health support and therapy via Spectrum.life http://Spectrum.life.
+
+ - Individual wellbeing allowance via Juno https://www.withjuno.com/.
+
+ - Private healthcare insurance through AXA.
+
+ - Income protection and Life Insurance.
+
+ - Cycle to Work Scheme
+
+
+ADDITIONAL PERKS
+
+ - Top-spec equipment (laptop, screens, adjustable desks, etc.).
+
+ - Regular remote and in-person hackathons, lunch and learns, socials, and game nights.
+
+ - Team breakfasts and lunches, snacks, drinks fridge, and a fun office at The Ministry.
+
+ - Exceptional opportunities for personal development and growth as we build something remarkable together.
+
+
+
+
+INTERVIEW PROCESS
+
+ - Initial call with our Talent team - 30 minutes
+
+ - Take-home Python challenge followed by Skills Interview - 1 hour
+
+ - Manager Interview - 1 hour
+
+ - Values Interview - 1 hour
+
+ - Meet the CEO
+
+
+
+
+OUR COMMITMENT TO DIVERSITY
+
+hxer's are at the centre of everything we build. We know that progress depends on diverse perspectives, and we are committed to creating an environment where everyone can thrive, grow, and make an impact. We recognise there is always more to do, and we take responsibility for shaping a workplace that is not only diverse but genuinely inclusive.
+
+Diversity is not just the right thing to do, it is key to solving the complex challenges we choose to take on. By welcoming people from all backgrounds and experiences, we strengthen our ability to question assumptions, push boundaries, and design solutions that endure. If you’re energised by complexity and motivated to grow, we encourage you to apply and join our global team.
+
+
+
+
+NEXT STEPS
+
+If this opportunity resonates with you, we encourage you to apply or share it with your connections! Our dedicated talent team reviews all applications, and we promise to provide feedback regardless of the outcome.
+
+For more information about applying and to view other opportunities, you can visit our careers page.
+
+
+
+Please note that background checks will be conducted as part of the hiring process to ensure compliance with our governance policies. We handle all background checks sensitively and in full compliance with relevant regulations. All applicant data will be processed in accordance with data protection regulations and our privacy policy.

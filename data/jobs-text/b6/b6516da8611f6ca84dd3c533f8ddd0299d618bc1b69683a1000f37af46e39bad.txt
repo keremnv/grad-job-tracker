@@ -1,0 +1,170 @@
+Hi 👋 I'm Chris. I'm a Lead Product Marketing Manager at hx - I joined over four years ago as a Product Marketing Manager. Outside of work you'll find me playing sport (badly), watching reality TV, or taking my dog Lucky to the park (or the pub!).
+
+Product Marketing at hx is a highly strategic function. We shape the company's positioning and messaging, decide where and when products launch, and build the process that gets them to market.
+
+This role comes with deep ownership over how we address our core audience: actuaries. You’ll need to go deep into the life and workflow of highly technical users and develop messaging, positioning, and content that neatly conveys the benefits of our solution.
+
+You'll need to be comfortable managing senior stakeholders and have great taste - but what matters most is drive, and a willingness to solve problems as you find them. In return, you'll join a team that's kind, supportive, and full of very smart people who want to go fast and far. If that sounds like you, read on!
+
+
+
+
+ABOUT HYPEREXPONENTIAL (HX)
+
+At hyperexponential, we're building the AI-powered platform that enables the world's most critical decisions in a £7 trillion industry, which risks to take, and how to price them. These are the decisions that shape real-world outcomes: whether rockets successfully launch into space, autonomous vehicles make it to market, or communities recover after major storms.
+
+Until now, insurance has been making billion-pound decisions using outdated tools. We're changing that. Our platform brings together data, AI, and human expertise to give insurers the fastest path from submission to decision - helping them move faster, act smarter, and take on more risk with confidence.
+
+Backed by a16z, Highland Europe, and Battery Ventures, we're scaling globally - already trusted by nearly 50 of the world's largest insurers, with zero churn and billions in premiums flowing through hx.
+
+What began as a single product in one market has rapidly evolved into a multi-product, multi-territory platform powering every stage of pricing and underwriting. AI is at the core of what we do - from building the world's first domain-specific AI peer programmer for insurance (think GitHub Copilot with a PhD in actuarial science) to shaping agentic workflows that reinvent how this industry operates.
+
+What makes hx different is the people who build it. Here, impact isn't tied to title or tenure; it's defined by the challenges you take on and the discipline you bring. Surrounded by peers who stretch you, you'll do the best, hardest work of your life in a company engineered to endure.
+
+If that sounds like you, join us in building what comes next.
+
+
+
+
+ABOUT THE TEAM
+
+Marketing at hx operates at the intersection of demand generation, systems thinking, and constrained markets. We build authority and demand in a highly technical, niche space where every account matters. This isn't template-driven volume work - it's deep, strategic B2B marketing crafted for a known universe of accounts, and we stay involved from first engagement through to customer success.
+
+As Product Marketing Manager for Calculation Engines and Portfolio Intelligence, you'll sit at the heart of how hx becomes the obvious choice for actuaries who want to price faster and steer their portfolio with confidence. You'll own the technical story for our developer community - the most demanding audience we serve - and be the connective tissue between Product, Revenue, and the AI team, turning user insight into sharp positioning, useful sales assets, and narratives that stand up to scrutiny from people who'll know immediately if they don't. Your work spans two distinct challenges at once: deepening engagement and value realisation for our established Calculation Engines product, whilst driving launch readiness, early adoption, and strong feedback loops for Portfolio Intelligence.
+
+The team experiments constantly, uses AI to focus on strategy over busy work, and operates with a high bar for quality and pace. You'll be joining a group that takes work seriously but not themselves, where compressed learning is the norm and the most future-ready in your craft is the standard.
+
+Check out our Marketing & GTM Engineering Candidate Hub for a behind the scenes look at the team you would be joining!
+
+
+
+
+WHAT YOU'LL BE DOING
+
+ - Drive deeper engagement and adoption of Calculation Engines among existing users, using the usage data we now have to spot where users stall and creating messaging and enablement that moves them forward.
+
+ - Own go-to-market execution for the Portfolio Intelligence release end to end - positioning, launch materials, enablement, and user communications that get it in front of the right people and drive real usage.
+
+ - Accelerate early adoption of Portfolio Intelligence by creating onboarding support and launch assets that help target users get to first value quickly, evidenced by users moving out of the beta programme into sustained use.
+
+ - Become the developer community's champion by writing technical content at a regular cadence that Solutions Engineering uses in live deals, and answering architecture and integration questions directly rather than routing them to Product.
+
+ - Build hx's position in actuarial AI by developing differentiated positioning and up-to-date competitive understanding that works consistently across website copy, enablement, and customer conversations.
+
+ - Establish strong feedback loops between users, Product, Revenue, and the AI team, so insight from launches, testing, and field conversations directly informs messaging, prioritisation, and product direction.
+
+
+
+
+WHAT YOU'LL NEED TO HAVE DONE
+
+ - Led product marketing in a B2B SaaS environment, balancing adoption work for an existing product with launch readiness for a new one at the same time - demonstrating commercial judgement across multiple GTM motions.
+
+ - Increased engagement or adoption of a mature product by using user insight to sharpen messaging or enablement - with measurable improvement in usage, understanding, or qualitative feedback from users and revenue teams.
+
+ - Owned a product launch end to end, including the internal readiness and enablement work that happens before it ships - not just the moment it goes out.
+
+ - Turned a complex technical capability into credible, differentiated messaging for a skeptical, technical audience - developers or an equivalent evaluator population - built on real user insight rather than generic claims.
+
+ - Worked hands-on alongside a Solutions Engineer or equivalent technical partner, comfortable being challenged on technical detail and holding your line, and earning trust across Product, Engineering, and Revenue without relying on formal authority.
+
+ - Used AI with real judgement about when a technical claim is actually true rather than just plausible, and applied that judgement to rebuild how systems like enablement, competitive intelligence, or win/loss work - not just run them faster.
+
+
+
+
+YOU'RE UNLIKELY TO THRIVE HERE IF
+
+ - You expect full product maturity, clear roadmaps, and well-defined processes before taking action - hx moves fast and requires comfort operating in ambiguity where products, priorities, and messaging are still evolving.
+
+ - You focus primarily on flashy launch work or brand campaigns rather than the detail-oriented, outcomes-driven work of deepening adoption, engagement, and user understanding.
+
+ - You struggle to prioritise or make trade-offs without perfect information, waiting for others to decide rather than using judgment to move work forward with the context available.
+
+If reading our Culture Document https://hx.wiki/ leaves you feeling neutral rather than energised, hx may not be the place where you'll do your best work. We're building something that asks for commitment and conviction, and we want you to feel excited by the opportunity to grow with us.
+
+
+
+
+COMPENSATION
+
+At hx, we're committed to salary transparency. You'll always have clarity on pay early in the process - our Talent Partner will share details with you during initial conversations - and we're working towards publishing salary information for all roles globally.
+
+Because we're building at the intersection of technology/SaaS and insurance, our roles don't always map neatly onto traditional benchmarks. Our approach is to design compensation that's competitive in the market, fair across teams, and aligned with the impact our people make.
+
+Equity: We offer equity across all roles at hx, making it a significant component of total compensation. Your Talent Partner will be able to share more details about this.
+
+
+
+
+BENEFITS
+
+£5,000 training and conference budget for individual and group development.
+
+25 days of holiday plus 8 bank holidays (33 days total).
+
+Company pension scheme via Penfold.
+
+Mental health support and therapy via Spectrum.life http://Spectrum.life.
+
+Individual wellbeing allowance via Juno.
+
+Private healthcare insurance through AXA.
+
+Income protection and Life Insurance.
+
+Cycle to Work Scheme.
+
+
+
+
+ADDITIONAL PERKS
+
+Top-spec equipment (laptop, screens, adjustable desks, etc.).
+
+Regular remote and in-person hackathons, lunch and learns, socials, and game nights.
+
+Team breakfasts and lunches, snacks, drinks fridge, and a fun office at The Ministry.
+
+Exceptional opportunities for personal development and growth as we build something remarkable together.
+
+
+
+
+INTERVIEW PROCESS
+
+ 1. Initial call with our Talent team
+
+ 2. Hiring Manager Interview
+
+ 3. Skills Assessment & Panel Interview
+
+ 4. Values Interview
+
+ 5. Meet the CEO
+
+ 6. We offer!
+
+
+
+
+OUR COMMITMENT TO DIVERSITY
+
+hxers are at the centre of everything we build. We know that progress depends on diverse perspectives, and we are committed to creating an environment where everyone can thrive, grow, and make an impact. We recognise there is always more to do, and we take responsibility for shaping a workplace that is not only diverse but genuinely inclusive.
+
+Diversity is not just the right thing to do, it is key to solving the complex challenges we choose to take on. By welcoming people from all backgrounds and experiences, we strengthen our ability to question assumptions, push boundaries, and design solutions that endure.
+
+If you're energised by complexity and motivated to grow, we encourage you to apply and join our global team.
+
+
+
+
+NEXT STEPS
+
+If this opportunity resonates with you, we encourage you to apply or share it with your connections! Our dedicated talent team reviews all applications, and we promise to provide feedback regardless of the outcome.
+
+For more information about applying and to view other opportunities, you can visit our careers page.
+
+
+
+Please note that background checks will be conducted as part of the hiring process to ensure compliance with our governance policies. We handle all background checks sensitively and in full compliance with relevant regulations. All applicant data will be processed in accordance with data protection regulations and our privacy policy.

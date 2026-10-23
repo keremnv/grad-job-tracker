@@ -1,0 +1,61 @@
+A LITTLE ABOUT US
+
+incident.io http://incident.io is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.
+
+The stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.
+
+We've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.
+
+
+
+
+THE ROLE IN ONE LINE
+
+As our first Customer Success Engineer in EMEA, you’ll help shape the team and make sure our most complex customers are built to scale, not just set up for go-live.
+
+
+WHAT THAT LOOKS LIKE DAY TO DAY
+
+Our Customer Success team is at the heart of incident.io http://incident.io. We understand customer challenges and deliver Incident Management solutions that make a real impact.
+
+We take a customer-led approach, working closely with Product to understand and address each customer’s unique challenges. We go beyond satisfaction, aiming to delight customers at every stage and build long-term relationships based on trust, shared success, and mutual growth.
+
+As our first Customer Success Engineer in EMEA, this is a pivotal role with a real chance to shape the team as it grows. You’ll be a strategic technical partner in the post-sales lifecycle and a trusted advisor to our most complex customers, working with CSMs to own onboarding and expansion design. As leading organizations come to rely on incident.io http://incident.io, you’ll guide governance, scalable configuration, and long-term architecture so their incident management programs scale reliably across teams, not just at go-live. You’ll bridge Customer Success, Product, and Engineering, advocating for customers’ technical needs and influencing platform strategy within key accounts.
+
+Day to day, that means guiding complex migrations from legacy incident management platforms with operational continuity and clean foundations. It means owning onboarding and expansion design, advising on alerting strategy, escalation structures, workflow automation, and scalable configuration. You’ll act as a trusted advisor to engineering leaders, influencing platform design in complex environments, and establish durable architectural patterns and repeatable deployment frameworks that reduce misconfiguration and support burden. You’ll also partner with Product and Engineering to improve platform scalability and usability.
+
+
+WHO YOU ARE
+
+ - You’re confident as a strategic technical partner in client-facing environments.
+
+ - You’ve architected complex SaaS implementations or led enterprise migrations.
+
+ - You think in systems and design solutions that scale across teams and regions.
+
+ - You explain complex technical concepts simply and steer customers toward pragmatic, maintainable solutions.
+
+ - You have clear judgment on scope and ownership, knowing when to go deep and when to hand back to CSM or Support.
+
+ - You can structure and drive technical onboarding and migration work-streams, partnering with CSMs to keep projects on track.
+
+
+SUPPORTING YOU
+
+We work hard and we think life outside work matters just as much. Our benefits pack is built to support both.
+
+ - Private medical insurance. Seriously good cover - we want you and the people you love to be looked after.
+
+ - Competitive annual leave. Showing up at your best requires switching off, and we make sure you have time to do that.
+
+ - First Friday of every month off. Yes, seriously.
+
+ - Enhanced pension. We put real money in, because future-you deserves better than an afterthought.
+
+ - Meaningful equity. We’re rapidly scaling, and everyone who helps shape the outcome should share in it.
+
+ - Unlimited AI spend. For everyone, not just engineers. We’re all-in on AI across the company, and we expect you to be too.
+
+ - Generous parental leave. The early days with a new baby matter more than anything we’re doing here, and we want you to be present for them.
+
+ - Two budgets that have your back. £1000 to invest in your setup, £500 a year to invest in yourself.

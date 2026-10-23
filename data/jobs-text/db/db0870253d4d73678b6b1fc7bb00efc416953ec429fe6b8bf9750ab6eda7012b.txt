@@ -1,0 +1,64 @@
+A LITTLE ABOUT US
+
+incident.io http://incident.io is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.
+
+The stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.
+
+We've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.
+
+
+
+
+THIS IS A FULL-TIME ROLE STARTING IN JUNE OR SEPTEMBER 2027 DEPENDING ON GRADUATION DATES.
+
+
+
+THE ROLE IN ONE LINE
+
+Whether you join as an intern or a grad, your first real code here doesn't sit in a sandbox- it ships to the teams keeping the the internet running, even in week 1.
+
+
+
+
+WHAT THAT LOOKS LIKE DAY TO DAY
+
+You'll sit inside one of our product teams from day one- same stand-ups, same code review, same production access as everyone else. You'll pick up real work alongside full-time engineers, and you'll own at least one meaningful project end to end: idea, build, ship, watch people use it.
+
+Our engineers know what it's like to be paged at 3am- the adrenaline, the scramble to pull the right people in, the frustration of piecing context together from a dozen scattered tools. Everything we build is aimed at killing that experience. Which means the stakes are real: thousands of companies are mid-incident when they open incident.io http://incident.io, so we care about polish as much as we care about speed.
+
+You'll work in Go, TypeScript with React, and Postgres, deployed on Google Cloud using GKE and Cloud SQL. Infrastructure is Terraform, with BigQuery, PubSub and Cloud Storage in the mix. Sentry, Grafana + Prometheus and Kibana for monitoring, CircleCI for testing and deploys. You won't know all of that on day one, and nobody expects you to.
+
+Over the past year we've built some of the most ambitious AI-native features in our space- agents that investigate incidents, explain what's happening, and increasingly fix things themselves. Interns and grads work on this, not around it. We're all-in on AI internally too, and you'll have unlimited AI spend from your first week.
+
+We'll be straight with you about the bar: we'll treat you like a full-time engineer. Full ownership, hard deadlines and shipping fast enough that you'll break things and learn from it. There's genuine support around you- senior engineers, proper mentorship, people invested in you doing well- but nobody's going to hold your hand through it.
+
+
+
+
+WHAT YOUR BACKGROUND LOOKS LIKE:
+
+ - You're enrolled in a full-time Bachelors or Masters degree in Computer Science (or a related field)
+
+ - Know any programming language such as: Go, C#, Python, Ruby on Rails or Javascript.
+
+
+
+
+WHAT YOU NEED TO BE SUCCESSFUL:
+
+ - Have a bias for action and ownership and like to get things shipped, learn from mistakes, and take responsibility for your work.
+
+ - Stay curious and don’t just accept things as they are, enjoying asking “why?” and “what if?”
+
+ - Collaborate in person and get energy from being around others, bouncing around ideas, asking questions, and giving and receiving feedback.
+
+ - Love building whether it’s features, tools, or ideas, and enjoy creating things and seeing them make an impact.
+
+ - Enjoy fast-paced environments and feel comfortable with change and the energy that comes with moving quickly.
+
+ - Keep a low ego by staying humble and staying focused on the wider mission.
+
+
+
+
+CHECK OUT OUR EARLY CAREERS CANDIDATE HUB https://incident.io/careers/candidate-hub/early-careers#content FOR MORE INFO!

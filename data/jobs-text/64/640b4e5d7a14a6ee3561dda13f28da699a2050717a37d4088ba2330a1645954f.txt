@@ -1,0 +1,69 @@
+A LITTLE ABOUT US
+
+incident.io http://incident.io is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.
+
+The stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.
+
+We've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.
+
+
+
+
+THE ROLE IN ONE LINE
+
+At incident.io http://incident.io, what you build is yours: the whole loop, from hearing directly from customers what's worth building, to building it, with the trust to run with it and make something you're actually proud of.
+
+
+
+
+WHAT THAT LOOKS LIKE DAY TO DAY
+
+You'll spend real time in the codebase, but also on calls with customers, in Slack threads with them, reading their feedback. Understanding what customers need matters as much as building it. Once something's yours, it's yours end to end: the design and planning, the implementation, the testing, the delivery, and the follow up conversation with the customer who asked for it.
+
+Day to day you're working in Go, TypeScript and React. That's just what we use, not a requirement for what you've used before. We care about how you think, not which stack you've clocked hours in.
+
+We build with AI, not around it. Claude Code, Cursor, and Wispr are all standard kit here.
+
+Flat structure, no ladder. People come from all kinds of backgrounds: some have founded companies, some have been CTOs, some are earlier in their careers. Here everyone's the same thing: a builder. The only thing that actually matters is whether you're curious about how the whole thing works, not just your bit of it.
+
+
+
+
+WHO YOU ARE
+
+ - You spot things before anyone asks you to. If a customer's about to notice a problem, you've usually already fixed it.
+
+ - "If not me, then who" is basically how you operate. You don't wait around for something to be officially yours before you deal with it.
+
+ - You're comfortable in ambiguity, not just tolerant of it. Early ideation, half formed problems, and shifting priorities don't throw you off.
+
+ - You share work when it's about 70% done, not 100%: drafts, MVPs, rough cuts, because you'd rather get feedback early than polish something in isolation.
+
+ - You're product minded, not just technically minded. You have real opinions about what should get built and why, and you're not shy about sharing them.
+
+ - You communicate clearly, whether that's a Slack message to a customer, a design doc, or explaining a tricky trade off to your team.
+
+ - You adapt fast. Feedback changes your plan, not your mood.
+
+
+
+
+SUPPORTING YOU
+
+We work hard and we think life outside work matters just as much. Our benefits pack is built to support both.
+
+ - Private medical insurance. Seriously good cover - we want you and the people you love to be looked after.
+
+ - Competitive annual leave. Showing up at your best requires switching off, and we make sure you have time to do that.
+
+ - First Friday of every month off. Yes, seriously.
+
+ - Enhanced pension. We put real money in, because future-you deserves better than an afterthought.
+
+ - Meaningful equity. We're rapidly scaling, and everyone who helps shape the outcome should share in it.
+
+ - Unlimited AI spend. For everyone, not just engineers. We're all-in on AI across the company, and we expect you to be too.
+
+ - Generous parental leave. The early days with a new baby matter more than anything we're doing here, and we want you to be present for them.
+
+ - Two budgets that have your back. £1000 to invest in your setup, £500 a year to invest in yourself.

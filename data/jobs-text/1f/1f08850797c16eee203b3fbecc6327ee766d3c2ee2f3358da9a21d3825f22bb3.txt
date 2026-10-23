@@ -1,0 +1,154 @@
+ABOUT HYPEREXPONENTIAL (HX)
+
+At hyperexponential, we're building the AI-powered platform that enables the world's most critical decisions in a $7 trillion industry, which risks to take, and how to price them. These are the decisions that shape real-world outcomes: whether rockets successfully launch into space, autonomous vehicles make it to market, or communities recover after major storms.
+
+Until now, insurance has been making billion-dollar decisions using outdated tools. We're changing that. Our platform brings together data, AI, and human expertise to give insurers the fastest path from submission to decision - helping them move faster, act smarter, and take on more risk with confidence.
+
+Backed by a16z, Highland Europe, and Battery Ventures, we're scaling globally - already trusted by nearly 50 of the world's largest insurers, with zero churn and billions in premiums flowing through hx.
+
+What began as a single product in one market has rapidly evolved into a multi-product, multi-territory platform powering every stage of pricing and underwriting. AI is at the core of what we do - from building the world's first domain-specific AI peer programmer for insurance (think GitHub Copilot with a PhD in actuarial science) to shaping agentic workflows that reinvent how this industry operates.
+
+What makes hx different is the people who build it. Here, impact isn't tied to title or tenure; it's defined by the challenges you take on and the discipline you bring. Surrounded by peers who stretch you, you'll do the best, hardest work of your life in a company engineered to endure.
+
+If that sounds like you, join us in building what comes next.
+
+
+
+
+ABOUT THE CLIENT EDUCATION TEAM
+
+Every hx customer's success depends on their teams knowing how to use our platform well - not just how to click through it, but how to build genuinely good pricing models with it. Client Education exists to make that happen. We sit at the intersection of Product, Partnerships, and Customer teams, turning new features and platform capability into training, certification, and documentation that our clients and delivery partners can actually learn from.
+
+The team owns the full learning journey: onboarding new clients, building certification pathways, producing courses and video content, and supporting partners who deliver training on our behalf. As hx's product surface has grown - Decision Engine, Pricing & Rating, Portfolio Intelligence, Submission Triage, and our AI agents - so has the volume and complexity of what we need to teach, and we're growing the team to keep pace.
+
+We're looking for a Client Education Associate to join as a core part of this effort. Your focus will be delivering technical training directly to clients and partners, and supporting the team in building and maintaining the courses and certifications that make that training possible. You'll need enough technical grounding to be credible in front of a room of actuaries and developers, and enough teaching instinct to make complex material land.
+
+
+
+
+WHAT YOU'LL BE DOING
+
+ - Deliver technical training sessions, live and online, to clients and partners - covering everything from platform fundamentals to how to build pricing models using hx's AI agents and product tooling.
+
+ - Build and maintain high-quality course content (online modules, video tutorials, workshop materials) that keeps pace with new product releases and evolving client needs.
+
+ - Support the design and delivery of certification assessments, including practical exercises where candidates build real pricing tools in the hx platform.
+
+ - Partner with Product, Customer, and Partnerships teams to translate new features into training material clients can actually use from day one.
+
+ - Contribute to our partner enablement programme, helping external delivery partners onboard and deliver hx training to a consistent standard.
+
+ - Help maintain and improve our course health and documentation processes, flagging content that's fallen out of date or out of line with current product naming and messaging.
+
+
+
+
+WHAT YOU'LL NEED TO HAVE DONE
+
+ - Delivered training, workshops, or technical explanations to a non-technical or semi-technical audience, and can point to material you've built or taught from.
+
+ - Studied Computer Science or a related technical discipline, or built equivalent hands-on comfort with programming languages (Python or similar) through experience.
+
+ - Worked hands-on with SaaS tools, APIs, or similar technical products, even without a formal software engineering background.
+
+ - Taken the initiative to build or improve a course, process, or piece of learning content, rather than just following someone else's structure.
+
+ - Communicated confidently and clearly with clients or external stakeholders, adjusting technical depth to fit the audience in front of you.
+
+ - Worked well in an environment where scope shifts and you're expected to figure things out rather than wait for a fully defined brief.
+
+
+
+
+YOU'RE UNLIKELY TO THRIVE HERE IF
+
+ - You'd rather follow a fixed curriculum than build and adapt training material as the product changes under you.
+
+ - You're not comfortable being hands-on with technical concepts and tooling, even at a foundational level.
+
+ - You prefer working in isolation rather than pulling in context from Product, Customer, and Partnerships teams to get training right.
+
+If reading our Culture Document https://hx.wiki/ leaves you feeling neutral rather than energised, hx may not be the place where you'll do your best work. We're building something that asks for commitment and conviction, and we want you to feel excited by the opportunity to grow with us.
+
+
+
+
+COMPENSATION
+
+At hx, we're committed to salary transparency. You'll always have clarity on pay early in the process - our Talent Partner will share details with you during initial conversations - and we're working towards publishing salary information for all roles globally.
+
+Because we're building at the intersection of technology/SaaS and insurance, our roles don't always map neatly onto traditional benchmarks. Our approach is to design compensation that's competitive in the market, fair across teams, and aligned with the impact our people make.
+
+Equity: We offer equity across all roles at hx, making it a significant component of total compensation. Your talent partner will be able to share more details about this.
+
+
+
+
+BENEFITS
+
+ - £5,000 training and conference budget for individual and group development.
+
+ - 25 days of holiday plus 8 bank holidays (33 days total).
+
+ - Company pension scheme via Penfold.
+
+ - Mental health support and therapy via Spectrum.life http://Spectrum.life.
+
+ - Individual wellbeing allowance via Juno.
+
+ - Private healthcare insurance through AXA.
+
+ - Income protection and Life Insurance.
+
+ - Cycle to Work Scheme
+
+Additional perks
+
+ - Top-spec equipment (laptop, screens, adjustable desks, etc.).
+
+ - Regular remote and in-person hackathons, lunch and learns, socials, and game nights.
+
+ - Team breakfasts and lunches, snacks, drinks fridge, and a fun office at The Ministry.
+
+ - Exceptional opportunities for personal development and growth as we build something remarkable together.
+
+
+
+
+INTERVIEW PROCESS
+
+ 1. Initial call with our Talent team to kick things off (30 minutes)
+
+ 2. Manager interview with Dom (60 minutes)
+
+ 3. Practical training assessment: build and present a short curriculum plan for a real hx feature, followed by discussion (60-90 minutes)
+
+ 4. Values interview (60 minutes)
+
+ 5. Meet the CEO
+
+ 6. We offer!
+
+
+
+
+OUR COMMITMENT TO DIVERSITY
+
+hxer's are at the centre of everything we build. We know that progress depends on diverse perspectives, and we are committed to creating an environment where everyone can thrive, grow, and make an impact. We recognise there is always more to do, and we take responsibility for shaping a workplace that is not only diverse but genuinely inclusive.
+
+Diversity is not just the right thing to do, it is key to solving the complex challenges we choose to take on. By welcoming people from all backgrounds and experiences, we strengthen our ability to question assumptions, push boundaries, and design solutions that endure.
+
+If you're energised by complexity and motivated to grow, we encourage you to apply and join our global team.
+
+
+
+
+NEXT STEPS
+
+If this opportunity resonates with you, we encourage you to apply or share it with your connections! Our dedicated talent team reviews all applications, and we promise to provide feedback regardless of the outcome.
+
+For more information about applying and to view other opportunities, you can visit our careers page.
+
+
+
+Please note that background checks will be conducted as part of the hiring process to ensure compliance with our governance policies. We handle all background checks sensitively and in full compliance with relevant regulations. All applicant data will be processed in accordance with data protection regulations and our privacy policy.

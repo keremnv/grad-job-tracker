@@ -1,0 +1,77 @@
+A LITTLE ABOUT US
+
+incident.io http://incident.io is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.
+
+The stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.
+
+We've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.
+
+
+
+ 
+
+
+THE TEAM
+
+We're hiring a VP of Customer Success to lead and scale our global post-sales function as we grow from $XXM ARR to $XXXM and beyond. This is a defining hire for the company: customer success at incident.io http://incident.io isn't a coordination function, it's a core revenue driver, and we need a leader who treats it that way. You'll own the success motion globally across our Commercial, Mid-Market, and Enterprise segments, and across Americas, EMEA, and APJC, sitting on the GTM leadership team and reporting directly into the CRO, with close partnership with the co-founders and our Field CTO given how technically oriented our buyer and customer base is.
+
+Our CS org three motions: a scaled, low-touch Commercial/SMB motion built on automation and product-led signals; a mid-touch Mid-Market/Digital Native motion for high-growth technical companies moving fast; and a high-touch, relationship-led Enterprise/Strategic Enterprise motion requiring executive alignment and deep business impact POV building. Across all three, we serve deeply technical buyers — engineers, SREs, and infrastructure teams in the CTO's and CIO's orgs — so we need a leader who wants to architect and operate a world-class success function at pace (coverage models, playbooks, tooling, team structure, culture) rather than inherit a steady-state org, and who is comfortable being hands-on, in the details, and leading from the front.
+
+ 
+
+
+WHAT YOU’LL BE DOING:
+
+ - Own global GRR and NRR across all segments and geographies, accountable for retention, expansion, and forecasting accuracy, and build the infrastructure to predict and influence those outcomes before they materialize.
+
+ - Architect the full success motion: segment-specific coverage models, capacity plans, playbooks, and tooling, all built to evolve with the shape and mix of our customer base as we grow.
+
+ - Build and run a world-class account health system, defining the leading indicators we track, the signals we act on, and the reporting infrastructure that keeps the GTM team informed and ahead of risk.
+
+ - Lead, coach, and develop a global CS team as a 3rd-line leader managing first- and second-line managers across multiple geos.
+
+ - Be hands-on and in the details: engage directly with strategic customers when it matters and lead from the front. Our customers are technical and demanding, and the best CS leaders at incident.io http://incident.io earn their trust firsthand.
+
+ - Deploy AI-forward workflows, architecting how we use AI and automation alongside traditional CS tooling, from health scoring to productivity and scale tooling for the team.
+
+ 
+
+
+WHAT YOU NEED TO BE SUCCESSFUL:
+
+ - Based in San Francisco or New York City, with willingness to travel across Americas, EMEA, and APJC.
+
+ - 3rd-line or higher customer success leadership experience at a high-growth B2B software company.
+
+ - Proven track record scaling a global CS function across Americas, EMEA, and APJC, across multiple customer segments simultaneously.
+
+ - Deep experience building and running post-sales motions for technical buyer personas in the CTO's and/or CIO's org.
+
+ - Strong command of account health scoring, leading indicators, and churn/contraction forecasting.
+
+ - Track record delivering best-in-class GRR and NRR metrics at scale (hundreds of millions of ARR under management).
+
+ - AI-forward mindset with direct experience deploying AI-driven orchestrations alongside traditional CS tooling to drive team efficiency and productivity.
+
+
+SUPPORTING YOU
+
+We work hard and we think life outside work matters just as much. Our benefits pack is built to support both.
+
+ - Market-leading private medical insurance. The proper kind, so you're never weighing up your health against a bill.
+
+ - Competitive PTO. Showing up at your best requires switching off, and we make sure you have time to do that.
+
+ - First Friday of every month off. Yes, seriously.
+
+ - Enhanced 401k. We put real money in, because future-you deserves better than an afterthought.
+
+ - Meaningful equity. We're rapidly scaling, and everyone who helps shape the outcome should share in it.
+
+ - Unlimited AI spend. For everyone, not just engineers. We're all-in on AI across the company, and we expect you to be too.
+
+ - Generous parental leave. The early days with a new baby matter more than anything we're doing here, and we want you to be present for them.
+
+ - Two budgets that have your back. $1000 to invest in your setup, $500 a year to invest in yourself.
+
+ 

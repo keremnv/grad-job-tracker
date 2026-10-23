@@ -1,0 +1,145 @@
+ABOUT HYPEREXPONENTIAL (HX)
+
+At hyperexponential, we’re building the AI-powered platform that enables the world’s most critical decisions in a $7 trillion industry - which risks to take, and how to price them. These are the decisions that shape real-world outcomes: whether rockets successfully launch into space, autonomous vehicles make it to market, or communities recover after major storms.
+
+Until now, insurance has been making billion-dollar decisions using outdated tools. We’re changing that. Our platform brings together data, AI, and human expertise to give insurers the fastest path from submission to decision - helping them move faster, act smarter, and take on more risk with confidence.
+
+Backed by a16z, Highland Europe, and Battery Ventures, we’re scaling globally - already trusted by nearly 50 of the world’s largest insurers, with zero churn and billions in premiums flowing through hx.
+
+What began as a single product in one market has rapidly evolved into a multi-product, multi-territory platform powering every stage of pricing and underwriting. AI is at the core of what we do - from building the world’s first domain-specific AI peer programmer for insurance (think GitHub Copilot with a PhD in actuarial science) to shaping agentic workflows that reinvent how this industry operates.
+
+What makes hx different is the people who build it. Here, impact isn’t tied to title or tenure; it’s defined by the challenges you take on and the discipline you bring. Surrounded by peers who stretch you, you’ll do the best, hardest work of your life in a company engineered to endure.
+
+If that sounds like you, join us in building what comes next.
+
+
+
+
+ABOUT THE SOLUTIONS ENGINEERING TEAM
+
+Solutions Engineering at hx is the technical heart of our go-to-market organisation. This team is responsible for the Technical Win - convincing underwriters, actuaries, IT leaders, and security teams that hx is the platform they can trust with the pricing and underwriting decisions that define their business.
+
+Our Solution Engineers sit at the edge of what’s possible for our product, our customers, and our industry. This is a small, senior team working on the hardest and most interesting problems hx encounters - where only a combination of technical depth, market expertise, and Renew knowledge will do.
+
+As a Solutions Engineer, you are often one of the first hxers a prospect meets. Every engagement is high-stakes. Every interaction is visible. You help customers reimagine how pricing and underwriting can work, turning bold ideas and messy legacy realities into practical, production-ready solutions that actually ship. You leave a trace that shapes how customers see the entire company.
+
+
+
+
+WHAT YOU’LL BE DOING
+
+ - Own the technical sales motion for complex opportunities, driving the technical win across discovery, demos, proofs of value, and technical evaluations - leveraging AI-assisted process
+
+ - Design and deliver high-impact, persona-led demos for actuaries, underwriters, IT, and executive stakeholders, showing both the power of hx Renew and the art of the possible
+
+ - Run technically ambitious POVs, often innovating at the edge of hx Renew’s capabilities to address complex or novel customer use cases
+
+ - Act as a trusted technical advisor throughout the sales process, contributing meaningfully to RFPs and RFIs, answering deep technical questions, handling objections
+
+ - Rapidly build deep expertise in hx Renew, Python-based workflows, insurance pricing and AI use cases becoming a credible technical authority with customers and internal teams
+
+ - Feed real-world customer insight back into Product and Engineering, helping shape future platform capabilities based on emerging customer needs and emerging AI use cases
+
+
+
+
+WHAT YOU’LL NEED TO HAVE DONE
+
+ - You must have extensive experience coding in Python
+
+ - Experience as an Actuary, Underwriter or Technical Broker
+
+ - Exposure to technical, customer-facing work within a B2B SaaS, technology, or data-driven environment (this could include internships, placements, graduate roles, or early-career positions)
+
+ - Experience supporting or observing multi-stakeholder conversations, where technical considerations needed to be explained, justified, or adapted for different audiences
+
+ - Demonstrated ability to build, adapt, or explain technical artefacts (e.g. demos, scripts, prototypes, analyses, workflows), even if not owned end-to-end in a sales context
+
+ - Evidence of earning trust through clear communication, curiosity, and follow-through, whether with customers, internal stakeholders, or project partners
+
+ - A strong sense of ownership and collaboration, with examples of working closely with peers across technical and non-technical functions to move work forward
+
+Bonus:
+
+ - You get energy from being in a customer facing and revenue driving role.
+
+
+
+
+YOU’RE UNLIKELY TO THRIVE HERE IF
+
+ - You prefer clearly defined problems over ambiguous, high-stakes challenges
+
+ - You’re uncomfortable being customer-facing and highly visible in critical moments
+
+ - You avoid accountability when outcomes are uncertain
+
+If reading our Culture Document https://hx.wiki/ leaves you feeling neutral rather than energised, hx may not be the place where you’ll do your best work. We’re building something that asks for commitment and conviction, and we want you to feel excited by the opportunity to grow with us.
+
+
+
+
+COMPENSATION
+
+Base: $160,000 - $195,000
+
+Bonus/Commission: $40,000 - $75,000
+
+Total Compensation: between $210,000 - $280,000
+
+Equity: We offer equity across all roles at hx, making it a significant component of total compensation. Your talent partner will be able to share more details about this.
+
+
+
+
+
+ADDITIONAL PERKS
+
+Top-spec equipment (laptop, screens, adjustable desks, etc.).
+
+Regular remote and in-person hackathons, lunch and learns, socials, and game nights.
+
+Team breakfasts and lunches, snacks, drinks fridge, and a fun office at The Ministry.
+
+Exceptional opportunities for personal development and growth as we build something remarkable together.
+
+
+
+
+INTERVIEW PROCESS
+
+ 1. Talent Partner Interview 
+
+ 2. Take Home - Python Assessment 
+
+ 3. Hiring Manager Interview - with our Director of Solutions Engineering, Urszula Etheridge https://www.linkedin.com/in/urszulaetheridge/ 
+
+ 4. Code walk through and role play
+
+ 5. Values Interview 
+
+ 6. We offer!
+
+
+
+
+OUR COMMITMENT TO DIVERSITY
+
+hxer's are at the centre of everything we build. We know that progress depends on diverse perspectives, and we are committed to creating an environment where everyone can thrive, grow, and make an impact. We recognise there is always more to do, and we take responsibility for shaping a workplace that is not only diverse but genuinely inclusive.
+
+Diversity is not just the right thing to do, it is key to solving the complex challenges we choose to take on. By welcoming people from all backgrounds and experiences, we strengthen our ability to question assumptions, push boundaries, and design solutions that endure.
+
+If you’re energised by complexity and motivated to grow, we encourage you to apply and join our global team.
+
+
+
+
+NEXT STEPS
+
+If this opportunity resonates with you, we encourage you to apply or share it with your connections! Our dedicated talent team reviews all applications, and we promise to provide feedback regardless of the outcome.
+
+For more information about applying and to view other opportunities, you can visit our careers page.
+
+
+
+Please note that background checks will be conducted as part of the hiring process to ensure compliance with our governance policies. We handle all background checks sensitively and in full compliance with relevant regulations. All applicant data will be processed in accordance with data protection regulations and our privacy policy.

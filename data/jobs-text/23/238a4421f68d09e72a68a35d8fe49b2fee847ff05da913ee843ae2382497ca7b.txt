@@ -1,0 +1,61 @@
+A LITTLE ABOUT US
+
+incident.io http://incident.io is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.
+
+The stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.
+
+We've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.
+
+
+
+
+THE ROLE IN ONE LINE
+
+You'll build and grow our Enterprise Solutions Engineering team: finding and hiring the best people, coaching the craft, and getting hands-on in the deals that matter most.
+
+
+What that looks like day to day
+
+Our Solutions Engineers sit at the intersection of product, engineering and enterprise customers. They're the technical experts who lead evaluations, solve complex integration challenges and help some of the world's largest engineering organisations understand what's possible with incident.io http://incident.io. With the launch of AI Investigations, we're seeing even more demand for technically credible partners early in the buying journey, and we're looking for someone to build the team that supports that growth.
+
+This is a hands-on leadership role. You'll spend part of your week hiring exceptional Solutions Engineers, coaching them through customer calls, reviewing demos, and helping them grow into stronger technical and commercial operators. You'll also stay close to the business itself, understanding where pipeline is building, making sure the team is focused on the right opportunities, and jumping into our largest enterprise deals when your experience can make the difference.
+
+Just as importantly, you'll help shape how the function scales. You'll refine how we run Solutions Engineering as the team grows, work closely with Enterprise Sales on technical strategy for our biggest opportunities, and build strong relationships with our product and engineering teams. We expect our SEs to be the eyes and ears of the product organisation, bringing back detailed customer feedback, influencing roadmap decisions, and helping us build better products. As AI becomes a bigger part of both our platform and our customers' operations, you'll also help the team develop the technical depth needed to have credible conversations about how these systems work in practice.
+
+This is an opportunity to join early in your leadership journey and help build the next chapter of Solutions Engineering at incident.io http://incident.io. You'll inherit a strong foundation, but you'll have plenty of scope to raise the bar on hiring, coaching, and how the team operates as we continue to grow.
+
+
+
+WHO YOU ARE
+
+ - You've managed a Solutions Engineering team before (1–3+ years leading a team), and you've grown ICs directly.
+
+ - You're hands-on by default. You watch the calls, you get into the deals, and you coach on the specifics rather than the platitudes.
+
+ - You're technical enough to earn trust with engineers and technical buyers, and commercial enough to know how a complex enterprise deal actually gets done.
+
+ - You think ahead about the machinery and mechanics of an SE team. Pipeline, targets, enablement, capacity and who to hire next.
+
+ - You're on an accelerating trajectory and you're hungry for scope. A bit of ambiguity and a lot of autonomy sounds like an exciting proposition, and you’re happy being flexible working across timezones.
+
+ - You can build relationships in every direction: your team, your AEs, Product, and customers, and you can shift between deeply technical and plainly commercial without missing a beat.
+
+Supporting you
+
+We work hard and we think life outside work matters just as much. Our benefits pack is built to support both.
+
+ - Market-leading private medical insurance. The proper kind, so you're never weighing up your health against a bill.
+
+ - Competitive PTO. Showing up at your best requires switching off, and we make sure you have time to do that.
+
+ - First Friday of every month off. Yes, seriously.
+
+ - Enhanced 401k. We put real money in, because future-you deserves better than an afterthought.
+
+ - Meaningful equity. We're rapidly scaling, and everyone who helps shape the outcome should share in it.
+
+ - Unlimited AI spend. For everyone, not just engineers. We're all-in on AI across the company, and we expect you to be too.
+
+ - Generous parental leave. The early days with a new baby matter more than anything we're doing here, and we want you to be present for them.
+
+ - Two budgets that have your back. $1000 to invest in your setup, $500 a year to invest in yourself.

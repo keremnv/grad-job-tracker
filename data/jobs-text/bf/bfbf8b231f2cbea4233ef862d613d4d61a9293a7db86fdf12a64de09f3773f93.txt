@@ -1,0 +1,63 @@
+A LITTLE ABOUT US
+
+incident.io http://incident.io is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.
+
+The stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.
+
+We've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.
+
+
+
+
+THE ROLE IN ONE LINE
+
+Being a Platform Engineer at incident means being the detective every other engineer wishes they could clone, tracing a mystery from a flaky load balancer to a bad Terraform diff, turning "why is this broken" into "here's exactly why, and here's how we stop it happening again."
+
+
+WHAT THAT LOOKS LIKE DAY TO DAY
+
+As a Platform Engineer at incident, you own everything that isn't the product itself: infrastructure, CI/CD pipelines, databases, and the systems that let our product engineers ship fast without thinking twice about what's underneath them. It's a genuinely varied role. One day you're tracing a scaling issue through a database, the next you're rethinking a Terraform module, the next you're pairing with a product engineer to unblock something that's been quietly slowing them down.
+
+Right now, scaling is front and centre. We've got more product engineers building more of the product than ever, and more customers putting real load on it, so the work you do directly shapes whether that growth feels smooth or painful.
+
+You'll work closest with our product engineers, day in and day out. You're part of a small, three-person platform team, which means your fingerprints are on everything. There's no hiding in a big team here, and no waiting for someone else to pick things up.
+
+Like the rest of engineering, we lean on tools like Claude Code and Cursor to move faster, not as a gimmick, but because it genuinely changes what's possible day to day.
+
+
+WHO YOU ARE
+
+ - You take real ownership. You don't wait to be told what to fix, you see the thing that's slowing everyone down and you go fix it.
+
+ - You build tooling like a product engineer would. You think about the person using it, not just whether it technically works.
+
+ - You're genuinely great at observability. You don't just set up dashboards because you're told to, you want to actually see what's happening in the system, and you get restless when you can't.
+
+ - You've got a knack for unpicking confounding issues, the kind where the bug could be in the app, the database, the load balancer, or a Terraform file, and you're the person who enjoys following the thread until you find it.
+
+ - You care, properly, about making other engineers' lives better. The measure of a good day for you isn't just "it works," it's "that was annoying for people, and now it isn't."
+
+ - You keep half an eye on what's new in security, cloud, and developer experience, not because you have to, but because you'd be reading about it anyway.
+
+ - You're comfortable with high autonomy. Nobody's going to hand you a detailed spec, you're trusted to figure out what needs doing and just do it.
+
+
+SUPPORTING YOU
+
+We work hard and we think life outside work matters just as much. Our benefits pack is built to support both.
+
+ - Private medical insurance. Seriously good cover - we want you and the people you love to be looked after.
+
+ - Competitive annual leave. Showing up at your best requires switching off, and we make sure you have time to do that.
+
+ - First Friday of every month off. Yes, seriously.
+
+ - Enhanced pension. We put real money in, because future-you deserves better than an afterthought.
+
+ - Meaningful equity. We're rapidly scaling, and everyone who helps shape the outcome should share in it.
+
+ - Unlimited AI spend. For everyone, not just engineers. We're all-in on AI across the company, and we expect you to be too.
+
+ - Generous parental leave. The early days with a new baby matter more than anything we're doing here, and we want you to be present for them.
+
+ - Two budgets that have your back. £1000 to invest in your setup, £500 a year to invest in yourself.

@@ -1,0 +1,35 @@
+Our Data Engineering roles require the eligibility for SC clearance, please check the GOV.UK website for the requirements before you apply.
+
+We work with some of the UK’s biggest companies and government departments to provide a pragmatic approach to technology, delivering bespoke software solutions and expert advice. 
+ 
+Our clients are increasingly looking to us to help them make the best use of their data. In building data platforms and pipelines, our data engineers create the foundation for diverse data & analytics solutions, including data science and AI. They build data lakes and warehouses, create the processes to extract or access operational data, and transform siloed datasets into integrated data models that allow insight into business performance and problems or training of ML models.
+ 
+These are hands-on, client-facing roles, with openings at senior or lead level to suit your experience. You may be leading teams, setting technical direction, advising clients or solving tough engineering challenges. You'd also be expected to spend some time on-site with clients in the London area on an ad-hoc basis.
+ 
+Our data engineers combine a strong software engineering approach with solid data fundamentals and experience with modern tools. We’re technology agnostic, and we’re open minded when it comes to your existing skillset.     
+
+
+<li>Good experience with some of the technologies and approaches typical in modern data engineering and reporting. Including storage, data pipelines to ingest and transform data, and querying &amp; reporting of analytical data.&nbsp;</li>
+<li>You've worked with technologies such as Python, Spark, SQL, Pyspark, PowerBI etc.</li>
+<li>You’ve got a background in software engineering, including Front End technologies like JavaScript.</li>
+<li>You’re a problem-solver, pragmatically exploring options and finding effective solutions.&nbsp;</li>
+<li>An understanding of how to design and build well-structured, maintainable systems.&nbsp;</li>
+<li>Strong communication skills and a collaborative approach to work.&nbsp;</li>
+<li>You embrace the chance to try new things, learn new skills and grow your experience.&nbsp;</li>
+
+
+<li>Experience of relevant cloud services within AWS, Azure or GCP.</li>
+<li>Experience working in an Agile environment.</li>
+<li>Experience working with common vendor products such as Snowflake or Data Bricks.</li>
+<li>Experience working with CI/CD tooling.</li>
+
+
+<li>25 days’ annual leave, rising to 30 days with each year of service.&nbsp;</li>
+<li>Generous family leave policies.&nbsp;</li>
+<li>Access to an employer pension scheme, private medical services and Group Life Assurance.&nbsp;</li>
+<li>A range of optional benefits such as discounted gym membership and a cycle-to-work scheme.&nbsp;</li>
+<li>A meaningful approach to evaluating your performance and providing feedback on your progress.</li>
+
+At Scott Logic, we value the flexibility of remote working alongside the value gained from spending time with our colleagues and clients. In our offices you’ll find employee-led clubs and events, as well as free games, books, and refreshments. 
+ 
+We have shared values that govern our behaviour toward others and the environment. We are proud to be a B Corp, a global movement of businesses driving for a more inclusive, equitable, and regenerative economy. We believe diversity drives innovation, and embrace a culture where everyone can contribute, irrespective of race, religion, colour, national origin, gender, sexual orientation, age, marital status or disability.

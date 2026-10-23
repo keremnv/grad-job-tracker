@@ -1,0 +1,71 @@
+A LITTLE ABOUT US
+
+incident.io http://incident.io is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.
+
+The stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.
+
+We've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.
+
+
+
+
+THE ROLE IN ONE LINE
+
+Lead and grow a high-performing, US-based CS team as we scale from $XXM to $XXXM, and beyond.
+
+
+
+
+WHAT THAT LOOKS LIKE DAY TO DAY
+
+You're our first manager of Customer Success in the US, and stepping into a unique scenario: you are not coming in to fix something — the team is already strong, and our retention metrics are the gold standard. Your job is to take what's working and make it repeatable — forecasting, renewals, customer health, the rhythms that hold up when the team is twice the size.
+
+You'll lead CSMs across New York and San Francisco, spanning white glove, high and medium touch motions. You'll report into our CRO until we hire a global VP of Customer Success — a role we're actively working on — which means for now you've got a direct line to commercial leadership and unusual latitude to shape how the function runs. You'll have a counterpart running CS in EMEA, and the two of you will set the standard globally.
+
+Expect to be a player-coach. You'll run forecast reviews and 1:1s, and you'll also be on customer calls — sometimes because an account needs you, often because you want to be close enough to the work to know whether the playbook you're writing actually holds. You'll partner tightly with Sales, Product, Marketing and RevOps, and you'll be one of the clearest voices of the customer inside the company, connecting what you're hearing in the field to where the product goes next.
+
+We're AI-forward in two directions here. Our customers buy an AI incident response product, so fluency in what it does and where it's going is part of the job. And internally, we expect you and your team to be using AI in the actual workflow — account research, health signals, call prep, QBR prep — and to push that further rather than wait for someone to hand you a process.
+
+
+
+
+WHO YOU ARE
+
+ - You've led or coached CSMs or AMs in B2B SaaS, mid-market through enterprise, and you've got the retention and expansion numbers to back it up.
+
+ - You've done this somewhere that hadn't figured it out yet. Standing up the forecast cadence, the health scoring, the renewal motion — that's the part you find fun, not the part you dread.
+
+ - You still want to be in customer conversations. Player-coach isn't a phase you've grown out of.
+
+ - You hold a high bar and people like working for you. Both of those are true about you at the same time.
+
+ - You're commercially sharp. You know which accounts are genuinely at risk versus which ones just went quiet, and you can forecast a quarter without hedging.
+
+ - You're already using AI in how you work, not because someone told you to. You'll have opinions about where it helps your team and where it doesn't.
+
+ - Time zones don't bother you. Leadership sits in the UK, your counterpart runs EMEA, and you're comfortable making that work.
+
+ - Ambiguity doesn't rattle you. When there's no process, you write one rather than waiting for it.
+
+
+
+
+SUPPORTING YOU
+
+We work hard and we think life outside work matters just as much. Our benefits pack is built to support both.
+
+ - Market-leading private medical insurance. The proper kind, so you're never weighing up your health against a bill.
+
+ - Competitive PTO. Showing up at your best requires switching off, and we make sure you have time to do that.
+
+ - First Friday of every month off. Yes, seriously.
+
+ - Enhanced 401k. We put real money in, because future-you deserves better than an afterthought.
+
+ - Meaningful equity. We're rapidly scaling, and everyone who helps shape the outcome should share in it.
+
+ - Unlimited AI spend. For everyone, not just engineers. We're all-in on AI across the company, and we expect you to be too.
+
+ - Generous parental leave. The early days with a new baby matter more than anything we're doing here, and we want you to be present for them.
+
+ - Two budgets that have your back. $1000 to invest in your setup, $500 a year to invest in yourself.

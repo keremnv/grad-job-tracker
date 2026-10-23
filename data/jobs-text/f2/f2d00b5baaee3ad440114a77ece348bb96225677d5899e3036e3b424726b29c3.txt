@@ -1,0 +1,163 @@
+ABOUT HYPEREXPONENTIAL (HX)
+
+At hyperexponential, we're building the AI-powered platform that enables the world's most critical decisions in a £7 trillion industry, which risks to take, and how to price them. These are the decisions that shape real-world outcomes: whether rockets successfully launch into space, autonomous vehicles make it to market, or communities recover after major storms.
+
+Until now, insurance has been making billion-pound decisions using outdated tools. We're changing that. Our platform brings together data, AI, and human expertise to give insurers the fastest path from submission to decision - helping them move faster, act smarter, and take on more risk with confidence.
+
+Backed by a16z, Highland Europe, and Battery Ventures, we're scaling globally - already trusted by nearly 50 of the world's largest insurers, with zero churn and billions in premiums flowing through hx.
+
+What began as a single product in one market has rapidly evolved into a multi-product, multi-territory platform powering every stage of pricing and underwriting. AI is at the core of what we do - from building the world's first domain-specific AI peer programmer for insurance (think GitHub Copilot with a PhD in actuarial science) to shaping agentic workflows that reinvent how this industry operates.
+
+What makes hx different is the people who build it. Here, impact isn't tied to title or tenure; it's defined by the challenges you take on and the discipline you bring. Surrounded by peers who stretch you, you'll do the best, hardest work of your life in a company engineered to endure.
+
+If that sounds like you, join us in building what comes next.
+
+
+
+
+ABOUT THE PLATFORM TEAM
+
+Platform at hx builds the foundation that enables engineering teams to ship secure, scalable applications at velocity. We're evolving towards an AI-first platform where self-service infrastructure, intelligent automation, and reusable components compound developer productivity and operational excellence. This isn't about maintaining the status quo; we're reimagining how modern software delivery works.
+
+As the Staff Platform Engineer, you will own the technical direction of this evolution. You will define the architecture and engineering standards that others build to, drive coherence across teams, and ensure the platform strategy is aligned to long-term business outcomes. You will shape how AI-first, self-service infrastructure is done at scale, not just by delivering capabilities yourself, but by creating the conditions for engineering teams across the organisation to move faster, more safely, and more autonomously.
+
+Check out our Engineering Candidate Hub https://www.hyperexponential.com/careers/hubs/engineering for a behind the scenes look at the team you would be joining!
+
+
+
+
+WHAT YOU'LL BE DOING
+
+ - Establish a coherent 12–18 month technical direction for the platform, with clearly articulated trade-offs, milestones, and alignment across engineering leadership. The roadmap is understood, trusted, and actively referenced by stakeholders.
+
+ - Platform capabilities are adopted broadly across engineering, not because teams are told to use them, but because they are well-designed, well-documented, and genuinely reduce friction. Measurable reduction in Platform as a bottleneck for common provisioning and deployment tasks.
+
+ - Define the architectural patterns and standards that enable autonomous and AI-augmented workflows across the organisation. Other engineers can build AI-native capabilities without requiring Platform's direct involvement in every initiative.
+
+ - Platform defined standards for security, reliability, and operational excellence are embedded into how all teams build not enforced through gatekeeping, but adopted because they are the path of least resistance. Measurable reduction in misconfiguration, security exceptions, and operational incidents across the estate.
+
+ - Senior engineers are visibly stronger for having worked alongside you. The team develops better instincts for architecture, trade-offs, and platform thinking. You are sought out as a technical authority.
+
+
+
+
+WHAT YOU'LL NEED TO HAVE DONE
+
+ - Defined the architecture, standards, and patterns for the platform domain over a multi-quarter horizon. Makes high-judgement calls on foundational trade-offs such as build vs buy, depth vs breadth, short-term pragmatism vs long-term coherence and brings the organisation along on those decisions.aa
+
+ - Navigating disagreement across senior engineers, architects, and stakeholders to reach durable technical decisions. Comfortable holding a position under pressure, updating it when presented with better evidence, and ensuring decisions stick once made.a
+
+ - Accountability for outcomes that span multiple teams and that they do not personally deliver. Designs systems, standards, and enablement approaches that multiply the effectiveness of the engineers araound them, rather than being the primary hands-on contributor to every initiative.
+
+ - Defined how AI and automation are embedded into the platform at an architectural level not just experimenting with tools, but establishing patterns that make AI-augmented workflows the default for engineering teams across the organisation.
+
+ - Understanding of the adoption dynamics, internal customer needs, and the systemic barriers to self-service. Shapes the platform roadmap based on feedback, usage data, and a clear-eyed view of where friction exists and ensures the platform earns its adoption rather than mandating it.
+
+ - Identified architectural, security, and operational risks before they become incidents. Influences how the broader engineering organisation thinks about reliability, security posture, and cost efficiency not just within Platform's direct remit.
+
+ - Connecting platform decisions to business outcomes clearly and credibly. Can represent the platform strategy to senior leadership, translate engineering constraints into business language, and use commercial context to sharpen technical priorities.aa
+
+ - Actively developing senior engineers through technical challenge, honest feedback, and deliberate exposure to harder problems. Recognised as someone who raises the capability of the team, not just the quality of the code. Models the engineering culture the organisation is trying to build.
+
+
+
+
+YOU'RE UNLIKELY TO THRIVE HERE IF
+
+ - You prefer executing predefined tasks over taking ownership of ambiguous problems that require exploration, experimentation, and iteration to solve
+
+ - You view platform engineering as building infrastructure in isolation rather than treating it as a product with internal customers whose adoption and satisfaction drive success
+
+ - You're uncomfortable with rapid change and continuous improvement, preferring stability and established patterns over evolving practices based on data and feedback
+
+If reading our Culture Document https://hx.wiki/ leaves you feeling neutral rather than energised, hx may not be the place where you'll do your best work. We're building something that asks for commitment and conviction, and we want you to feel excited by the opportunity to grow with us.
+
+
+
+
+COMPENSATION
+
+At hx, we're committed to salary transparency. You'll always have clarity on pay early in the process - our Talent Partner will share details with you during initial conversations - and we're working towards publishing salary information for all roles globally.
+
+Because we're building at the intersection of technology/SaaS and insurance, our roles don't always map neatly onto traditional benchmarks. Our approach is to design compensation that's competitive in the market, fair across teams, and aligned with the impact our people make.
+
+Equity: We offer equity across all roles at hx, making it a significant component of total compensation. Your Talent Partner will be able to share more details about this.
+
+
+
+
+BENEFITS
+
+ - £5,000 training and conference budget for individual and group development.
+
+ - 25 days of holiday plus 8 bank holidays (33 days total).
+
+ - Company pension scheme via Penfold.
+
+ - Mental health support and therapy via Spectrum.life http://Spectrum.life.
+
+ - Individual wellbeing allowance via Juno.
+
+ - Private healthcare insurance through AXA.
+
+ - Income protection and Life Insurance.
+
+ - Cycle to Work Scheme.
+
+
+
+
+ADDITIONAL PERKS
+
+ - Top-spec equipment (laptop, screens, adjustable desks, etc.).
+
+ - Regular remote and in-person hackathons, lunch and learns, socials, and game nights.
+
+ - Team breakfasts and lunches, snacks, drinks fridge, and a fun office at The Ministry https://theministry.com/.
+
+ - Exceptional opportunities for personal development and growth as we build something remarkable together.
+
+
+
+
+INTERVIEW PROCESS
+
+ 1. Initial call with our Talent team
+
+ 2. Hiring Manager Interview
+
+ 3. Technical Assessment & follow-up interview
+
+ 4. Values Interview
+
+ 5. Meet the CEO
+
+ 6. We offer!
+
+
+
+
+OUR COMMITMENT TO DIVERSITY
+
+hxers are at the centre of everything we build. We know that progress depends on diverse perspectives, and we are committed to creating an environment where everyone can thrive, grow, and make an impact. We recognise there is always more to do, and we take responsibility for shaping a workplace that is not only diverse but genuinely inclusive.
+
+Diversity is not just the right thing to do, it is key to solving the complex challenges we choose to take on. By welcoming people from all backgrounds and experiences, we strengthen our ability to question assumptions, push boundaries, and design solutions that endure.
+
+If you're energised by complexity and motivated to grow, we encourage you to apply and join our global team.
+
+
+
+
+NEXT STEPS
+
+If this opportunity resonates with you, we encourage you to apply or share it with your connections! Our dedicated talent team reviews all applications, and we promise to provide feedback regardless of the outcome.
+
+For more information about applying and to view other opportunities, you can visit our careers page.
+
+
+
+Please note that background checks will be conducted as part of the hiring process to ensure compliance with our governance policies. We handle all background checks sensitively and in full compliance with relevant regulations. All applicant data will be processed in accordance with data protection regulations and our privacy policy.
+
+
+
+Please note that background checks will be conducted as part of the hiring process to ensure compliance with our governance policies. We handle all background checks sensitively and in full compliance with relevant regulations. All applicant data will be processed in accordance with data protection regulations and our privacy policy.

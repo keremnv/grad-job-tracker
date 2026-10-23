@@ -1,0 +1,46 @@
+Lead  Test Engineer  
+ 
+Welcome to the fascinating world of Scott Logic, where original thinking meets cutting-edge technology! Established as a spearheading software consultancy, Scott Logic has been at the forefront of digital transformation, helping businesses across various industries navigate the sophistications of the modern digital landscape.   
+ 
+We offer a wide range of services, including software development, user experience (UX) design, data visualization, and financial consulting. We pledge to develop high-quality software solutions tailored to meet the unique requirements of each client.  
+ 
+This is a hands-on, client-facing role, offering the opportunity to be involved in the full development lifecycle, delivering mission-critical projects for high-profile global organisations. You’ll typically work in small, tight-knit multidisciplinary teams, decoding tough software problems. We like our teams to have high levels of freedom and value collaboration and pragmatism.   
+ 
+
+<div style="margin: 0cm 0cm 0cm 0px; font-size: 12pt; font-family: 'Times New Roman', serif;">
+<p style="margin: 0cm; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10.0pt; font-family: Calibri, sans-serif;">As a company we are technology agnostic and use the right language, tooling, and frameworks for the job. Our people enjoy working in an environment where they can grow and succeed collectively. We hire people who align with our core values of Passion, Excellence, Collaboration, Respect and Professionalism. </span><span style="font-size: 10.0pt; font-family: Calibri, sans-serif;">&nbsp;</span></p>
+<p style="margin: 0cm; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10.0pt; font-family: Calibri, sans-serif;">Technologies and experience we value include:</span><span style="font-size: 10.0pt; font-family: Calibri, sans-serif;">&nbsp;</span></p>
+</div>
+<div style="margin: 0cm 0cm 0cm 0px; font-size: 12pt; font-family: 'Times New Roman', serif;">&nbsp;</div>
+<ul style="margin-top: 0cm; margin-bottom: 0cm;">
+<li style="margin: 0cm 0cm 0cm 0px; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10.0pt; font-family: Calibri, sans-serif;">A testing mindset, including critical thinking, healthy scepticism and a desire to help teams improve quality</span></li>
+<li style="margin: 0cm 0cm 0cm 0px; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10.0pt; font-family: Calibri, sans-serif;">Experience leading testing on a project or across a team</span></li>
+<li style="margin: 0cm 0cm 0cm 0px; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10.0pt; font-family: Calibri, sans-serif;">A strong background in software engineering</span></li>
+<li style="margin: 0cm 0cm 0cm 0px; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10.0pt; font-family: Calibri, sans-serif;">Experience in tooling and automation in testing, including implementation</span></li>
+<li style="margin: 0cm 0cm 0cm 0px; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10.0pt; font-family: Calibri, sans-serif;">Consulting skills including excellent communication, collaboration, and commercial awareness</span></li>
+<li style="margin: 0cm 0cm 0cm 0px; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10.0pt; font-family: Calibri, sans-serif;">An understanding of the use of AI in testing</span></li>
+<li style="margin: 0cm 0cm 0cm 0px; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10.0pt; font-family: Calibri, sans-serif;">Experience and expertise in at least one testing specialism e.g. </span>
+<ul style="list-style-type: circle; margin-top: 0cm; margin-bottom: 0cm;">
+<li style="margin: 0cm 0cm 0cm 0px; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10.0pt; font-family: Calibri, sans-serif;">Testing of AI systems</span></li>
+<li style="margin: 0cm 0cm 0cm 0px; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10.0pt; font-family: Calibri, sans-serif;">API Testing</span></li>
+<li style="margin: 0cm 0cm 0cm 0px; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10.0pt; font-family: Calibri, sans-serif;">Data Engineering Testing</span></li>
+<li style="margin: 0cm 0cm 0cm 0px; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10.0pt; font-family: Calibri, sans-serif;">Domain specific testing (e.g. Financial Services)</span></li>
+
+
+</ul></li></ul>
+<p style="margin: 0cm; font-size: 12pt; font-family: 'Times New Roman', serif;">&nbsp;</p>
+<ul style="margin-top: 0cm; margin-bottom: 0cm;">
+<li style="margin: 0cm 0cm 0cm 48px; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10pt; font-family: Calibri, sans-serif;">Hybrid working and no overtime. </span><span style="font-size: 10pt; font-family: Calibri, sans-serif;">&nbsp;</span></li>
+
+<ul style="margin-top: 0cm; margin-bottom: 0cm;">
+<li style="margin: 0cm 0cm 0cm 48px; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10pt; font-family: Calibri, sans-serif;">Our people promise devoted to putting our people first. </span><span style="font-size: 10pt; font-family: Calibri, sans-serif;">&nbsp;</span></li>
+<li style="margin: 0cm 0cm 0cm 48px; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10pt; font-family: Calibri, sans-serif;">A significant learning budget with 2 days of time for self-improvement. </span><span style="font-size: 10pt; font-family: Calibri, sans-serif;">&nbsp;</span></li>
+<li style="margin: 0cm 0cm 0cm 48px; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10pt; font-family: Calibri, sans-serif;">Specific holiday and leave entitlement for every circumstance.</span><span style="font-size: 10pt; font-family: Calibri, sans-serif;">&nbsp;</span></li>
+<li style="margin: 0cm 0cm 0cm 48px; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10pt; font-family: Calibri, sans-serif;">Social clubs and groups including but not limited to, Video/Board games, Cycling/Running clubs, Book clubs, Friday bar’s and so much more.  </span><span style="font-size: 10pt; font-family: Calibri, sans-serif;">&nbsp;</span></li>
+<li style="margin: 0cm 0cm 0cm 48px; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10pt; font-family: Calibri, sans-serif;">An environment where ideas are welcomed and explored with detail.  </span><span style="font-size: 10pt; font-family: Calibri, sans-serif;">&nbsp;</span></li>
+
+<p style="margin: 0cm; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 11pt;">&nbsp;</span></p>
+<p style="margin: 0cm; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10pt; font-family: Calibri, sans-serif;">This role is based in our city centre office and is likely to involve occasional travel (infrequent day trips or a few days at a time) to visit our clients, across the UK. If you are interested in more travel, then opportunities are available, we are open to conversation on this.&nbsp;</span><span style="font-size: 10pt; font-family: Calibri, sans-serif;">&nbsp;</span></p>
+<p style="margin: 0cm; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 10pt; font-family: Calibri, sans-serif;">&nbsp;</span></p>
+<p style="margin: 0cm; font-size: 12pt; font-family: 'Times New Roman', serif;"><span style="font-size: 11pt; font-family: Calibri, sans-serif;"> </span><span style="font-size: 11pt; font-family: Calibri, sans-serif;">&nbsp;</span></p></ul></ul>
+We are mindful of the imbalances in our sector. We celebrate multiple and varied approaches and points of view. We believe diversity drives innovation and we embrace a culture where everyone can contribute irrespective of race, religion, colour, national origin, gender, sexual orientation, age, marital status, or disability.

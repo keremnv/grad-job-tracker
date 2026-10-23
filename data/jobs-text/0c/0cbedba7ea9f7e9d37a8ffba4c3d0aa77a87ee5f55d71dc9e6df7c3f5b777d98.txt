@@ -1,0 +1,23 @@
+This is a hands-on, client-facing role, offering the opportunity to shape impactful technology projects for our clients. You’ll typically provide technical leadership for one or more multidisciplinary teams delivering small to medium projects, or with the support of a Principal Architect on advisory engagements or larger programmes of work. You’ll have the opportunity to further develop your career by working alongside colleagues with a wide range of architectural experience, participating in our community of practice and contributing to our thought leadership (blogs, white papers, etc).
+
+<div>
+<p>We’re looking for proactive, pragmatic servant-leaders with hands-on experience of technical and/or solution architecture spanning the full software development lifecycle. We don’t mandate an architectural approach, preferring to find the right combination of methodology, tools and communication styles that work for each client and project. This means we’re open-minded when it comes to your existing skillset, but we value the following:&nbsp;</p>
+<ul type="disc">
+<li>Practical experience in solution, application, data, or cloud architecture. Ideally in the development bespoke software solutions</li>
+<li>Ability to select and apply appropriate architectural patterns and techniques in the design and governance of solutions effectively balancing requirements to achieve successful outcomes.</li>
+<li>Understanding how to provide technical leadership to multi-disciplinary delivery teams and work effectively within complex domains and/or large organizations</li>
+<li>As a strong communicator with a collaborative approach to work, you’re able to quickly build trust, communicate effectively with both business and technical stakeholders, and explain complex technical concepts simply</li>
+<li>You embrace the chance to try new things, learn new skills and share your knowledge and experience with others.</li>
+
+</ul></div>
+<div>
+<ul type="disc">
+<li>25 days’ annual leave, rising to 30 days with each year of service.&nbsp;</li>
+<li>Generous family leave policies.&nbsp;</li>
+<li>Access to an employer pension scheme, private medical services and Group Life Assurance.&nbsp;</li>
+<li>A range of optional benefits such as discounted gym membership and a cycle-to-work scheme.&nbsp;</li>
+<li>A meaningful approach to evaluating your performance and providing feedback on your progress.</li>
+
+</ul></div>
+At Scott Logic, we value the flexibility of remote working alongside the value gained from spending time with our colleagues and clients. In our offices you’ll find employee-led clubs and events, as well as free games, books, and refreshments. 
+We have shared values that govern our behaviour toward others and the environment. We are proud to be a B Corp, a global movement of businesses driving for a more inclusive, equitable, and regenerative economy. We believe diversity drives innovation, and embrace a culture where everyone can contribute, irrespective of race, religion, colour, national origin, gender, sexual orientation, age, marital status or disability.

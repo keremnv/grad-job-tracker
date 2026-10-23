@@ -1,0 +1,76 @@
+Our product helps security teams quickly and accurately detect intrusions in their cloud environment using canaries - decoy tripwires deployed to deceive attackers.
+
+
+We're at a massive inflection point and this is a hugely exciting time to join the company:
+
+ - We've just raised a $20m Series A https://tracebit.com/blog/series-a led by FirstMark with Accel, MMC, Tapestry and CCL.
+
+ - We doubled ARR last quarter, work with companies like Riot Games, Docker and Snyk, and have grown from 5 people to 26 in 18 months.
+
+ - Our research https://www.techradar.com/pro/security/google-gemini-security-flaw-could-have-let-anyone-access-systems-or-run-code recently helped fix a P1 security flaw in Google's Gemini CLI.
+   
+
+We’re looking for an experienced engineer who…
+
+ - Cares deeply about producing high quality work and is ready to dig into the details but is savvy in making the correct tradeoffs on pace vs. quality.
+
+ - Has spent 7+ years shipping software at some degree of scale and/or criticality.
+
+ - At a Product focused company and/or working with at least 1 of the public clouds (AWS, Azure, GCP, etc.)
+
+ - Is excited by the pace and rate of change that is inevitable in any successful, early stage startup.
+
+ - Gets their energy from getting things done and in the hands of customers but is also here to have fun along the way!
+
+If you don’t fit this bill exactly but think you could make a difference here - please, apply!
+
+Role
+
+Reporting to Niall https://www.linkedin.com/in/niall-gallagher/, our Engineering Lead, and with significant exposure to our CTO and Co-Founder, Sam https://www.linkedin.com/in/sam-j-cox/, you’ll join a team of other awesome engineers looking to make their mark on the world.
+
+This includes:
+
+ - Working face to face with both founders, the whole engineering team and our customers and prospects to build a delightful product that solves real problems.
+
+ - Working across the stack, mostly in C# on .NET Core 10 (here's why https://tracebit.com/blog/why-tracebit-is-written-in-c-sharp), but also Terraform and building out our frontend in HTMX.
+
+ - All the good practices you’d expect from technical co-founders who’ve done this before (CD, Infrastructure as code, simple but scalable and powerful architecture)
+
+ - We’re a small, tight team with demanding customers so expect to be shipping every day with very little bureaucracy.
+
+ - We actively encourage AI-assisted development and give every engineer full access to tools like Claude and Codex.
+
+ - We’re based in a Central London office and work here 5 days a week (and everyone we hire will too).
+
+
+FAQS
+
+How is work organised at Tracebit?
+
+It’s a small, tight team - we have a standup everyday, each team member is usually responsible for delivering something reasonably large for customers and we meet every few weeks to talk about longer term plans. Between that - there’s a tonne of discussions, customer feedback and analysis, but not a huge amount of process, the team is trusted to prioritise where to spend their time.
+
+Where is the office?
+
+The whole team works together in an office right next to Warren Street tube station https://tfl.gov.uk/hub/stop/940gzzluwrr/warren-street-underground-station/ - there are lots of great places to grab lunch nearby.
+
+Are you doing hybrid/remote?
+
+‍Short answer: No, but flexible on a day to day basis.
+
+Long answer: We are set on building the company on a foundation of an office based culture. We are a very early stage company and think that we’ll build the best company at the fastest pace we can whilst also having a lot of fun by physically working together 5 days a week. On a case by case basis (e.g. leaving early for a holiday, staying home for a builder, working remote for a few days to visit family, etc. etc.) we’re very reasonable and flexible. We respect that this is not for everyone.
+
+‍What are the working hours like?
+
+‍We think 9am-6pm will bring a great cadence to work. As a Founding Engineer there will definitely be times you need to pick up work outside of these hours, we’re keen to limit this where we can but also offer flexibility in return.
+
+Can you sponsor visas?
+
+ We can support various types of working visas in the UK, including:
+
+ - Skilled Worker Visa (both from within and outside the UK)
+
+ - Intra-Company Transfer Visa
+
+ - Graduate Visa Transition
+
+We are keen to support candidates who require visa sponsorship. Please let us know which specific visa type you might need during the initial application or interview process. Our team is committed to helping talented individuals navigate the necessary visa requirements.

@@ -1,0 +1,40 @@
+
+<div>
+
+<li>You have built and deployed applications in Rust, Java, C# or JavaScript.</li>
+<li>You've got experience designing, implementing and maintaining end-to-end&nbsp;CI/CD pipelines for application deployment.</li>
+<li>You are comfortable automating&nbsp;deployment, scaling, and monitoring processes.</li>
+<li>You are able to collaborate closely with development, QA, and operations teams to streamline workflows and troubleshoot pipeline issues.</li>
+<li>You can support development teams to migrate their builds onto this new pipeline.</li>
+<li>You’re a problem-solver, pragmatically exploring options and finding effective solutions.&nbsp;</li>
+<li>You have strong communication skills and take a collaborative approach to your work.</li>
+<li>You have an interest in good practices around security, reliability, observability, cost efficiency, performance and governance – collaborating with others to ensure these are in place.</li>
+<li>For lead roles, you have good technical leadership experience, understanding what makes a team successful and how to support colleagues in their own career development.</li>
+<li>You can work on the support rota to support tickets related to this pipeline</li>
+
+<div>
+<div>
+<div id="_com_2">
+<p>&nbsp;</p>
+</div>
+</div>
+</div>
+</div>
+<div>
+
+<li>25 days’ annual leave, rising incrementally to 30 days after six years of service.</li>
+<li>Generous family leave policies.</li>
+<li>Access to an employer pension scheme and Group Life Assurance.</li>
+<li>A range of optional benefits such as discounted gym membership and a cycle-to-work scheme.</li>
+<li>A meaningful approach to evaluating your performance and providing feedback on your progress.</li>
+
+<div>
+<div>
+<div data-olk-copy-source="MessageBody">At Scott Logic, we value the flexibility of remote working alongside the value gained from spending time with our colleagues and clients. In our offices&nbsp;you’ll&nbsp;find employee-led clubs and events, as well as free games, books, and refreshments.&nbsp;</div>
+<div data-olk-copy-source="MessageBody">&nbsp;</div>
+</div>
+<div>
+<div>We have shared values that govern our behaviour toward others and the environment. We are proud to be a B Corp, a global movement of businesses driving for a more inclusive,&nbsp;equitable, and regenerative economy.</div>
+</div>
+</div>
+</div>

@@ -1,0 +1,199 @@
+ABOUT HYPEREXPONENTIAL (HX)
+
+At hyperexponential, we're building the AI-powered platform that enables the world's most critical decisions in a $7 trillion industry - which risks to take, and how to price them. These are the decisions that shape real-world outcomes: whether rockets successfully launch into space, autonomous vehicles make it to market, or communities recover after major storms.
+
+Until now, insurance has been making billion-dollar decisions using outdated tools. We're changing that. Our platform brings together data, AI, and human expertise to give insurers the fastest path from submission to decision - helping them move faster, act smarter, and take on more risk with confidence.
+
+Backed by a16z, Highland Europe, and Battery Ventures, we're scaling globally - already trusted by nearly 50 of the world's largest insurers, with zero churn and billions in premiums flowing through hx.
+
+What began as a single product in one market has rapidly evolved into a multi-product, multi-territory platform powering every stage of pricing and underwriting. AI is at the core of what we do - from building the world's first domain-specific AI peer programmer for insurance (think GitHub Copilot with a PhD in actuarial science) to shaping agentic workflows that reinvent how this industry operates.
+
+What makes hx different is the people who build it. Here, impact isn't tied to title or tenure; it's defined by the challenges you take on and the discipline you bring. Surrounded by peers who stretch you, you'll do the best, hardest work of your life in a company engineered to endure.
+
+If that sounds like you, join us in building what comes next.
+
+
+
+
+ABOUT THE ENGINEERING TEAM
+
+At hyperexponential, engineering is at the heart of our mission to transform the insurance industry. Our engineers build and scale, enabling insurers to model complex risks and make smarter pricing decisions at speed. By combining deep technical expertise with creativity, the team pushes the boundaries of what’s possible in insurance technology.
+
+Within engineering, our product teams are cross-functional, pairing frontend and backend engineers with designers and product managers. This enables end-to-end ownership of features, with engineers contributing across design, architecture, implementation, and testing. Collaboration is a core part of how we work, ensuring that every release is both technically sound and valuable to our users.
+
+
+
+
+ABOUT THE ROLE
+
+Underwriters at the world's largest insurers still do much of their work in spreadsheets, email threads, and systems that were never designed for the decisions they are making. We are rebuilding that from the ground up.
+
+You will join the Workflow Underwriting stream, building the next generation of our underwriting platform. This is not a platform with AI features bolted on. We are designing it around the agents we build, which means the architecture, the domain model, and the interaction patterns are all genuinely open questions. You will help answer them.
+
+You will contribute at code, architecture, and domain level from your first weeks, and you will talk directly to the underwriters who use what you build.
+
+ 
+
+
+WHAT YOU’LL BE DOING
+
+ - Design, build, and operate backend services in Kotlin or Java, and own them in production.
+
+ - Turn ambiguous underwriting problems into simple, reliable software. Much of the work is deciding what to build, not just building it.
+
+ - Shape architectural decisions: APIs, domain models, persistence, reliability, observability, and how the platform evolves without collapsing under its own weight.
+
+ - Build real depth in the underwriting domain, to the point where you can challenge a requirement rather than only implement it.
+
+ - Design and build agent-assisted workflows, and make judgement calls about where an agent should act, where it should advise, and where a human must stay in control.
+
+ - Use AI coding tools, including Claude, as a core part of how you work. You delegate substantial work to them and you remain accountable for the quality, security, and correctness of everything you ship.
+
+ - Work across boundaries with frontend engineers, product partners, and client-facing teams, and step outside your specialism when the problem demands it.
+
+ - Give and take direct feedback, and raise the engineering bar around you.
+
+ 
+
+
+WHAT YOU’LL NEED TO HAVE DONE
+
+ - Strong professional experience building and running backend systems in Kotlin, Java, or another JVM language.
+
+ - Judgement in architecture and system design: a feel for what to build now, what to defer, and what will hurt in two years.
+
+ - Evidence of shipping software that solved a real customer or business problem, ideally something you owned end to end.
+
+ - A self-starting approach. You find the highest-value problem rather than waiting for a ticket.
+
+ - Clear communication. You can hold the same conversation with an underwriter, an executive, and an engineer, and adjust for each.
+
+ - Genuine appetite for problems with no known answer, and comfort working without a precedent to copy.
+
+ - Confident, responsible use of AI coding tools, with a critical eye on their output.
+
+ - Receptiveness to feedback. We give it directly and often, and we expect you to give it back.
+
+ 
+
+
+HELPFUL, NOT REQUIRED
+
+ - Experience in insurance, underwriting, or another complex regulated domain. We will teach you the domain. We cannot teach curiosity about it.
+
+ - Experience across both backend and frontend.
+
+ - Experience building workflow, decision-support, or agent-assisted products.
+
+ - Experience working directly with enterprise clients.
+
+ 
+
+
+YOU’RE UNLIKELY TO THRIVE HERE IF
+
+ - You prefer following detailed instructions rather than experimenting and finding your own approach.
+
+ - You are uncomfortable working directly with non-technical stakeholders to understand their challenges.
+
+ - You avoid tackling ambiguous or open-ended problems where the solution isn’t obvious.
+
+If reading our Culture Document https://hx.wiki/ leaves you feeling neutral rather than energised, hx may not be the place where you’ll do your best work. We’re building something that asks for commitment and conviction, and we want you to feel excited by the opportunity to grow with us.
+
+ 
+
+
+COMPENSATION
+
+At hx, we’re committed to salary transparency. You’ll always have clarity on pay early in the process - our Talent Partner will share details with you during initial conversations - and we’re working towards publishing salary information for all roles globally.
+
+Because we’re building at the intersection of technology/SaaS and insurance, our roles don’t always map neatly onto traditional benchmarks. Our approach is to design compensation that’s competitive in the market, fair across teams, and aligned with the impact our people make.
+
+Equity: We offer equity across all roles at hx, making it a significant component of total compensation. Your talent partner will be able to share more details about this.
+
+
+
+
+BENEFITS
+
+ - B2B
+   
+   - Share Options at a highly successful Series B company
+   
+   - 25 days of non-working + Polish bank holidays
+   
+   - £5,000 GBP budget for Learning & Development
+   
+   - Mental Health Support and Therapy via Spectrum Life
+   
+   - Optional for you: access to Private Healthcare via Luxmed + Multisport (fully funded by yourself as B2B Contractor)
+   
+   - Top-spec laptop (MacOS or Windows)
+   
+   
+
+ - Contract of Employment (UoP)
+   
+   - Share Options at a highly successful Series B company
+   
+   - £5,000 GBP budget for Learning & Development
+   
+   - 26 days of holiday + Polish bank holidays
+   
+   - Company pension
+   
+   - Company Sick Pay for 10 days at 100% salary
+   
+   - Mental Health Support and Therapy via Spectrum Life
+   
+   - Monthly Wellbeing allowance via Juno
+   
+   - Private Healthcare Insurance via Luxmed
+   
+   - Multisport - Classic level
+   
+   - Top-spec work equipment (MacOS, Windows + additional monitors, mechanical keyboards etc)
+    
+
+
+INTERVIEW PROCESS
+
+ 1. Initial chat with our Talent team
+
+ 2. Manager Interview
+
+ 3. Technical Assessment (e.g., code review, system design)
+
+ 4. Values Interview
+
+ 5. Meet the CEO
+
+ 6. We offer!
+
+ 
+
+
+OUR COMMITMENT TO DIVERSITY
+
+hxers are at the centre of everything we build. We know that progress depends on diverse perspectives, and we are committed to creating an environment where everyone can thrive, grow, and make an impact. We recognise there is always more to do, and we take responsibility for shaping a workplace that is not only diverse but genuinely inclusive.
+
+Diversity is not just the right thing to do, it is key to solving the complex challenges we choose to take on. By welcoming people from all backgrounds and experiences, we strengthen our ability to question assumptions, push boundaries, and design solutions that endure.
+
+If you're energised by complexity and motivated to grow, we encourage you to apply and join our global team.
+
+ 
+
+
+NEXT STEPS
+
+If this opportunity resonates with you, we encourage you to apply or share it with your connections! Our dedicated talent team reviews all applications, and we promise to provide feedback regardless of the outcome.
+
+For more information about applying and to view other opportunities, you can visit our careers page.
+
+
+
+Please note that background checks will be conducted as part of the hiring process to ensure compliance with our governance policies. We handle all background checks sensitively and in full compliance with relevant regulations. All applicant data will be processed in accordance with data protection regulations and our privacy policy.
+
+
+
+Please note that background checks will be conducted as part of the hiring process to ensure compliance with our governance policies. We handle all background checks sensitively and in full compliance with relevant regulations. All applicant data will be processed in accordance with data protection regulations and our privacy policy.

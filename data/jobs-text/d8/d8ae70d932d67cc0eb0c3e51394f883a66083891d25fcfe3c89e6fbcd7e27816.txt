@@ -1,0 +1,174 @@
+Hi 👋 I’m Nitesh, Engineering Manager at hyperexponential. I'm one of the career mentors in the Product Foundations stream. We tackle the fundamental problems every product team at hx runs into, so the vertical streams can focus on building features for customers. Right now that means deployments, observability, security, AI observability tooling and a permission service that other value streams will build on.
+
+I’m hiring a Senior Security Engineer to join us as our second security hire. The foundations are already in place. We’ve chosen and implemented our tooling, and our repositories and cloud environments are onboarded. The next step is shaping how security actually works here. This won’t be a traditional, hierarchical security function. Our engineers go straight to the person who owns an issue and ask them to fix it, and you’ll help define what security looks like in that model.
+
+There’s no established playbook for this yet, which is what makes it exciting. If that sounds like your kind of challenge, I’d love to hear from you.
+
+
+
+
+ABOUT HYPEREXPONENTIAL (HX)
+
+At hyperexponential, we're building the AI-powered platform that enables the world's most critical decisions in a £7 trillion industry, which risks to take, and how to price them. These are the decisions that shape real-world outcomes: whether rockets successfully launch into space, autonomous vehicles make it to market, or communities recover after major storms.
+
+Until now, insurance has been making billion-pound decisions using outdated tools. We're changing that. Our platform brings together data, AI, and human expertise to give insurers the fastest path from submission to decision - helping them move faster, act smarter, and take on more risk with confidence.
+
+Backed by a16z, Highland Europe, and Battery Ventures, we're scaling globally - already trusted by nearly 50 of the world's largest insurers, with zero churn and billions in premiums flowing through hx.
+
+What began as a single product in one market has rapidly evolved into a multi-product, multi-territory platform powering every stage of pricing and underwriting. AI is at the core of what we do - from building the world's first domain-specific AI peer programmer for insurance (think GitHub Copilot with a PhD in actuarial science) to shaping agentic workflows that reinvent how this industry operates.
+
+What makes hx different is the people who build it. Here, impact isn't tied to title or tenure; it's defined by the challenges you take on and the discipline you bring. Surrounded by peers who stretch you, you'll do the best, hardest work of your life in a company engineered to endure.
+
+If that sounds like you, join us in building what comes next.
+
+
+
+
+ABOUT THE SECURITY FUNCTION
+
+The Security function's mission is to safeguard the integrity, confidentiality, and availability of our customers' data and hx's systems. By fostering a culture of vigilance, risk mitigation, and continuous improvement, we maintain the highest standards of security excellence.
+
+Security at hx underpins every product and every customer interaction. As we scale our multi-product platform globally and adopt AI across the business, the team ensures that innovation and growth are matched with rigorous security practices. We design controls, shape culture, and guide decisions that protect our business, our customers, and the wider industry.
+
+As a Senior Security Engineer, you’ll be the second engineer in our security team, working directly alongside our Staff Security Engineer. The foundations are in place, with our core tooling chosen, rolled out and onboarded across our repositories and cloud environments. Much of how security works at hx is still to be built, though, so you’ll have real autonomy to shape it, with a direct line to the teams who own the issues you find. You’ll strengthen hx’s security posture by driving continuous improvement across our technical teams: owning security reviews, running and extending our security tooling, and turning findings into fixes, often by writing the code or making the infrastructure change yourself. You’ll champion security initiatives across the organisation, help teams adopt AI securely, and use AI to multiply your own impact. This role combines hands-on technical depth, ownership and influence to make security a practical part of how our teams work every day.
+
+Check out our Engineering Candidate Hub https://www.hyperexponential.com/careers/hubs/engineering for a behind the scenes look at the team you would be joining!
+
+
+
+
+WHAT YOU'LL BE DOING
+
+ - Modify, maintain, and extend our security tooling across engineering and IT environments, including CSPM, SAST, SCA, and secret scanning, ensuring it's reliable, well tuned, and genuinely useful to the teams who depend on it.
+
+ - Use our tooling and your own judgement to proactively identify gaps across cloud security, dependencies, secrets, and code. Work with the owning teams (starting with 2 to 3 where the gaps are greatest) to secure their commitment to prioritise remediation, and see it through.
+
+ - Write code and make infrastructure changes yourself to fix security issues and improve our tooling, rather than just recommending improvements.
+
+ - Own security reviews end to end, partnering with engineering teams on new designs, significant changes, and new tools, and working through follow-up questions and challenges until each review is resolved.
+
+ - Take ownership of and complete a medium-sized security project within your first three months.
+
+ - Partner with our IT team on security best practice, helping implement practical improvements in authentication, authorisation, and security hygiene across our corporate environment.
+
+ - Guide teams across the business on adopting AI securely, from assessing new AI tools and use cases to mitigating risks like data leakage and prompt injection, while using AI yourself to increase your impact.
+
+ - Support our compliance programmes, such as ISO 27001 and SOC 2, by helping teams implement and evidence technical controls.
+
+ - Act as a trusted voice for our technical teams, owning security issues raised with them through to resolution and handling the related correspondence.
+
+
+
+
+WHAT YOU'LL NEED TO HAVE DONE
+
+ - Secured AWS cloud environments hands-on: using Cloud Security tooling to find common weaknesses, and fixing them yourself through infrastructure and code changes. Cloud Security experience is required.
+
+ - Secured containerised workloads and infrastructure-as-code, catching issues before they reach production.
+
+ - Experience working with SAST, SCA, and secret scanning tools, including triaging findings, filtering out false positives, and partnering with engineering teams to get real fixes shipped
+
+ - Supported compliance efforts such as ISO 27001, SOC 2, or GDPR by implementing and evidencing technical controls.
+
+ - Used AI to improve your own security work and helped others adopt it safely, with a practical understanding of AI-specific risks such as data leakage, prompt injection, and agents and integrations with excessive permissions.
+
+ - Spotted and addressed non-technical risks, such as weak processes, risky behaviours, and gaps between teams, that can undermine technical security.
+
+ - Discussed security in depth with engineering teams, explaining complex concepts clearly and concisely and influencing teams through to implementation.
+
+ - Taken ownership of security projects and initiatives and driven them to completion independently.
+
+
+
+
+YOU'RE UNLIKELY TO THRIVE HERE IF
+
+ - You prefer to advise from the sidelines rather than writing code and making the infrastructure changes yourself.
+
+ - You see security as a gatekeeping function rather than a service to the teams you support, whose adoption and trust determine your success.
+
+ - You'd rather wait for direction than take ownership of issues, follow them through to resolution, and manage the correspondence around them.
+
+If reading our Culture Document https://hx.wiki leaves you feeling neutral rather than energised, hx may not be the place where you'll do your best work. We're building something that asks for commitment and conviction, and we want you to feel excited by the opportunity to grow with us.
+
+
+
+
+COMPENSATION
+
+At hx, we're committed to salary transparency. You'll always have clarity on pay early in the process - our Talent Partner will share details with you during initial conversations - and we're working towards publishing salary information for all roles globally.
+
+Because we're building at the intersection of technology/SaaS and insurance, our roles don't always map neatly onto traditional benchmarks. Our approach is to design compensation that's competitive in the market, fair across teams, and aligned with the impact our people make.
+
+Equity: We offer equity across all roles at hx, making it a significant component of total compensation. Your Talent Partner will be able to share more details about this.
+
+
+
+
+BENEFITS
+
+ - £5,000 training and conference budget for individual and group development.
+
+ - 25 days of holiday plus 8 bank holidays (33 days total).
+
+ - Company pension scheme via Penfold.
+
+ - Mental health support and therapy via Spectrum.life http://Spectrum.life.
+
+ - Individual wellbeing allowance via Juno.
+
+ - Private healthcare insurance through AXA.
+
+ - Income protection and Life Insurance.
+
+ - Cycle to Work Scheme.
+
+
+ADDITIONAL PERKS
+
+ - Top-spec equipment (laptop, screens, adjustable desks, etc.).
+
+ - Regular remote and in-person hackathons, lunch and learns, socials, and game nights.
+
+ - Team breakfasts and lunches, snacks, drinks fridge, and a fun office at The Ministry.
+
+ - Exceptional opportunities for personal development and growth as we build something remarkable together.
+
+
+
+
+INTERVIEW PROCESS
+
+ 1. Talent Interview (30 minutes)
+
+ 2. Hiring Manager Interview (60 minutes)
+
+ 3. Skills Assessment (120 minutes)
+
+ 4. Values Interview (60 minutes)
+
+ 5. Meet the CEO (30 minutes)
+
+
+
+
+OUR COMMITMENT TO DIVERSITY
+
+hxers are at the centre of everything we build. We know that progress depends on diverse perspectives, and we are committed to creating an environment where everyone can thrive, grow, and make an impact. We recognise there is always more to do, and we take responsibility for shaping a workplace that is not only diverse but genuinely inclusive.
+
+Diversity is not just the right thing to do, it is key to solving the complex challenges we choose to take on. By welcoming people from all backgrounds and experiences, we strengthen our ability to question assumptions, push boundaries, and design solutions that endure.
+
+If you're energised by complexity and motivated to grow, we encourage you to apply and join our global team.
+
+
+
+
+NEXT STEPS
+
+If this opportunity resonates with you, we encourage you to apply or share it with your connections! Our dedicated talent team reviews all applications, and we promise to provide feedback regardless of the outcome.
+
+For more information about applying and to view other opportunities, you can visit our careers page.
+
+
+
+Please note that background checks will be conducted as part of the hiring process to ensure compliance with our governance policies. We handle all background checks sensitively and in full compliance with relevant regulations. All applicant data will be processed in accordance with data protection regulations and our privacy policy.

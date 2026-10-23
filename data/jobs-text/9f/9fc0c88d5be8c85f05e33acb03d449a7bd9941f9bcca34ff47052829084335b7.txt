@@ -1,0 +1,18 @@
+
+<p>We’re looking for passionate, proactive technologists. We are technology agnostic and use the right language, tooling and frameworks for the job. That means we’re open minded when it comes to your existing skillset, but we value the following:&nbsp;</p>
+
+<li>Good experience in at least one of Python, Java, C#/.NET, JavaScript or TypeScript, and their associated ecosystems.&nbsp;</li>
+<li>You’re a problem-solver, pragmatically exploring options and finding effective solutions.&nbsp;</li>
+<li>An understanding of how to design and build well-structured, maintainable systems.&nbsp;</li>
+<li>Strong communication skills and a collaborative approach to work.</li>
+<li><span style="font-family: Aptos, sans-serif;">You embrace the chance to try new things, learn new skills and grow your experience.</span></li>
+
+<div>
+
+<li>25 days’ annual leave, rising to 30 days with each year of service.&nbsp;</li>
+<li>Generous family leave policies.&nbsp;</li>
+<li>Access to an employer pension scheme, and Group Life Assurance.&nbsp;</li>
+<li>A range of optional benefits such as discounted gym membership and a cycle-to-work scheme.&nbsp;</li>
+<li>A meaningful approach to evaluating your performance and providing feedback on your progress.&nbsp;</li>
+
+</div>

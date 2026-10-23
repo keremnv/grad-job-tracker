@@ -1,0 +1,63 @@
+A LITTLE ABOUT US
+
+incident.io http://incident.io is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.
+
+The stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.
+
+We've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.
+
+
+
+
+THE ROLE IN ONE LINE
+
+Solutions Engineering at incident.io http://incident.io is where the product meets the moment it's built for - you're the person who turns "we'll see" into "oh, this actually works," proving live that we hold up exactly when it matters most.
+
+
+WHAT THAT LOOKS LIKE DAY TO DAY
+
+As a Solutions Engineer at incident.io http://incident.io, you're the technical voice in the room from first discovery call through to close, partnering closely with our Account Executives across the commercial segment. You'll be in front of some of the most exciting companies we sell into, running demos that need to hold up under real scrutiny - because the people you're presenting to have felt what it's like when tools fall over during an incident, and they're not going to be won over by a slide deck.
+
+This function is still being built, which means there's real room to bring your own ideas to the table and help shape how Solutions Engineering works at incident, not just execute a playbook someone else wrote. You'll report into our Solutions Engineering Manager - our founding Solutions Engineer - and the wider segment sits under our co-founder and Field CTO, so you'll have direct access to people who've done this from the ground up.
+
+You'll occasionally work alongside our TSEs and Product team, though that's the exception rather than the rule - most of your time is spent partnered tightly with AEs, going deep on a prospect's world before you ever get in the room.
+
+We're AI-forward, and that's not just a talking point here - you'll be demoing our new AI-native product, and testing and shaping how AI shows up in your own workflow too. From this role, the natural next step is into our Enterprise segment, working with bigger, more complex accounts once you've proven yourself in commercial.
+
+
+WHO YOU ARE
+
+ - You've been a Solutions Engineer before, and you've stood in front of senior stakeholders and run demos that actually landed - not just clicked through slides.
+
+ - You have a genuine interest in code and solving hard technical problems - not because a job spec told you to, but because you can't help yourself.
+
+ - You operate with high ownership - if something needs sorting, you don't wait to be asked.
+
+ - You want to know this product inside and out, not just enough to get through a demo.
+
+ - When a technical objection comes up and you don't have the answer, it bugs you until you find it - that's when you're at your best.
+
+ - Thriving under pressure is your normal, not your exception - the moments when everything's on the line are the moments you show up hardest.
+
+ - You want to build something, not just execute someone else's playbook - this function is still taking shape, and you want a say in what it becomes.
+
+
+SUPPORTING YOU
+
+We work hard and we think life outside work matters just as much. Our benefits pack is built to support both.
+
+ - Market-leading private medical insurance. The proper kind, so you're never weighing up your health against a bill.
+
+ - Competitive PTO. Showing up at your best requires switching off, and we make sure you have time to do that.
+
+ - First Friday of every month off. Yes, seriously.
+
+ - Enhanced 401k. We put real money in, because future-you deserves better than an afterthought.
+
+ - Meaningful equity. We're rapidly scaling, and everyone who helps shape the outcome should share in it.
+
+ - Unlimited AI spend. For everyone, not just engineers. We're all-in on AI across the company, and we expect you to be too.
+
+ - Generous parental leave. The early days with a new baby matter more than anything we're doing here, and we want you to be present for them.
+
+ - Two budgets that have your back. $1000 to invest in your setup, $500 a year to invest in yourself.

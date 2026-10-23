@@ -1,0 +1,158 @@
+ABOUT HYPEREXPONENTIAL (HX)
+
+At hyperexponential, we're the agentic platform for end-to-end underwriting work that enables the world's most critical decisions in a $7 trillion industry - which risks to take, and how to price them. These are the decisions that shape real-world outcomes: whether rockets successfully launch into space, autonomous vehicles make it to market, or communities recover after major storms.
+
+Until now, insurance has been making billion-dollar decisions using outdated tools. We're changing that. Our platform brings together data, AI, and human expertise to give insurers the fastest path from submission to decision - helping them move faster, act smarter, and take on more risk with confidence.
+
+Backed by a16z, Highland Europe, and Battery Ventures, we're scaling globally - already trusted by nearly 50 of the world's largest insurers, with zero churn and billions in premiums flowing through hx.
+
+What began as a single product in one market has rapidly evolved into a multi-product, multi-territory platform powering every stage of pricing and underwriting. AI is at the core of what we do - from building the world's first domain-specific AI peer programmer for insurance (think GitHub Copilot with a PhD in actuarial science) to shaping agentic workflows that reinvent how this industry operates.
+
+What makes hx different is the people who build it. Here, impact isn't tied to title or tenure; it's defined by the challenges you take on and the discipline you bring. Surrounded by peers who stretch you, you'll do the best, hardest work of your life in a company engineered to endure.
+
+If that sounds like you, join us in building what comes next.
+
+
+
+
+ABOUT THE TEAM
+
+Solutions is the technical core of our go-to-market organisation. The team sits at the intersection of product, sales, and customer success, owning the technical win in each opportunity and making hx platform real for some of the most demanding insurers in the world. We work with underwriters, actuaries, IT, and security leaders to design solutions they can trust with their most critical pricing and underwriting decisions.
+
+This is a team that thrives at the edge of what’s possible for our product and our customers. We specialise in the hardest integration and implementation challenges, where deep technical understanding, domain insight, and creativity are all required. As a Solutions Architect, you’ll be one of the first hx’ers many prospects meet, shaping how they understand our platform and what it can do for their business.
+
+Solutions Architects at hx are the voice of IT, security and infrastructure - both inside hx and in front of customers. We figure out how hx fits into complex, often ancient system landscapes, translating between modern cloud architectures and 1990s reality without losing sight of the bigger transformation.
+
+The culture is high-ownership, collaborative, and very visible: every engagement is high stakes, every interaction leaves a lasting impression, and your work feeds directly into both revenue outcomes and product direction. You’ll partner closely with Sales and Product Engineering, acting as a trusted advisor and helping customers realise the full value of hx agentic platform.
+
+
+
+
+WHAT YOU’LL BE DOING
+
+ - Accelerating the Tech Win by translating prospect requirements and legacy constraints into clear, actionable integration approaches aligned to our onboarding and integration playbooks.
+
+ - Run focused, high-impact technical discovery and design workshops with underwriters, actuaries, and IT stakeholders to deeply understand their workflows and shape viable solution architectures.
+
+ - Act as the trusted technical voice guiding stakeholders through RFPs, RFIs, due diligence, and security reviews to remove friction and keep deals moving.
+
+ - Design, build, and present compelling POV (Proof of Value) materials, Proofs of Concept and demos that showcase the hx agentic platform integration capabilities and how we can transform customers’ pricing and underwriting processes.
+
+ - Partner with Product Engineering as “Customer Zero”, testing new features in real-world scenarios, surfacing edge cases, and feeding back insights that improve product quality and relevance.
+
+ - Create and maintain reusable assets – from integration libraries and reference architectures to demo environments and technical presentations – that scale the impact of the Field Engineering team across multiple deals and regions.
+
+
+
+
+WHAT YOU’LL NEED TO HAVE DONE
+
+ - Led technical solution design and integration for complex B2B or enterprise software opportunities, ideally in data-heavy domains such as insurance, financial services, or adjacent regulated industries.
+
+ - Run technical evaluations and POVs with multiple stakeholder groups (e.g. business, IT, security), successfully navigating RFP/RFI processes, due diligence, and technical Q&A to a clear “Tech Win”.
+
+ - Designed, documented and positioned solution architectures within known patterns (e.g. APIs, event-driven integrations, identity and access management), clearly articulating assumptions, risks, and trade-offs.
+
+ - Built and delivered tailored Proofs of Concept or Proof of Value that directly contributed to winning or expanding high-value accounts, ideally with measurable commercial impact.
+
+ - Collaborated closely with Sales teams, using structured sales methodologies to align technical work with deal strategy, timing, and stakeholder influence.
+
+ - Contributed to shared technical assets and standards – such as playbooks, reference diagrams, or demo environments – and used structured learning habits (enablement, shadowing, self-study) to quickly ramp up on new products or domains.
+
+ - AI-native in practice - Uses AI tools as a natural part of technical and delivery work - documentation, troubleshooting, first-pass analysis - not exploring what's possible but already doing it.
+
+
+
+
+YOU’RE UNLIKELY TO THRIVE HERE IF
+
+ - You prefer to follow a fixed, prescriptive playbook rather than dealing with ambiguity, evolving requirements, and messy legacy environments.
+
+ - You’re uncomfortable being highly visible – with customers, internally with senior stakeholders, and in situations where the stakes (and expectations) are high.
+
+ - You see yourself purely as either “sales” or “engineering” and don’t enjoy operating in the grey space between commercial outcomes, technical depth, and product thinking.
+
+If reading our Culture Document https://hx.wiki/ leaves you feeling neutral rather than energised, hx may not be the place where you'll do your best work. We're building something that asks for commitment and conviction, and we want you to feel excited by the opportunity to grow with us.
+
+
+
+
+COMPENSATION
+
+At hx, we're committed to salary transparency. You'll always have clarity on pay early in the process - our Talent Partner will share details with you during initial conversations - and we're working towards publishing salary information for all roles globally.
+
+Because we're building at the intersection of technology and insurance, our roles don't always map neatly onto traditional benchmarks. Our approach is to design compensation that's competitive in the market, fair across teams, and aligned with the impact our people make.
+
+Equity: We offer equity across all roles at hx, making it a significant component of total compensation. Your Talent Partner will be able to share more details about this.
+
+
+
+
+BENEFITS
+
+£5,000 training and conference budget for individual and group development.
+
+25 days of holiday plus 8 bank holidays (33 days total).
+
+Company pension scheme via Penfold.
+
+Mental health support and therapy via Spectrum.life http://Spectrum.life.
+
+Individual wellbeing allowance via Juno.
+
+Private healthcare insurance through AXA.
+
+Income protection and Life Insurance.
+
+Cycle to Work Scheme.
+
+Additional perks
+
+Top-spec equipment (laptop, screens, adjustable desks, etc.).
+
+Regular remote and in-person hackathons, lunch and learns, socials, and game nights.
+
+Team breakfasts and lunches, snacks, drinks fridge, and a fun office at The Ministry https://theministry.com/
+
+Exceptional opportunities for personal development and growth as we build something remarkable together.
+
+
+
+
+INTERVIEW PROCESS
+
+ - Initial call with our Talent team to kick things off
+
+ - Manager interview with our Director of Solutions Engineering
+
+ - Skills Assessment Stage
+
+ - Values interview
+
+ - Meet the CEO
+
+ - We offer!
+
+
+
+
+OUR COMMITMENT TO DIVERSITY
+
+hxer's are at the centre of everything we build. We know that progress depends on diverse perspectives, and we are committed to creating an environment where everyone can thrive, grow, and make an impact. We recognise there is always more to do, and we take responsibility for shaping a workplace that is not only diverse but genuinely inclusive.
+
+Diversity is not just the right thing to do, it is key to solving the complex challenges we choose to take on. By welcoming people from all backgrounds and experiences, we strengthen our ability to question assumptions, push boundaries, and design solutions that endure.
+
+If you're energised by complexity and motivated to grow, we encourage you to apply and join our global team.
+
+
+
+
+NEXT STEPS
+
+If this opportunity resonates with you, we encourage you to apply or share it with your connections! Our dedicated talent team reviews all applications, and we promise to provide feedback regardless of the outcome.
+
+For more information about applying and to view other opportunities, you can visit our careers page.
+
+
+
+Please note that background checks will be conducted as part of the hiring process to ensure compliance with our governance policies. We handle all background checks sensitively and in full compliance with relevant regulations. All applicant data will be processed in accordance with data protection regulations and our privacy policy.

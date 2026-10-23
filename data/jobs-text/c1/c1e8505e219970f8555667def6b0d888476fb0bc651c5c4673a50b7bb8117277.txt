@@ -1,0 +1,65 @@
+A LITTLE ABOUT US
+
+incident.io http://incident.io is the AI software reliability platform trusted by engineering teams at Netflix, Etsy, and 2,000+ companies who can't afford downtime.
+
+The stakes are real, the talent is insane, and somehow it's a genuinely lovely place to work. We all pull our weight, go the extra mile, and put in the bit of magic most companies don't have time for, all while having fun and never taking ourselves too seriously.
+
+We've raised $100+ million from Index Ventures, Insight Partners, and Point Nine, and we're growing fast. There's never been a better time to join.
+
+
+
+
+THE ROLE IN ONE LINE
+
+As our first EMEA Strategic Customer Success Manager, you’ll help define what strategic success looks like at incident.io http://incident.io, and become the trusted partner who makes us core to how the biggest enterprises run reliability.
+
+
+WHAT THAT LOOKS LIKE DAY TO DAY
+
+You’ll work with a small number of our largest, most complex and highest-value customers. These are established, often global and regulated enterprises, where buying decisions take time, many business units are involved, and incident management is part of a wider move away from legacy tools and processes. You’ll be their strategic partner across the full lifecycle, from early involvement in the deal with Sales through to adoption and expansion, and from the on-call engineer to the CIO and CTO.
+
+You’ll help land strategic logos with focused first contracts, then build the business case and success plan that turns them into larger deals. From there you’ll expand across the enterprise, mapping the organisation, finding champions and repeating proven wins across business units and regions. You’ll run Executive Business Reviews and connect our leadership with theirs, tying what we do to what matters to their business: operational resilience, regulatory risk, the cost of downtime, tool consolidation, MTTR reduction and incident process maturity.
+
+You’ll lead onboarding and migrations in organisations that move carefully, moving them off legacy tools and ITSM-led processes and making the change stick, including deeper adoption across Response, On-call, Status Pages and our AI capabilities. You’ll spot and reduce business, operational and reputational risk before it becomes visible, and bring Sales, Solutions Engineering, Product, Marketing and Support together around shared goals for each account, including expansion and renewals.
+
+You’ll also work directly with Product and Engineering on the roadmap and design partnerships. As the first EMEA Strategic CSM and third on the team overall, you’ll help define our strategic CS playbook, support high-stakes deals and help develop your peers as the segment grows.
+
+
+WHO YOU ARE
+
+ - You have significant experience in Customer Success, Account Management or Technical Account Management, managing strategic or Fortune 500-scale accounts in enterprise SaaS. Traditional enterprises like financial services, insurance, pharma, retail or private equity are ideal. Developer tooling, observability or incident management is a plus.
+
+ - You’ve driven adoption, retention and expansion in large, complex accounts with many stakeholders, and you have results you can point to.
+
+ - You know how to land small and grow large, turning a pilot or single business unit into a multi-BU footprint over a long sales cycle.
+
+ - Building a business case doesn’t faze you, nor does navigating procurement, security, legal and change management in slow-moving organisations.
+
+ - You’re confident with senior technical executives, running EBRs and strategic planning sessions, and just as comfortable going deep with SREs and platform engineers.
+
+ - You’re technically fluent in modern engineering organisations, on-call, incident response, SRE practices and the observability and DevOps ecosystem, and you can translate it for business stakeholders.
+
+ - You have strong commercial judgement, partner well with Sales on renewals and expansion, and get ahead of customer challenges rather than reacting to them.
+
+ - You’re autonomous and comfortable with ambiguity. You’re excited to define the role, not just step into it.
+
+
+SUPPORTING YOU
+
+We work hard and we think life outside work matters just as much. Our benefits pack is built to support both.
+
+ - Private medical insurance. Seriously good cover - we want you and the people you love to be looked after.
+
+ - Competitive annual leave. Showing up at your best requires switching off, and we make sure you have time to do that.
+
+ - First Friday of every month off. Yes, seriously.
+
+ - Enhanced pension. We put real money in, because future-you deserves better than an afterthought.
+
+ - Meaningful equity. We’re rapidly scaling, and everyone who helps shape the outcome should share in it.
+
+ - Unlimited AI spend. For everyone, not just engineers. We’re all-in on AI across the company, and we expect you to be too.
+
+ - Generous parental leave. The early days with a new baby matter more than anything we’re doing here, and we want you to be present for them.
+
+ - Two budgets that have your back. £1000 to invest in your setup, £500 a year to invest in yourself.
