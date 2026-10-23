@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
+from unittest.mock import patch
 
 from jobwatch import evaluation as ev
 from jobwatch.cli import main
@@ -84,9 +85,10 @@ class OwnerLabelWorkflowTests(unittest.TestCase):
         self.dir.cleanup()
 
     def run_cli(self, *args):
-        with contextlib.redirect_stdout(io.StringIO()) as out, contextlib.redirect_stderr(io.StringIO()), contextlib.chdir(self.root):
+        with contextlib.redirect_stdout(io.StringIO()) as out, contextlib.redirect_stderr(io.StringIO()), contextlib.chdir(self.root), \
+                patch('jobwatch.commands.utcnow', return_value=NOW):
             code = main([*args, '--json', '--state', str(self.state), '--triage-file', str(self.root / 'data' / 'triage.json'),
-                         '--applications', str(self.root / 'data' / 'applications.csv'), '--as-of', NOW])
+                         '--applications', str(self.root / 'data' / 'applications.csv')])
         return code, json.loads(out.getvalue())
 
     def test_blind_template_unlabelled_never_negative_then_owner_labels_score(self):

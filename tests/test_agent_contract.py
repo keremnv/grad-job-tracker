@@ -43,11 +43,13 @@ class Workspace:
             'enabled': True, 'careers_url': 'https://example.org', 'validation_url': 'https://example.org',
             'mapping_verified_at': '2026-10-17T00:00:00Z'}]}))
 
-    def run(self, *args, as_of=NOW):
+    def run(self, *args, as_of=NOW, flag=None):
+        """Run with an injected clock (`as_of`); `flag` passes an explicit --as-of instead."""
         argv = [*args, '--json', '--state', str(self.state), '--applications', str(self.ledger),
                 '--triage-file', str(self.triage), '--verifications', str(self.verifications),
-                '--config', str(self.config), '--as-of', as_of]
-        with contextlib.redirect_stdout(io.StringIO()) as out, contextlib.redirect_stderr(io.StringIO()):
+                '--config', str(self.config)] + (['--as-of', flag] if flag else [])
+        with contextlib.redirect_stdout(io.StringIO()) as out, contextlib.redirect_stderr(io.StringIO()), \
+                patch('jobwatch.commands.utcnow', return_value=as_of):
             code = main(argv)
         result = json.loads(out.getvalue())
         self.assertions(result, code)
@@ -152,7 +154,7 @@ class QueueAndInspectionTests(unittest.TestCase):
             self.assertEqual(keys(r), ['intern'])
             _, r = ws.run('changes', '--category', 'source', '--since', '2026-10-19')
             self.assertEqual([(i['type'], i['key'].split(':')[-1]) for i in r['data']['items']], [('new', 'data')])
-            _, r = ws.run('health', as_of='2026-10-25T00:00:00Z')
+            _, r = ws.run('health', flag='2026-10-25T00:00:00Z')  # explicit --as-of on a read
             self.assertEqual(r['data']['boards'][0]['indexed_listed'], 6)
             self.assertIn('board_stale', [w['code'] for w in r['warnings']])
 
@@ -222,19 +224,21 @@ class VerifyTests(unittest.TestCase):
         with TemporaryDirectory() as d:
             ws = Workspace(d)
             code, r = ws.run('verify', 'deadline', 'lever:example:grad', '--url', 'https://example.org/events',
-                             '--wording', 'Applications close on 29 October 2026.', '--value', '2026-10-29', '--verified-by', 'agent')
+                             '--wording', 'Applications close on 29 October 2026.', '--value', '2026-10-29', '--verified-by', 'agent',
+                             '--verified-at', NOW)
             self.assertEqual((code, r['data']['status']), (0, 'recorded'))
             self.assertEqual(ws.run('verify', 'deadline', 'lever:example:grad', '--url', 'https://example.org/events',
                                     '--wording', 'Applications close on 29 October 2026.', '--value', '2026-10-29',
-                                    '--verified-by', 'agent')[1]['data']['status'], 'unchanged')
+                                    '--verified-by', 'agent', '--verified-at', NOW)[1]['data']['status'], 'unchanged')
             code, r = ws.run('verify', 'status', 'lever:example:grad', '--url', 'https://jobs.lever.co/example/grad/apply',
-                             '--status', 'open_verified', '--method', 'read-only page check', '--verified-by', 'agent')
+                             '--status', 'open_verified', '--method', 'read-only page check', '--verified-by', 'agent', '--verified-at', NOW)
             self.assertEqual(r['errors'][0]['code'], 'invalid_argument')
             code, r = ws.run('verify', 'status', 'lever:example:grad', '--url', 'https://jobs.lever.co/example/grad/apply',
-                             '--status', 'open_verified', '--method', 'read-only page check', '--verified-by', 'agent_on_owner_instruction')
+                             '--status', 'open_verified', '--method', 'read-only page check', '--verified-by', 'agent_on_owner_instruction',
+                             '--verified-at', NOW)
             self.assertEqual(r['data']['record']['verified_by'], 'agent_on_owner_instruction')
             code, r = ws.run('verify', 'status', 'lever:example:grad', '--url', 'https://jobs.lever.co/example/grad/apply',
-                             '--status', 'closed_verified', '--method', 'page says closed', '--verified-by', 'owner')
+                             '--status', 'closed_verified', '--method', 'page says closed', '--verified-by', 'owner', '--verified-at', NOW)
             self.assertEqual(r['errors'][0]['code'], 'verification_conflict')
             _, shown = ws.run('show', 'lever:example:grad')
             self.assertEqual(shown['data']['verification']['deadlines'][0]['provenance'], 'source_verification')
@@ -245,10 +249,12 @@ class VerifyTests(unittest.TestCase):
             ws = Workspace(d)
             for args in ((('verify', 'description', 'lever:example:grad', '--url', 'https://jobs.lever.co/example/grad',
                            '--verified-by', 'agent', '--verified-at', '2027-01-01T00:00:00Z')),
-                         (('verify', 'description', 'lever:example:none', '--url', 'https://jobs.lever.co/example/none', '--verified-by', 'agent'))):
+                         (('verify', 'description', 'lever:example:none', '--url', 'https://jobs.lever.co/example/none', '--verified-by', 'agent',
+                           '--verified-at', NOW))):
                 self.assertEqual(ws.run(*args)[0], 2)
             self.assertFalse(ws.verifications.exists())
-            _, r = ws.run('verify', 'description', 'lever:example:grad', '--url', 'https://jobs.lever.co/example/grad', '--verified-by', 'agent')
+            _, r = ws.run('verify', 'description', 'lever:example:grad', '--url', 'https://jobs.lever.co/example/grad', '--verified-by', 'agent',
+                          '--verified-at', NOW)
             self.assertEqual(r['data']['record']['description_sha256'], load_state(ws.state)['postings']['lever:example:grad']['description_sha256'])
 
 
@@ -273,6 +279,124 @@ class CapabilitiesTests(unittest.TestCase):
             self.assertIn('BEGIN UNTRUSTED EMPLOYER TEXT', out.getvalue())
             self.assertIn('Judgment (screen-', out.getvalue())
 
+
+
+STATUS = ('verify', 'status', 'lever:example:grad', '--url', 'https://jobs.lever.co/example/grad/apply',
+          '--status', 'open_verified', '--method', 'read-only page check', '--verified-by', 'owner')
+DESCRIPTION = ('verify', 'description', 'lever:example:grad', '--url', 'https://jobs.lever.co/example/grad', '--verified-by', 'agent')
+DEADLINE = ('verify', 'deadline', 'lever:example:grad', '--url', 'https://example.org/events', '--verified-by', 'agent',
+            '--wording', 'Applications close on 29 October 2026.', '--value', '2026-10-29')
+FIRST, SECOND, LATER_CLOCK = '2026-10-21T09:00:00Z', '2026-10-22T09:30:00Z', '2026-10-23T08:00:00Z'
+
+
+class VerificationFreshnessTests(unittest.TestCase):
+    def check(self, ws, args, at, field):
+        code, r = ws.run(*args, '--verified-at', at, as_of=LATER_CLOCK)
+        self.assertEqual(code, 0, r['errors'])
+        stored = json.loads(ws.verifications.read_text())['postings']['lever:example:grad']
+        return r['data']['status'], (stored['deadlines'][0] if field == 'deadline' else stored)
+
+    def test_retry_is_noop_new_check_refreshes_older_check_never_regresses(self):
+        for args, field, ts in ((STATUS, 'status', 'verified_at'), (DESCRIPTION, 'description', 'description_verified_at'),
+                                (DEADLINE, 'deadline', 'verified_at')):
+            with self.subTest(evidence=field), TemporaryDirectory() as d:
+                ws = Workspace(d)
+                status, row = self.check(ws, args, FIRST, field)
+                self.assertEqual((status, row[ts]), ('recorded', FIRST))
+                before = ws.verifications.read_bytes()
+                status, row = self.check(ws, args, FIRST, field)  # identical retry
+                self.assertEqual((status, row[ts]), ('unchanged', FIRST))
+                self.assertEqual(ws.verifications.read_bytes(), before)
+                status, row = self.check(ws, args, SECOND, field)  # new official-page check, same result
+                self.assertEqual((status, row[ts]), ('refreshed', SECOND))
+                after = ws.verifications.read_bytes()
+                status, row = self.check(ws, args, FIRST, field)  # late report of the older check
+                self.assertEqual((status, row[ts]), ('unchanged', SECOND))
+                self.assertEqual(ws.verifications.read_bytes(), after)
+
+    def test_refresh_does_not_bypass_status_conflict_and_records_new_observer(self):
+        with TemporaryDirectory() as d:
+            ws = Workspace(d)
+            ws.run(*STATUS, '--verified-at', FIRST)
+            closed = [a if a != 'open_verified' else 'closed_verified' for a in STATUS]
+            code, r = ws.run(*closed, '--verified-at', SECOND)
+            self.assertEqual((code, r['errors'][0]['code']), (2, 'verification_conflict'))
+            agent = [a if a != 'owner' else 'agent_on_owner_instruction' for a in STATUS]
+            _, r = ws.run(*agent, '--verified-at', SECOND)
+            self.assertEqual((r['data']['status'], r['data']['record']['verified_by'], r['data']['record']['verified_at']),
+                             ('refreshed', 'agent_on_owner_instruction', SECOND))
+
+    def test_description_check_of_changed_text_is_a_new_record(self):
+        with TemporaryDirectory() as d:
+            ws = Workspace(d)
+            ws.run(*DESCRIPTION, '--verified-at', FIRST)
+            s = load_state(ws.state)
+            s, _ = merge(s, {'lever:example': [post('grad', 'Graduate Software Engineer', 'New text.')] + POSTS[1:]}, SECOND)
+            save_state(ws.state, s, SECOND)
+            _, r = ws.run(*DESCRIPTION, '--verified-at', FIRST, as_of=LATER_CLOCK)
+            self.assertEqual(r['data']['status'], 'recorded')
+            self.assertEqual(r['data']['record']['description_sha256'], load_state(ws.state)['postings']['lever:example:grad']['description_sha256'])
+
+
+class WriteClockTests(unittest.TestCase):
+    WRITES = (('triage', 'set', 'lever:example:swe', '--decision', 'dismissed'), ('triage', 'clear', 'lever:example:swe'),
+              STATUS + ('--verified-at', FIRST), DESCRIPTION + ('--verified-at', FIRST), DEADLINE + ('--verified-at', FIRST),
+              ('eval', 'template', '--out', '.local-reports/t.json'))
+
+    def test_as_of_is_refused_for_every_write_and_nothing_is_written(self):
+        with TemporaryDirectory() as d:
+            ws = Workspace(d)
+            for args in self.WRITES:
+                with self.subTest(args=args[:2]):
+                    code, r = ws.run(*args, flag='2026-10-01T00:00:00Z')
+                    self.assertEqual((code, r['errors'][0]['code']), (2, 'invalid_argument'))
+                    self.assertIn('--as-of', r['errors'][0]['message'])
+            self.assertFalse(ws.triage.exists()); self.assertFalse(ws.verifications.exists())
+            self.assertFalse((Path(d) / '.local-reports').exists())
+
+    def test_writes_record_the_real_clock_and_reads_accept_as_of(self):
+        with TemporaryDirectory() as d:
+            ws = Workspace(d)
+            _, r = ws.run('triage', 'set', 'lever:example:swe', '--decision', 'dismissed', as_of=LATER_CLOCK)
+            self.assertEqual(r['data']['triage']['decided_at'], LATER_CLOCK)
+            code, r = ws.run('queue', flag='2026-11-02T09:00:00Z', as_of=LATER_CLOCK)
+            self.assertEqual((code, r['generated_at']), (0, '2026-11-02T09:00:00Z'))
+            code, r = ws.run('queue', flag='yesterday')
+            self.assertEqual((code, r['errors'][0]['code']), (2, 'invalid_argument'))
+
+    def test_check_time_is_explicit_evidence_and_cannot_be_in_the_future(self):
+        with TemporaryDirectory() as d:
+            ws = Workspace(d)
+            with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+                ws.run(*STATUS)  # --verified-at is required
+            code, r = ws.run(*STATUS, '--verified-at', '2026-10-22T12:00:01Z', as_of=NOW)
+            self.assertEqual((code, r['errors'][0]['code']), (2, 'invalid_argument'))
+            self.assertFalse(ws.verifications.exists())
+
+
+class TriageApplicationAuthorityTests(unittest.TestCase):
+    """README/AGENTS: an application stage outranks triage; conflicts are surfaced, never resolved silently."""
+    def test_application_stage_outranks_triage_and_conflicts_are_warned(self):
+        with TemporaryDirectory() as d:
+            ws = Workspace(d)
+            for key, stage in (('swe', 'bookmarked'), ('grad', 'applied'), ('cloud', 'rejected'), ('data', 'preparing')):
+                app.add(ws.ledger, app.make_application({'job_key': f'lever:example:{key}', 'company': 'Example', 'role': key,
+                                                         'url': f'https://jobs.lever.co/example/{key}', 'stage': stage}))
+            for key, decision in (('swe', 'dismissed'), ('grad', 'dismissed'), ('cloud', 'interested'), ('data', 'later')):
+                ws.run('triage', 'set', f'lever:example:{key}', '--decision', decision)
+            _, r = ws.run('queue')
+            states = {i['key'].split(':')[-1]: (i['action_state'], i['triage_decision']) for i in r['data']['items']}
+            self.assertEqual(states, {'swe': ('preparing', 'dismissed'), 'data': ('preparing', 'later')})
+            conflicts = [w['key'] for w in r['warnings'] if w['code'] == 'triage_application_conflict']
+            self.assertEqual(conflicts, ['lever:example:swe'])  # 'later' while preparing is not a contradiction
+            _, shown = ws.run('show', 'lever:example:grad')
+            self.assertEqual(shown['data']['owner']['action_state'], 'applied')
+            self.assertIn('triage_application_conflict', [w['code'] for w in shown['warnings']])
+            _, shown = ws.run('show', 'lever:example:cloud')
+            self.assertEqual(shown['data']['owner']['action_state'], 'closed')
+            ledger = ws.ledger.read_bytes()
+            _, cleared = ws.run('triage', 'clear', 'lever:example:swe')
+            self.assertEqual(ws.ledger.read_bytes(), ledger)  # triage writes never touch the ledger
 
 if __name__ == '__main__':
     unittest.main()

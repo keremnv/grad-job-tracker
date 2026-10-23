@@ -12,6 +12,11 @@ Two kinds of evidence are kept apart:
 Neither establishes the owner's eligibility. Every write records
 `verified_by`; records written before this field existed are reported as
 "unrecorded (legacy record)".
+
+`verified_at` is evidence: the time the page was read, supplied explicitly.
+Repeating a write with the same check time is a no-op (`unchanged`). A later
+check with the same result moves the timestamp forward (`refreshed`); an
+earlier one never moves it back.
 """
 from __future__ import annotations
 
@@ -68,6 +73,11 @@ def _write(path, mutate):
     return status
 
 
+def _newer(candidate, recorded):
+    """True when a check at `candidate` is later than the recorded one (or none is recorded)."""
+    return recorded is None or timestamp(candidate) > timestamp(recorded)
+
+
 def _check(key, postings, url, verified_at, now, verified_by, allowed=OBSERVERS):
     if not is_posting_key(key) or key not in postings:
         raise JobwatchError('unknown_opportunity', f'{key} is not in the discovery index', key=key)
@@ -93,9 +103,13 @@ def record_status(path, postings, key, status, url, method, verified_by, verifie
     def mutate(rows):
         row = rows.setdefault(key, {'status': 'unknown'})
         new = {'status': status, 'url': url, 'method': method, 'verified_at': verified_at, 'verified_by': verified_by}
-        if all(row.get(k) == v for k, v in new.items() if k != 'verified_at') and row.get('verified_at'):
-            return 'unchanged'
-        if row.get('status', 'unknown') != 'unknown' and row['status'] != status and not replace:
+        if row.get('status', 'unknown') == status:
+            # Same result: a retry or an older check changes nothing; a newer check refreshes.
+            if not _newer(verified_at, row.get('verified_at')):
+                return 'unchanged'
+            row.update(new)
+            return 'refreshed'
+        if row.get('status', 'unknown') != 'unknown' and not replace:
             raise JobwatchError('verification_conflict', f'{key} already recorded as {row["status"]}', key=key,
                                 existing={k: row.get(k) for k in ('status', 'verified_at', 'verified_by')})
         row.update(new)
@@ -115,9 +129,12 @@ def record_deadline(path, postings, key, wording, url, value, verified_by, verif
         evidence = {'wording': wording, 'url': url, 'verified_at': verified_at, 'verified_by': verified_by}
         if value is not None:
             evidence['value'] = value
-        same = lambda d: (d.get('wording'), d.get('url'), d.get('value')) == (wording, url, value)
-        if any(same(d) for d in row.get('deadlines', [])):
-            return 'unchanged'
+        same = [d for d in row.get('deadlines', []) if (d.get('wording'), d.get('url'), d.get('value')) == (wording, url, value)]
+        if same:
+            if not _newer(verified_at, same[0].get('verified_at')):
+                return 'unchanged'
+            same[0].update(verified_at=verified_at, verified_by=verified_by)
+            return 'refreshed'
         row.setdefault('deadlines', []).append(evidence)
         return 'recorded'
     return _write(path, mutate)
@@ -131,9 +148,10 @@ def record_description(path, postings, key, url, description_sha256, verified_by
 
     def mutate(rows):
         row = rows.setdefault(key, {'status': 'unknown'})
-        if row.get('description_sha256') == description_sha256 and row.get('description_url') == url:
+        same = row.get('description_sha256') == description_sha256 and row.get('description_url') == url
+        if same and not _newer(verified_at, row.get('description_verified_at')):
             return 'unchanged'
         row.update(description_url=url, description_verified_at=verified_at,
                    description_sha256=description_sha256, description_verified_by=verified_by)
-        return 'recorded'
+        return 'refreshed' if same else 'recorded'
     return _write(path, mutate)

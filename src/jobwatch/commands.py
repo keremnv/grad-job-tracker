@@ -14,7 +14,7 @@ from . import triage as tri
 from . import evaluation
 from . import verifications as ver
 from .applications import read_applications
-from .config import load_config
+from .config import load_config, timestamp
 from .datacheck import validate_data
 from .contract import ERROR_CODES, WARNING_CODES, JobwatchError, dumps, envelope, error_from, warning
 from .filtering import CODES, RULES_VERSION
@@ -59,7 +59,7 @@ def _common(p, json_default=False):
     p.add_argument('--verifications', default='data/verifications.json')
     p.add_argument('--config', default='config/employers.json')
     p.add_argument('--json', action='store_true', help='Print the versioned JSON envelope')
-    p.add_argument('--as-of', help='Evaluate freshness/dates as of this UTC timestamp (default: now)')
+    p.add_argument('--as-of', help='Read commands only: evaluate freshness/dates as of this timestamp (default: now)')
 
 
 def configure(commands):
@@ -141,7 +141,8 @@ def configure(commands):
         s = sub.add_parser(name); _common(s)
         s.add_argument('key'); s.add_argument('--url', required=True)
         s.add_argument('--verified-by', required=True, choices=ver.OBSERVERS)
-        s.add_argument('--verified-at', help='Timezone-aware time of the check (default: now)')
+        s.add_argument('--verified-at', required=True,
+                       help='Timezone-aware time the official page was read; a retry repeats it, a new check gives a later time')
         if name == 'status':
             s.add_argument('--status', required=True, choices=('open_verified', 'closed_verified'))
             s.add_argument('--method', required=True)
@@ -149,6 +150,10 @@ def configure(commands):
         if name == 'deadline':
             s.add_argument('--wording', required=True); s.add_argument('--value')
 
+
+# Commands that write owner, evidence or private files. They always use the real clock:
+# --as-of would backdate decided_at and move the "not in the future" bound for --verified-at.
+WRITES = {'triage set', 'triage clear', 'verify status', 'verify deadline', 'verify description', 'eval template'}
 
 HANDLED = {'capabilities', 'queue', 'recent', 'show', 'excluded', 'changes', 'health', 'rescreen', 'triage', 'verify', 'search', 'eval', 'validate-data'}
 
@@ -168,9 +173,18 @@ def _name(ns):
 
 
 def run(ns) -> int:
-    now = ns.as_of or utcnow()
     name = _name(ns)
+    now = utcnow()
     try:
+        if ns.as_of is not None:
+            if name in WRITES:
+                raise JobwatchError('invalid_argument', f'--as-of is accepted only by read commands; {name} records the current time '
+                                    '(give the time of an official-page check with --verified-at)')
+            try:
+                timestamp(ns.as_of)
+            except (ValueError, TypeError):
+                raise JobwatchError('invalid_argument', '--as-of must be a timezone-aware timestamp') from None
+            now = ns.as_of
         out = dispatch(ns, now)
         if len(out) == 3:  # partial report with its own errors (validate-data)
             result = envelope(name, now, *out, partial=True)
@@ -275,7 +289,7 @@ def triage(ns, now):
 def verify(ns, now):
     state = load_state(Path(ns.state))
     postings = state['postings']
-    at = ns.verified_at or now
+    at = ns.verified_at
     path = Path(ns.verifications)
     if ns.verify_command == 'status':
         status = ver.record_status(path, postings, ns.key, ns.status, ns.url, ns.method, ns.verified_by, at, now, ns.replace)
@@ -338,12 +352,14 @@ def evaluate(ns, now):
 def capabilities():
     return {'envelope': 'jobwatch.cli/1', 'rules_version': RULES_VERSION,
             'invocation': '.venv/bin/python -m jobwatch.cli <command> --json',
-            'exit_status': {'0': 'ok (warnings possible)', '1': 'scan/calendar only: completed with failures or omissions', '2': 'error; nothing written'},
+            'exit_status': {'0': 'ok (warnings possible)', '1': 'scan/calendar only: completed with failures or omissions', '2': 'error; nothing written (scan: an interrupted write is possible, so outputs must not be committed)'},
             'commands': [{'name': n, 'authorisation': a, 'description': d} for n, a, d in CAPABILITIES],
             'authorisation_classes': {READ: 'Safe to run at any time; writes nothing.',
                                       OWNER: 'Run only on an explicit owner instruction for this specific change.',
                                       OBSERVATION: 'An agent may record what it read on an official page during a read-only visit.',
                                       'operator_scheduled': 'Runs in GitHub Actions; run locally only against scratch paths.'},
+            'as_of': 'Read commands only. Write commands refuse it and record the current time; '
+                     'verify commands take the check time as explicit --verified-at evidence.',
             'reason_codes': CODES, 'error_codes': ERROR_CODES, 'warning_codes': WARNING_CODES,
             'triage': {'decisions': list(tri.DECISIONS), 'reasons': list(tri.REASONS)}}
 
