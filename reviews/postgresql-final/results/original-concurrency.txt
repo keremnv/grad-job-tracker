@@ -1,0 +1,11 @@
+== A. READ COMMITTED: second publisher waits on the source lock, then sees the first one's committed pointer
+   waited 2.1s; saw last_published_run_id=00000000-0000-0000-0000-0000000000a2  (stale-guard input is current)
+== B. REPEATABLE READ: the same pattern fails with a serialization error (needs retry logic)
+   ERROR:  could not serialize access due to concurrent update
+== C. Owner FK insert while the collector holds an UPDATE on the same posting (non-key columns)
+   inserted after 0.16s (FOR KEY SHARE does not conflict with FOR NO KEY UPDATE)
+== D. Agent pauses a source while a collector is waiting to publish it
+   collector's locked read returned status=paused  (it must skip publication)
+== E. Opposite-order row updates (cross-source rescreen vs per-source publish) deadlock
+   ERROR:  deadlock detected
+== F. ON CONFLICT DO NOTHING RETURNING returns no id for an existing version (common upsert trap)

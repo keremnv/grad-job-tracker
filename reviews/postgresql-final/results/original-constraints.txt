@@ -1,0 +1,30 @@
+OK   (accepted) seed employer+source+run+posting
+OK   (rejected) monitored source without mapping evidence :: ERROR:  new row for relation "sources" violates check constraint "sources_check1"
+OK   (rejected) same board, different case (key namespace) :: ERROR:  duplicate key value violates unique constraint "sources_key_namespace"
+OK   (rejected) same board, other region (key namespace) :: ERROR:  duplicate key value violates unique constraint "sources_key_namespace"
+OK   (rejected) arbitrary URL as a board slug :: ERROR:  new row for relation "sources" violates check constraint "sources_board_check"
+OK   (rejected) jsonb with \u0000 (provider payload containing NUL) :: ERROR:  unsupported Unicode escape sequence
+OK   (rejected) current version pointing at another posting's version :: ERROR:  insert or update on table "postings" violates foreign key constraint "postings_posting_key_current_ver
+OK   (rejected) deleting evidence referenced by an event :: ERROR:  update or delete on table "posting_versions" violates foreign key constraint "postings_posting_key_cur
+OK   (rejected) not_seen without missing_since :: ERROR:  new row for relation "postings" violates check constraint "postings_check"
+OK   (rejected) programme cycle year not quoted in wording :: ERROR:  new row for relation "leads" violates check constraint "leads_check1"
+OK   (accepted) programme cycle year quoted in wording
+OK   (rejected) verification checked in the future :: ERROR:  new row for relation "verifications" violates check constraint "verifications_check"
+OK   (rejected) plain agent claiming application status open :: ERROR:  new row for relation "verifications" violates check constraint "verifications_check2"
+OK   (rejected) revisit_on without decision later :: ERROR:  new row for relation "triage" violates check constraint "triage_check"
+OK   (accepted) manual application (no posting) :: https://careers.bbc.co.uk/job/1?x=1
+OK   (rejected) second application differing only by fragment/host case :: ERROR:  duplicate key value violates unique constraint "applications_url_loose_key"
+--- as jobwatch_agent
+OK   (rejected) agent rewrites collector evidence :: ERROR:  permission denied for table postings
+OK   (rejected) agent deletes a posting :: ERROR:  permission denied for table postings
+OK   (rejected) agent forges a collection run :: ERROR:  permission denied for table collection_runs
+OK   (accepted) agent records triage
+OK   (accepted) agent changes triage
+OK   (rejected) agent erases the audit trail :: ERROR:  permission denied for table owner_audit
+OK   (accepted) audit captured both writes :: INSERT:-->interested, UPDATE:interested->dismissed
+OK   (rejected) agent activates a candidate without evidence :: ERROR:  new row for relation "sources" violates check constraint "sources_check1"
+OK   (rejected) agent moves the collector's publication pointer :: ERROR:  permission denied for table sources
+OK   (accepted) agent reads everything incl. views :: 2
+--- as jobwatch_collector
+OK   (rejected) collector writes owner triage :: ERROR:  permission denied for table triage
+OK   (rejected) collector reads private application notes :: ERROR:  permission denied for table applications

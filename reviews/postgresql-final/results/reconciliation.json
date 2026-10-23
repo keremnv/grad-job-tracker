@@ -1,0 +1,58 @@
+{
+  "applications": 0,
+  "by_source": {
+    "ashby:hyperexponential": 33,
+    "ashby:incident": 34,
+    "ashby:tracebit": 3,
+    "greenhouse:cambridgeconsultantslimited": 91,
+    "greenhouse:monzo": 76,
+    "greenhouse:mw-tech-grad": 5,
+    "greenhouse:riverlane": 36,
+    "lever:palantir": 308,
+    "lever:scottlogic": 43
+  },
+  "current_missing_texts": 0,
+  "current_nul_descriptions": 0,
+  "current_postings_roundtripped": 629,
+  "employers": 44,
+  "first_seen_bases": {
+    "index_backfill": 571,
+    "legacy_retained": 54,
+    "observed": 4
+  },
+  "health_sources": 9,
+  "not_executed": [
+    "full employer/health/lead/verification/application/triage/history import",
+    "Git-history text/native recovery",
+    "production importer determinism",
+    "production backup/restore"
+  ],
+  "programme_leads": 13,
+  "retained_events": {
+    "legacy_history": 49,
+    "screening_events": 54,
+    "source_events": 4
+  },
+  "retained_text_files_verified": 536,
+  "source_commit": "90434ea6d9a3457f9c8ba40f01ad25fa2ceffca3",
+  "source_file_sha256": {
+    "config/employers.json": "19aff6e0086b48595adc73d21ce5a3a9c2262326e62897106891d17b9b9c02cb",
+    "data/applications.csv": "092ca1c56728e80ab55103ccc14de11d32d5efa370322c63d684addf219ee832",
+    "data/jobs-health.json": "554acb32a61663bada643642d124e3ca56dd27fe77220e493882f1000cd33254",
+    "data/jobs.json": "eed56a6f440ab406c3c08353b33aa72d3eab693840b9cb0c5505c53f1a28dacb",
+    "data/leads.json": "c5c694cbc06becd717c85dc28604f1157131caf73dfad1b2ab008daea87eb96c",
+    "data/verifications.json": "86e63d80435bc9852a19b85627085968de8de8bd0c6df9484f666bd3f0a6940b"
+  },
+  "statuses": {
+    "listed": 627,
+    "not_seen": 2
+  },
+  "triage": 0,
+  "vacancy_leads": 21,
+  "verdicts": {
+    "excluded": 572,
+    "priority": 8,
+    "review": 49
+  },
+  "verified_postings": 11
+}

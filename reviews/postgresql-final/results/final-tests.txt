@@ -1,0 +1,21 @@
+test_audit_attribution_multirow_and_rollback (__main__.ReviewTests.test_audit_attribution_multirow_and_rollback) ... ok
+test_concurrent_owner_write_and_publication (__main__.ReviewTests.test_concurrent_owner_write_and_publication) ... ok
+test_concurrent_publishers (__main__.ReviewTests.test_concurrent_publishers) ... ok
+test_consecutive_revisions_and_immutable_normalization (__main__.ReviewTests.test_consecutive_revisions_and_immutable_normalization) ... ok
+test_formatting_preserved_without_material_event (__main__.ReviewTests.test_formatting_preserved_without_material_event) ... ok
+test_identity_and_relationship_constraints (__main__.ReviewTests.test_identity_and_relationship_constraints) ... ok
+test_legacy_health_unknown_counters (__main__.ReviewTests.test_legacy_health_unknown_counters) ... ok
+test_network_malformed_and_empty_feed (__main__.ReviewTests.test_network_malformed_and_empty_feed) ... ok
+test_nul_and_evidence_preservation (__main__.ReviewTests.test_nul_and_evidence_preservation) ... ok
+test_out_of_order_and_replay (__main__.ReviewTests.test_out_of_order_and_replay) ... ok
+test_programme_cycles_and_verification_binding (__main__.ReviewTests.test_programme_cycles_and_verification_binding) ... ok
+test_real_history_regressions_and_new_field_baseline (__main__.ReviewTests.test_real_history_regressions_and_new_field_baseline) ... ok
+test_rescreen_serialization_and_old_pipeline_rejected (__main__.ReviewTests.test_rescreen_serialization_and_old_pipeline_rejected) ... ok
+test_role_boundaries_and_required_actor (__main__.ReviewTests.test_role_boundaries_and_required_actor) ... ok
+test_rollback_then_retry_same_run (__main__.ReviewTests.test_rollback_then_retry_same_run) ... ok
+test_url_identity_and_manual_application_link (__main__.ReviewTests.test_url_identity_and_manual_application_link) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 2.274s
+
+OK

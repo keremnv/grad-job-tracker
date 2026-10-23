@@ -1,0 +1,8 @@
+SAME https://Jobs.Lever.co/palantir/abc | py: https://jobs.lever.co/palantir/abc | sql: https://jobs.lever.co/palantir/abc
+SAME https://jobs.lever.co/palantir/abc/ | py: https://jobs.lever.co/palantir/abc/ | sql: https://jobs.lever.co/palantir/abc/
+SAME https://example.com | py: https://example.com/ | sql: https://example.com/
+DIFF https://example.com:443/x | py: https://example.com/x | sql: https://example.com:443/x
+SAME https://example.com/a?b=1#c | py: https://example.com/a?b=1 | sql: https://example.com/a?b=1
+SAME https://example.com/a#c?d | py: https://example.com/a | sql: https://example.com/a
+SAME https://EXAMPLE.com/Path?Q=A | py: https://example.com/Path?Q=A | sql: https://example.com/Path?Q=A
+SAME https://example.com?x=1 | py: https://example.com/?x=1 | sql: https://example.com/?x=1

@@ -1,0 +1,7 @@
+PostgreSQL 17.11 (Debian 17.11-1.pgdg12+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit
+plpgsql|1.0
+vector|0.8.7
+3.13.12
+psycopg 3.2.13
+libpq 170006
+["pgvector/pgvector@sha256:ac08538c6f8b9904c33c8224c5e5706dbe760aca29db1d096972b4052c22a75d"]

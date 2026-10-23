@@ -1,0 +1,6 @@
+test_current_vector_join_and_fts (__main__.RetrievalTests.test_current_vector_join_and_fts) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.154s
+
+OK
