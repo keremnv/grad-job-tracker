@@ -31,7 +31,7 @@ class ScreeningTests(unittest.TestCase):
         self.assertEqual(classify(p('Software/Infrastructure Graduate - 2027 - London','London, London - Sloane Street'))[0],'review')
 
     def test_unknown_city_and_remote_are_reviewed(self):
-        for location in ('London','Cambridge','Remote','EMEA','Worldwide','', 'Dublin'):
+        for location in ('London','Cambridge','Remote','EMEA','Worldwide',''):
             with self.subTest(location=location):
                 judgment,reason=classify(p(location=location));self.assertEqual(judgment,'review');self.assertIn('unknown',reason)
         self.assertEqual(classify(p(location='Remote',country='GB'))[0],'priority')

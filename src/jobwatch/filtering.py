@@ -21,12 +21,17 @@ import json
 import re
 from .feeds import Posting
 
-RULES_VERSION = 'screen-2026-10-22.1'
+RULES_VERSION = 'screen-2026-10-23.1'
 
 UK_CODES = {'uk', 'gb', 'gbr', 'united kingdom', 'great britain'}
-UK_COUNTRY = re.compile(r'\b(?:united kingdom|u\.?k\.?|great britain|england|scotland|wales|northern ireland)\b', re.I)
+UK_COUNTRY = re.compile(r'\b(?:united kingdom|u\.?k\.?|great britain|(?<!new )england|scotland|(?<!new south )wales|northern ireland)\b', re.I)
 UK_CITY = re.compile(r'\b(?:london|manchester|sheffield|leeds|bristol|cambridge|oxford|edinburgh|glasgow|cardiff|birmingham|newcastle|nottingham|liverpool|reading|bath|exeter|belfast)\b', re.I)
-FOREIGN = re.compile(r'\b(?:united states|usa|canada|ontario|massachusetts|new york|san francisco|washington|seattle|boston|austin|singapore|hong kong|australia|sydney|india|bengaluru|germany|berlin|france|paris|japan|tokyo)\b', re.I)
+FOREIGN = re.compile(r'\b(?:united states|usa|canada|ontario|massachusetts|new york|san francisco|washington|seattle|boston|austin|singapore|hong kong|australia|sydney|india|bengaluru|germany|berlin|france|paris|japan|tokyo'
+                     r'|(?<!northern )ireland|dublin|netherlands|amsterdam|poland|warsaw|krak[oó]w|spain|madrid|barcelona|portugal|lisbon|italy|milan'
+                     r'|switzerland|zurich|zürich|geneva|sweden|stockholm|denmark|copenhagen|norway|oslo|finland|helsinki|belgium|brussels|austria|vienna'
+                     r'|munich|hamburg|frankfurt|israel|tel aviv|toronto|vancouver|montreal|chicago|los angeles|california|texas|new jersey|brazil'
+                     r'|mexico|china|shanghai|beijing|korea|seoul|dubai|united arab emirates)\b', re.I)
+FOREIGN_CODE = re.compile(r'\b(?:US|U\.S\.)\b')  # case-sensitive: "us" is also an English word
 EARLY = re.compile(r'\b(?:graduate|grad|new[ -]grad(?:uate)?|junior|entry[ -]level|early[ -]careers?|associate|recent[ -]grad(?:uate)?s?|class of 20\d{2})\b', re.I)
 EARLY_CONTEXT = re.compile(r'\b(?:graduate|early[ -]careers?|campus|university|emerging talent|new grad)\b', re.I)
 EARLY_DESCRIPTION = re.compile(r'\b(?:graduate (?:programme|program|scheme|role|position)|new grad(?:uate)?s?|recent(?:ly)? graduat\w*|graduating in 20\d{2}|final[- ]year (?:students?|undergraduates?)|class of 20\d{2}|early[ -]careers?|entry[- ]level)\b', re.I)
@@ -37,8 +42,11 @@ NON_ENGINEER = re.compile(r'\b(?:sales|account executive|recruiter|marketing|cus
 # Applies only when the title carries no engineering family.
 NON_ENGINEERING_CONTEXT = re.compile(r'\b(?:business|operations|finance|financial|legal|counsel|hr|human resources|talent|accounting|accountant|audit|procurement|communications|policy|designer|commercial)\b', re.I)
 NON_SOFTWARE_DISCIPLINE = re.compile(r'\b(?:mechanical|civil|chemical|structural|manufacturing|process|mechatronics?|biomedical|aerospace|electrical|electronics?|rf|optical|optics|hardware|materials|industrial design|quality assurance engineer|test technician|technician)\b', re.I)
-CUSTOMER_FACING = re.compile(r'\b(?:forward[ -]deployed|solutions? (?:engineer|architect)|support engineer|technical support|cloud support|customer engineer|implementation (?:engineer|consultant)|technical consultant|professional services|deployment strategist|pre-?sales)\b', re.I)
-ENGINEERING_TEXT = re.compile(r'\b(?:software|engineer\w*|developer|development|programming|coding|python|java|c\+\+|rust|golang|infrastructure|machine learning|computer science|distributed systems)\b', re.I)
+CUSTOMER_FACING = re.compile(r'\b(?:forward[ -]deployed|solutions? (?:engineer|architect)|support engineer|technical support|cloud support|customer engineer|developer advocate|developer relations|devrel|evangelist|implementation (?:engineer|consultant)|technical consultant|professional services|deployment strategist|pre-?sales)\b', re.I)
+# Software-engineering work evidence for families outside the core ones. Generic words
+# ("engineering", "development", "cloud", "infrastructure") are deliberately absent:
+# they occur in strategy, hardware and company-boilerplate text.
+SOFTWARE_EVIDENCE = re.compile(r'\b(?:software|programming|coding|developers?|python|java|javascript|typescript|c\+\+|c#|rust|golang|scala|kotlin|backend|back-end|frontend|front-end|full[- ]stack|devops|kubernetes|distributed systems|machine learning|computer science)(?!\w)', re.I)
 EXPERIENCE = re.compile(r'\b(?:[3-9]|1\d)\+?\s+years?\b|strong experience|extensive experience|commercial experience|professional experience', re.I)
 DOCTORAL = re.compile(r'\bph\.?d\b|doctorate', re.I)
 AUTHORISATION = re.compile(r'clearance|citizenship|nationality|British national|right to work|sponsor|visa', re.I)
@@ -67,7 +75,7 @@ CODES = {
     'exclude.senior_title': 'senior/managerial title',
     'exclude.non_uk_location': 'explicit non-UK country/location without UK signal',
     'exclude.no_engineering_signal': 'no engineering role family or early-career signal in title',
-    'exclude.no_engineering_evidence': 'early-career title, but neither title nor description mentions engineering work',
+    'exclude.no_engineering_evidence': 'outside the core families with an early-career signal, but no software-engineering evidence in title, department/team or description',
     'exclude.adjacent_without_early_signal': 'adjacent or unspecific engineering family without any early-career signal',
     'level.early_title': 'early-career title signal',
     'level.early_department': 'early-career/graduate department or team',
@@ -108,7 +116,7 @@ def role_family(title):
 def location_judgment(p):
     countries = {c.strip().lower() for c in (p.countries or (p.country,)) if c.strip()}
     uk = bool(countries & UK_CODES) or bool(UK_COUNTRY.search(p.location))
-    foreign = bool(countries - UK_CODES) or bool(FOREIGN.search(p.location))
+    foreign = bool(countries - UK_CODES) or bool(FOREIGN.search(p.location) or FOREIGN_CODE.search(p.location))
     if uk:
         return 'uk_signal', 'UK source signal; location arrangements require review' + (' (multiple countries)' if foreign else '')
     if UK_CITY.search(p.location):
@@ -175,10 +183,12 @@ def screen(inputs: dict) -> dict:
             exclusions.append('exclude.non_engineering_title')
         elif not early:
             exclusions.append('exclude.no_engineering_signal')
-        elif description and not ENGINEERING_TEXT.search(desc) and not ENGINEERING_DEPARTMENT.search(context):
-            exclusions.append('exclude.no_engineering_evidence')
     elif family not in CORE_FAMILIES and not early:
         exclusions.append('exclude.adjacent_without_early_signal')
+    # Adjacent, generic and uncategorised titles are queued only with software evidence.
+    # Unretained or empty text cannot be checked, so those stay reviewable.
+    if family not in CORE_FAMILIES and early and desc and not SOFTWARE_EVIDENCE.search(' '.join((title, context, desc))):
+        exclusions.append('exclude.no_engineering_evidence')
 
     codes.append('family.' + family)
     if context and ENGINEERING_DEPARTMENT.search(context):

@@ -29,6 +29,22 @@
     {"id": "unc-experience", "title": "Graduate Software Engineer", "description": "Requires 3+ years professional experience.", "expect": "review", "codes": ["level.experience_wording"], "origin": "existing"},
     {"id": "unc-support", "title": "Software Support Engineer, Graduate", "expect": "review", "codes": ["role.customer_facing"], "origin": "support work caps at review"},
     {"id": "pos-riverlane-scheme", "title": "Engineering Graduate Scheme 2027", "location": "Cambridge, UK, Cambridge", "country": "", "expect": "priority", "codes": ["family.engineering_programme"], "origin": "existing positive"},
+    {"id": "neg-dublin", "title": "Graduate Software Engineer", "location": "Dublin, Ireland", "country": "", "expect": "excluded", "codes": ["exclude.non_uk_location"], "origin": "hardening review 2026-10-23"},
+    {"id": "neg-barcelona", "title": "Software Engineer III", "location": "Barcelona", "country": "", "expect": "excluded", "codes": ["exclude.non_uk_location"], "origin": "hardening review 2026-10-23"},
+    {"id": "neg-amsterdam-remote", "title": "Junior Backend Engineer", "location": "Amsterdam or Remote (Netherlands)", "country": "", "expect": "excluded", "codes": ["exclude.non_uk_location"], "origin": "hardening review 2026-10-23"},
+    {"id": "neg-remote-us", "title": "New Grad Software Engineer", "location": "Remote - US", "country": "", "expect": "excluded", "codes": ["exclude.non_uk_location"], "origin": "hardening review 2026-10-23"},
+    {"id": "neg-new-south-wales", "title": "Graduate Software Engineer", "location": "Sydney, New South Wales", "country": "", "expect": "excluded", "codes": ["exclude.non_uk_location"], "origin": "hardening review 2026-10-23"},
+    {"id": "unc-london-or-dublin", "title": "Graduate Software Engineer", "location": "London or Dublin", "country": "", "expect": "review", "codes": ["location.unknown"], "origin": "hardening review 2026-10-23"},
+    {"id": "pos-northern-ireland", "title": "Graduate Software Engineer", "location": "Belfast, Northern Ireland", "country": "", "expect": "priority", "codes": ["location.uk"], "origin": "hardening review 2026-10-23"},
+    {"id": "pos-uk-and-ireland", "title": "Graduate Software Engineer", "location": "London, UK; Dublin, Ireland", "country": "", "expect": "priority", "codes": ["location.uk_multi_country"], "origin": "hardening review 2026-10-23"},
+    {"id": "unc-developer-advocate", "title": "Graduate Developer Advocate", "expect": "review", "codes": ["role.customer_facing"], "origin": "hardening review 2026-10-23"},
+    {"id": "unc-fdse-new-grad", "title": "Forward Deployed Software Engineer, New Grad", "expect": "review", "codes": ["role.customer_facing", "level.early_title"], "origin": "hardening review 2026-10-23"},
+    {"id": "neg-tech-strategy", "title": "Graduate Technology Strategy Analyst, Telecommunications", "description": "Advise clients on telecoms infrastructure and cloud market strategy.", "expect": "excluded", "codes": ["exclude.no_engineering_evidence"], "origin": "hardening review 2026-10-23"},
+    {"id": "neg-design-engineer", "title": "Graduate Design Engineer - Healthcare", "description": "Design medical devices with clinicians; experience of cloud-connected products is useful.", "expect": "excluded", "codes": ["exclude.no_engineering_evidence"], "origin": "hardening review 2026-10-23"},
+    {"id": "unc-security-evidence", "title": "Graduate Security Engineer", "description": "Write Python tooling for detection pipelines.", "expect": "review", "codes": ["role.adjacent_family"], "origin": "hardening review 2026-10-23"},
+    {"id": "neg-security-no-evidence", "title": "Graduate Security Analyst", "description": "Monitor alerts and triage phishing reports.", "expect": "excluded", "codes": ["exclude.no_engineering_evidence"], "origin": "hardening review 2026-10-23"},
+    {"id": "unc-data-science-evidence", "title": "Graduate Data Scientist", "description": "Build machine learning models in Python.", "expect": "review", "codes": ["role.adjacent_family"], "origin": "hardening review 2026-10-23"},
+    {"id": "unc-generic-no-text", "title": "Graduate Engineer", "description": "", "expect": "review", "codes": ["evidence.description_empty"], "origin": "hardening review 2026-10-23"},
     {"id": "pos-junior-python", "title": "Junior Python Engineer", "expect": "priority", "codes": ["family.backend"], "origin": "existing positive"}
   ]
 }

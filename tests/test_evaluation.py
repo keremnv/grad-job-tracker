@@ -28,7 +28,7 @@ class MetricTests(unittest.TestCase):
                  case('b', 'Software Engineer', 'relevant'),                     # review
                  case('c', 'Graduate Mechanical Engineer', 'relevant', 'x'),     # excluded -> false negative
                  case('d', 'Senior Accountant', 'not_relevant'),                 # excluded
-                 case('e', 'Graduate Developer Advocate', 'not_relevant'),       # kept -> false positive
+                 case('e', 'Graduate Developer Advocate', 'not_relevant'),       # review (customer-facing) -> false positive
                  case('f', 'Graduate Engineer', 'uncertain')]                    # review, not in denominators
         m = ev.evaluate(cases)
         self.assertEqual(m['labels'], {'relevant': 3, 'not_relevant': 2, 'uncertain': 1})
@@ -40,7 +40,7 @@ class MetricTests(unittest.TestCase):
         self.assertEqual([f['id'] for f in m['false_positives_kept']], ['e'])
         at5 = m['queue_precision_at_k'][0]
         self.assertEqual((at5['returned'], at5['judged'], at5['precision']), (4, 3, round(2 / 3, 3)))
-        self.assertEqual(m['abstention'], {'review_verdicts': 2, 'uncertain_labels': 1})
+        self.assertEqual(m['abstention'], {'review_verdicts': 3, 'uncertain_labels': 1})
         self.assertEqual(m['per_category']['x']['false_negatives'], 1)
 
     def test_alternative_screener_plugs_into_the_same_harness(self):
