@@ -1761,7 +1761,7 @@
       "location": "San Francisco, New York",
       "provider": "ashby",
       "published_at": "2026-01-01T11:17:07.832+00:00",
-      "salary": "$100K – $110K • Offers Equity • Offers Commission",
+      "salary": "$100K – $110K • Offers Equity",
       "screening": {
         "basis": "full",
         "codes": [
@@ -1783,7 +1783,18 @@
       "source_dates": {
         "publishedAt": "2026-01-01T11:17:07.832+00:00"
       },
-      "source_events": [],
+      "source_events": [
+        {
+          "at": "2026-10-23T12:45:11Z",
+          "changes": {
+            "salary": {
+              "after": "$100K – $110K • Offers Equity",
+              "before": "$100K – $110K • Offers Equity • Offers Commission"
+            }
+          },
+          "type": "changed"
+        }
+      ],
       "team": "BDR",
       "title": "Enterprise Business Development Representative ",
       "url": "https://jobs.ashbyhq.com/incident/1556e90c-1c75-494b-97d3-b471ae95fa6f"
@@ -11251,10 +11262,12 @@
       "description_sha256": "81228d972c7fcf15fecf2a29ff407c066febf99ba9189057088bd6ecd168b740",
       "employment_type": "",
       "external_id": "8156058",
-      "feed_status": "listed",
+      "feed_status": "not_seen",
       "first_seen": "2026-10-23T06:33:55Z",
       "first_seen_basis": "index_backfill",
+      "last_seen": "2026-10-23T06:33:55Z",
       "location": "London",
+      "missing_since": "2026-10-23T12:45:11Z",
       "provider": "greenhouse",
       "published_at": "2026-08-25T07:25:10-04:00",
       "salary": "",
@@ -11283,7 +11296,12 @@
         "first_published": "2026-08-25T07:25:10-04:00",
         "updated_at": "2026-09-25T05:17:09-04:00"
       },
-      "source_events": [],
+      "source_events": [
+        {
+          "at": "2026-10-23T12:45:11Z",
+          "type": "not_seen"
+        }
+      ],
       "team": "",
       "title": "Lead Product Manager, Payments",
       "url": "https://job-boards.greenhouse.io/monzo/jobs/8156058"
@@ -11514,10 +11532,12 @@
       "description_sha256": "ef861752cca74bbb4987d8208f28d34d13ef04267d37665ca9dd8cb9e2a76746",
       "employment_type": "",
       "external_id": "8185670",
-      "feed_status": "listed",
+      "feed_status": "not_seen",
       "first_seen": "2026-10-23T06:33:55Z",
       "first_seen_basis": "index_backfill",
+      "last_seen": "2026-10-23T06:33:55Z",
       "location": "London",
+      "missing_since": "2026-10-23T12:45:11Z",
       "provider": "greenhouse",
       "published_at": "2026-09-08T11:57:20-04:00",
       "salary": "",
@@ -11543,7 +11563,12 @@
         "first_published": "2026-09-08T11:57:20-04:00",
         "updated_at": "2026-10-16T10:57:37-04:00"
       },
-      "source_events": [],
+      "source_events": [
+        {
+          "at": "2026-10-23T12:45:11Z",
+          "type": "not_seen"
+        }
+      ],
       "team": "",
       "title": "Business Recruiter",
       "url": "https://job-boards.greenhouse.io/monzo/jobs/8185670"
@@ -11559,7 +11584,7 @@
       "deadlines": [],
       "department": "Design",
       "description_chars": 10544,
-      "description_sha256": "c4db8bb01aaaccb11e32a32f3c2f03a2d663d6ded110f6a43e9958f5e7fbf8f1",
+      "description_sha256": "2042ea26ed580e795f4f9d024f53466dc00e3548cdf7574815c0b940ab690467",
       "employment_type": "",
       "external_id": "8185694",
       "feed_status": "listed",
@@ -11583,7 +11608,7 @@
           "eligibility.unverified"
         ],
         "family": "other",
-        "input_sha256": "49960d5433f5ef788caebf947ab3fad3fe302dc87a1a17b8d476b26a34e97749",
+        "input_sha256": "d8b4fbfab79840068de86af41e8e83ae29458d7c66c5d7a032a6ad5bcf6f6667",
         "rules_version": "screen-2026-10-23.1",
         "screened_at": "2026-10-23T06:33:55Z",
         "verdict": "excluded"
@@ -11591,9 +11616,30 @@
       "screening_events": [],
       "source_dates": {
         "first_published": "2026-09-09T05:05:09-04:00",
-        "updated_at": "2026-09-25T05:17:09-04:00"
+        "updated_at": "2026-10-23T06:23:53-04:00"
       },
-      "source_events": [],
+      "source_events": [
+        {
+          "at": "2026-10-23T12:45:11Z",
+          "changes": {
+            "description_sha256": {
+              "after": "2042ea26ed580e795f4f9d024f53466dc00e3548cdf7574815c0b940ab690467",
+              "before": "c4db8bb01aaaccb11e32a32f3c2f03a2d663d6ded110f6a43e9958f5e7fbf8f1"
+            },
+            "source_dates": {
+              "after": {
+                "first_published": "2026-09-09T05:05:09-04:00",
+                "updated_at": "2026-10-23T06:23:53-04:00"
+              },
+              "before": {
+                "first_published": "2026-09-09T05:05:09-04:00",
+                "updated_at": "2026-09-25T05:17:09-04:00"
+              }
+            }
+          },
+          "type": "changed"
+        }
+      ],
       "team": "",
       "title": "Lead Product Designer, Growth",
       "url": "https://job-boards.greenhouse.io/monzo/jobs/8185694"
@@ -11743,6 +11789,56 @@
       "team": "",
       "title": "Senior Financial Crime Investigator  - EU, Spanish & English ",
       "url": "https://job-boards.greenhouse.io/monzo/jobs/8207682"
+    },
+    "greenhouse:monzo:8212919": {
+      "application_verification": {
+        "status": "unknown"
+      },
+      "board": "monzo",
+      "company": "Monzo",
+      "countries": [],
+      "country": "",
+      "deadlines": [],
+      "department": "Product",
+      "description_chars": 9446,
+      "description_sha256": "be2e1c3b4239a4f5049304c1a1276e494d79212be2e9ab743aed4c18e83e272e",
+      "employment_type": "",
+      "external_id": "8212919",
+      "feed_status": "listed",
+      "first_seen": "2026-10-23T12:45:11Z",
+      "first_seen_basis": "observed",
+      "location": "London",
+      "provider": "greenhouse",
+      "published_at": "2026-10-23T06:32:23-04:00",
+      "salary": "",
+      "screening": {
+        "basis": "full",
+        "codes": [
+          "exclude.non_engineering_title",
+          "exclude.senior_title",
+          "family.other",
+          "role.discipline_unknown",
+          "location.unknown",
+          "level.unknown",
+          "level.experience_wording",
+          "eligibility.work_authorisation_wording",
+          "eligibility.unverified"
+        ],
+        "family": "other",
+        "input_sha256": "5ca95aa3d90e17592dd600d78b8bcbd9671a249fa05a686881c866369a2db298",
+        "rules_version": "screen-2026-10-23.1",
+        "screened_at": "2026-10-23T12:45:11Z",
+        "verdict": "excluded"
+      },
+      "screening_events": [],
+      "source_dates": {
+        "first_published": "2026-10-23T06:32:23-04:00",
+        "updated_at": "2026-10-23T06:32:23-04:00"
+      },
+      "source_events": [],
+      "team": "",
+      "title": "Product Manager, Finance",
+      "url": "https://job-boards.greenhouse.io/monzo/jobs/8212919"
     },
     "greenhouse:monzo:8222576": {
       "application_verification": {
@@ -12701,6 +12797,57 @@
       "title": "Prudential Risk Manager",
       "url": "https://job-boards.greenhouse.io/monzo/jobs/8305679"
     },
+    "greenhouse:monzo:8312078": {
+      "application_verification": {
+        "status": "unknown"
+      },
+      "board": "monzo",
+      "company": "Monzo",
+      "countries": [],
+      "country": "",
+      "deadlines": [],
+      "department": "Product",
+      "description_chars": 9241,
+      "description_sha256": "74a51eb191ead7ac70b474fc415784b5df2eac2eaefa0445adcfec6375514690",
+      "employment_type": "",
+      "external_id": "8312078",
+      "feed_status": "listed",
+      "first_seen": "2026-10-23T12:45:11Z",
+      "first_seen_basis": "observed",
+      "location": "London",
+      "provider": "greenhouse",
+      "published_at": "2026-10-23T05:30:03-04:00",
+      "salary": "",
+      "screening": {
+        "basis": "full",
+        "codes": [
+          "exclude.non_engineering_title",
+          "exclude.senior_title",
+          "exclude.no_engineering_signal",
+          "family.other",
+          "role.discipline_unknown",
+          "location.unknown",
+          "level.unknown",
+          "level.experience_wording",
+          "eligibility.work_authorisation_wording",
+          "eligibility.unverified"
+        ],
+        "family": "other",
+        "input_sha256": "648f60fab5b61157c69e529061e1f536e2e57a6576d69aa594b0bf5f5cf814ea",
+        "rules_version": "screen-2026-10-23.1",
+        "screened_at": "2026-10-23T12:45:11Z",
+        "verdict": "excluded"
+      },
+      "screening_events": [],
+      "source_dates": {
+        "first_published": "2026-10-23T05:30:03-04:00",
+        "updated_at": "2026-10-23T06:50:56-04:00"
+      },
+      "source_events": [],
+      "team": "",
+      "title": "Senior Product Manager, Web Growth",
+      "url": "https://job-boards.greenhouse.io/monzo/jobs/8312078"
+    },
     "greenhouse:monzo:8312105": {
       "application_verification": {
         "status": "unknown"
@@ -12797,6 +12944,57 @@
       "team": "",
       "title": "Senior Writer, Borrowing",
       "url": "https://job-boards.greenhouse.io/monzo/jobs/8312224"
+    },
+    "greenhouse:monzo:8317753": {
+      "application_verification": {
+        "status": "unknown"
+      },
+      "board": "monzo",
+      "company": "Monzo",
+      "countries": [],
+      "country": "",
+      "deadlines": [],
+      "department": "Product",
+      "description_chars": 9795,
+      "description_sha256": "57afd0f9a23b0a16231cc57731425b9a72d3a1ebd0e800c0f25a7e23da76b2f2",
+      "employment_type": "",
+      "external_id": "8317753",
+      "feed_status": "listed",
+      "first_seen": "2026-10-23T12:45:11Z",
+      "first_seen_basis": "observed",
+      "location": "London",
+      "provider": "greenhouse",
+      "published_at": "2026-10-23T07:28:17-04:00",
+      "salary": "",
+      "screening": {
+        "basis": "full",
+        "codes": [
+          "exclude.non_engineering_title",
+          "exclude.senior_title",
+          "exclude.no_engineering_signal",
+          "family.other",
+          "role.discipline_unknown",
+          "location.unknown",
+          "level.unknown",
+          "level.experience_wording",
+          "eligibility.work_authorisation_wording",
+          "eligibility.unverified"
+        ],
+        "family": "other",
+        "input_sha256": "a2761a78c8dd917ad38f60cb3f803752d7c0c2f874489129bcc421a3d1e94ade",
+        "rules_version": "screen-2026-10-23.1",
+        "screened_at": "2026-10-23T12:45:11Z",
+        "verdict": "excluded"
+      },
+      "screening_events": [],
+      "source_dates": {
+        "first_published": "2026-10-23T07:28:17-04:00",
+        "updated_at": "2026-10-23T07:28:17-04:00"
+      },
+      "source_events": [],
+      "team": "",
+      "title": "Lead Product Manager, Growth",
+      "url": "https://job-boards.greenhouse.io/monzo/jobs/8317753"
     },
     "greenhouse:mw-tech-grad:8636830002": {
       "application_verification": {
@@ -23227,6 +23425,54 @@
       "team": "Finance",
       "title": "Mobility Tax Analyst",
       "url": "https://jobs.lever.co/palantir/7dc7e7c3-39bf-4f4e-a8eb-e38a4a0af238"
+    },
+    "lever:palantir:7ea66860-ae93-4139-9388-b7284cb33f37": {
+      "application_verification": {
+        "status": "unknown"
+      },
+      "board": "palantir",
+      "company": "Palantir",
+      "countries": [
+        "US"
+      ],
+      "country": "US",
+      "deadlines": [],
+      "department": "",
+      "description_chars": 6386,
+      "description_sha256": "094445bd9e4621f2c117f03402b92e0fe11a5cccca71e86f301e154fcb934471",
+      "employment_type": "Full-time",
+      "external_id": "7ea66860-ae93-4139-9388-b7284cb33f37",
+      "feed_status": "listed",
+      "first_seen": "2026-10-23T12:45:11Z",
+      "first_seen_basis": "observed",
+      "location": "Chicago, IL",
+      "provider": "lever",
+      "published_at": "",
+      "salary": "",
+      "screening": {
+        "basis": "full",
+        "codes": [
+          "exclude.non_uk_location",
+          "family.software",
+          "role.customer_facing",
+          "location.non_uk",
+          "level.unknown",
+          "eligibility.unverified"
+        ],
+        "family": "software",
+        "input_sha256": "dd5b2c2046169825aa6764fce10356dab12f678019ddeaa22180dafcb1bea5fe",
+        "rules_version": "screen-2026-10-23.1",
+        "screened_at": "2026-10-23T12:45:11Z",
+        "verdict": "excluded"
+      },
+      "screening_events": [],
+      "source_dates": {
+        "createdAt": 1781615979731
+      },
+      "source_events": [],
+      "team": "Delta",
+      "title": "Forward Deployed Software Engineer",
+      "url": "https://jobs.lever.co/palantir/7ea66860-ae93-4139-9388-b7284cb33f37"
     },
     "lever:palantir:7eb0dedb-37ee-4175-b29f-10a9e4340076": {
       "application_verification": {
