@@ -37,10 +37,10 @@ class MigrationTests(unittest.TestCase):
         with self.target.connect() as conn:
             privileges = conn.execute('SELECT rolsuper,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user').fetchone()
             self.assertEqual(set(privileges.values()), {False})
-            self.assertEqual(migrate(conn), ['0001_initial.sql'])
-            first = conn.execute('SELECT * FROM jobwatch.schema_migrations').fetchone()
+            self.assertEqual(migrate(conn), [m.filename for m in plan])
+            first = conn.execute('SELECT * FROM jobwatch.schema_migrations ORDER BY version LIMIT 1').fetchone()
             self.assertEqual(migrate(conn), [])
-            self.assertEqual(conn.execute('SELECT * FROM jobwatch.schema_migrations').fetchone(), first)
+            self.assertEqual(conn.execute('SELECT * FROM jobwatch.schema_migrations ORDER BY version LIMIT 1').fetchone(), first)
             self.assertEqual((first['version'], first['filename'], first['sha256']),
                              (1, plan[0].filename, plan[0].checksum))
             self.assertEqual(conn.execute("SELECT pg_get_userbyid(nspowner) AS owner FROM pg_namespace WHERE nspname='jobwatch'").fetchone()['owner'], 'jobwatch_migrator')
@@ -51,7 +51,7 @@ class MigrationTests(unittest.TestCase):
         with self.target.connect() as conn:
             migrate(conn)
             with self.assertRaisesRegex(MigrationError, 'has changed'):
-                migrate(conn, [replace(original[0], sql=changed, checksum=sha256(changed.encode()).hexdigest())])
+                migrate(conn, [replace(original[0], sql=changed, checksum=sha256(changed.encode()).hexdigest())] + original[1:])
             self.assertEqual(conn.execute('SELECT sha256 FROM jobwatch.schema_migrations').fetchone()['sha256'], original[0].checksum)
 
     def test_renamed_and_unknown_history_refused(self):
@@ -59,18 +59,18 @@ class MigrationTests(unittest.TestCase):
         with self.target.connect() as conn:
             migrate(conn)
             with self.assertRaisesRegex(MigrationError, 'has changed'):
-                migrate(conn, [replace(original[0], filename='0001_renamed.sql')])
-            conn.execute("INSERT INTO jobwatch.schema_migrations(version,filename,sha256) VALUES (2,'0002_unavailable.sql',repeat('a',64))")
+                migrate(conn, [replace(original[0], filename='0001_renamed.sql')] + original[1:])
+            conn.execute("INSERT INTO jobwatch.schema_migrations(version,filename,sha256) VALUES (%s,'9999_unavailable.sql',repeat('a',64))", (len(original)+1,))
             with self.assertRaisesRegex(MigrationError, 'not a prefix'):
                 migrate(conn)
 
     def test_failed_initialization_is_atomic(self):
-        plan = load_migrations() + [extra(2, 'CREATE TABLE jobwatch.failure_probe(id int); SELECT 1/0;')]
+        plan = load_migrations() + [extra(len(load_migrations())+1, 'CREATE TABLE jobwatch.failure_probe(id int); SELECT 1/0;')]
         with self.target.connect() as conn:
-            with self.assertRaisesRegex(MigrationError, '0002_test.sql.*22012'):
+            with self.assertRaisesRegex(MigrationError, 'test.sql.*22012'):
                 migrate(conn, plan)
             self.assertIsNone(conn.execute("SELECT to_regnamespace('jobwatch') AS schema").fetchone()['schema'])
-            self.assertEqual(migrate(conn), ['0001_initial.sql'])
+            self.assertEqual(migrate(conn), [m.filename for m in load_migrations()])
 
     def test_failed_upgrade_preserves_existing_data_and_ledger(self):
         with self.target.connect() as conn:
@@ -78,9 +78,9 @@ class MigrationTests(unittest.TestCase):
             conn.execute('CREATE TABLE jobwatch.preserved_test_row(value text)')
             conn.execute("INSERT INTO jobwatch.preserved_test_row VALUES ('keep')")
             with self.assertRaises(MigrationError):
-                migrate(conn, load_migrations() + [extra(2, "DELETE FROM jobwatch.preserved_test_row; SELECT 1/0;")])
+                migrate(conn, load_migrations() + [extra(len(load_migrations())+1, "DELETE FROM jobwatch.preserved_test_row; SELECT 1/0;")])
             self.assertEqual(conn.execute('SELECT value FROM jobwatch.preserved_test_row').fetchone()['value'], 'keep')
-            self.assertEqual(conn.execute('SELECT count(*) AS n FROM jobwatch.schema_migrations').fetchone()['n'], 1)
+            self.assertEqual(conn.execute('SELECT count(*) AS n FROM jobwatch.schema_migrations').fetchone()['n'], len(load_migrations()))
 
     def test_unmanaged_schema_is_not_adopted(self):
         with self.target.connect() as conn:
@@ -109,7 +109,7 @@ class MigrationTests(unittest.TestCase):
                             break
                         time.sleep(.01)
                     self.assertEqual(blocked, 2)
-            self.assertEqual(sorted(len(f.result(5)) for f in futures), [0, 1])
+            self.assertEqual(sorted(len(f.result(5)) for f in futures), [0, len(load_migrations())])
 
     def test_migration_file_ordering_and_duplicate_detection(self):
         with TemporaryDirectory() as directory:
@@ -159,3 +159,18 @@ class MigrationTests(unittest.TestCase):
                 with self.assertRaisesRegex(MigrationError, 'idle autocommit'):
                     migrate(conn)
         self.assertTrue(conn.closed)
+
+    def test_stage_one_upgrade_preserves_existing_rows(self):
+        from support import actor, source, run, posting
+        with self.target.connect() as conn:
+            plan = load_migrations()
+            migrate(conn, plan[:1])
+            with conn.transaction():
+                actor(conn)
+                sid = source(conn)
+                attempt = run(conn, sid)
+                key, vid = posting(conn, sid, attempt['id'])
+            self.assertEqual(migrate(conn), ['0002_collection_receipts.sql'])
+            row = conn.execute('SELECT current_version_id,last_seen_run_id FROM jobwatch.postings WHERE posting_key=%s', (key,)).fetchone()
+            self.assertEqual(row['current_version_id'], vid)
+            self.assertIsNone(row['last_seen_run_id'])

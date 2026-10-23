@@ -1,4 +1,4 @@
-# PostgreSQL foundation (Stage 1)
+# PostgreSQL development (Stages 1–2)
 
 PostgreSQL is a **development/test target** at this stage. The scheduled tracker still reads/writes its existing JSON/CSV/text files. Installing the optional dependency, importing the package or running the existing CLI does not connect to PostgreSQL or apply migrations. There is no synchronization between the two stores and no production cutover.
 
@@ -11,7 +11,7 @@ python3 -m venv .venv
 .venv/bin/python -m pip install -e '.[postgres]'
 ```
 
-The base installation still has no runtime dependencies. The `postgres` extra installs psycopg 3 with its binary implementation; an ORM, pool and service are unnecessary.
+The base installation still has no runtime dependencies. The `postgres` extra installs psycopg 3 with its binary implementation; an ORM, pool and service are unnecessary. The working development collector, history and rescreen API/CLI are documented in [POSTGRESQL_COLLECTION.md](POSTGRESQL_COLLECTION.md).
 
 ## Disposable integration tests
 
@@ -24,7 +24,7 @@ PYTHON=.venv/bin/python bash scripts/test_postgres.sh
 
 The second command starts a fresh, uniquely named container using pinned official image `postgres@sha256:858bb5e98eed02eb8cafbcdc007f9a65d1b613972028944a8ec2133ccaf80d27` (17.11-bookworm), provisions roles, then tests the **actual packaged application migration**. It binds an ephemeral port exclusively to 127.0.0.1 and removes its container/volume on exit, including failures. It needs no hosted account, credentials or live `data/` files.
 
-Integration tests derive their destination from a verified Docker container name, matching per-run token/labels and loopback binding. They do not consume an arbitrary database URL. Running `python -m unittest discover -s tests/postgres -v` without the launcher skips integration tests; setting a mismatched marker fails before a connection. The existing offline suite remains independent of Docker and psycopg. The actual incident.io HTML and Cambridge Consultants Job Summary pairs are preserved under `tests/postgres/fixtures/`; Stage 1 tests evidence retention, not a new comparator or normalizer.
+Integration tests derive their destination from a verified Docker container name, matching per-run token/labels and loopback binding. They do not consume an arbitrary database URL. Running `python -m unittest discover -s tests/postgres -v` without the launcher skips integration tests; setting a mismatched marker fails before a connection. The offline suite remains independent of Docker and psycopg. Actual incident.io HTML and Cambridge Consultants Job Summary pairs under `tests/postgres/fixtures/` exercise the production publisher and comparator.
 
 ## Start a persistent local development sandbox
 
@@ -51,7 +51,7 @@ docker exec -i jobwatch-dev psql -X -U postgres -d jobwatch_dev \
 | Login | Purpose |
 |---|---|
 | `jobwatch_migrator` | Owns the application schema/objects, runs migrations; CREATE on this database, no superuser/CREATEDB/CREATEROLE. Never use it for ordinary agent/collector work. |
-| `jobwatch_collector` | Reads public corpus data and writes collector-owned records; cannot read private owner records or mutate immutable versions. Later publication code will use it. |
+| `jobwatch_collector` | Reads public corpus data and writes collector-owned records; cannot read private owner records or mutate immutable versions. The PostgreSQL publisher uses it. |
 | `jobwatch_owner` | Ordinary owner/agent SQL: corpus/history reads, owner workflow and research/control writes; no schema ownership or collector observation writes. |
 
 Bootstrap requires role-administration privileges plus authority to grant database privileges, revoke PUBLIC CREATE in `public`, and set the newly created roles' database-local search paths. It operates on the connected database (`psql`'s quoted `DBNAME` variable). Roles are cluster-wide: existing names deliberately cause failure and rollback instead of silently overwriting their passwords/grants.
@@ -69,7 +69,7 @@ export JOBWATCH_MIGRATION_DATABASE_URL='host=127.0.0.1 hostaddr=127.0.0.1 port=5
 .venv/bin/jobwatch-db-migrate
 ```
 
-Plain SQL lives in `src/jobwatch/postgres/migrations/0001_initial.sql` and is included in built distributions. The runner creates `jobwatch` and its private technical `schema_migrations` ledger, then applies numbered SQL in order. The ledger is additional to the eleven domain tables; runtime roles cannot read or write it. Initial SQL assumes this runner-created namespace. Do not apply it directly to an unmanaged schema and expect the runner to adopt it.
+Plain SQL lives in `src/jobwatch/postgres/migrations/` and is included in built distributions. The runner creates `jobwatch` and its private technical `schema_migrations` ledger, then applies numbered SQL in order. `0001_initial.sql` is unchanged; `0002_collection_receipts.sql` adds a last-positive-run FK and validated-payload digest plus registration metadata privileges. The ledger is additional to the eleven domain tables; runtime roles cannot read or write it. Initial SQL assumes this runner-created namespace. Do not apply it directly to an unmanaged schema and expect the runner to adopt it.
 
 Every invocation validates filenames and SHA-256 checksums against the complete applied prefix. Duplicate/gapped versions, renamed/changed applied migrations and unavailable recorded versions fail. Repeating an unchanged migration invocation is a no-op. Add a new numbered migration instead of editing an applied file. An existing `jobwatch` schema without a ledger is refused; unrelated database schemas are never reset or dropped.
 
@@ -96,7 +96,7 @@ COMMIT;
 
 `research_postings` includes excluded records; `opportunity_workflow` joins private workflow for owner connections. Normalized fields and FTS live on immutable versions, with `postings.current_version_id` selecting current data. FKs enforce same-posting versions and same-source runs. The current-version FK is deferred to transaction commit so the initial posting/version pair can be inserted together.
 
-Native evidence uses `encode_evidence(record)` → deterministic ASCII JSON bytes stored in bytea. PostgreSQL generates the SHA-256. Decode with `json.loads(bytes(row['evidence']))`; NUL-bearing strings remain intact. These are parsed record values, not original HTTP-response bytes. Derived PostgreSQL text cannot contain NUL: future collector code will replace it with U+FFFD and set `nul_replaced`, preserving native bytes. This stage does not change any running adapter/screener.
+Native evidence uses `encode_evidence(record)` → deterministic ASCII JSON bytes stored in bytea. PostgreSQL generates the SHA-256. Decode with `json.loads(bytes(row['evidence']))`; NUL-bearing strings remain intact. These are parsed record values, not original HTTP-response bytes. The PostgreSQL collector safely replaces NUL in derived values and records `nul_replaced`, preserving native bytes. Existing file-backed adapters/screeners remain unchanged.
 
 Owner/control writes require `SET LOCAL jobwatch.actor` inside a transaction. The narrow audit records both the authenticated database login and self-asserted actor label, with private before/after images. It covers employers, sources' mutable controls, leads, triage and applications. Collector pointer/processing-token updates do not duplicate domain history. Audit rows roll back with failed writes; audit is not an attempted-operation log or proof of owner authorization.
 
@@ -135,4 +135,4 @@ Values are positive integers. The module explicitly sets these session defaults,
 
 Schema semantics follow the approved review. Provisioning is separated; the runner owns namespace/journal setup; a dedicated migration login replaces review-time superuser execution. SQL URL identity now matches existing Python behavior for empty query/fragment delimiters, empty/default/zero-padded HTTPS ports, and validates IPv6 literals rather than accepting malformed bracketed addresses. These refinements have regression tests and change no existing Python normalizer or deployed data.
 
-This stage does not implement a collector/publisher, importer, historical Git recovery, rescreen orchestration, source discovery, hosted infrastructure, backups, normalizer v2, BM25 database adaptation, pgvector or hybrid retrieval. The schema prepares for later complete/positive-only/failed observations, but it does not certify feed completeness or implement run ordering/retries on behalf of a publisher. The next implementation stage should add the source-locked collection/evidence/material-history transaction path with **current** adapter output; import/cutover and deliberate normalization improvements follow separately.
+Stage 2 implements collection, publication, provider comparison, evidence/history, retries and source-locked rescreening with current v1 output. Importer/Git recovery, source discovery expansion, hosted infrastructure, backups/restore rehearsal, normalizer v2, BM25 database adaptation, pgvector and hybrid retrieval remain later work. Production remains file-backed.

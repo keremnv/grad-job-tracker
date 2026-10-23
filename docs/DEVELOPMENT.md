@@ -13,9 +13,11 @@ python -m venv .venv && .venv/bin/python -m pip install -e .
 .venv/bin/python -m jobwatch.cli eval run --baseline   # synthetic screening diagnostics
 ```
 
-Optional PostgreSQL Stage 1 setup, migrations and disposable integration tests are
+Optional PostgreSQL setup, migrations and disposable integration tests are
 documented in [POSTGRESQL_DEVELOPMENT.md](POSTGRESQL_DEVELOPMENT.md). The file-backed
 runtime and scheduled production data path remain authoritative and unchanged.
+The separate development collection/history path is described in
+[POSTGRESQL_COLLECTION.md](POSTGRESQL_COLLECTION.md).
 
 Never run `scan` against `data/` locally; use scratch `--state`, `--report`,
 `--config` and `--verifications` paths. Live provider checks are separate from
@@ -33,7 +35,7 @@ unit tests and should be rare.
 | `commands.py`, `contract.py` | Agent commands and the `jobwatch.cli/1` envelope. |
 | `triage.py`, `verifications.py`, `storage.py` | Owner/evidence writes: lock, snapshot, atomic replace. |
 | `evaluation.py`, `search.py` | Offline diagnostics and BM25. |
-| `postgres/` | Optional development/test database connections, packaged SQL and explicit migrations; no collector integration yet. |
+| `postgres/` | Optional PostgreSQL development collector, material comparison, immutable evidence/history, rescreening, connections and migrations. The file-backed CLI is unchanged. |
 | `datacheck.py` | `validate-data`: operational checks kept out of unit tests. |
 | `applications.py`, `overview.py`, `calendar.py`, `leads.py` | Ledger, weekly/requirements reports, ICS export, lead registry. |
 
