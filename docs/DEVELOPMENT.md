@@ -18,6 +18,8 @@ documented in [POSTGRESQL_DEVELOPMENT.md](POSTGRESQL_DEVELOPMENT.md). The file-b
 runtime and scheduled production data path remain authoritative and unchanged.
 The separate development collection/history path is described in
 [POSTGRESQL_COLLECTION.md](POSTGRESQL_COLLECTION.md).
+Frozen Git import/reconciliation and restore rehearsal are described in
+[POSTGRESQL_IMPORT.md](POSTGRESQL_IMPORT.md).
 
 Never run `scan` against `data/` locally; use scratch `--state`, `--report`,
 `--config` and `--verifications` paths. Live provider checks are separate from

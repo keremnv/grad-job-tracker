@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Creates its own empty database, never consumes a user-supplied database URL.
 set -euo pipefail
+if [[ $# -ne 0 && ( $# -ne 4 || $1 != --rehearse-import ) ]]; then
+  printf '%s\n' 'Usage: scripts/test_postgres.sh [--rehearse-import REPO COMMIT NEW_REPORT_DIRECTORY]' >&2
+  exit 2
+fi
 repo=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 python=${PYTHON:-python3}
 "$python" -c 'import psycopg' || { printf '%s\n' 'Install optional dependencies: pip install -e ".[postgres]"' >&2; exit 2; }
@@ -25,6 +29,9 @@ unset JOBWATCH_DATABASE_URL JOBWATCH_MIGRATION_DATABASE_URL PGHOST PGHOSTADDR PG
 export JOBWATCH_PG_TEST_CONTAINER="$name" JOBWATCH_PG_TEST_TOKEN="$token"
 export PYTHONPATH="$repo/src${PYTHONPATH:+:$PYTHONPATH}"
 "$python" -m unittest discover -s "$repo/tests/postgres" -v
+if [[ $# -eq 4 ]]; then
+  "$python" "$repo/tests/postgres/rehearsal.py" "$2" "$3" "$4"
+fi
 docker exec "$name" psql -X -U postgres -d jobwatch_foundation_test -Atc 'SELECT version();'
 "$python" -c 'import platform,psycopg; print("Python",platform.python_version()); print("psycopg",psycopg.__version__); print("libpq",psycopg.pq.version())'
 printf 'Image: %s\n' "$image"

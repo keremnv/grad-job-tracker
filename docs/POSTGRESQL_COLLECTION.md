@@ -128,4 +128,4 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHON=.venv/bin/python bash scripts/test_postgres.sh
 ```
 
-The launcher still creates/verifies/removes its own pinned local PostgreSQL container; tests accept no production DSN. Both migrations are tested fresh and as a Stage 1 upgrade. Next work is the one-time importer, historical reconciliation and restore rehearsal before any hosted deployment/cutover. Deliberate normalizer improvements and embeddings remain separate later changes.
+The launcher still creates/verifies/removes its own pinned local PostgreSQL container; tests accept no production DSN. Both migrations are tested fresh and as a Stage 1 upgrade. The one-time importer, historical reconciliation and restore rehearsal are now documented in [POSTGRESQL_IMPORT.md](POSTGRESQL_IMPORT.md). Hosted deployment/cutover, deliberate normalizer improvements and embeddings remain separate later changes.

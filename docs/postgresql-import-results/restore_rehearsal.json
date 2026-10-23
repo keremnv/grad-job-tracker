@@ -1,0 +1,262 @@
+{
+  "activation_required": [
+    {
+      "legacy_enabled": true,
+      "missing": [
+        "endpoint_checked_at"
+      ],
+      "source": "ashby:hyperexponential"
+    },
+    {
+      "legacy_enabled": true,
+      "missing": [
+        "endpoint_checked_at"
+      ],
+      "source": "ashby:incident"
+    },
+    {
+      "legacy_enabled": true,
+      "missing": [
+        "endpoint_checked_at"
+      ],
+      "source": "ashby:tracebit"
+    },
+    {
+      "legacy_enabled": true,
+      "missing": [
+        "endpoint_checked_at"
+      ],
+      "source": "greenhouse:cambridgeconsultantslimited"
+    },
+    {
+      "legacy_enabled": true,
+      "missing": [
+        "endpoint_checked_at"
+      ],
+      "source": "greenhouse:monzo"
+    },
+    {
+      "legacy_enabled": true,
+      "missing": [
+        "endpoint_checked_at"
+      ],
+      "source": "greenhouse:mw-tech-grad"
+    },
+    {
+      "legacy_enabled": true,
+      "missing": [
+        "endpoint_checked_at"
+      ],
+      "source": "greenhouse:riverlane"
+    },
+    {
+      "legacy_enabled": true,
+      "missing": [
+        "endpoint_checked_at"
+      ],
+      "source": "lever:palantir"
+    },
+    {
+      "legacy_enabled": true,
+      "missing": [
+        "endpoint_checked_at"
+      ],
+      "source": "lever:scottlogic"
+    }
+  ],
+  "backup": {
+    "bytes": 7886136,
+    "dump_version": "pg_dump (PostgreSQL) 17.11 (Debian 17.11-1.pgdg12+2)",
+    "format": "PostgreSQL custom archive",
+    "restore_version": "pg_restore (PostgreSQL) 17.11 (Debian 17.11-1.pgdg12+2)",
+    "sha256": "0a8cfe608053a8ba60de977803a500626dc2aac3a7e321e1bb146a772782e994"
+  },
+  "commands": [
+    [
+      "createdb",
+      "-U",
+      "postgres",
+      "-O",
+      "jobwatch_migrator",
+      "jobwatch_import_8238a71247774d69a078c072accf2641_a"
+    ],
+    [
+      "createdb",
+      "-U",
+      "postgres",
+      "-O",
+      "jobwatch_migrator",
+      "jobwatch_import_8238a71247774d69a078c072accf2641_repeat"
+    ],
+    [
+      "createdb",
+      "-U",
+      "postgres",
+      "-O",
+      "jobwatch_migrator",
+      "jobwatch_import_8238a71247774d69a078c072accf2641_restored"
+    ],
+    [
+      "pg_dump",
+      "-U",
+      "jobwatch_migrator",
+      "--format=custom",
+      "--schema=jobwatch",
+      "--file=/tmp/jobwatch-import-8238a71247774d69a078c072accf2641.dump",
+      "jobwatch_import_8238a71247774d69a078c072accf2641_a"
+    ],
+    [
+      "pg_restore",
+      "--list",
+      "/tmp/jobwatch-import-8238a71247774d69a078c072accf2641.dump"
+    ],
+    [
+      "cat",
+      "/tmp/jobwatch-import-8238a71247774d69a078c072accf2641.dump"
+    ],
+    [
+      "pg_restore",
+      "-U",
+      "jobwatch_migrator",
+      "--exit-on-error",
+      "--single-transaction",
+      "--dbname=jobwatch_import_8238a71247774d69a078c072accf2641_restored",
+      "/tmp/jobwatch-import-8238a71247774d69a078c072accf2641.dump"
+    ],
+    [
+      "pg_dump",
+      "--version"
+    ],
+    [
+      "pg_restore",
+      "--version"
+    ]
+  ],
+  "counts": {
+    "applications": 0,
+    "collection_runs": 69,
+    "employers": 44,
+    "leads": 34,
+    "posting_events": 107,
+    "posting_versions": 1008,
+    "postings": 629,
+    "sources": 9,
+    "triage": 0,
+    "verifications": 24
+  },
+  "description_recovery": {
+    "current_available": 629,
+    "current_distinct_texts": 535,
+    "current_text_files": 536,
+    "current_unavailable": [],
+    "distinct_texts": 537,
+    "historical_only_texts": 2,
+    "native_postings": 54,
+    "native_versions": 57,
+    "references": 2169
+  },
+  "distributions": {
+    "codes": {
+      "eligibility.unverified": 629,
+      "eligibility.work_authorisation_wording": 271,
+      "exclude.adjacent_without_early_signal": 114,
+      "exclude.no_engineering_evidence": 8,
+      "exclude.no_engineering_signal": 118,
+      "exclude.non_engineering_title": 138,
+      "exclude.non_software_discipline": 28,
+      "exclude.non_uk_location": 327,
+      "exclude.senior_title": 213,
+      "exclude.student_title": 79,
+      "family.backend": 19,
+      "family.customer_engineering": 51,
+      "family.data_science": 8,
+      "family.engineering_generic": 53,
+      "family.engineering_programme": 1,
+      "family.ml_ai": 21,
+      "family.other": 219,
+      "family.platform_systems": 80,
+      "family.security": 20,
+      "family.software": 155,
+      "family.technology_programme": 2,
+      "level.doctoral_wording": 79,
+      "level.early_department": 1,
+      "level.early_description": 64,
+      "level.early_title": 80,
+      "level.experience_wording": 226,
+      "level.unknown": 549,
+      "location.non_uk": 327,
+      "location.uk": 283,
+      "location.uk_multi_country": 3,
+      "location.unknown": 16,
+      "role.adjacent_family": 81,
+      "role.customer_facing": 117,
+      "role.department_engineering": 177,
+      "role.discipline_unknown": 272,
+      "year.title_mismatch": 7
+    },
+    "first_seen_basis": {
+      "index_backfill": 571,
+      "legacy_retained": 54,
+      "observed": 4
+    },
+    "last_seen_basis": {
+      "first_observation": 571,
+      "retained_current_row": 2,
+      "retained_row.last_seen": 54,
+      "source_event": 2
+    },
+    "legacy_events": {
+      "mixed": 49,
+      "screening": 54,
+      "source": 4
+    },
+    "status": {
+      "listed": 627,
+      "not_seen": 2
+    },
+    "verdict": {
+      "excluded": 572,
+      "priority": 8,
+      "review": 49
+    }
+  },
+  "import_role": {
+    "name": "jobwatch_migrator",
+    "rolcreatedb": false,
+    "rolcreaterole": false,
+    "rolsuper": false
+  },
+  "independent_imports_equal": true,
+  "legacy_limitations": [
+    {
+      "code": "schema1_exclusions_not_retained",
+      "detail": "Unindexed rejected roles before schema 2 cannot be reconstructed."
+    },
+    {
+      "code": "current_native_not_archived",
+      "commit": "90434ea6d9a3457f9c8ba40f01ad25fa2ceffca3",
+      "count": 629,
+      "detail": "Normalized current snapshots are retained honestly; older native captures do not establish current native wording.",
+      "path": "data/jobs.json"
+    }
+  ],
+  "logical_sha256": "24d9204464ad74213cd588fe3b4441bac3133204774b70aa3cf160796922fb61",
+  "missing_evidence": [],
+  "plan_sha256": "f6753c09241dfa44a77a1e420c8a427569c5c62f0c4481fa934facdfa9dac40f",
+  "ready_for_cutover": false,
+  "restored_matches_import": true,
+  "restored_matches_source": true,
+  "runtime_queries_and_denials_passed": true,
+  "schema": "jobwatch.restore-rehearsal/1",
+  "schema_ownership_grants_equal": true,
+  "schema_sha256": "a76cc58a5fe165e4ca2e40e2cfa2c28a74167654ddeb6d341ec72876eac484db",
+  "sequence_state_equal": true,
+  "source_commit": "90434ea6d9a3457f9c8ba40f01ad25fa2ceffca3",
+  "sql_query_counts": {
+    "applications": 0,
+    "fts_software": 498,
+    "research": 629,
+    "triage": 0,
+    "workflow": 629
+  }
+}

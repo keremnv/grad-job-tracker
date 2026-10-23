@@ -1,4 +1,4 @@
-# PostgreSQL development (Stages 1–2)
+# PostgreSQL development (Stages 1–3)
 
 PostgreSQL is a **development/test target** at this stage. The scheduled tracker still reads/writes its existing JSON/CSV/text files. Installing the optional dependency, importing the package or running the existing CLI does not connect to PostgreSQL or apply migrations. There is no synchronization between the two stores and no production cutover.
 
@@ -12,6 +12,8 @@ python3 -m venv .venv
 ```
 
 The base installation still has no runtime dependencies. The `postgres` extra installs psycopg 3 with its binary implementation; an ORM, pool and service are unnecessary. The working development collector, history and rescreen API/CLI are documented in [POSTGRESQL_COLLECTION.md](POSTGRESQL_COLLECTION.md).
+
+The one-time frozen Git importer, reconciliation and disposable backup/restore rehearsal are documented in [POSTGRESQL_IMPORT.md](POSTGRESQL_IMPORT.md). They require explicit invocation and do not change the production store.
 
 ## Disposable integration tests
 
@@ -135,4 +137,4 @@ Values are positive integers. The module explicitly sets these session defaults,
 
 Schema semantics follow the approved review. Provisioning is separated; the runner owns namespace/journal setup; a dedicated migration login replaces review-time superuser execution. SQL URL identity now matches existing Python behavior for empty query/fragment delimiters, empty/default/zero-padded HTTPS ports, and validates IPv6 literals rather than accepting malformed bracketed addresses. These refinements have regression tests and change no existing Python normalizer or deployed data.
 
-Stage 2 implements collection, publication, provider comparison, evidence/history, retries and source-locked rescreening with current v1 output. Importer/Git recovery, source discovery expansion, hosted infrastructure, backups/restore rehearsal, normalizer v2, BM25 database adaptation, pgvector and hybrid retrieval remain later work. Production remains file-backed.
+Stage 2 implements collection, publication, provider comparison, evidence/history, retries and source-locked rescreening with current v1 output. Stage 3 adds frozen Git import, historical recovery, full reconciliation and tested local pg_dump/pg_restore. Hosted infrastructure, operational backups/PITR, production cutover/read adaptation, source discovery expansion, normalizer v2, BM25 database adaptation, pgvector and hybrid retrieval remain later work. Production remains file-backed.

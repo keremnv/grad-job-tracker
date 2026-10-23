@@ -16,6 +16,7 @@ postgres = ["psycopg[binary]>=3.2.13,<4"]
 grad-job-watch = "jobwatch.cli:main"
 jobwatch-db-migrate = "jobwatch.postgres.migrate:main"
 jobwatch-pg = "jobwatch.postgres.scan:main"
+jobwatch-pg-import = "jobwatch.postgres.import_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
