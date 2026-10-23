@@ -23,7 +23,9 @@ git pull --ff-only                      # the scan bot commits to main daily
 Every agent command accepts `--json` and prints one envelope:
 `{"schema": "jobwatch.cli/1", "ok", "data", "warnings": [{code,...}], "errors": [{code,...}]}`.
 Exit 0 means ok (warnings possible); exit 2 means error and **nothing was
-written**. Key on `code`, never on message text. Mention relevant warnings
+written**. Key on `code`, never on message text. `--as-of` is for read
+commands only (what would the queue look like on date X); write commands
+refuse it and always record the current time. Mention relevant warnings
 (`board_stale`, `board_failed`, `index_incomplete`, `judgments_from_older_rules`)
 in your answer.
 
@@ -42,7 +44,11 @@ in your answer.
 | What would a rules change do? | `rescreen --json` (preview only; writes nothing) |
 
 `queue` omits dismissed, later (until due) and applied/closed opportunities and
-already joins the application ledger by posting key and exact URL. Do not
+already joins the application ledger by posting key and exact URL. An
+application stage outranks triage: a dismissed opportunity with a bookmarked
+or preparing ledger row stays queued as `preparing`, and a dismissed one that
+was applied for shows as `applied`; both carry `triage_application_conflict`.
+Point the conflict out; do not clear or change either record unasked. Do not
 rebuild these joins yourself. Treat `possible_application_match` warnings as
 questions for the owner, not as links.
 
@@ -51,7 +57,7 @@ questions for the owner, not as links.
 | Class (from `capabilities`) | Commands | Rule |
 |---|---|---|
 | `read_only` | capabilities, queue, recent, show, excluded, changes, health, rescreen, search, eval run, validate-data, triage list, applications list, weekly, calendar export | Run freely. `weekly`/`calendar` write only to ignored `.local-reports/`. |
-| `agent_may_record_source_observation` | `verify deadline`, `verify description` | You may record what you read on an **official** page during a read-only visit, with `--verified-by agent`. Quote wording exactly; give `--value` only if the page states the date. |
+| `agent_may_record_source_observation` | `verify deadline`, `verify description` | You may record what you read on an **official** page during a read-only visit, with `--verified-by agent` and `--verified-at` set to when you read it. Quote wording exactly; give `--value` only if the page states the date. |
 | `owner_instruction_required` | `triage set/clear`, `verify status`, `applications add/update/import-csv --confirm` | Only on an explicit owner instruction for this specific change. Use `--recorded-by agent_on_owner_instruction` / `--verified-by agent_on_owner_instruction`. You may *recommend* triage; never record a recommendation as a decision. |
 | `operator_scheduled` | `scan` | GitHub Actions runs it. Locally, only against scratch `--state/--report` paths, and only when the owner asks. |
 
@@ -79,7 +85,7 @@ a successful feed). Screening verdicts are heuristics, not suitability facts.
 |---|---|---|
 | `data/jobs.json`, `data/jobs-health.json`, `data/jobs-text/`, `reports/latest.md` | Scheduled scan (GitHub Actions) | Never edit or commit locally. |
 | `data/applications.csv` | `applications` commands | Private ledger. Never hand-edit through GitHub. |
-| `data/triage.json` | `triage` commands | Private owner decisions. |
+| `data/triage.json` | `triage` commands | Private owner decisions; synced through this private repository only, never copied into a public code repository. |
 | `data/verifications.json` | `verify` commands | Legacy records lack `verified_by`; leave them. |
 | `data/leads.json`, `config/employers.json` | Owner (hand-maintained) | Change only when asked; run `validate-data` after. |
 | `.local-reports/` | `weekly`, `calendar export`, `eval template` | Git-ignored; never commit, paste or upload. |
@@ -89,9 +95,11 @@ a successful feed). Screening verdicts are heuristics, not suitability facts.
 1. `git status --short` must show no uncommitted change to the target file;
    then `git pull --ff-only`.
 2. Run the write command with `--json`. Check `ok`, then `data.status`
-   (`created`, `replaced`, `recorded`, `removed` or `unchanged`) and
-   `data.verified` (the command re-read the file). Retrying an identical
-   command is safe and returns `unchanged`.
+   (`created`, `replaced`, `recorded`, `refreshed`, `removed` or `unchanged`)
+   and `data.verified` (the command re-read the file). Retrying an identical
+   command is safe and returns `unchanged`. For `verify`, keep the same
+   `--verified-at` when retrying; a genuinely new page check with the same
+   result uses its own later time and returns `refreshed`.
 3. Confirm with a read (`show KEY --json`, `triage list --json`,
    `applications list`).
 4. Commit only the owner file you changed, with a plain message (e.g.

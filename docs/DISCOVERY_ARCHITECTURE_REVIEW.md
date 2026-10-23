@@ -310,19 +310,20 @@ a schema change worth deciding deliberately.
 - The first scheduled scan after merge produces a large commit (≈5 MB text,
   ≈1.3 MB index, 600+ backfill events in the health file). Expected, one-off.
 - The modified `scan.yml` staging has not run on GitHub.
-- `--as-of` also sets `decided_at`/`verified_at` defaults on write commands
-  (convenient for tests, but it lets a caller backdate a decision).
+- ~~`--as-of` also sets `decided_at`/`verified_at` defaults on write commands~~
+  Resolved in §15: write commands refuse `--as-of`.
 - `verifications.json` is reformatted (sorted keys) on its first `verify` write:
   a one-off noisy diff.
 - Records on failed/disabled boards are rescreened only when `RULES_VERSION`
   changes; a rule edit without a version bump reaches them only when observed
   again (observed ones show cause `rules_changed_unversioned`).
-- Text retention: released 180 days after a posting goes `not_seen`; the value
-  is a guess.
+- ~~Text retention: released 180 days after a posting goes `not_seen`~~
+  Resolved in §15: no age-based expiry.
 - Calendar export now ignores feed deadlines of excluded postings unless the
   posting has a verification record (previously all retained postings counted).
-- Location rules still lack many foreign cities and countries (e.g. Dublin,
-  Ireland), and level markers such as "I"/"II" are not interpreted.
+- Location rules now cover common European/North American/Asian locations
+  (§15) but remain a list; level markers such as "I"/"II" are still not
+  interpreted ("Software Engineer II" stays `review` with `level.unknown`).
 
 ## 14. Candidates to simplify or remove later
 
@@ -336,3 +337,58 @@ a schema change worth deciding deliberately.
 - The separate health file, if daily churn stops mattering.
 - `verify description` and the requirements report, which serve a small
   sample-based CV analysis.
+
+## 15. Hardening review (2026-10-23)
+
+Owner decisions applied: forward-deployed graduate roles stay reviewable;
+adjacent families stay in the index and are queued only with early-career
+*and* software-engineering evidence; descriptions are kept in the private
+repository without age-based expiry; triage stays in the private repository;
+`open_verified` still needs owner authorisation; `--as-of` is read-only.
+
+- **Verification freshness.** `verify status|deadline|description` take a
+  required `--verified-at`. Same result and same check time: `unchanged`.
+  Same result, later check: `refreshed` (timestamp and observer move forward).
+  Same result, earlier check: `unchanged` (never moves back). A different
+  status still needs `--replace`.
+- **Write clock.** `triage set|clear`, `verify *` and `eval template` refuse
+  `--as-of` (`invalid_argument`, nothing written). Tests inject the clock;
+  `--as-of` is validated as a timezone-aware timestamp for reads.
+- **Durability.** Write order is texts → index → health → orphan removal →
+  report; each file is atomic. `tests/test_durability.py` interrupts the first
+  migration before every file replacement and during orphan removal: every
+  intermediate state loads and the next scan converges with no false `new`
+  events. Writing health before the index would be unsafe
+  (`index_complete_since` ahead of an incomplete index turns the backfill into
+  "new" postings), so the order is pinned by test. Interrupting the first
+  migration between index and health loses the schema-1 board health (it
+  lived in the old index; Git history keeps it); the next scan restores it.
+  `scan` re-reads its outputs after saving and exits 2 on any mismatch,
+  missing text or unexpected exception.
+- **Scan exit codes and workflow.** 0 = written; 1 = written, some or all
+  boards failed (previously "all failed" was 2 although health and report
+  were written); 2 = do not commit. `scan.yml` records the exit code and
+  commits only on 0/1, so an interrupted write on the runner is discarded and
+  the repository keeps its last consistent commit. A push rejected by a
+  concurrent owner push is replayed once with `git pull --rebase` (owner
+  commits never touch scan files); a conflict fails the job without forcing.
+- **Text store.** Each indexed record keeps its current description (and the
+  previous one after its latest change), including `not_seen` records, so
+  rescreening always has the full evidence. Deleting a text file from the
+  working tree does not remove it from Git history; the private repository
+  history retains every committed description.
+- **Screening (`screen-2026-10-23.1`).** Clearly non-UK locations (Ireland,
+  Netherlands, Spain, Switzerland, Nordics, Poland, Israel, more US/Canadian
+  cities, `US`) are excluded unless a UK signal is present ("London or Dublin"
+  stays `review`; "Belfast, Northern Ireland" stays UK). "New South Wales" and
+  "New England" no longer count as UK. Developer advocate/relations titles are
+  `role.customer_facing` (review, not priority). Adjacent, generic and
+  uncategorised titles with an early-career signal need software evidence
+  (software, programming, a language, backend/frontend, ML, CS, …) in the
+  title, department/team or description, or they are excluded with
+  `exclude.no_engineering_evidence`; unretained or empty text stays `review`.
+  On the 618-posting scratch index (main vs branch): no new non-UK posting is
+  kept; Monzo "Software Engineer III, Barcelona" (kept on `main`) is now
+  excluded; three Cambridge Consultants titles (two technology-strategy
+  analysts, a healthcare design engineer) return to excluded. Synthetic set:
+  relevant kept 1.0 (unchanged), not-relevant excluded 0.647 → 0.765.

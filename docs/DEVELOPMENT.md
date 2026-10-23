@@ -43,6 +43,12 @@ unit tests and should be rare.
 - Never invent deadlines, salary, eligibility, sponsorship, start dates or
   closure. Keep exact wording, URL, observation time and timezone.
 - Owner files (ledger, triage, verifications, leads) are never written by scans.
+- Scan write order is texts → index → health → orphan removal → report; the
+  health file must never be ahead of the index (`tests/test_durability.py`).
+  `scan` exits 2 for anything that must not be committed; `scan.yml` commits
+  only on exit 0/1.
+- Write commands use the real clock and refuse `--as-of`; tests patch
+  `jobwatch.commands.utcnow`. Evidence times (`--verified-at`) are explicit.
 - Unit tests must not read `data/` or `config/`; add operational checks to
   `datacheck.py`. Add a regression test (or a case in
   `tests/fixtures/screening_regressions.json`) for every fixed bug.
