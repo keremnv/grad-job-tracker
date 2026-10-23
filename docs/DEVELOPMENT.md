@@ -13,6 +13,10 @@ python -m venv .venv && .venv/bin/python -m pip install -e .
 .venv/bin/python -m jobwatch.cli eval run --baseline   # synthetic screening diagnostics
 ```
 
+Optional PostgreSQL Stage 1 setup, migrations and disposable integration tests are
+documented in [POSTGRESQL_DEVELOPMENT.md](POSTGRESQL_DEVELOPMENT.md). The file-backed
+runtime and scheduled production data path remain authoritative and unchanged.
+
 Never run `scan` against `data/` locally; use scratch `--state`, `--report`,
 `--config` and `--verifications` paths. Live provider checks are separate from
 unit tests and should be rare.
@@ -29,6 +33,7 @@ unit tests and should be rare.
 | `commands.py`, `contract.py` | Agent commands and the `jobwatch.cli/1` envelope. |
 | `triage.py`, `verifications.py`, `storage.py` | Owner/evidence writes: lock, snapshot, atomic replace. |
 | `evaluation.py`, `search.py` | Offline diagnostics and BM25. |
+| `postgres/` | Optional development/test database connections, packaged SQL and explicit migrations; no collector integration yet. |
 | `datacheck.py` | `validate-data`: operational checks kept out of unit tests. |
 | `applications.py`, `overview.py`, `calendar.py`, `leads.py` | Ledger, weekly/requirements reports, ICS export, lead registry. |
 
@@ -52,5 +57,7 @@ unit tests and should be rare.
 - Unit tests must not read `data/` or `config/`; add operational checks to
   `datacheck.py`. Add a regression test (or a case in
   `tests/fixtures/screening_regressions.json`) for every fixed bug.
-- Standard library only at runtime; no LLM calls, paid services, browser
-  automation or cloud database.
+- The production file-backed runtime remains standard-library-only. PostgreSQL
+  dependencies are optional and used only for the explicitly invoked development
+  foundation. No LLM calls, paid services, browser automation or hosted database
+  provisioning in this stage.
