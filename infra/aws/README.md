@@ -45,6 +45,8 @@ Cloud-init installs PostgreSQL **17** from the signed PGDG noble repository and 
 
 No database password, AWS key or private input is in cloud-init, Terraform/state or the artifact. Loopback TCP accepts only the PostgreSQL owner with SCRAM; its password is initially **unset**. For future SQL tunnels the owner sets it interactively with `psql \password jobwatch_owner` during authorized secret setup. No secret appears in command arguments. Local peer collection needs no production DSN secret.
 
+PostgreSQL's three configuration files are `root:jobwatch-db`, mode `0640`, so the unit's `postgres:jobwatch-db` identity can read them without application write access. The role SQL stays `root:root`, mode `0600`: the root bootstrap shell opens it and passes stdin to `psql` as postgres, retaining `ON_ERROR_STOP`. The disposable suite (`PYTHON=/PATH/TO/PYTHON scripts/test_postgres.sh`) now executes these actual bootstrap fragments and the unit's user/group/server command, including repeat runs and failure cases. See [the bootstrap correction report](../../docs/AWS_BOOTSTRAP_CORRECTION_REPORT.md). The earlier binary plan with digest `d5edebcccd6d2366576c288e4481b15cf3cd701412beea50a9cd5e27642a3ac4` is **superseded and must never be applied**; a replacement commit and binary-plan digest require separate explicit apply approval.
+
 1. Build a **code-only** artifact from an explicit full commit. The script uses `git archive` over a fixed allowlist; it excludes `data/`, `config/`, reports, Git metadata and working-tree contents. Bundles a wheel and hash-locked ARM64 CPython 3.12 dependencies. A private artifact path must not already exist.
 
    ```sh

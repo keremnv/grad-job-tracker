@@ -109,6 +109,7 @@ jobwatch jobwatch-owner jobwatch_owner
 jobwatch jobwatch-migrator jobwatch_migrator
 jobwatch jobwatch-backup jobwatch_migrator
 IDENT
+chown root:jobwatch-db /etc/jobwatch/{postgresql.conf,pg_hba.conf,pg_ident.conf}
 chmod 0640 /etc/jobwatch/{postgresql.conf,pg_hba.conf,pg_ident.conf}
 cat > /etc/systemd/system/jobwatch-postgresql.service <<'UNIT'
 [Unit]
@@ -148,7 +149,7 @@ if [[ $(psql_admin -d postgres -Atc "SELECT count(*) FROM pg_database WHERE datn
 fi
 roles=$(psql_admin -d jobwatch -Atc "SELECT count(*) FROM pg_roles WHERE rolname IN ('jobwatch_migrator','jobwatch_collector','jobwatch_owner')")
 if [[ $roles == 0 ]]; then
-  psql_admin -d jobwatch -f /opt/jobwatch-bootstrap/bootstrap.sql >/dev/null
+  psql_admin -d jobwatch < /opt/jobwatch-bootstrap/bootstrap.sql >/dev/null
 elif [[ $roles != 3 ]]; then
   echo 'Partial role provisioning requires operator investigation' >&2; exit 1
 fi
