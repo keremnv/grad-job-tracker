@@ -9038,6 +9038,53 @@
       "title": "Graduate Technology Strategy Analyst, Physical Sciences / Engineering (2027 start)",
       "url": "https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/5014008101"
     },
+    "greenhouse:cambridgeconsultantslimited:5015079101": {
+      "application_verification": {
+        "status": "unknown"
+      },
+      "board": "cambridgeconsultantslimited",
+      "company": "Cambridge Consultants",
+      "countries": [],
+      "country": "",
+      "deadlines": [],
+      "department": "Systems & Design Control",
+      "description_chars": 5881,
+      "description_sha256": "cbbaa377333ba7f1f7af75f5d098a5c98969bb26354b96480d1acf9a53172265",
+      "employment_type": "",
+      "external_id": "5015079101",
+      "feed_status": "listed",
+      "first_seen": "2026-10-24T12:09:32Z",
+      "first_seen_basis": "observed",
+      "location": "United Kingdom",
+      "provider": "greenhouse",
+      "published_at": "2026-10-23T10:34:34-04:00",
+      "salary": "",
+      "screening": {
+        "basis": "full",
+        "codes": [
+          "exclude.adjacent_without_early_signal",
+          "family.engineering_generic",
+          "role.discipline_unknown",
+          "location.uk",
+          "level.unknown",
+          "eligibility.unverified"
+        ],
+        "family": "engineering_generic",
+        "input_sha256": "b9106dcee2d33da7d09ecacc64f974a944e19e001ce0b38fc0039c461ffc4f4f",
+        "rules_version": "screen-2026-10-23.1",
+        "screened_at": "2026-10-24T12:09:32Z",
+        "verdict": "excluded"
+      },
+      "screening_events": [],
+      "source_dates": {
+        "first_published": "2026-10-23T10:34:34-04:00",
+        "updated_at": "2026-10-23T10:34:34-04:00"
+      },
+      "source_events": [],
+      "team": "",
+      "title": "Design Assurance Engineer",
+      "url": "https://job-boards.eu.greenhouse.io/cambridgeconsultantslimited/jobs/5015079101"
+    },
     "greenhouse:monzo:5018066": {
       "application_verification": {
         "status": "unknown"
@@ -11587,10 +11634,12 @@
       "description_sha256": "2042ea26ed580e795f4f9d024f53466dc00e3548cdf7574815c0b940ab690467",
       "employment_type": "",
       "external_id": "8185694",
-      "feed_status": "listed",
+      "feed_status": "not_seen",
       "first_seen": "2026-10-23T06:33:55Z",
       "first_seen_basis": "index_backfill",
+      "last_seen": "2026-10-23T12:45:11Z",
       "location": "Cardiff, London or Remote (UK)",
+      "missing_since": "2026-10-24T12:09:32Z",
       "provider": "greenhouse",
       "published_at": "2026-09-09T05:05:09-04:00",
       "salary": "",
@@ -11638,6 +11687,10 @@
             }
           },
           "type": "changed"
+        },
+        {
+          "at": "2026-10-24T12:09:32Z",
+          "type": "not_seen"
         }
       ],
       "team": "",
@@ -12417,10 +12470,12 @@
       "description_sha256": "c4fe993a8f19b7be0933ad796dbea08a2c44f5fc1ac9d44bbfaca0737e6af0c0",
       "employment_type": "",
       "external_id": "8267489",
-      "feed_status": "listed",
+      "feed_status": "not_seen",
       "first_seen": "2026-10-23T06:33:55Z",
       "first_seen_basis": "index_backfill",
+      "last_seen": "2026-10-23T12:45:11Z",
       "location": "London",
+      "missing_since": "2026-10-24T12:09:32Z",
       "provider": "greenhouse",
       "published_at": "2026-10-15T12:27:54-04:00",
       "salary": "",
@@ -12447,7 +12502,12 @@
         "first_published": "2026-10-15T12:27:54-04:00",
         "updated_at": "2026-10-15T12:27:54-04:00"
       },
-      "source_events": [],
+      "source_events": [
+        {
+          "at": "2026-10-24T12:09:32Z",
+          "type": "not_seen"
+        }
+      ],
       "team": "",
       "title": "Lead Brand Designer",
       "url": "https://job-boards.greenhouse.io/monzo/jobs/8267489"
@@ -31864,8 +31924,8 @@
       "country": "GB",
       "deadlines": [],
       "department": "",
-      "description_chars": 2312,
-      "description_sha256": "c3db851a2c3dc566bce97056db8a41669199b7d737db15f4e543569dee08d667",
+      "description_chars": 3620,
+      "description_sha256": "1e2671bf7db2666844f7b4d58ced295f74b55bf676ad9ae449d10b37167b8d81",
       "employment_type": "Full-Time",
       "external_id": "2060603e-4ce2-4076-95cd-f4ef6a735961",
       "feed_status": "listed",
@@ -31886,7 +31946,7 @@
           "eligibility.unverified"
         ],
         "family": "other",
-        "input_sha256": "3c1bb12704b4055763bfab1bb5c8c8fab55e0592553d6b03a74c1942760c478b",
+        "input_sha256": "97add868443727bd52fb8db8703bb1bbcf57249abe385860d7b966fca516e212",
         "rules_version": "screen-2026-10-23.1",
         "screened_at": "2026-10-23T06:33:55Z",
         "verdict": "excluded"
@@ -31895,7 +31955,18 @@
       "source_dates": {
         "createdAt": 1791807622888
       },
-      "source_events": [],
+      "source_events": [
+        {
+          "at": "2026-10-24T12:09:32Z",
+          "changes": {
+            "description_sha256": {
+              "after": "1e2671bf7db2666844f7b4d58ced295f74b55bf676ad9ae449d10b37167b8d81",
+              "before": "c3db851a2c3dc566bce97056db8a41669199b7d737db15f4e543569dee08d667"
+            }
+          },
+          "type": "changed"
+        }
+      ],
       "team": "Talent Operations",
       "title": "HR Advisor",
       "url": "https://jobs.lever.co/scottlogic/2060603e-4ce2-4076-95cd-f4ef6a735961"
