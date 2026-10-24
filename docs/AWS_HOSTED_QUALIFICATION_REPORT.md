@@ -1,5 +1,7 @@
 # Stage 4B.2c — blocked before application installation
 
+**Follow-up:** the installer correction and real-user regression tests are now implemented in [AWS_INSTALLER_CORRECTION_REPORT.md](AWS_INSTALLER_CORRECTION_REPORT.md). This document preserves the earlier blocked attempt and its evidence. Application installation, migrations and hosted recovery qualification remain pending; the helper-maintenance stage does not authorize them.
+
 Checked 24 October 2026. Existing infrastructure/application source reference:
 `afda366faabf0db3bf289d55f66fb3dac7445fe1`, branch
 `feat/aws-deployment-preflight`. This status update changes documentation only.

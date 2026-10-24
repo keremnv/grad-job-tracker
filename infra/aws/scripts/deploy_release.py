@@ -8,6 +8,7 @@ import platform
 from pathlib import Path, PurePosixPath
 import re
 import shutil
+import stat
 import subprocess
 import tarfile
 import tempfile
@@ -38,6 +39,19 @@ def verify(archive_path, expected_sha256, commit):
     return manifest
 
 
+def make_code_readable(directory):
+    """Root-owned code only; leave venv links and their external targets untouched."""
+    if directory.is_symlink():
+        raise ValueError('Release directory must not be a symlink')
+    for path in (directory, *directory.rglob('*')):
+        mode = path.lstat().st_mode
+        if stat.S_ISLNK(mode):
+            continue
+        if not (stat.S_ISDIR(mode) or stat.S_ISREG(mode)):
+            raise ValueError('Unexpected release file type')
+        path.chmod(0o755 if stat.S_ISDIR(mode) or mode & 0o111 else 0o644, follow_symlinks=False)
+
+
 def deploy(archive_path, sha256, commit, *, installation_root=Path('/'), run_command=subprocess.run):
     if os.geteuid() != 0:
         raise ValueError('Root required for code installation')
@@ -51,6 +65,9 @@ def deploy(archive_path, sha256, commit, *, installation_root=Path('/'), run_com
             raise ValueError('Disable timers explicitly before deployment')
     manifest = verify(archive_path, sha256, commit)
     destination = installation_root / 'opt/jobwatch/releases' / commit
+    code_parents = (installation_root/'opt/jobwatch', destination.parent)
+    if any(p.is_symlink() for p in (installation_root/'opt', *code_parents, destination)):
+        raise ValueError('Installation parents and release must not be symlinks')
     destination.parent.mkdir(parents=True, exist_ok=True)
     if destination.exists():
         if (destination/'MANIFEST.json').read_text() != json.dumps(manifest, sort_keys=True, indent=2)+'\n':
@@ -83,6 +100,10 @@ def deploy(archive_path, sha256, commit, *, installation_root=Path('/'), run_com
         except BaseException:
             # No DB changes. Leave incomplete release for explicit inspection, never erase it.
             raise
+    # Normalize only validated, completed code; do not loosen an incomplete release.
+    for parent in code_parents:
+        parent.chmod(0o755, follow_symlinks=False)
+    make_code_readable(destination)
     for unit in (destination/'infra/aws/systemd').glob('*.service'):
         shutil.copyfile(unit, installation_root/'etc/systemd/system'/unit.name)
     for unit in (destination/'infra/aws/systemd').glob('*.timer'):
