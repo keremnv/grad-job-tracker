@@ -1,5 +1,7 @@
 # Proposed PostgreSQL cutover runbook — NOT EXECUTED
 
+**AWS target selected:** follow [AWS deployment preparation](../infra/aws/README.md) and [AWS authority handoff](AWS_CUTOVER.md) for the host-specific steps. PostgreSQL uses local peer authentication on EC2 and authenticated SSM tunnels for remote access; the generic direct-host TLS/Actions-secret examples below describe alternatives, not a public database requirement. The selected scheduled writer is systemd, not a second GitHub Actions collector. No hosted environment or cutover is authorized by these documents.
+
 Stage 4A authorizes none of the hosted/deployment steps below. The file-backed production tracker remains authoritative. Execute this only during a separately authorized Stage 4B deployment, with an operator recording outcomes privately. Do not merge or enable the inert workflow just to try it.
 
 ## 1. Prepare before migration

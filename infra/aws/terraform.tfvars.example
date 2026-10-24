@@ -1,0 +1,5 @@
+# Copy OUTSIDE Git; supply your real identifier locally, never a credential.
+expected_project_id = "000000000000"
+ami_id               = "ami-00000000000000000" # replace with reviewed Canonical Noble ARM64 image
+profile              = "grad-jobwatch"
+availability_zone    = "eu-north-1a"

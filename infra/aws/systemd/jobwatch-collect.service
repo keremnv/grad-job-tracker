@@ -1,0 +1,26 @@
+[Unit]
+Description=Job Watch transactional PostgreSQL collection
+Requires=jobwatch-postgresql.service
+After=jobwatch-postgresql.service network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=21600
+StartLimitBurst=3
+[Service]
+Type=oneshot
+User=jobwatch-collector
+Group=jobwatch-db
+Environment=JOBWATCH_DATABASE_URL=host=/run/jobwatch-postgresql dbname=jobwatch user=jobwatch_collector
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/jobwatch/current/venv/bin/python /opt/jobwatch/current/infra/aws/scripts/run_operation.py collect
+TimeoutStartSec=45min
+Restart=on-failure
+RestartSec=15min
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+UMask=0077

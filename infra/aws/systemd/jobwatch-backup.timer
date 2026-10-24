@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily Job Watch backup — enable after import and restore verification
+[Timer]
+OnCalendar=*-*-* 07:30:00 UTC
+RandomizedDelaySec=5min
+Persistent=false
+Unit=jobwatch-backup.service
+[Install]
+WantedBy=timers.target

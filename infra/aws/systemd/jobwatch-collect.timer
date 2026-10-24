@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily Job Watch collection — enable only after cutover go/no-go
+[Timer]
+OnCalendar=*-*-* 06:15:00 UTC
+RandomizedDelaySec=5min
+Persistent=false
+Unit=jobwatch-collect.service
+[Install]
+WantedBy=timers.target
