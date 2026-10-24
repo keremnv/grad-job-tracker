@@ -6,7 +6,15 @@ terraform {
       version = "~> 6.0"
     }
   }
-  # Local state deliberately: no remote-state bucket is bootstrapped by init.
+  # Bootstrap this separately; validation/tests use init -backend=false.
+  backend "s3" {
+    key                  = "tracker/terraform.tfstate"
+    region               = "eu-north-1"
+    profile              = "grad-jobwatch"
+    encrypt              = true
+    use_lockfile         = true
+    workspace_key_prefix = "no-workspaces"
+  }
 }
 provider "aws" {
   region              = var.region

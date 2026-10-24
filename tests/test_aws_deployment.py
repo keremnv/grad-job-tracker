@@ -58,6 +58,9 @@ class DeploymentTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'Pause collection'):
                 deploy_release.deploy(Path('/missing'),'a'*64,'b'*40,
                     run_command=lambda *a,**kw:SimpleNamespace(returncode=0))
+            with self.assertRaisesRegex(ValueError,'Disable timers'):
+                deploy_release.deploy(Path('/missing'),'a'*64,'b'*40,
+                    run_command=lambda args,**kw:SimpleNamespace(returncode=0 if args[1]=='is-enabled' else 3))
 
     def test_filesystem_deployment_replay_preserves_database_with_mocked_host_commands(self):
         with TemporaryDirectory() as d:
@@ -79,6 +82,8 @@ class DeploymentTests(unittest.TestCase):
                 deploy_release.deploy(archive,digest,commit,installation_root=root,run_command=run)
             self.assertTrue(any(c[0]=='python3.12' for c in first))
             self.assertFalse(any(c[0]=='python3.12' for c in commands))
+            self.assertFalse(any(c[0]=='systemctl' and c[1] in ('start','enable','restart')
+                                 for c in first+commands))
             self.assertEqual((root/'opt/jobwatch/current').resolve(),root/'opt/jobwatch/releases'/commit)
             self.assertEqual(data.read_bytes(),b'immutable database evidence')
             failed=root.parent/'failed-host';(failed/'etc/systemd/system').mkdir(parents=True)

@@ -26,17 +26,15 @@ Resolve Canonical's public SSM parameter `/aws/service/canonical/ubuntu/server/2
 
 ```sh
 umask 077
-terraform -chdir=infra/aws plan -input=false -var-file=/PRIVATE/aws.tfvars.json -out=/PRIVATE/aws.tfplan
-terraform -chdir=infra/aws show -json /PRIVATE/aws.tfplan > /PRIVATE/aws-plan.json
-python3 infra/aws/scripts/check_plan.py /PRIVATE/aws-plan.json
+python3 infra/aws/scripts/review_plan.py --vars /PRIVATE/aws.tfvars.json --output /PRIVATE/new-review
 ```
 
-Planning calls read APIs; no local-exec/provisioners/apply hooks. The initial-plan checker refuses unexpected inventory, mutations of existing resources, inbound ports, unencrypted disks and unbounded CPU credit charges. Terraform mock tests do not contact AWS. `.terraform/`, state, tfvars and saved plans are ignored. **Never commit a plan, state, dump or receipt containing private records.** Local state must be secured and backed up outside this repository after a future apply; use one authorized operator and no concurrent Terraform writes. A remote state backend is deliberately not auto-created.
+Planning calls read APIs; no local-exec/provisioners/apply hooks. The initial-plan checker refuses unexpected inventory, mutations of existing resources, inbound ports, unencrypted disks and unbounded CPU credit charges. Terraform mock tests do not contact AWS. `.terraform/`, state, tfvars and saved plans are ignored. **Never commit a plan, state, dump or receipt containing private records.** **The operational root requires a separately bootstrapped S3 backend with native locking.** Read [the state/bootstrap procedure](state/README.md) for the least-privilege policies, version retention/recovery, pre-bucket review and two independent approval steps. The helper’s isolated local-backend plan must never be applied. No state bucket is auto-created by init or the tracker stack.
 
 The IAM skill's official baseline-policy generator can analyze the private plan locally:
 
 ```sh
-uvx iam-policy-autopilot@latest generate-policies /PRIVATE/aws-plan.json --region eu-north-1 --account PROJECT_ID --pretty > /PRIVATE/deployer-baseline.txt
+uvx iam-policy-autopilot@latest generate-policies /PRIVATE/new-review/REVIEW_ONLY.plan.json --region eu-north-1 --account PROJECT_ID --pretty > /PRIVATE/deployer-baseline.txt
 ```
 
 This generates a review baseline, not permission to upload/attach a policy. Review unsupported resources and narrow `iam:PassRole` to the instance role and EC2. Do not give coding agents the project's broad `/managed/` role permanently, and never modify the protected managed roles.

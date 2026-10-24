@@ -6,3 +6,4 @@
 *.tfvars.json
 crash.log
 crash.*.log
+*.tfbackend

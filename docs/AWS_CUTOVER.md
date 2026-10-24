@@ -2,6 +2,10 @@
 
 The repository currently authorizes **planning and local tests only**. No AWS resources, hosted import, secret setup, live endpoint checks, timer activation, workflow disable, main merge or authority switch are authorized. Use the [infrastructure instructions](../infra/aws/README.md) and existing [PostgreSQL cutover runbook](POSTGRESQL_CUTOVER_RUNBOOK.md); this document resolves AWS-specific sequencing without reopening the schema.
 
+## State and infrastructure approval boundary
+
+Follow the [protected state procedure](../infra/aws/state/README.md) before infrastructure deployment: first approve only the separate versioned S3 state-bucket bootstrap; then initialize native S3 locking, generate a new reviewed S3-backed plan and obtain separate approval of that saved plan’s digest. The empty-state local review plan is never a deployment artifact. Both timers remain disabled throughout. The state bucket is outside the tracker stack, retains state versions indefinitely and grants no runtime instance access. This document does not authorize either step.
+
 ## Deployment and source gates
 
 Before provisioning, the owner reviews a fresh private Terraform plan, estimated post-credit cost, credit eligibility/expiry, spending-limit status and permissions. Explicit apply approval is separate. Preserve encrypted state, a recovery custodian and a scoped deployment identity; do not edit the project's `/managed/` roles. Verify the chosen subnet/AMI are still available. A plan proves API compatibility for reads, not permission to create resources. `prevent_destroy` deliberately blocks ordinary replacements and must not be removed to make a plan pass.
