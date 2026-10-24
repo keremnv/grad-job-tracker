@@ -17,6 +17,9 @@ from jobwatch.postgres.import_cli import summary
 from jobwatch.postgres.import_plan import build_plan, digest
 from jobwatch.postgres.importer import apply_import, reconcile, logical_snapshot, schema_snapshot
 from jobwatch.postgres.migrate import migrate
+from jobwatch.postgres import reports as operational_reports,research,readiness
+from jobwatch.postgres.publisher import Collector
+from jobwatch.postgres.orchestrator import collect_monitored
 from support import Target
 
 
@@ -91,6 +94,7 @@ def rehearse(repo, commit, output_dir=None):
         if sequence_states[0]!=sequence_states[1]:
             raise ImportProblem('Restored sequence state differs')
         query_results=[]
+        operational_results=[]
         for db in databases:
             with connect(config(db,'jobwatch_owner')) as conn:
                 counts={'workflow':conn.execute('SELECT count(*) AS n FROM jobwatch.opportunity_workflow').fetchone()['n'],
@@ -101,6 +105,21 @@ def rehearse(repo, commit, output_dir=None):
                 if counts['workflow']!=len(plan.rows['postings']):
                     raise ImportProblem('Owner workflow view lost rows')
                 query_results.append(counts)
+                data=operational_reports.snapshot(conn,since='1970-01-01T00:00:00Z',limit=1000,requirements=True)
+                for weekly in (False,True):
+                    rendered=operational_reports.markdown(data,weekly=weekly)
+                    if not rendered or 'not_seen does not prove closure' not in rendered:
+                        raise ImportProblem('Operational report did not retain its uncertainty labels')
+                calendar_blob,calendar_warnings=operational_reports.calendar_export(data)
+                if not calendar_blob.startswith(b'BEGIN:VCALENDAR'):
+                    raise ImportProblem('SQL calendar rendering failed')
+                operational_results.append({'corpus_rows':sum(r['count'] for r in data['corpus']),
+                    'attention_rows':data['attention_total'],'deadline_claims':len(data['deadlines']),
+                    'lead_rows':len(data['leads']),'material_events':len(data['material_history']),
+                    'verified_requirement_samples':data['requirements']['sample_size'],
+                    'bm25_python_results':len(research.search(conn,'Python')['items']),
+                    'fts_python_results':len(research.search(conn,'Python',method='fts')['items']),
+                    'calendar_events':calendar_blob.count(b'BEGIN:VEVENT'),'calendar_warnings':len(calendar_warnings)})
             with connect(config(db,'jobwatch_collector')) as conn:
                 conn.execute('SELECT count(*) FROM jobwatch.research_postings').fetchone()
                 for sql in ('SELECT * FROM jobwatch.applications','SELECT * FROM jobwatch.owner_audit',
@@ -114,6 +133,8 @@ def rehearse(repo, commit, output_dir=None):
                         raise ImportProblem('Runtime privileges weakened after import/restore')
         if query_results[0]!=query_results[1] or query_results[0]!=query_results[2]:
             raise ImportProblem('Restored SQL query results differ')
+        if operational_results[0]!=operational_results[1] or operational_results[0]!=operational_results[2]:
+            raise ImportProblem('Restored operational report/search projections differ')
         result={
             'schema':'jobwatch.restore-rehearsal/1','source_commit':commit,'plan_sha256':plan.sha256,
             'counts':plan.report()['counts'],'description_recovery':plan.manifest['description_recovery'],
@@ -122,11 +143,21 @@ def rehearse(repo, commit, output_dir=None):
             'independent_imports_equal':True,'restored_matches_import':True,'restored_matches_source':True,
             'schema_ownership_grants_equal':True,'sequence_state_equal':True,'runtime_queries_and_denials_passed':True,
             'import_role':import_role,'sql_query_counts':query_results[0],
+            'operational_sql_checks':operational_results[0],
             'logical_sha256':digest(snapshots[databases[0]]),'schema_sha256':digest(schemas[databases[0]]),
             'backup':{'format':'PostgreSQL custom archive','bytes':len(backup),'sha256':sha256(backup).hexdigest(),
                       'dump_version':utility('pg_dump','--version').decode().strip(),
                       'restore_version':utility('pg_restore','--version').decode().strip()},
             'commands':commands,'ready_for_cutover':reports[databases[0]]['ready_for_cutover']}
+        with connect(config(databases[0])) as conn:
+            checked=readiness.inspect(conn,reconciliation=reports[databases[0]],restore=result)
+            result['readiness']={'local_checks_passed':checked['local_checks_passed'],
+                'deployment_ready':checked['deployment_ready'],'checks':checked['checks'],'external_gates':checked['external_gates']}
+        if not any(s['status']=='monitored' for s in plan.rows['sources']):
+            scan=collect_monitored(Collector(config(databases[0],'jobwatch_collector'),actor='collector:rehearsal-no-live'))
+            if scan['selected_sources']!=0 or scan['warning']!='no_monitored_sources':
+                raise ImportProblem('Unevidenced imported candidates must not be scheduled')
+            result['no_monitored_source_scan']={'selected_sources':scan['selected_sources'],'exit_code':scan['exit_code'],'warning':scan['warning']}
         if output_dir is not None:
             directory=Path(output_dir).resolve()
             if directory.is_relative_to(Path(repo).resolve()):

@@ -170,7 +170,7 @@ class MigrationTests(unittest.TestCase):
                 sid = source(conn)
                 attempt = run(conn, sid)
                 key, vid = posting(conn, sid, attempt['id'])
-            self.assertEqual(migrate(conn), ['0002_collection_receipts.sql'])
+            self.assertEqual(migrate(conn), [m.filename for m in plan[1:]])
             row = conn.execute('SELECT current_version_id,last_seen_run_id FROM jobwatch.postings WHERE posting_key=%s', (key,)).fetchone()
             self.assertEqual(row['current_version_id'], vid)
             self.assertIsNone(row['last_seen_run_id'])

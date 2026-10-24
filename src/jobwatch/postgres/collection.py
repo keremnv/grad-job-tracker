@@ -143,11 +143,8 @@ def replay_native(entry, raw):
     return rows[0]
 
 
-def fetch(run, processing=Processing(), *, get_json=feeds.request_json, pause=time.sleep, clock=lambda: datetime.now(timezone.utc)):
-    if run.status != 'running' or run.processing_revision != processing.revision:
-        raise ValueError('Fetch requires a running registration for this processing release')
-    metadata = run.metadata
-    entry = metadata['source']
+def fetch_records(entry, *, get_json=feeds.request_json, pause=time.sleep, clock=lambda: datetime.now(timezone.utc)):
+    """Validate a feed and certify its coverage without screening or publishing it."""
     responses = []
     receipts = []
 
@@ -163,8 +160,7 @@ def fetch(run, processing=Processing(), *, get_json=feeds.request_json, pause=ti
         raise ValueError('Response explicitly indicates an incomplete/paginated feed')
     at = receipts[-1]
     iso(at)
-    records = tuple(sorted((prepare(p, at, processing) for p in postings), key=lambda r: r.key))
-    if len({r.key for r in records}) != len(records) or stats['source_records'] != len(records) + stats['skipped_non_vacancies']:
+    if len({p.key for p in postings}) != len(postings) or stats['source_records'] != len(postings) + stats['skipped_non_vacancies']:
         raise ValueError('Collection accounting mismatch')
     response = responses[0]
     no_paging = isinstance(response, dict) and not any(response.get(k) for k in ('hasMore', 'nextCursor', 'nextPage', 'next'))
@@ -175,4 +171,12 @@ def fetch(run, processing=Processing(), *, get_json=feeds.request_json, pause=ti
         absence_safe = len(responses) == 1 and no_paging and response.get('apiVersion') == '1'
     else:
         absence_safe = len(responses) == 1 and len(response) < 100
-    return Observation(run, records, at, stats['source_records'], stats['skipped_non_vacancies'], len(responses), absence_safe)
+    return postings, at, stats, len(responses), absence_safe
+
+
+def fetch(run, processing=Processing(), *, get_json=feeds.request_json, pause=time.sleep, clock=lambda: datetime.now(timezone.utc)):
+    if run.status != 'running' or run.processing_revision != processing.revision:
+        raise ValueError('Fetch requires a running registration for this processing release')
+    postings, at, stats, count, absence_safe = fetch_records(run.metadata['source'],get_json=get_json,pause=pause,clock=clock)
+    records = tuple(sorted((prepare(p, at, processing) for p in postings),key=lambda r:r.key))
+    return Observation(run,records,at,stats['source_records'],stats['skipped_non_vacancies'],count,absence_safe)

@@ -20,6 +20,9 @@ The separate development collection/history path is described in
 [POSTGRESQL_COLLECTION.md](POSTGRESQL_COLLECTION.md).
 Frozen Git import/reconciliation and restore rehearsal are described in
 [POSTGRESQL_IMPORT.md](POSTGRESQL_IMPORT.md).
+SQL-backed operational reads, reports, search, scheduled-style collection and
+readiness checks are described in [POSTGRESQL_OPERATIONS.md](POSTGRESQL_OPERATIONS.md);
+the [cutover runbook](POSTGRESQL_CUTOVER_RUNBOOK.md) remains unexecuted.
 
 Never run `scan` against `data/` locally; use scratch `--state`, `--report`,
 `--config` and `--verifications` paths. Live provider checks are separate from
@@ -37,7 +40,7 @@ unit tests and should be rare.
 | `commands.py`, `contract.py` | Agent commands and the `jobwatch.cli/1` envelope. |
 | `triage.py`, `verifications.py`, `storage.py` | Owner/evidence writes: lock, snapshot, atomic replace. |
 | `evaluation.py`, `search.py` | Offline diagnostics and BM25. |
-| `postgres/` | Optional PostgreSQL development collector, material comparison, immutable evidence/history, rescreening, connections and migrations. The file-backed CLI is unchanged. |
+| `postgres/` | Optional PostgreSQL development collection/history, import/reconciliation, operational SQL/reports/search, endpoint checks, readiness, connections and migrations. The file-backed CLI is unchanged. |
 | `datacheck.py` | `validate-data`: operational checks kept out of unit tests. |
 | `applications.py`, `overview.py`, `calendar.py`, `leads.py` | Ledger, weekly/requirements reports, ICS export, lead registry. |
 

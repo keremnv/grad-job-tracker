@@ -17,6 +17,7 @@ grad-job-watch = "jobwatch.cli:main"
 jobwatch-db-migrate = "jobwatch.postgres.migrate:main"
 jobwatch-pg = "jobwatch.postgres.scan:main"
 jobwatch-pg-import = "jobwatch.postgres.import_cli:main"
+jobwatch-pg-ops = "jobwatch.postgres.operations:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

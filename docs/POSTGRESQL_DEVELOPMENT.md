@@ -1,4 +1,4 @@
-# PostgreSQL development (Stages 1–3)
+# PostgreSQL development (Stages 1–4A)
 
 PostgreSQL is a **development/test target** at this stage. The scheduled tracker still reads/writes its existing JSON/CSV/text files. Installing the optional dependency, importing the package or running the existing CLI does not connect to PostgreSQL or apply migrations. There is no synchronization between the two stores and no production cutover.
 
@@ -14,6 +14,8 @@ python3 -m venv .venv
 The base installation still has no runtime dependencies. The `postgres` extra installs psycopg 3 with its binary implementation; an ORM, pool and service are unnecessary. The working development collector, history and rescreen API/CLI are documented in [POSTGRESQL_COLLECTION.md](POSTGRESQL_COLLECTION.md).
 
 The one-time frozen Git importer, reconciliation and disposable backup/restore rehearsal are documented in [POSTGRESQL_IMPORT.md](POSTGRESQL_IMPORT.md). They require explicit invocation and do not change the production store.
+
+Operational SQL, reports, search, multi-source collection, endpoint checks and readiness are documented in [POSTGRESQL_OPERATIONS.md](POSTGRESQL_OPERATIONS.md). See the [functionality matrix](POSTGRESQL_FUNCTIONALITY.md) and the proposed, unexecuted [cutover runbook](POSTGRESQL_CUTOVER_RUNBOOK.md).
 
 ## Disposable integration tests
 
@@ -71,7 +73,7 @@ export JOBWATCH_MIGRATION_DATABASE_URL='host=127.0.0.1 hostaddr=127.0.0.1 port=5
 .venv/bin/jobwatch-db-migrate
 ```
 
-Plain SQL lives in `src/jobwatch/postgres/migrations/` and is included in built distributions. The runner creates `jobwatch` and its private technical `schema_migrations` ledger, then applies numbered SQL in order. `0001_initial.sql` is unchanged; `0002_collection_receipts.sql` adds a last-positive-run FK and validated-payload digest plus registration metadata privileges. The ledger is additional to the eleven domain tables; runtime roles cannot read or write it. Initial SQL assumes this runner-created namespace. Do not apply it directly to an unmanaged schema and expect the runner to adopt it.
+Plain SQL lives in `src/jobwatch/postgres/migrations/` and is included in built distributions. The runner creates `jobwatch` and its private technical `schema_migrations` ledger, then applies numbered SQL in order. `0001_initial.sql` is unchanged; `0002_collection_receipts.sql` adds a last-positive-run FK and validated-payload digest plus registration metadata privileges. `0003_operational_views.sql` extends public coverage/health and adds one private operational view, without changing tables or normalisation. The ledger is additional to the eleven domain tables; runtime roles cannot read or write it. Initial SQL assumes this runner-created namespace. Do not apply it directly to an unmanaged schema and expect the runner to adopt it.
 
 Every invocation validates filenames and SHA-256 checksums against the complete applied prefix. Duplicate/gapped versions, renamed/changed applied migrations and unavailable recorded versions fail. Repeating an unchanged migration invocation is a no-op. Add a new numbered migration instead of editing an applied file. An existing `jobwatch` schema without a ledger is refused; unrelated database schemas are never reset or dropped.
 
@@ -137,4 +139,4 @@ Values are positive integers. The module explicitly sets these session defaults,
 
 Schema semantics follow the approved review. Provisioning is separated; the runner owns namespace/journal setup; a dedicated migration login replaces review-time superuser execution. SQL URL identity now matches existing Python behavior for empty query/fragment delimiters, empty/default/zero-padded HTTPS ports, and validates IPv6 literals rather than accepting malformed bracketed addresses. These refinements have regression tests and change no existing Python normalizer or deployed data.
 
-Stage 2 implements collection, publication, provider comparison, evidence/history, retries and source-locked rescreening with current v1 output. Stage 3 adds frozen Git import, historical recovery, full reconciliation and tested local pg_dump/pg_restore. Hosted infrastructure, operational backups/PITR, production cutover/read adaptation, source discovery expansion, normalizer v2, BM25 database adaptation, pgvector and hybrid retrieval remain later work. Production remains file-backed.
+Stage 2 implements collection, publication, provider comparison, evidence/history, retries and source-locked rescreening with current v1 output. Stage 3 adds frozen Git import, historical recovery, full reconciliation and tested local pg_dump/pg_restore. Stage 4A adds SQL-backed research/reports, BM25 and FTS, multi-source collection, endpoint validation/activation, and explicit readiness checks. Hosted infrastructure, actual-host backups/PITR, real endpoint checks, the single authoritative production cutover, source discovery expansion, normalizer v2, pgvector and hybrid retrieval remain later work. Production remains file-backed.

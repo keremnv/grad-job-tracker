@@ -151,7 +151,8 @@ def _reconcile(conn, plan):
         observed.append((row['table_name'],digest(row['new_row'])))
     if sorted(images) != sorted(observed):
         failures.append({'table':'owner_audit','status':'image_or_coverage_mismatch'})
-    matches['owner_audit'] = {'count':len(observed),'expected_count':len(images),'images_match':sorted(images)==sorted(observed)}
+    matches['owner_audit'] = {'count':len(observed),'expected_count':len(images),'images_match':sorted(images)==sorted(observed),
+                             'sha256':digest(actual['owner_audit'])}
     return {**plan.report(), 'reconciliation':{'ok':not failures,'exact_matches':matches,
         'failures':failures,'logical_sha256':digest(actual)}, 'ready_for_cutover':not failures
         and not plan.manifest['activation_required'] and not plan.manifest['legacy_limitations']}
@@ -226,7 +227,7 @@ def schema_snapshot(conn):
     queries = {
         'namespace': "SELECT nspname,pg_get_userbyid(nspowner) AS owner,nspacl::text AS acl FROM pg_namespace WHERE nspname='jobwatch'",
         'relations': "SELECT c.relname,c.relkind,c.relrowsecurity,pg_get_userbyid(c.relowner) AS owner,c.relacl::text AS acl FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='jobwatch' ORDER BY c.relname",
-        'columns': "SELECT c.relname,a.attname,format_type(a.atttypid,a.atttypmod) AS type,a.attnotnull,a.attidentity,a.attgenerated,pg_get_expr(d.adbin,d.adrelid) AS default FROM pg_attribute a JOIN pg_class c ON c.oid=a.attrelid JOIN pg_namespace n ON n.oid=c.relnamespace LEFT JOIN pg_attrdef d ON (d.adrelid,d.adnum)=(a.attrelid,a.attnum) WHERE n.nspname='jobwatch' AND a.attnum>0 AND NOT a.attisdropped ORDER BY c.relname,a.attnum",
+        'columns': "SELECT c.relname,a.attname,format_type(a.atttypid,a.atttypmod) AS type,a.attnotnull,a.attidentity,a.attgenerated,a.attacl::text AS acl,pg_get_expr(d.adbin,d.adrelid) AS default FROM pg_attribute a JOIN pg_class c ON c.oid=a.attrelid JOIN pg_namespace n ON n.oid=c.relnamespace LEFT JOIN pg_attrdef d ON (d.adrelid,d.adnum)=(a.attrelid,a.attnum) WHERE n.nspname='jobwatch' AND a.attnum>0 AND NOT a.attisdropped ORDER BY c.relname,a.attnum",
         # Pretty deparse preserves precedence while dropping redundant associative
         # OR parentheses introduced by IN(row,...); pg_dump/reparse flattens these.
         'constraints': "SELECT c.relname,k.conname,pg_get_constraintdef(k.oid,true) AS definition FROM pg_constraint k JOIN pg_class c ON c.oid=k.conrelid JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='jobwatch' ORDER BY c.relname,k.conname",
