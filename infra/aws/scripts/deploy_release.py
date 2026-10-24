@@ -58,7 +58,9 @@ def deploy(archive_path, sha256, commit, *, installation_root=Path('/'), run_com
         for name, digest in manifest['files'].items():
             if hashlib.sha256((destination/name).read_bytes()).hexdigest() != digest:
                 raise ValueError('Installed release content changed; inspect it before retry')
-        if not (destination/'venv/bin/jobwatch-pg-ops').is_file():
+        if (not (destination/'venv/bin/jobwatch-pg-ops').is_file()
+                or not (destination/'INSTALL_COMPLETE').is_file()
+                or (destination/'INSTALL_COMPLETE').read_text() != sha256+'\n'):
             raise ValueError('Incomplete release; inspect it before retry')
     else:
         with tempfile.TemporaryDirectory(dir=destination.parent, prefix='.staging-') as temporary:
@@ -75,6 +77,9 @@ def deploy(archive_path, sha256, commit, *, installation_root=Path('/'), run_com
             run_command([str(destination/'venv/bin/pip'), 'install', '--no-index', '--no-deps', '--require-hashes',
                             '--find-links', str(destination/'wheels'), '-r', str(destination/'requirements.lock')], check=True)
             run_command([str(destination/'venv/bin/jobwatch-pg-ops'), '--help'], check=True, stdout=subprocess.DEVNULL)
+            run_command([str(destination/'venv/bin/python'), '-c',
+                         'import psycopg; assert psycopg.__version__ == "3.2.13"'], check=True)
+            (destination/'INSTALL_COMPLETE').write_text(sha256+'\n')
         except BaseException:
             # No DB changes. Leave incomplete release for explicit inspection, never erase it.
             raise

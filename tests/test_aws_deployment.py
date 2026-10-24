@@ -4,6 +4,7 @@ from hashlib import sha256
 import io
 import json
 import shlex
+import subprocess
 from pathlib import Path
 import sys
 import tarfile
@@ -80,6 +81,15 @@ class DeploymentTests(unittest.TestCase):
             self.assertFalse(any(c[0]=='python3.12' for c in commands))
             self.assertEqual((root/'opt/jobwatch/current').resolve(),root/'opt/jobwatch/releases'/commit)
             self.assertEqual(data.read_bytes(),b'immutable database evidence')
+            failed=root.parent/'failed-host';(failed/'etc/systemd/system').mkdir(parents=True)
+            def fail_install(args,**kwargs):
+                if len(args)>1 and args[1]=='install':raise subprocess.CalledProcessError(1,args)
+                return run(args,**kwargs)
+            with patch('deploy_release.os.geteuid',return_value=0),patch('deploy_release.platform.machine',return_value='aarch64'):
+                with self.assertRaises(subprocess.CalledProcessError):
+                    deploy_release.deploy(archive,digest,commit,installation_root=failed,run_command=fail_install)
+                with self.assertRaisesRegex(ValueError,'Incomplete'):
+                    deploy_release.deploy(archive,digest,commit,installation_root=failed,run_command=run)
 
     def test_deployment_rejects_wrong_host_before_writes(self):
         with patch('deploy_release.os.geteuid',return_value=0),patch('deploy_release.platform.machine',return_value='x86_64'):
