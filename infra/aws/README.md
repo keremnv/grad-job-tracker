@@ -1,6 +1,6 @@
-# AWS deployment preparation — NOT DEPLOYED
+# AWS infrastructure deployed — application qualification blocked
 
-This code proposes one Stockholm EC2 host. The existing file-backed production workflow remains authoritative. Nothing here authorizes `terraform apply`, a live ATS request, importing private data to AWS, enabling a timer, or cutover. The baseline application and migrations 0001–0003 are unchanged.
+The approved infrastructure at `afda366faabf0db3bf289d55f66fb3dac7445fe1` is deployed: 20 Terraform-managed resources, PostgreSQL 17.11 on the independent encrypted EBS volume, and working SSM. Application qualification stopped before upload/installation because the installer retains a root-only release directory. See the [current hosted status and proposed correction](../../docs/AWS_HOSTED_QUALIFICATION_REPORT.md). The database is still empty and unmigrated; neither timer is installed or active. The existing file-backed production workflow remains authoritative. Nothing in this document grants permission for apply, software repairs, live ATS requests, data import, timer activation or cutover. The application and migrations 0001–0003 remain unchanged.
 
 ## Resources and storage
 

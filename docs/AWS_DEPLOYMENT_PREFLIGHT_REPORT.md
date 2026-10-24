@@ -1,5 +1,7 @@
 # Stage 4B.1 AWS deployment preflight — 24 October 2026
 
+**Current status:** the subsequently approved 20-resource infrastructure was deployed at `afda366faabf0db3bf289d55f66fb3dac7445fe1`. Hosted application qualification is blocked before installation by the release-directory permission defect documented in [AWS_HOSTED_QUALIFICATION_REPORT.md](AWS_HOSTED_QUALIFICATION_REPORT.md). The remainder of this report preserves the original preflight results; its original “not deployed” status is historical.
+
 Implemented on `feat/aws-deployment-preflight`, based on the exact Stage 4A commit `5aeab9d9cccebdfc4ea2526cef7640fc9b39edf1`. **Not deployed, not authoritative, no cutover.** The interrupted `feat/postgresql-deployment-preflight` Neon worktree was inspected: it was clean at the Stage 4A baseline, with no unfinished implementation to recover. Its useful generic operational/import/readiness/runbook work is preserved. No design branch was merged, and no production source/data/workflow was changed.
 
 ## Implemented files and resources
