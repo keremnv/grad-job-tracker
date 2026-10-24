@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+import platform
 from pathlib import Path, PurePosixPath
 import re
 import shutil
@@ -40,6 +41,8 @@ def verify(archive_path, expected_sha256, commit):
 def deploy(archive_path, sha256, commit, *, installation_root=Path('/'), run_command=subprocess.run):
     if os.geteuid() != 0:
         raise ValueError('Root required for code installation')
+    if platform.machine() != 'aarch64':
+        raise ValueError('This release requires an ARM64 host')
     for unit in ('jobwatch-collect.timer', 'jobwatch-backup.timer', 'jobwatch-collect.service', 'jobwatch-backup.service'):
         # Never implicitly stop a writer/restart its timer during deployment.
         if run_command(['systemctl', 'is-active', '--quiet', unit]).returncode == 0:

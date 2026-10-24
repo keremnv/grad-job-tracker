@@ -9,7 +9,7 @@ StartLimitBurst=3
 Type=oneshot
 User=jobwatch-backup
 Group=jobwatch-db
-Environment=JOBWATCH_MIGRATION_DATABASE_URL=host=/run/jobwatch-postgresql dbname=jobwatch user=jobwatch_migrator
+Environment="JOBWATCH_MIGRATION_DATABASE_URL=host=/run/jobwatch-postgresql dbname=jobwatch user=jobwatch_migrator"
 Environment=PYTHONDONTWRITEBYTECODE=1
 ExecStart=/opt/jobwatch/current/venv/bin/python /opt/jobwatch/current/infra/aws/scripts/run_operation.py backup
 TimeoutStartSec=45min

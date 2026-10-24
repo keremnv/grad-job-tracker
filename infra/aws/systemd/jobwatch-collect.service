@@ -9,7 +9,7 @@ StartLimitBurst=3
 Type=oneshot
 User=jobwatch-collector
 Group=jobwatch-db
-Environment=JOBWATCH_DATABASE_URL=host=/run/jobwatch-postgresql dbname=jobwatch user=jobwatch_collector
+Environment="JOBWATCH_DATABASE_URL=host=/run/jobwatch-postgresql dbname=jobwatch user=jobwatch_collector"
 Environment=PYTHONDONTWRITEBYTECODE=1
 ExecStart=/opt/jobwatch/current/venv/bin/python /opt/jobwatch/current/infra/aws/scripts/run_operation.py collect
 TimeoutStartSec=45min

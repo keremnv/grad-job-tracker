@@ -3,6 +3,7 @@ from contextlib import redirect_stdout
 from hashlib import sha256
 import io
 import json
+import shlex
 from pathlib import Path
 import sys
 import tarfile
@@ -52,7 +53,7 @@ class DeploymentTests(unittest.TestCase):
                     deploy_release.verify(archive,sha256(archive.read_bytes()).hexdigest(),'a'*40)
 
     def test_deployment_refuses_active_or_enabled_timers_before_any_write(self):
-        with patch('deploy_release.os.geteuid',return_value=0):
+        with patch('deploy_release.os.geteuid',return_value=0),patch('deploy_release.platform.machine',return_value='aarch64'):
             with self.assertRaisesRegex(ValueError,'Pause collection'):
                 deploy_release.deploy(Path('/missing'),'a'*64,'b'*40,
                     run_command=lambda *a,**kw:SimpleNamespace(returncode=0))
@@ -71,7 +72,7 @@ class DeploymentTests(unittest.TestCase):
                     venv=Path(args[3]);(venv/'bin').mkdir(parents=True)
                     (venv/'bin/jobwatch-pg-ops').write_text('fixture executable')
                 return SimpleNamespace(returncode=0)
-            with patch('deploy_release.os.geteuid',return_value=0),redirect_stdout(io.StringIO()):
+            with patch('deploy_release.os.geteuid',return_value=0),patch('deploy_release.platform.machine',return_value='aarch64'),redirect_stdout(io.StringIO()):
                 deploy_release.deploy(archive,digest,commit,installation_root=root,run_command=run)
                 first=list(commands);commands.clear()
                 deploy_release.deploy(archive,digest,commit,installation_root=root,run_command=run)
@@ -79,6 +80,11 @@ class DeploymentTests(unittest.TestCase):
             self.assertFalse(any(c[0]=='python3.12' for c in commands))
             self.assertEqual((root/'opt/jobwatch/current').resolve(),root/'opt/jobwatch/releases'/commit)
             self.assertEqual(data.read_bytes(),b'immutable database evidence')
+
+    def test_deployment_rejects_wrong_host_before_writes(self):
+        with patch('deploy_release.os.geteuid',return_value=0),patch('deploy_release.platform.machine',return_value='x86_64'):
+            with self.assertRaisesRegex(ValueError,'ARM64'):
+                deploy_release.deploy(Path('/missing'),'a'*64,'b'*40)
 
     def test_s3_upload_requires_validated_checksum_and_version_without_read_permission(self):
         with TemporaryDirectory() as d:
@@ -90,6 +96,7 @@ class DeploymentTests(unittest.TestCase):
                 return SimpleNamespace(returncode=0,stdout=json.dumps({'ChecksumSHA256':args[args.index('--checksum-sha256')+1],'VersionId':'fixture'}))
             result=backup.upload(archive,{'region':'eu-north-1','bucket':'fixture'},run_command=run)
             self.assertEqual(len(result),2)
+            self.assertEqual(json.loads(archive.with_suffix('.json').read_text())['archive_object']['version_id'],'fixture')
             self.assertTrue(all(c[1:3]==['s3api','put-object'] and 'AES256' in c for c in calls))
             def missing_receipt(*args,**kwargs):return SimpleNamespace(returncode=0,stdout='{}')
             with self.assertRaises(backup.BackupError):
@@ -128,6 +135,13 @@ class DeploymentTests(unittest.TestCase):
         self.assertIn('Restart=on-failure',collect)
         self.assertNotIn('migrate',collect)
         self.assertNotIn('git ',collect)
+        for name, variable, role in (
+            ('jobwatch-collect.service','JOBWATCH_DATABASE_URL','jobwatch_collector'),
+            ('jobwatch-backup.service','JOBWATCH_MIGRATION_DATABASE_URL','jobwatch_migrator')):
+            lines=(root/'systemd'/name).read_text().splitlines()
+            line=next(v for v in lines if v.startswith('Environment=') and variable in v)
+            assignments=dict(v.split('=',1) for v in shlex.split(line[len('Environment='):]))
+            self.assertEqual(assignments[variable],f'host=/run/jobwatch-postgresql dbname=jobwatch user={role}')
 
 
 if __name__=='__main__':unittest.main()

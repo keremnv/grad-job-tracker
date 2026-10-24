@@ -40,7 +40,19 @@ def fingerprint(conn):
         rows = [primitive(r) for r in conn.execute('SELECT * FROM jobwatch.'+table)]
         # Exact row values, including audit IDs/clocks, generated search columns and import clocks.
         tables[table] = {'count': len(rows), 'sha256': digest(sorted(rows, key=digest))}
-    return {'tables': tables, 'schema_sha256': digest(schema_snapshot(conn))}
+    security = {
+        'database': conn.execute("""SELECT pg_get_userbyid(datdba) AS owner,
+            ARRAY(SELECT a::text FROM unnest(COALESCE(datacl,acldefault('d',datdba))) a ORDER BY a::text) AS acl
+            FROM pg_database WHERE datname=current_database()""").fetchone(),
+        'role_settings': conn.execute("""SELECT pg_get_userbyid(setrole) AS role,setconfig FROM pg_db_role_setting
+            WHERE setdatabase=(SELECT oid FROM pg_database WHERE datname=current_database()) ORDER BY 1""").fetchall(),
+        'roles': conn.execute("""SELECT rolname,rolsuper,rolinherit,rolcreaterole,rolcreatedb,rolcanlogin,rolreplication,rolbypassrls
+            FROM pg_roles WHERE rolname IN ('jobwatch_owner','jobwatch_collector','jobwatch_migrator') ORDER BY rolname""").fetchall(),
+        'memberships': conn.execute("""SELECT pg_get_userbyid(roleid) AS role,pg_get_userbyid(member) AS member,admin_option
+            FROM pg_auth_members WHERE pg_get_userbyid(roleid) LIKE 'jobwatch_%' OR pg_get_userbyid(member) LIKE 'jobwatch_%'
+            ORDER BY 1,2""").fetchall(),
+    }
+    return {'tables': tables, 'schema_sha256': digest(schema_snapshot(conn)), 'security_sha256': digest(security)}
 
 
 def archived_sequences(data, execute):
@@ -98,6 +110,8 @@ def restore(conn, archive, manifest, *, execute=utility):
         raise BackupError('Restore target must be fresh, without an application schema')
     if conn.execute("SELECT count(*) AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public'").fetchone()['n']:
         raise BackupError('Restore target contains public objects')
+    if conn.execute("SELECT count(*) AS n FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public'").fetchone()['n']:
+        raise BackupError('Restore target contains public functions')
     if conn.info.server_version // 10000 != 17:
         raise BackupError('PostgreSQL 17 required')
     execute(['pg_restore', '--exit-on-error', '--single-transaction', '--dbname='+conn.info.dbname], input=data)
@@ -135,6 +149,12 @@ def upload(archive, config, *, run_command=subprocess.run):
         if receipt.get('ChecksumSHA256') != checksum or not receipt.get('VersionId'):
             raise BackupError('S3 did not confirm checksum and object version')
         receipts.append({'key': key, 'version_id': receipt['VersionId'], 'sha256': sha256(data).hexdigest()})
+        if path == archive:
+            # The completion manifest identifies the exact verified archive version for recovery.
+            manifest_path = archive.with_suffix('.json')
+            manifest = json.loads(manifest_path.read_text())
+            manifest['archive_object'] = receipts[-1]
+            manifest_path.write_text(json.dumps(manifest, sort_keys=True, indent=2)+'\n')
     return receipts
 
 
