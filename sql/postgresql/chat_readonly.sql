@@ -1,5 +1,5 @@
 -- PROPOSED OPTIONAL ADMIN PROVISIONING, not a migration. Never run automatically.
--- After migrations 0001–0003, as a role administrator/schema-grant administrator.
+-- After migrations 0001–0004, as a role administrator/schema-grant administrator.
 -- Existing role names fail atomically; no adoption/password reset. No credential here.
 \set ON_ERROR_STOP on
 BEGIN;

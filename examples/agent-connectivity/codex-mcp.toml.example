@@ -1,0 +1,11 @@
+# OPTIONAL REVIEW EXAMPLE. No settings are installed automatically.
+# Replace the executable path locally. Keep credentials out of TOML/argv.
+[mcp_servers.jobwatch_read]
+command = "/ABSOLUTE/private-venv/bin/jobwatch-read-mcp"
+args = ["--transport", "stdio", "--query-inference", "disabled"]
+env_vars = ["JOBWATCH_CHAT_DATABASE_URL", "PGPASSFILE", "PGSERVICEFILE"]
+startup_timeout_sec = 20
+tool_timeout_sec = 120
+# Local model opt-in on a suitably sized trusted machine only:
+# change disabled -> local; forward HF_HOME/HF_HUB_OFFLINE if needed.
+# Existing owner psql/psycopg access stays separate; this connection never writes.

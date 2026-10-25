@@ -225,7 +225,7 @@ class ReadToolsTests(unittest.TestCase):
         from mcp import ClientSession,StdioServerParameters
         from mcp.client.stdio import stdio_client
         async def run():
-            params=StdioServerParameters(command=sys.executable,args=['-m','jobwatch.postgres.read_mcp'],
+            params=StdioServerParameters(command=sys.executable,args=['-m','jobwatch.postgres.read_mcp','--query-inference','local'],
                 env={**os.environ,'PYTHONPATH':str(ROOT/'src'),'JOBWATCH_CHAT_DATABASE_URL':self.read_config.dsn})
             async with stdio_client(params) as (rx,tx),ClientSession(rx,tx) as session:
                 await session.initialize();listing=await session.list_tools()
@@ -246,7 +246,7 @@ class ReadToolsTests(unittest.TestCase):
     @unittest.skipUnless(MCP,'Install optional .[chat-mcp] for official SDK interop')
     def test_mcp_streamable_http_local_official_client(self):
         from mcp import ClientSession
-        from mcp.client.streamable_http import streamablehttp_client
+        from mcp.client.streamable_http import streamable_http_client
         with socket.socket() as sock:sock.bind(('127.0.0.1',0));port=sock.getsockname()[1]
         env={**os.environ,'PYTHONPATH':str(ROOT/'src'),'JOBWATCH_CHAT_DATABASE_URL':self.read_config.dsn}
         p=subprocess.Popen([sys.executable,'-m','jobwatch.postgres.read_mcp','--transport','streamable-http','--port',str(port)],
@@ -257,10 +257,92 @@ class ReadToolsTests(unittest.TestCase):
                     with socket.create_connection(('127.0.0.1',port),timeout=.1):break
                 except OSError:time.sleep(.05)
             async def run():
-                async with streamablehttp_client(f'http://127.0.0.1:{port}/mcp') as (rx,tx,_),ClientSession(rx,tx) as session:
+                async with streamable_http_client(f'http://127.0.0.1:{port}/mcp') as (rx,tx,_),ClientSession(rx,tx) as session:
                     await session.initialize();listing=await session.list_tools();self.assertEqual(len(listing.tools),5)
                     r=await session.call_tool('sql_query',{'sql':'SELECT count(*) FROM jobwatch.owner_audit','limit':1})
                     self.assertFalse(r.isError);self.assertTrue(r.structuredContent['ok'])
             asyncio.run(run())
         finally:
             p.terminate();p.wait(timeout=10)
+
+    @unittest.skipUnless(MCP,'Install optional .[chat-mcp] for official SDK interop')
+    def test_composed_synthetic_mcp_research_receipt_stdio_and_http(self):
+        from jobwatch.postgres.connection_probe import research_session,server_environment
+        from mcp import ClientSession,StdioServerParameters
+        from mcp.client.stdio import stdio_client
+        from mcp.client.streamable_http import streamable_http_client
+        env=server_environment({**os.environ,'PYTHONPATH':str(ROOT/'src'),
+            'JOBWATCH_CHAT_DATABASE_URL':self.read_config.dsn,
+            'OPENAI_API_KEY':'SYNTHETIC_NEVER_INHERIT','AWS_SECRET_ACCESS_KEY':'SYNTHETIC_NEVER_INHERIT',
+            'JOBWATCH_DATABASE_URL':'SYNTHETIC_OWNER_NEVER_INHERIT'})
+        before=self.call('sql_query',sql='SELECT count(*) FROM jobwatch.owner_audit',limit=1)
+        async def check(session):
+            receipt=await research_session(session)
+            self.assertTrue(receipt['passed']);self.assertTrue(receipt['retained_native_evidence_verified'])
+            self.assertEqual(receipt['owner_record_count'],3);self.assertGreater(receipt['corpus_groups'],1)
+            rendered=json.dumps(receipt)
+            for secret in ('private application fixture','fixture-cv-label',self.read_config.dsn,'SYNTHETIC_NEVER_INHERIT'):
+                self.assertNotIn(secret,rendered)
+            self.assertFalse(receipt['online_chatgpt_verified']);self.assertFalse(receipt['secure_tunnel_verified'])
+            # Actual denied mutations only in this verified disposable fixture; the
+            # reusable probe itself never sends a potentially mutating statement.
+            for sql in ("WITH c AS (UPDATE jobwatch.applications SET notes='not permitted' RETURNING *) SELECT * FROM c",
+                        'SELECT jobwatch.test_definer_write()'):
+                result=await session.call_tool('sql_query',{'sql':sql,'limit':1})
+                self.assertTrue(result.isError);self.assertFalse(result.structuredContent['ok'])
+            listing=await session.list_tools()
+            self.assertIn('currently disabled',next(t.description for t in listing.tools if t.name=='search'))
+        async def stdio():
+            params=StdioServerParameters(command=sys.executable,args=['-m','jobwatch.postgres.read_mcp'],env=env)
+            async with stdio_client(params) as (rx,tx),ClientSession(rx,tx) as session:await check(session)
+        asyncio.run(stdio())
+        with socket.socket() as sock:sock.bind(('127.0.0.1',0));port=sock.getsockname()[1]
+        process=subprocess.Popen([sys.executable,'-m','jobwatch.postgres.read_mcp','--transport','streamable-http','--port',str(port)],
+                                 env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+        try:
+            for _ in range(100):
+                try:
+                    with socket.create_connection(('127.0.0.1',port),timeout=.1):break
+                except OSError:time.sleep(.05)
+            async def http():
+                async with streamable_http_client(f'http://127.0.0.1:{port}/mcp') as (rx,tx,_),ClientSession(rx,tx) as session:await check(session)
+            asyncio.run(http())
+            poisoned={**env,'HTTP_PROXY':'http://127.0.0.1:1','HTTPS_PROXY':'http://127.0.0.1:1',
+                      'ALL_PROXY':'http://127.0.0.1:1','NO_PROXY':''}
+            result=subprocess.run([sys.executable,'-m','jobwatch.postgres.connection_probe','--http',f'http://127.0.0.1:{port}/mcp'],
+                                  env=poisoned,text=True,capture_output=True,timeout=30)
+            self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+            self.assertTrue(json.loads(result.stdout)['passed'])
+        finally:process.terminate();process.wait(timeout=10)
+        self.assertEqual(before,self.call('sql_query',sql='SELECT count(*) FROM jobwatch.owner_audit',limit=1))
+
+    @unittest.skipUnless(MCP,'Install optional .[chat-mcp] for official SDK interop')
+    def test_probe_cli_uses_only_read_identity_and_reports_no_records(self):
+        env={**os.environ,'PYTHONPATH':str(ROOT/'src'),'JOBWATCH_CHAT_DATABASE_URL':self.read_config.dsn,
+             'JOBWATCH_DATABASE_URL':'SYNTHETIC_DO_NOT_INHERIT'}
+        result=subprocess.run([sys.executable,'-m','jobwatch.postgres.connection_probe'],env=env,text=True,capture_output=True,timeout=30)
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+        receipt=json.loads(result.stdout);self.assertTrue(receipt['passed'])
+        self.assertNotIn('private application fixture',result.stdout+result.stderr)
+        self.assertNotIn(self.read_config.dsn,result.stdout+result.stderr)
+        env['JOBWATCH_CHAT_DATABASE_URL']='host=127.0.0.1 port=1 user=jobwatch_chat_readonly password=SYNTHETIC_NEVER_PRINT'
+        result=subprocess.run([sys.executable,'-m','jobwatch.postgres.connection_probe'],env=env,text=True,capture_output=True,timeout=30)
+        self.assertEqual(result.returncode,2);self.assertFalse(json.loads(result.stdout)['passed'])
+        self.assertNotIn('SYNTHETIC_NEVER_PRINT',result.stdout+result.stderr)
+
+    @unittest.skipUnless(MCP and os.environ.get('JOBWATCH_REAL_MODEL_TEST')=='1','Explicit cached local model/MCP qualification')
+    def test_real_local_inference_composed_mcp_session(self):
+        from jobwatch.postgres.embeddings import LocalEncoder,chunks,write_chunks
+        encoder=LocalEncoder()
+        with connect(self.config) as conn:
+            versions=conn.execute('SELECT v.* FROM jobwatch.posting_versions v JOIN jobwatch.postings p ON p.current_version_id=v.id').fetchall()
+            for version in versions:
+                items=chunks(version,encoder.tokenizer)
+                write_chunks(conn,version,items,encoder.encode([row['input_text'] for row in items]))
+        env={**os.environ,'PYTHONPATH':str(ROOT/'src'),'JOBWATCH_CHAT_DATABASE_URL':self.read_config.dsn}
+        result=subprocess.run([sys.executable,'-m','jobwatch.postgres.connection_probe','--query-inference','local'],
+                              env=env,text=True,capture_output=True,timeout=120)
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+        receipt=json.loads(result.stdout)
+        self.assertTrue({'vector_inference','hybrid_inference'}<={c['check'] for c in receipt['checks']})
+        self.assertEqual(receipt['query_inference'],'local')

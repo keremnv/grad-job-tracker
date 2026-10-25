@@ -24,6 +24,10 @@ owner transactions, vector/lexical research and local publication with synthetic
 records. No new dependencies, grants or migration are needed. Hosted publication,
 credentials, schedules and Proton subscription remain separate approvals.
 
+Stage 4F [agent connectivity](AGENT_CONNECTIVITY.md) qualifies the same tools through
+synthetic stdio/loopback MCP sessions, with a model-free hash-locked runtime and
+explicit local-inference opt-in. No AWS or OpenAI tunnel is created by these tests.
+
 ## Disposable integration tests
 
 Docker must be running. From the repository root:

@@ -6,6 +6,11 @@ Implementation branch: `feat/chatgpt-read-interface`. No AWS access, hosted role
 credential, endpoint, tunnel, workflow switch or production-data import occurred.
 The Git-backed tracker remains authoritative.
 
+Stage 4F [connectivity qualification](AGENT_CONNECTIVITY.md) adds a pinned optional
+runtime and read-only official-client probe. The MCP executable now defaults to
+`--query-inference disabled`; use `--query-inference local` only on a suitably
+sized local machine. No hosted role, tunnel or ChatGPT connection was created.
+
 ## Contract
 
 `jobwatch.postgres.read_tools.ReadTools.call(tool, arguments)` is synchronous,
@@ -55,7 +60,7 @@ bounded ordinary SQL remain available. No new index, ORM or storage is added.
 ## Database identity and security
 
 [chat_readonly.sql](../sql/postgresql/chat_readonly.sql) is **optional administrative
-provisioning**, not migration 0004. Run only after migrations 0001–0003 as a role
+provisioning**, separate from versioned migrations. Run only after migrations 0001–0004 as a role
 administrator with schema-grant authority. It fails on an existing role; no silent
 adoption or password reset. It has been executed only in disposable PostgreSQL.
 
@@ -106,6 +111,8 @@ printf '%s\n' '{"tool":"sql_query","arguments":{"sql":"SELECT verdict,count(*) F
 /PRIVATE/read-tools-venv/bin/pip install -e '.[chat-mcp]'
 /PRIVATE/read-tools-venv/bin/jobwatch-read-mcp --transport stdio
 /PRIVATE/read-tools-venv/bin/jobwatch-read-mcp --transport streamable-http --port 8765
+# Optional local EmbeddingGemma runtime; never assume it fits on the database host:
+# jobwatch-read-mcp --query-inference local
 # HTTP binds ONLY 127.0.0.1, endpoint /mcp. No authentication is supplied here.
 # Do not publish/forward this unauthenticated listener directly.
 ```

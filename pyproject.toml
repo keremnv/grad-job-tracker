@@ -22,6 +22,7 @@ jobwatch-pg-import = "jobwatch.postgres.import_cli:main"
 jobwatch-pg-ops = "jobwatch.postgres.operations:main"
 jobwatch-read-tools = "jobwatch.postgres.read_tools:main"
 jobwatch-read-mcp = "jobwatch.postgres.read_mcp:main"
+jobwatch-read-probe = "jobwatch.postgres.connection_probe:main"
 jobwatch-embeddings = "jobwatch.postgres.embeddings:main"
 
 [tool.setuptools.packages.find]
