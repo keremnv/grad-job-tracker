@@ -22126,6 +22126,57 @@
       "title": "Senior Software Engineer, Substrate",
       "url": "https://jobs.lever.co/palantir/68d690cf-fc8a-4755-9b69-abe13f93d262"
     },
+    "lever:palantir:6940fc9a-b79c-4935-a90f-1c6a02e54fb1": {
+      "application_verification": {
+        "status": "unknown"
+      },
+      "board": "palantir",
+      "company": "Palantir",
+      "countries": [
+        "US"
+      ],
+      "country": "US",
+      "deadlines": [],
+      "department": "",
+      "description_chars": 8082,
+      "description_sha256": "bcef77d9adc871f51f33cd556a5ea6c4212ba97097821d625832e01d9fd30aae",
+      "employment_type": "Full-time",
+      "external_id": "6940fc9a-b79c-4935-a90f-1c6a02e54fb1",
+      "feed_status": "listed",
+      "first_seen": "2026-10-25T12:41:48Z",
+      "first_seen_basis": "observed",
+      "location": "Washington, D.C.",
+      "provider": "lever",
+      "published_at": "",
+      "salary": "",
+      "screening": {
+        "basis": "full",
+        "codes": [
+          "exclude.non_uk_location",
+          "exclude.adjacent_without_early_signal",
+          "family.customer_engineering",
+          "role.adjacent_family",
+          "role.customer_facing",
+          "location.non_uk",
+          "level.unknown",
+          "eligibility.work_authorisation_wording",
+          "eligibility.unverified"
+        ],
+        "family": "customer_engineering",
+        "input_sha256": "b8e4ffca62bd62015acbaaf9fff0da3cb4b3641a19e5167ad08a3ba6da05126a",
+        "rules_version": "screen-2026-10-23.1",
+        "screened_at": "2026-10-25T12:41:48Z",
+        "verdict": "excluded"
+      },
+      "screening_events": [],
+      "source_dates": {
+        "createdAt": 1792762503402
+      },
+      "source_events": [],
+      "team": "Echo",
+      "title": "Deployment Strategist - Germany Forward Deployed",
+      "url": "https://jobs.lever.co/palantir/6940fc9a-b79c-4935-a90f-1c6a02e54fb1"
+    },
     "lever:palantir:69ab7e24-8f5d-426e-84f7-6d3b2d4a7efd": {
       "application_verification": {
         "status": "unknown"
