@@ -201,6 +201,25 @@ class ReadToolsTests(unittest.TestCase):
         rows=[json.loads(line) for line in p.stdout.splitlines()];self.assertFalse(rows[0]['ok']);self.assertTrue(rows[1]['ok'])
         self.assertNotIn(self.read_config.dsn,p.stderr)
 
+    def test_vector_hybrid_read_core_grants_and_missing_model_are_explicit(self):
+        from jobwatch.postgres.embeddings import chunks,write_chunks,EmbeddingError
+        from test_embeddings import Tokenizer,unit
+        with connect(self.config) as conn:
+            v=conn.execute('SELECT * FROM jobwatch.posting_versions ORDER BY id LIMIT 1').fetchone()
+            items=chunks(v,Tokenizer());write_chunks(conn,v,items,[unit()]*len(items))
+        tools=ReadTools(self.read_config,query_encoder=lambda _:unit())
+        for method in ('vector','hybrid'):
+            result=tools.call('search',{'query':'wording','method':method,'history':True})
+            self.assertTrue(result['ok'],result)
+            self.assertGreater(len(result['data']['items']),0)
+            self.assertGreater(result['data']['embedding_coverage']['embedded_versions'],0)
+        self.assertFalse(tools.call('sql_query',{'sql':'DELETE FROM jobwatch.embedding_chunks RETURNING *','limit':1})['ok'])
+        def unavailable(_):raise EmbeddingError('embedding_model_unavailable')
+        tools.query_encoder=unavailable
+        result=tools.call('search',{'query':'wording','method':'vector'})
+        self.assertEqual(result['error']['code'],'embedding_model_unavailable')
+        self.assertTrue(tools.call('search',{'query':'wording','method':'fts'})['ok'])
+
     @unittest.skipUnless(MCP,'Install optional .[chat-mcp] for official SDK interop')
     def test_mcp_stdio_official_client_all_tools(self):
         from mcp import ClientSession,StdioServerParameters
@@ -216,6 +235,9 @@ class ReadToolsTests(unittest.TestCase):
                     ('search',{'query':'wording','history':True}),('inspect_evidence',{'posting_key':KEY}),
                     ('run_report',{'kind':'weekly','since':'2026-01-01T00:00:00Z'})]:
                     r=await session.call_tool(name,args);self.assertFalse(r.isError);self.assertTrue(r.structuredContent['ok'])
+                if os.environ.get('JOBWATCH_REAL_MODEL_TEST')=='1':
+                    r=await session.call_tool('search',{'query':'Python graduate','method':'vector'})
+                    self.assertFalse(r.isError);self.assertIn('embedding_coverage',r.structuredContent['data'])
                 r=await session.call_tool('sql_query',{'sql':'DELETE FROM jobwatch.postings','limit':1});self.assertTrue(r.isError)
                 r=await session.call_tool('sql_query',{'sql':"SELECT repeat('x',200000)",'limit':1});self.assertTrue(r.isError);self.assertLess(len(r.model_dump_json()),2048)
                 r=await session.call_tool('sql_query',{'sql':'SELECT 1','limit':'malformed'});self.assertTrue(r.isError)

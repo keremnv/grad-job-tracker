@@ -13,6 +13,7 @@ from uuid import UUID, uuid4
 
 from .connection import DatabaseConfig, DatabaseError, connect
 from . import research, reports
+from . import embeddings
 
 ROLE = 'jobwatch_chat_readonly'
 MAX_ROWS = 200
@@ -55,11 +56,12 @@ def wire(value):
 
 
 class ReadTools:
-    def __init__(self, config=None, *, max_bytes=MAX_BYTES, timeout_ms=5000):
+    def __init__(self, config=None, *, max_bytes=MAX_BYTES, timeout_ms=5000, query_encoder=None):
         self.config = config  # None resolves only JOBWATCH_CHAT_DATABASE_URL at call time.
         self.max_bytes = integer(max_bytes, 2048, MAX_BYTES)
         self.timeout_ms = integer(timeout_ms, 50, 5000)
         self.slots = threading.BoundedSemaphore(3)
+        self.query_encoder = query_encoder
 
     @contextmanager
     def session(self):
@@ -126,6 +128,8 @@ class ReadTools:
             return self.bounded({'schema': 'jobwatch.read/1', 'ok': True, 'trust': TRUST, 'data': result})
         except ReadError as exc:
             code, state = exc.code, None
+        except embeddings.EmbeddingError as exc:
+            code, state = exc.code, None
         except (TypeError, ValueError, OverflowError):
             code, state = 'invalid_arguments', None
         except DatabaseError:
@@ -185,13 +189,16 @@ class ReadTools:
                     r['definition'] = conn.execute('SELECT pg_get_viewdef(%s,true) AS sql', (oid,)).fetchone()['sql']
             return {'schema': 'jobwatch', 'relations': relations}
 
-    def search(self, query, method='bm25', history=False, include_not_seen=False, limit=20):
+    def search(self, query, method='bm25', history=False, include_not_seen=False, limit=20, lexical_method='bm25'):
         integer(limit, 1, MAX_ROWS)
         if type(history) is not bool or type(include_not_seen) is not bool:
             raise ReadError('invalid_arguments')
+        if method not in ('bm25', 'fts', 'vector', 'hybrid') or lexical_method not in ('bm25', 'fts'):
+            raise ReadError('invalid_arguments')
+        vector = (self.query_encoder or embeddings.query_embedding)(query) if method in ('vector', 'hybrid') else None
         with self.session() as conn:
             # BM25 needs the corpus, not only a prefiltered top-N candidate set.
-            if method == 'bm25':
+            if method == 'bm25' or (method == 'hybrid' and lexical_method == 'bm25'):
                 count = conn.execute('''SELECT count(*) AS n FROM (
                     SELECT 1 FROM jobwatch.posting_versions v JOIN jobwatch.postings p USING(posting_key)
                     WHERE (%s OR v.id=p.current_version_id) AND (%s OR p.status='listed') LIMIT 10001) q''',
@@ -199,7 +206,8 @@ class ReadTools:
                 if count > 10000:
                     raise ReadError('working_set_too_large')
             return research.search(conn, query, method=method, history=history,
-                                   include_not_seen=include_not_seen, limit=limit)
+                                   include_not_seen=include_not_seen, limit=limit, query_vector=vector,
+                                   lexical_method=lexical_method)
 
     def inspect_evidence(self, posting_key, version_id=None, events_limit=50):
         integer(events_limit, 1, MAX_ROWS)

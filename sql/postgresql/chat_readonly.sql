@@ -10,7 +10,7 @@ GRANT USAGE ON SCHEMA jobwatch TO jobwatch_chat_readonly;
 GRANT SELECT ON jobwatch.employers,jobwatch.sources,jobwatch.collection_runs,
   jobwatch.postings,jobwatch.posting_versions,jobwatch.posting_events,
   jobwatch.verifications,jobwatch.leads,jobwatch.triage,jobwatch.applications,
-  jobwatch.owner_audit,jobwatch.schema_migrations,
+  jobwatch.owner_audit,jobwatch.schema_migrations,jobwatch.embedding_chunks,
   jobwatch.research_postings,jobwatch.source_health,jobwatch.opportunity_workflow,
   jobwatch.operational_postings TO jobwatch_chat_readonly;
 GRANT EXECUTE ON FUNCTION jobwatch.url_identity(text,boolean) TO jobwatch_chat_readonly;

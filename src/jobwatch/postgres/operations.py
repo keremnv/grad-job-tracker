@@ -37,7 +37,8 @@ def main(argv=None):
     scan.add_argument('--format',choices=('json','summary'),default='json');scan.add_argument('--max-sources',type=int,default=1000)
     report=sub.add_parser('report');report.add_argument('kind',choices=('daily','weekly','requirements','calendar'))
     report.add_argument('--since');report.add_argument('--limit',type=int,default=50);report.add_argument('--json',action='store_true')
-    search=sub.add_parser('search');search.add_argument('query');search.add_argument('--method',choices=('bm25','fts'),default='bm25')
+    search=sub.add_parser('search');search.add_argument('query');search.add_argument('--method',choices=('bm25','fts','vector','hybrid'),default='bm25')
+    search.add_argument('--lexical-method',choices=('bm25','fts'),default='bm25')
     search.add_argument('--history',action='store_true');search.add_argument('--include-not-seen',action='store_true');search.add_argument('--limit',type=int,default=20)
     source=sub.add_parser('source');ss=source.add_subparsers(dest='source_command',required=True)
     for command in ('inspect','check','activate'):
@@ -66,8 +67,11 @@ def main(argv=None):
                 code=0
             print(json.dumps(primitive(result),ensure_ascii=True));return code
         if args.command=='search':
+            from .embeddings import query_embedding
+            vector=query_embedding(args.query) if args.method in ('vector','hybrid') else None
             with connect() as conn:
-                result=research.search(conn,args.query,method=args.method,history=args.history,include_not_seen=args.include_not_seen,limit=args.limit)
+                result=research.search(conn,args.query,method=args.method,history=args.history,include_not_seen=args.include_not_seen,limit=args.limit,
+                                       query_vector=vector,lexical_method=args.lexical_method)
             print(json.dumps(primitive(result),ensure_ascii=True));return 0
         if args.command=='readiness':
             reconciliation=json.loads(args.reconciliation.read_text()) if args.reconciliation else None

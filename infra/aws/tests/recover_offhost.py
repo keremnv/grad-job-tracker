@@ -17,7 +17,6 @@ import sys
 import time
 from uuid import uuid4
 
-IMAGE = 'postgres@sha256:858bb5e98eed02eb8cafbcdc007f9a65d1b613972028944a8ec2133ccaf80d27'
 DATABASE = 'jobwatch_offhost_recovery'
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'src'))
@@ -68,7 +67,7 @@ def recover(archive, manifest_path, output):
     def verify_container():
         info = json.loads(run(['docker', 'inspect', name]))[0]
         if (info['Config']['Labels'].get('jobwatch.offhost-test') != token
-                or info['Config']['Image'] != IMAGE or not info['State']['Running']
+                or info['Config']['Image'] != image or not info['State']['Running']
                 or info['HostConfig']['NetworkMode'] != 'none'
                 or info['HostConfig']['PortBindings']):
             raise RuntimeError('Disposable local target verification failed')
@@ -82,12 +81,15 @@ def recover(archive, manifest_path, output):
     created = False
     success = False
     try:
+        image = run(['docker','build','-q','-f',str(ROOT/'tests/postgres/Dockerfile.vector'),str(ROOT)]).decode().strip()
+        if not image.startswith('sha256:'):
+            raise RuntimeError('Expected an immutable local vector image ID')
         run(['docker', 'run', '-d', '--name', name, '--network', 'none',
              '--label', 'jobwatch.offhost-test=' + token,
              '--mount', f'type=bind,src={socket},dst=/var/run/postgresql',
              '-e', 'POSTGRES_HOST_AUTH_METHOD=trust', '-e', 'POSTGRES_DB=' + DATABASE,
              '-e', 'POSTGRES_INITDB_ARGS=--encoding=UTF8 --locale=C.UTF-8',
-             IMAGE, '-c', 'listen_addresses='])
+             image, '-c', 'listen_addresses='])
         created = True
         verify_container()
         for _ in range(100):
@@ -102,6 +104,9 @@ def recover(archive, manifest_path, output):
         verify_container()
         run(['docker', 'exec', '-i', name, 'psql', '-X', '-U', 'postgres', '-d', DATABASE,
              '-v', 'ON_ERROR_STOP=1', '-f', '-'], input=(ROOT / 'sql/postgresql/bootstrap.sql').read_bytes())
+        for prerequisite in ('vector_extension.sql','embedding_access.sql'):
+            run(['docker','exec','-i',name,'psql','-X','-U','postgres','-d',DATABASE,
+                 '-v','ON_ERROR_STOP=1','-f','-'],input=(ROOT/'sql/postgresql'/prerequisite).read_bytes())
         provisioned = time.monotonic()
 
         def utility(args, *, input=None):
@@ -158,7 +163,7 @@ def recover(archive, manifest_path, output):
                   'archive_bytes': archive.stat().st_size, 'restore': restored, 'fingerprint': actual,
                   'views': views, 'roles': roles, 'nul_evidence': True, 'populated_target_refused': True,
                   'postgres': version, 'python': platform.python_version(), 'psycopg': psycopg.__version__,
-                  'image': IMAGE, 'architecture': platform.machine(), 'network': 'none', 'ports_published': False,
+                  'image': image, 'architecture': platform.machine(), 'network': 'none', 'ports_published': False,
                   'ec2_database_accessed': False, 'production_custody_established': False,
                   'seconds': {'startup_and_security_provision': round(provisioned - started, 3),
                               'restore_and_core_equality': round(restored_at - provisioned, 3),

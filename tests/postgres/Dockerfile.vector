@@ -1,0 +1,9 @@
+FROM postgres@sha256:858bb5e98eed02eb8cafbcdc007f9a65d1b613972028944a8ec2133ccaf80d27
+# Same PostgreSQL 17.11 baseline, reviewed extension source with a reproducible digest.
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential ca-certificates curl postgresql-server-dev-17="$PG_VERSION" \
+ && curl -fsSL https://codeload.github.com/pgvector/pgvector/tar.gz/refs/tags/v0.8.7 -o /tmp/vector.tar.gz \
+ && echo 'cac0b10c360f05b2d521200105ba3697e773d4cd3731f5a915a7e37ebe0bea85  /tmp/vector.tar.gz' | sha256sum -c - \
+ && tar -xzf /tmp/vector.tar.gz -C /tmp \
+ && make -C /tmp/pgvector-0.8.7 OPTFLAGS='' \
+ && make -C /tmp/pgvector-0.8.7 install \
+ && rm -rf /tmp/pgvector* /tmp/vector.tar.gz /var/lib/apt/lists/*

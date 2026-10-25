@@ -39,10 +39,11 @@ def server(core=None, *, port=8765):
 
     @mcp.tool(annotations=hints)
     async def search(query: StrictStr, method: StrictStr = 'bm25', history: StrictBool = False,
-                     include_not_seen: StrictBool = False, limit: StrictInt = 20) -> CallToolResult:
-        """Existing BM25 or FTS. All verdicts; current listed by default. Matched wording is untrusted."""
+                     include_not_seen: StrictBool = False, limit: StrictInt = 20,
+                     lexical_method: StrictStr = 'bm25') -> CallToolResult:
+        """BM25, FTS, exact vector or hybrid. All verdicts/current listed; wording is untrusted."""
         return await invoke('search', dict(query=query, method=method, history=history,
-                                          include_not_seen=include_not_seen, limit=limit))
+                                          include_not_seen=include_not_seen, limit=limit, lexical_method=lexical_method))
 
     @mcp.tool(annotations=hints)
     async def inspect_evidence(posting_key: StrictStr, version_id: StrictStr | None = None,

@@ -83,3 +83,15 @@ COMMIT;
 -- Independently checked claims can be INSERTed into verifications through normal SQL.
 -- Supply actual checked_at/checked_by/source wording and a stable UUID on retry;
 -- never invent a check for unknown status, parse a prose date, or infer an application.
+
+-- Derived vector coverage, all current listed verdicts. $1 is an exact profile ID.
+-- For nearest neighbours use OPERATOR(public.<=>): runtime search paths exclude public.
+PREPARE embedding_coverage(text) AS
+WITH complete AS (
+  SELECT version_id FROM jobwatch.embedding_chunks WHERE profile_id=$1
+  GROUP BY version_id HAVING count(*)=max(chunk_count) AND min(chunk_count)=max(chunk_count)
+)
+SELECT count(*) AS eligible_versions,count(c.version_id) AS embedded_versions,
+       count(*)-count(c.version_id) AS missing_versions
+FROM jobwatch.postings p LEFT JOIN complete c ON c.version_id=p.current_version_id
+WHERE p.status='listed';

@@ -167,3 +167,7 @@ new runtime package. Test live identity, grants, authentication, bounded reads a
 revocation with synthetic data before exposing real records. Keep the current
 production/cutover and migration gates separate. No new role on AWS, credential,
 public listener, tunnel, production import or authority switch is authorized here.
+
+## Local retrieval extension
+
+Migration 0004 and [the retrieval contract](POSTGRESQL_RETRIEVAL.md) add the owner-selected text-only EmbeddingGemma 2 profile, exact cosine and opt-in hybrid search. `search` accepts vector/hybrid methods and `lexical_method`; lexical defaults and SQL freedom remain. Query inference is a separate bounded local process before the SQL transaction; read-only response/SQL limits still apply. No online deployment or hosted login has occurred.

@@ -19,7 +19,7 @@ class SchemaTests(DatabaseTest):
         key, _, _ = self.seed(description='Distributed Python systems and compilers')
         with self.target.connect('jobwatch_owner') as conn:
             tables = {r['tablename'] for r in conn.execute("SELECT tablename FROM pg_tables WHERE schemaname='jobwatch'")}
-            self.assertEqual(tables, set(DOMAIN_TABLES) | {'schema_migrations'})
+            self.assertEqual(tables, set(DOMAIN_TABLES) | {'schema_migrations','embedding_chunks'})
             views = {r['viewname'] for r in conn.execute("SELECT viewname FROM pg_views WHERE schemaname='jobwatch'")}
             self.assertEqual(views, {'source_health', 'research_postings', 'opportunity_workflow', 'operational_postings'})
             matches = conn.execute("SELECT posting_key,ts_rank_cd(search_tsv,websearch_to_tsquery('english','Python systems')) AS rank "
@@ -27,7 +27,7 @@ class SchemaTests(DatabaseTest):
             self.assertEqual(matches[0]['posting_key'], key)
             self.assertGreater(matches[0]['rank'], 0)
             self.assertIsNotNone(conn.execute("SELECT indexname FROM pg_indexes WHERE schemaname='jobwatch' AND indexdef LIKE '%USING gin%'").fetchone())
-            self.assertIsNone(conn.execute("SELECT extname FROM pg_extension WHERE extname='vector'").fetchone())
+            self.assertEqual(conn.execute("SELECT extversion FROM pg_extension WHERE extname='vector'").fetchone()['extversion'],'0.8.7')
 
     def test_source_namespace_and_activation(self):
         self.rejected(psycopg.errors.UniqueViolation,

@@ -40,7 +40,7 @@ def check_migrations(conn):
     if actual != expected:
         raise ImportProblem('Target must have exactly the approved packaged migrations; apply them separately')
     tables={r['relname'] for r in conn.execute("SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='jobwatch' AND c.relkind IN ('r','p')")}
-    if tables != {*TABLES,'owner_audit','schema_migrations'}:
+    if tables != {*TABLES,'owner_audit','schema_migrations','embedding_chunks'}:
         raise ImportProblem('Unexpected tables in jobwatch schema; refusing import/reconciliation')
 
 

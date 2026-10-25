@@ -33,26 +33,65 @@ def utility(arguments, *, input=None):
     return process.stdout
 
 
-def fingerprint(conn):
-    check_migrations(conn)
-    tables = {}
-    for table in (*TABLES, 'owner_audit', 'schema_migrations'):
-        rows = [primitive(r) for r in conn.execute('SELECT * FROM jobwatch.'+table)]
-        # Exact row values, including audit IDs/clocks, generated search columns and import clocks.
-        tables[table] = {'count': len(rows), 'sha256': digest(sorted(rows, key=digest))}
-    security = {
+def security_snapshot(conn):
+    return {
         'database': conn.execute("""SELECT pg_get_userbyid(datdba) AS owner,
-            ARRAY(SELECT a::text FROM unnest(COALESCE(datacl,acldefault('d',datdba))) a ORDER BY a::text) AS acl
+            ARRAY(SELECT a::text FROM unnest(COALESCE(datacl,acldefault('d',datdba))) a ORDER BY a::text COLLATE "C") AS acl
             FROM pg_database WHERE datname=current_database()""").fetchone(),
-        'role_settings': conn.execute("""SELECT pg_get_userbyid(setrole) AS role,setconfig FROM pg_db_role_setting
-            WHERE setdatabase=(SELECT oid FROM pg_database WHERE datname=current_database()) ORDER BY 1""").fetchall(),
-        'roles': conn.execute("""SELECT rolname,rolsuper,rolinherit,rolcreaterole,rolcreatedb,rolcanlogin,rolreplication,rolbypassrls
-            FROM pg_roles WHERE rolname IN ('jobwatch_owner','jobwatch_collector','jobwatch_migrator') ORDER BY rolname""").fetchall(),
+        'role_settings': conn.execute("""SELECT pg_get_userbyid(setrole) AS role,
+            CASE WHEN setdatabase=0 THEN 'cluster' ELSE 'database' END AS scope,setconfig FROM pg_db_role_setting
+            WHERE setdatabase=(SELECT oid FROM pg_database WHERE datname=current_database())
+               OR (setdatabase=0 AND pg_get_userbyid(setrole) LIKE 'jobwatch_%') ORDER BY 1,2""").fetchall(),
+        'roles': conn.execute("""SELECT rolname,rolsuper,rolinherit,rolcreaterole,rolcreatedb,rolcanlogin,rolreplication,rolbypassrls,rolconnlimit
+            FROM pg_roles WHERE rolname IN ('jobwatch_owner','jobwatch_collector','jobwatch_migrator','jobwatch_embedding_writer','jobwatch_chat_readonly') ORDER BY rolname""").fetchall(),
         'memberships': conn.execute("""SELECT pg_get_userbyid(roleid) AS role,pg_get_userbyid(member) AS member,admin_option
             FROM pg_auth_members WHERE pg_get_userbyid(roleid) LIKE 'jobwatch_%' OR pg_get_userbyid(member) LIKE 'jobwatch_%'
             ORDER BY 1,2""").fetchall(),
     }
+
+
+def fingerprint(conn):
+    check_migrations(conn)
+    tables = {}
+    for table in (*TABLES, 'owner_audit', 'schema_migrations', 'embedding_chunks'):
+        rows = [primitive(r) for r in conn.execute('SELECT * FROM jobwatch.'+table)]
+        # Exact row values, including audit IDs/clocks, generated search columns and import clocks.
+        tables[table] = {'count': len(rows), 'sha256': digest(sorted(rows, key=digest))}
+    security = security_snapshot(conn)
+
     return {'tables': tables, 'schema_sha256': digest(schema_snapshot(conn)), 'security_sha256': digest(security)}
+
+
+def extension_requirements(conn):
+    rows = conn.execute('''SELECT e.extname,e.extversion,n.nspname AS schema,
+        pg_get_userbyid(e.extowner) AS owner FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace
+        WHERE e.extname='vector' ORDER BY e.extname''').fetchall()
+    if len(rows) != 1 or rows[0]['extversion'] != '0.8.7' or rows[0]['schema'] != 'public':
+        raise BackupError('Expected separately provisioned public.vector 0.8.7')
+    return rows
+
+
+def fresh_restore_target(conn, requirements):
+    if extension_requirements(conn) != requirements:
+        raise BackupError('Restore extension prerequisites differ from manifest')
+    if conn.execute("SELECT count(*) AS n FROM pg_namespace WHERE nspname !~ '^pg_' AND nspname NOT IN ('public','information_schema')").fetchone()['n']:
+        raise BackupError('Restore target must be fresh, without an application schema')
+    # Allow ONLY directly extension-owned public objects, not arbitrary functions/tables.
+    for catalog, namespace in (('pg_class','relnamespace'), ('pg_proc','pronamespace'), ('pg_type','typnamespace'),
+            ('pg_operator','oprnamespace'), ('pg_opclass','opcnamespace'), ('pg_opfamily','opfnamespace'),
+            ('pg_collation','collnamespace'), ('pg_conversion','connamespace'), ('pg_ts_config','cfgnamespace'),
+            ('pg_ts_dict','dictnamespace'), ('pg_ts_parser','prsnamespace'), ('pg_ts_template','tmplnamespace')):
+        count = conn.execute(f'''SELECT count(*) AS n FROM pg_catalog.{catalog} o
+            JOIN pg_namespace n ON n.oid=o.{namespace} WHERE n.nspname='public'
+            AND NOT EXISTS (SELECT 1 FROM pg_depend d JOIN pg_extension e ON e.oid=d.refobjid
+              WHERE d.classid='pg_catalog.{catalog}'::regclass AND d.objid=o.oid AND d.deptype='e'
+                AND d.refclassid='pg_extension'::regclass AND e.extname='vector')
+            AND NOT EXISTS (SELECT 1 FROM pg_type t JOIN pg_depend d ON d.objid=t.oid
+              JOIN pg_extension e ON e.oid=d.refobjid WHERE '{catalog}'='pg_type' AND t.typarray=o.oid
+                AND d.classid='pg_type'::regclass AND d.refclassid='pg_extension'::regclass
+                AND d.deptype='e' AND e.extname='vector')''').fetchone()['n']
+        if count:
+            raise BackupError('Restore target contains unexpected public objects')
 
 
 def archived_sequences(data, execute):
@@ -85,10 +124,11 @@ def backup(conn, archive, *, execute=utility):
     expected = {r['sequencename'] for r in conn.execute("SELECT sequencename FROM pg_sequences WHERE schemaname='jobwatch'")}
     if set(sequence_state) != expected:
         raise BackupError('Archive sequence inventory mismatch')
-    manifest = {'schema': 'jobwatch.aws-backup/1', 'created_at': datetime.now(timezone.utc).isoformat(),
+    manifest = {'schema': 'jobwatch.aws-backup/2', 'created_at': datetime.now(timezone.utc).isoformat(),
                 'archive_sha256': sha256(data).hexdigest(), 'archive_bytes': len(data),
                 'postgres_version': conn.info.server_version, 'fingerprint': before,
-                'sequences': sequence_state, 'dump_version': execute(['pg_dump', '--version']).decode().strip()}
+                'sequences': sequence_state, 'extensions': extension_requirements(conn),
+                'dump_version': execute(['pg_dump', '--version']).decode().strip()}
     archive.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     fd = os.open(archive, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
     with os.fdopen(fd, 'wb') as stream:
@@ -103,15 +143,12 @@ def backup(conn, archive, *, execute=utility):
 
 def restore(conn, archive, manifest, *, execute=utility):
     data = archive.read_bytes()
-    if manifest.get('schema') != 'jobwatch.aws-backup/1' or sha256(data).hexdigest() != manifest['archive_sha256']:
+    if manifest.get('schema') != 'jobwatch.aws-backup/2':
+        raise BackupError('Use the pinned pre-vector recovery bundle for backup format 1')
+    if sha256(data).hexdigest() != manifest['archive_sha256']:
         raise BackupError('Archive checksum/manifest mismatch')
     # Even an empty migrated schema is refused. No --clean, drop, truncate or trigger bypass.
-    if conn.execute("SELECT count(*) AS n FROM pg_namespace WHERE nspname !~ '^pg_' AND nspname NOT IN ('public','information_schema')").fetchone()['n']:
-        raise BackupError('Restore target must be fresh, without an application schema')
-    if conn.execute("SELECT count(*) AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public'").fetchone()['n']:
-        raise BackupError('Restore target contains public objects')
-    if conn.execute("SELECT count(*) AS n FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public'").fetchone()['n']:
-        raise BackupError('Restore target contains public functions')
+    fresh_restore_target(conn, manifest['extensions'])
     if conn.info.server_version // 10000 != 17:
         raise BackupError('PostgreSQL 17 required')
     execute(['pg_restore', '--exit-on-error', '--single-transaction', '--dbname='+conn.info.dbname], input=data)
@@ -121,7 +158,9 @@ def restore(conn, archive, manifest, *, execute=utility):
         sequences = {r['sequencename']: dict(conn.execute('SELECT last_value,is_called FROM jobwatch.'+r['sequencename']).fetchone())
                      for r in conn.execute("SELECT sequencename FROM pg_sequences WHERE schemaname='jobwatch'")}
         if actual != manifest['fingerprint'] or sequences != manifest['sequences']:
-            raise BackupError('Restored database differs; preserve this non-authoritative target for investigation')
+            changed = [k for k in actual if actual[k] != manifest['fingerprint'].get(k)]
+            raise BackupError('Restored database differs ('+','.join(changed)+
+                              '); preserve this non-authoritative target for investigation')
         for view in ('research_postings', 'opportunity_workflow', 'source_health'):
             conn.execute('SELECT count(*) FROM jobwatch.'+view).fetchone()
     return {'schema': 'jobwatch.aws-restore/1', 'archive_sha256': manifest['archive_sha256'],

@@ -2,7 +2,7 @@
 
 PostgreSQL is a **development/test target** at this stage. The scheduled tracker still reads/writes its existing JSON/CSV/text files. Installing the optional dependency, importing the package or running the existing CLI does not connect to PostgreSQL or apply migrations. There is no synchronization between the two stores and no production cutover.
 
-The implementation follows review commit [`2966967`](https://github.com/keremnv/grad-job-tracker/tree/2966967c3cf7431dc3b487a72d251e6034d209e9/reviews/postgresql-final). Use PostgreSQL 17; the initial tested baseline is 17.11. No extension is required: pgvector and embedding tables are deferred.
+The implementation follows review commit [`2966967`](https://github.com/keremnv/grad-job-tracker/tree/2966967c3cf7431dc3b487a72d251e6034d209e9/reviews/postgresql-final). Use PostgreSQL 17; the tested baseline is 17.11. Migration 0004 adds derived retrieval and requires separately provisioned public.vector 0.8.7. See [local retrieval](POSTGRESQL_RETRIEVAL.md) for text-only EmbeddingGemma 2, optional CPU dependencies, worker access and restore prerequisites. SQL/BM25/FTS do not require vectors or model files.
 
 ## Install
 
@@ -26,7 +26,7 @@ Docker must be running. From the repository root:
 PYTHON=.venv/bin/python bash scripts/test_postgres.sh
 ```
 
-The second command starts a fresh, uniquely named container using pinned official image `postgres@sha256:858bb5e98eed02eb8cafbcdc007f9a65d1b613972028944a8ec2133ccaf80d27` (17.11-bookworm), provisions roles, then tests the **actual packaged application migration**. It binds an ephemeral port exclusively to 127.0.0.1 and removes its container/volume on exit, including failures. It needs no hosted account, credentials or live `data/` files.
+The second command builds `tests/postgres/Dockerfile.vector` on that pinned PostgreSQL 17.11 base with checksum-verified pgvector 0.8.7, then starts a fresh container by immutable local image ID, provisions roles and tests the **actual packaged application migrations**. It binds an ephemeral port exclusively to 127.0.0.1 and removes its container/volume on exit, including failures. It needs no hosted account, credentials or live `data/` files.
 
 Integration tests derive their destination from a verified Docker container name, matching per-run token/labels and loopback binding. They do not consume an arbitrary database URL. Running `python -m unittest discover -s tests/postgres -v` without the launcher skips integration tests; setting a mismatched marker fails before a connection. The offline suite remains independent of Docker and psycopg. Actual incident.io HTML and Cambridge Consultants Job Summary pairs under `tests/postgres/fixtures/` exercise the production publisher and comparator.
 
@@ -35,9 +35,10 @@ Integration tests derive their destination from a verified Docker container name
 This example uses a new disposable database with local trust authentication and no production directory mount:
 
 ```bash
+docker build -f tests/postgres/Dockerfile.vector -t jobwatch-postgres-vector:17.11-0.8.7 .
 docker run -d --name jobwatch-dev -p 127.0.0.1:55432:5432 \
   -e POSTGRES_DB=jobwatch_dev -e POSTGRES_HOST_AUTH_METHOD=trust \
-  postgres@sha256:858bb5e98eed02eb8cafbcdc007f9a65d1b613972028944a8ec2133ccaf80d27
+  jobwatch-postgres-vector:17.11-0.8.7
 docker exec jobwatch-dev pg_isready -h 127.0.0.1 -U postgres
 ```
 
@@ -48,6 +49,9 @@ Wait for the final TCP server to become ready. The image's temporary initializat
 ```bash
 docker exec -i jobwatch-dev psql -X -U postgres -d jobwatch_dev \
   -v ON_ERROR_STOP=1 -f - < sql/postgresql/bootstrap.sql
+# Explicit extension prerequisite, as the local database administrator:
+docker exec -i jobwatch-dev psql -X -U postgres -d jobwatch_dev \
+  -v ON_ERROR_STOP=1 -f - < sql/postgresql/vector_extension.sql
 ```
 
 `bootstrap.sql` is administrative setup, **not an application migration**. It creates two runtime logins and a separate migration login, without passwords:

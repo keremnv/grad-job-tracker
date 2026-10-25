@@ -1,26 +1,32 @@
-# Proposed next stage: local pgvector retrieval
+# Approved stage: local pgvector retrieval
 
-Status: implementation plan for review; no retrieval code, migration, model
-download or hosted change has been made. Start a follow-on
-`feat/pgvector-retrieval` branch from this roadmap commit, which includes Stage 4C
-and recovery. Keep the main-only observation commit untouched until integration.
+Status: approved for local/disposable implementation on `feat/pgvector-retrieval`,
+based on roadmap commit `4374716`, including Stage 4C and recovery. The owner selected
+EmbeddingGemma 2 explicitly. Keep the main-only observation commit untouched until
+integration. No hosted installation, production data or AWS change is authorised.
 
-## Consequential choices and recommended defaults
+## Approved choices and implementation defaults
 
 | Choice | Recommended default | Consequence |
 |---|---|---|
-| Inference/data boundary | Local CPU inference using `BAAI/bge-small-en-v1.5`, optional dependencies and explicit model acquisition | No external text API or per-token bill. Do not embed owner notes/CVs. An external provider would require a separate privacy/cost decision. |
-| Model/dimension | 384 dimensions, cosine; pin exact model/tokenizer/weights commit and runtime versions before schema implementation | Fixed dimension keeps SQL simple; another dimension needs a later migration. No mutable model alias or remote executable model code. |
+| Inference/data boundary | Owner-selected `google/embeddinggemma-2`, local text-only CPU inference; vision/audio encoders disabled, float32 only | No external text API or per-token bill. Do not embed owner notes/CVs. Inference is independent of database hosting. |
+| Model/dimension | Native 768 dimensions, exact cosine; revision `914f7f89142e33e77833254d9c9b90c3cef7303b` | Store dimensions and exact profile identity with variable-dimension vectors; later profiles cannot mix during ranking or require changing source evidence. |
 | Worker identity | A separate restricted `jobwatch_embedding_writer` login, provisioned only in disposable databases in this stage | Can read posting inputs and insert/delete derived chunks, but cannot publish observations, read owner tables, migrate or administer roles. Avoid borrowing broad collector/owner credentials. |
 | Search | Exact vector search plus opt-in reciprocal-rank fusion, retaining BM25 as the existing default | Explicit methods and component ranks; no new imposed research policy or ANN infrastructure. |
 
-These defaults are proposals, not recorded owner selections. The inference/data
-boundary and new restricted identity are the choices to settle before coding.
-Exact pins, token budgets, batch sizes and SQL layout can be resolved and tested
-within implementation. No AWS deployment decision is required for the local stage.
+The model selection is settled. The remaining defaults were approved with the local
+implementation stage; exact pins, chunk budgets and SQL layout are implementation
+details. No AWS deployment decision is required for this stage.
 
-The [official model card](https://huggingface.co/BAAI/bge-small-en-v1.5) specifies
-English, MIT licensing, 384 dimensions and a 512-token sequence limit.
+Follow the [official Google card](https://ai.google.dev/gemma/docs/embeddinggemma/model_card_2):
+retrieval queries use `task: search result | query: ...`; documents use
+`title: {real posting title} | text: ...`. Do not use the generic title-none prompt
+for a posting with a title. Disable `vision_config` and `audio_config`; never use
+float16. The context budget is 8192 tokens; V1 chunks use a smaller bounded budget.
+The compatible pinned runtime is Transformers 5.20.2, Torch 2.14.1 (CPU),
+Safetensors 0.8.0, Tokenizers 0.23.3 and Hugging Face Hub 2.3.0. Direct text-only
+AutoModel/AutoTokenizer loading avoids multimodal preprocessing dependencies;
+masked mean pooling and L2 normalisation follow the checkpoint's architecture.
 [pgvector](https://github.com/pgvector/pgvector) supports exact cosine search
 without an ANN index. Pin a reviewed release (currently documented as 0.8.7)
 and checksums in a test image built on the existing pinned PostgreSQL 17.11 base.
@@ -30,7 +36,8 @@ and checksums in a test image built on the existing pinned PostgreSQL 17.11 base
 - Add `0004_embeddings.sql`; never edit migrations 0001–0003. Adapt the review's
   deferred `embedding_chunks` example: FK to `posting_versions.id`; model identity
   and immutable revision; input-recipe and chunker revisions; ordinal; exact input
-  text/SHA-256; finite, nonzero `vector(384)`; creation time. Composite primary key
+  text/SHA-256 and source hashes; finite, nonzero vector with checked dimensions;
+  chunk count/ordinal/offsets and creation time. Composite primary key
   prevents duplicate version/profile/ordinal rows. No second evidence/event stream.
 - Provision the extension separately as administrator; ordinary migration/runtime
   roles do not gain extension-installation privileges. Migration fails clearly if
@@ -39,8 +46,8 @@ and checksums in a test image built on the existing pinned PostgreSQL 17.11 base
 - Embed retained v1 company/title/location/department/team/employment type/salary
   and description. Any text rendering is a named retrieval recipe, not a rewritten
   normaliser. Preserve NULL-description provenance. Retain native NUL bytes untouched.
-- Deterministic token-aware chunks cover the full available text: initially at most
-  448 tokens including repeated metadata, 64-token body overlap. Enforce the real
+- Deterministic token-aware chunks cover the full available text: at most
+  1024 tokens including the real-title prefix, 128-token body overlap. Enforce the real
   encoded limit, query-prefix recipe and stable offsets; never silently truncate.
 - An explicit resumable CLI discovers missing tuples, computes outside transactions,
   then inserts a complete version/profile chunk set atomically. Duplicate workers
@@ -49,6 +56,7 @@ and checksums in a test image built on the existing pinned PostgreSQL 17.11 base
 - Current search joins `version_id = postings.current_version_id` and exact profile
   revisions. Late worker results remain historical. Report missing-vector coverage;
   no stale flag, vector publication pointer, queue, model registry or collector hook.
+  Incomplete chunk sets are excluded and reported as missing coverage.
   Historical indexing is explicit, derived-row removal is explicit, evidence is kept.
 
 ## SQL, tools and hybrid behaviour
@@ -71,7 +79,7 @@ lexical alternative. Return component ranks and candidate bounds. Lexical-only
 matches remain eligible when vectors are missing. No raw-score addition, reranker
 or claim that a small candidate union exhaustively ranks the corpus.
 
-## Exact proposed file changes
+## Implementation file inventory
 
 New:
 
@@ -80,6 +88,7 @@ New:
 - `sql/postgresql/vector_extension.sql`, `sql/postgresql/embedding_access.sql`
 - `tests/postgres/Dockerfile.vector`, `tests/postgres/test_embeddings.py`
 - `tests/test_embedding_inputs.py`, `docs/POSTGRESQL_RETRIEVAL.md`
+- `requirements/embeddings-cpu.lock`, `docs/POSTGRESQL_RETRIEVAL_REPORT.md`
 
 Modify:
 
@@ -125,7 +134,7 @@ new vector archives restore independently with explicit extension prerequisites.
 
 No new AWS resource or paid inference API. Local compute/download/storage is needed;
 measure dependencies, model RSS and batch/query timing before considering the 2 GiB
-host. A 384-dimensional vector is 1,544 bytes, approximately 14.7 MiB per 10,000
+host. A 768-dimensional vector is 3,080 bytes, approximately 29.4 MiB per 10,000
 chunks before text, rows, indexes and backup copies; storage grows with retained
 versions. This is not a revised hosted operating-cost quote or proof of EC2 fit.
 
