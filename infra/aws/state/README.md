@@ -1,6 +1,6 @@
-# Protected Terraform state — prepared, not bootstrapped
+# Protected Terraform state — deployed backend
 
-The tracker has never been applied. Its operational root now declares **S3, `encrypt=true`, `use_lockfile=true`**, Stockholm and the named `grad-jobwatch` profile. Only the bucket and allowed project identity are supplied privately. Terraform 1.17.0 is tested; the existing minimum 1.10 supports native S3 locking. No DynamoDB table, KMS customer-managed key, hosted service, credential change or running-tracker switch is added.
+The protected state bucket and tracker are already deployed (20 managed tracker resources). Stage 4B.2d verified the unchanged state object version and normal lock release; a read-only plan was blocked by prevent_destroy on the known user-data replacement. See [current readiness](../../../docs/AWS_RECOVERY_READINESS_REPORT.md). The initial bootstrap commands below are historical/new-environment procedures: do not rerun them against the existing deployment. Its operational root declares **S3, `encrypt=true`, `use_lockfile=true`**, Stockholm and the named `grad-jobwatch` profile. Only the bucket and allowed project identity are supplied privately. Terraform 1.17.0 is tested; the existing minimum 1.10 supports native S3 locking. No DynamoDB table, KMS customer-managed key, hosted service, credential change or running-tracker switch is added.
 
 ## Ownership, retention and permissions
 

@@ -7,6 +7,8 @@ The Git-backed production tracker remains authoritative. No production import,
 ATS request, production credential, timer activation, workflow change or
 Terraform apply occurred.
 
+**Stage 4B.2d follow-up:** [independent local recovery](AWS_RECOVERY_READINESS_REPORT.md) and temporary-key encryption tests have now passed without the EC2 database. Durable owner-held custody and a restore of the future production import remain open. This document retains the narrower Stage 4B.2c hosted results.
+
 ## Permanent correction and scoped maintenance
 
 [The correction report](AWS_CLI_CORRECTION_REPORT.md) documents the minimal
