@@ -173,5 +173,71 @@ if ! command -v aws >/dev/null || ! aws --version | grep -q "aws-cli/$cli_versio
   fi
   rm -rf "$cli_temp"
 fi
+# Normalize only verified, root-owned CLI code, including a matching-version replay.
+# Validate the entire tree before chmod; never follow links while changing modes.
+python3.12 - <<'AWS_CLI_PERMISSIONS'
+import hashlib
+import os
+from pathlib import Path
+import stat
+
+root = Path('/usr/local/aws-cli')
+version = root / 'v2/2.38.5'
+for parent in (root.parent, root, root / 'v2', version):
+    info = parent.lstat()
+    if not stat.S_ISDIR(info.st_mode) or info.st_uid != 0 or info.st_gid != 0 or info.st_mode & 0o022:
+        raise RuntimeError('Unsafe AWS CLI installation directory')
+if ({p.name for p in root.iterdir()} != {'v2'}
+        or {p.name for p in (root / 'v2').iterdir()} != {'current', '2.38.5'}
+        or {p.name for p in version.iterdir()} != {'bin', 'dist'}
+        or not (root / 'v2/current').is_symlink()
+        or (root / 'v2/current').resolve(strict=True) != version):
+    raise RuntimeError('Unexpected AWS CLI installation layout')
+
+# os.walk with followlinks=False never traverses an internal/external link.
+paths = [root]
+for directory, directories, files in os.walk(root, followlinks=False):
+    paths.extend(Path(directory) / name for name in directories + files)
+entries = []
+for path in paths:
+    info = path.lstat()
+    mode = info.st_mode
+    if info.st_uid != 0 or info.st_gid != 0 or mode & 0o6000:
+        raise RuntimeError('Unexpected AWS CLI ownership or special permissions')
+    if stat.S_ISLNK(mode):
+        if not path.resolve(strict=True).is_relative_to(root):
+            raise RuntimeError('AWS CLI symlink escapes installation')
+        continue
+    if (not (stat.S_ISDIR(mode) or stat.S_ISREG(mode)) or mode & 0o022
+            or (stat.S_ISREG(mode) and info.st_nlink != 1)):
+        raise RuntimeError('Unsafe AWS CLI file type, hard link or writable contents')
+    entries.append((path, info))
+
+for path, expected in entries:
+    flags = os.O_RDONLY | os.O_NOFOLLOW
+    if stat.S_ISDIR(expected.st_mode):
+        flags |= os.O_DIRECTORY
+    fd = os.open(path, flags)
+    try:
+        actual = os.fstat(fd)
+        if (actual.st_dev, actual.st_ino, actual.st_mode, actual.st_uid, actual.st_gid) != (
+                expected.st_dev, expected.st_ino, expected.st_mode, 0, 0):
+            raise RuntimeError('AWS CLI contents changed during permission validation')
+        before = None
+        if stat.S_ISREG(actual.st_mode):
+            with os.fdopen(os.dup(fd), 'rb') as stream:
+                before = hashlib.file_digest(stream, 'sha256').hexdigest()
+        os.fchmod(fd, 0o755 if stat.S_ISDIR(actual.st_mode) or actual.st_mode & 0o111 else 0o644)
+        if before is not None:
+            os.lseek(fd, 0, os.SEEK_SET)
+            with os.fdopen(os.dup(fd), 'rb') as stream:
+                if hashlib.file_digest(stream, 'sha256').hexdigest() != before:
+                    raise RuntimeError('AWS CLI file hash changed during permission repair')
+    finally:
+        os.close(fd)
+AWS_CLI_PERMISSIONS
+for cli_user in jobwatch-collector jobwatch-owner jobwatch-migrator jobwatch-backup; do
+  runuser -u "$cli_user" -- /usr/local/bin/aws --version >/dev/null
+done
 # No application code, migration, import or collection starts in cloud-init.
 echo 'Host ready; deploy a verified code artifact, migrate explicitly, and leave timers disabled.'
