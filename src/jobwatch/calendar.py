@@ -91,7 +91,13 @@ def render(events, now):
             raise ValueError('duplicate calendar UID; no export written')
         seen.add(event['uid'])
         start, end, _ = event['date']
-        lines += ['BEGIN:VEVENT', 'UID:' + event['uid'], 'DTSTAMP:' + stamp, start]
+        revised = utc_value(timestamp(event['modified_at'])) if event.get('modified_at') else stamp
+        lines += ['BEGIN:VEVENT', 'UID:' + event['uid'], 'DTSTAMP:' + revised, start]
+        if event.get('modified_at'):
+            sequence = event.get('sequence', 0)
+            if type(sequence) is not int or not 0 <= sequence <= 2147483647:
+                raise ValueError('invalid calendar sequence')
+            lines += ['LAST-MODIFIED:' + revised, 'SEQUENCE:' + str(sequence)]
         if end:
             lines.append(end)
         lines += ['SUMMARY:' + escape_text(event['summary']),
@@ -227,7 +233,7 @@ def deadline_events(state, verifications, leads):
     return events, sorted(set(warnings))
 
 
-def followup_events(applications):
+def followup_events(applications, *, minimal=False):
     events, warnings = [], []
     for row in applications:
         if row['stage'] in {'rejected', 'withdrawn'} or not row['next_action'].strip() or not row['next_action_date']:
@@ -243,8 +249,10 @@ def followup_events(applications):
             url = safe_url(row['url'])
         except ValueError:
             warnings.append('Unsafe follow-up URL omitted; action date marker retained.')
+        summary = (f"Follow up: {row['company']} — {row['role']}" if minimal else
+                   f"{row['company']} — {row['role']}: {row['next_action']}")
         events.append({'uid': uid('followup', row['job_key']), 'date': when,
-                       'summary': f"{row['company']} — {row['role']}: {row['next_action']}",
+                       'summary': summary,
                        'description': 'Owner-entered next action date. All-day date marker; no appointment time is implied.',
                        'url': url})
     return events, sorted(set(warnings))

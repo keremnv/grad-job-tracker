@@ -213,7 +213,8 @@ def deadlines(conn,now):
     """Separate independently checked, official research and feed-only claims; never infer dates."""
     timestamp(now)
     records=[]
-    postings=conn.execute('SELECT * FROM jobwatch.operational_postings ORDER BY posting_key').fetchall()
+    postings=conn.execute('''SELECT posting_key,posting_url,company,title,deadlines,status,action_state,ambiguous_posting_url
+        FROM jobwatch.operational_postings ORDER BY posting_key''').fetchall()
     by_key={r['posting_key']:r for r in postings}
     aliases=defaultdict(list)
     for r in postings:
@@ -233,16 +234,23 @@ def deadlines(conn,now):
                 'wording':d.get('wording'),'value':d.get('value'),'checked_at':d.get('observed_at'),'checked_by':None,
                 'provenance':'feed_observation','status':r['status'],'action_state':r['action_state'],
                 'structured':d.get('source_field')=='application_deadline','ambiguous':r['ambiguous_posting_url']})
-    for r in conn.execute("SELECT * FROM jobwatch.leads WHERE kind='vacancy' AND deadline_wording IS NOT NULL ORDER BY lead_key"):
+    for r in conn.execute("SELECT * FROM jobwatch.leads WHERE deadline_wording IS NOT NULL ORDER BY lead_key"):
         original=json.loads(r['details'].get('legacy_json','{}'))
         d=original.get('deadline') or {}
-        candidates=aliases.get(url(r['url']),[])
-        identity=r['posting_key'] or (candidates[0] if len(candidates)==1 else r['lead_key'])
+        candidates=aliases.get(url(r['url']),[]) if r['kind']=='vacancy' else []
+        linked=r['posting_key'] or (candidates[0] if len(candidates)==1 else None)
+        # Original file-era fallback is the exact vacancy URL, not the imported lead key.
+        identity=linked or (url(r['url']) if r['kind']=='vacancy' else r['lead_key'])
         records.append({'identity':identity,'posting_key':r['posting_key'],'company':r['company'],'title':r['title'],
             'posting_url':url(r['url']),'url':url(d.get('url') or r['url']),'wording':r['deadline_wording'],
             'value':str(r['deadline_date']) if r['deadline_date'] else None,'checked_at':r['checked_at'],
             'checked_by':r['checked_by'],'provenance':'checked_official_lead' if r['official'] else 'unverified_lead',
-            'status':r['state'],'action_state':None,'structured':r['official'],'ambiguous':len(candidates)>1})
+            'status':r['state'],'action_state':None,'structured':r['official'],'ambiguous':len(candidates)>1,
+            'kind':r['kind'],'lead_key':r['lead_key'],'cycle_year':r['cycle_year'],'cycle_wording':r['cycle_wording'],
+            'calendar_aliases':['lead:'+r['lead_key']]+(['posting:'+linked] if linked else [])})
+    for d in records:
+        d.setdefault('kind','vacancy')
+        d.setdefault('calendar_aliases',['posting:'+d['posting_key']] if d['posting_key'] else [])
     values=defaultdict(set)
     for d in records:
         if d['value']:

@@ -32,8 +32,8 @@ infrastructure is needed to define V1.
 | Storage/collection | PostgreSQL 17, migrations 0001–0003, full parsed evidence, material events, locked publication/rescreening, absence safety and narrow audit | Final real-data import and reconciliation; genuine endpoint checks and transparent coverage |
 | Migration/recovery | Frozen Git importer, repeatability, local/hosted synthetic dump/restore and independent off-host synthetic recovery | Owner-held durable encrypted custody, accepted recovery objectives and independent restore of the final imported database |
 | Research/retrieval | Ordinary SQL/views, excluded postings, evidence/history, BM25/FTS/reports; local [EmbeddingGemma 2, exact vector/hybrid retrieval and recovery tests](POSTGRESQL_RETRIEVAL.md) | Separately approved hosted extension/package/inference qualification |
-| Agent authority | Owner role supports audited owner/control/lead SQL writes separately from collector/migrator; Stage 4C supplies bounded read tools | Prove usable scoped connectivity and owner-authorised write workflows; keep read-only ChatGPT identity separate |
-| Calendar/follow-ups | SQL calendar report reuses `calendar.py`; application follow-ups and explicit verified dates supported | Exercise/document the owner workflow and calendar-client use; add only missing basic authorised actions |
+| Agent authority | Owner role supports audited owner/control/lead SQL writes separately from collector/migrator; Stage 4C supplies bounded read tools; [Stage 4E tests ordinary owner SQL](POSTGRESQL_OWNER_WORKFLOWS.md) end to end | Qualify usable scoped hosted connectivity; keep read-only ChatGPT identity separate |
+| Calendar/follow-ups | Shared ICS projection, programme deadlines, triage revisits and [minimal atomic subscription snapshots](PROTON_CALENDAR.md), with stable linkage IDs and revisions | Approve private HTTPS hosting/publication and credential custody; test a real Proton subscription and notification defaults; polling is not guaranteed alerting |
 | Online ChatGPT | Local stdio/Streamable HTTP interoperability, separate proposed read login | Account eligibility, approved private-data scope, authenticated transport, packaging, credential custody and revocation; no public unauthenticated listener |
 | Operations | AWS host, protected storage, SSM, logs/alarms and disabled systemd units qualified | Notification recipients, backup freshness/custody checks, secure access, scheduling and single-writer cutover approvals |
 
@@ -42,6 +42,10 @@ clean; both feature tips matched the live remote. Remote main is `b6e0167`:
 one observation commit absent from Stage 4C (local main is two commits behind).
 Preserve that commit and every subsequent production update during integration.
 No merge or data-tree replacement is part of this roadmap.
+
+Stage 4E branch is based on retrieval `598a64b`. At its read-only remote check,
+main had advanced to observation commit `9bbcb0149d41250cc2e56b2cbb25779bd5fafc16`;
+it and every newer production update must be preserved. No integration is done here.
 
 The last read-only host verification found installed release `1b72d0d`, three
 migrations, zero intended-database domain records and both timers disabled/inactive.

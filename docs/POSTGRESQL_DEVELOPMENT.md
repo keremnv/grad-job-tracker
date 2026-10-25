@@ -17,6 +17,13 @@ The one-time frozen Git importer, reconciliation and disposable backup/restore r
 
 Operational SQL, reports, search, multi-source collection, endpoint checks and readiness are documented in [POSTGRESQL_OPERATIONS.md](POSTGRESQL_OPERATIONS.md). See the [functionality matrix](POSTGRESQL_FUNCTIONALITY.md) and the proposed, unexecuted [cutover runbook](POSTGRESQL_CUTOVER_RUNBOOK.md).
 
+Stage 4E adds [ordinary SQL owner workflows](POSTGRESQL_OWNER_WORKFLOWS.md) and
+[private subscription-ready ICS snapshots](PROTON_CALENDAR.md). Run the same
+offline/disposable suites below: they exercise the actual SQL cookbook, audited
+owner transactions, vector/lexical research and local publication with synthetic
+records. No new dependencies, grants or migration are needed. Hosted publication,
+credentials, schedules and Proton subscription remain separate approvals.
+
 ## Disposable integration tests
 
 Docker must be running. From the repository root:

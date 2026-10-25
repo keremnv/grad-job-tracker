@@ -123,3 +123,19 @@ composable SQL through five read-only tools. This adds no write workflow or
 mandatory API. Local JSON-lines, MCP stdio and loopback Streamable HTTP share one
 core and a dedicated proposed read login; hosted provisioning/online connection
 remain separate approvals.
+
+## Owner SQL and subscription snapshots (Stage 4E)
+
+[Owner workflows](POSTGRESQL_OWNER_WORKFLOWS.md) document/test audited ordinary
+SQL for applications, explicit links, triage, evidenced leads and pending actions,
+including stale-state guards and uncertain-commit read-back. There are no new
+write tools/grants; the ChatGPT transport remains read-only.
+
+[Calendar publication](PROTON_CALENDAR.md) adds private, minimal, atomic
+`jobwatch-pg-ops calendar snapshot` / `calendar status` conveniences. They reuse
+the existing date/ICS rendering and SQL workflow precedence. Dated triage revisits
+and checked current programme deadlines are included; unlinked lead IDs now match
+legacy exact-URL IDs, and retained publication metadata preserves IDs on linkage.
+Split deadline/action feeds and a combined fallback share one projection.
+Publication writes only the specified local private directory, never SQL or a
+server. No live Proton feed, public endpoint or schedule is activated.
