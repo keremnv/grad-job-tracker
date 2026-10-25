@@ -61,9 +61,7 @@ format/validate and static checks. PostgreSQL 17.11 / psycopg 3.2.13. All pass.
 
 ## Hosted maintenance and Terraform
 
-The source correction is committed/tested before scoped host repair. Private
-before/after inventories and hosted results belong in the qualification report;
-this source report alone does not claim a completed repair or restore.
+Source correction commit `7146de1f93a93d5b39c75bf541b448961423add0` was pushed before scoped maintenance. The existing host repair and repeat verification passed over 8,740 entries with unchanged contents/ownership/links. All four real non-root identities execute the ARM64 CLI under NoNewPrivileges. Synthetic S3 backup, fresh restore, reboot/persistence and redacted log delivery passed; full evidence and limitations are in [the hosted qualification report](AWS_HOSTED_QUALIFICATION_REPORT.md). Private before/after inventories and exact object receipts remain outside Git.
 
 For the existing host, execute only the reviewed normalization fragment after
 comparing the full installed inventory/hashes to the preserved preflight. Never

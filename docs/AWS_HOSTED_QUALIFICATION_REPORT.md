@@ -1,41 +1,56 @@
-# Stage 4B.2c — application installed; recovery qualification blocked
+# Stage 4B.2c — synthetic hosted qualification complete
 
-Checked 24 October 2026 on `feat/aws-deployment-preflight`. Installed release:
-`1b72d0d76f1ed15b56859bc891af9953458f85cd`. This update changes documentation
-only. Git-backed production remains authoritative. No live ATS request, real-data
-import, production password, timer activation or Terraform apply occurred.
+Checked 25 October 2026, `feat/aws-deployment-preflight`. AWS CLI correction:
+`7146de1f93a93d5b39c75bf541b448961423add0`. Installed application remains
+`1b72d0d76f1ed15b56859bc891af9953458f85cd`; it was not reinstalled or upgraded.
+The Git-backed production tracker remains authoritative. No production import,
+ATS request, production credential, timer activation, workflow change or
+Terraform apply occurred.
 
-## Application and migrations verified on AWS
+## Permanent correction and scoped maintenance
 
-The intended project/profile and Stockholm Region, existing ARM64 t4g.small,
-exact attached encrypted data EBS/mount, working SSM, zero inbound rules, live
-inline IAM policies and corrected trusted installer matched prior receipts.
-Terraform's 20-resource state and its S3 object version remained unchanged.
+[The correction report](AWS_CLI_CORRECTION_REPORT.md) documents the minimal
+bootstrap change and executed tests. The signed CLI had inherited umask 027,
+leaving root:root directories/binaries 0750 and ordinary files 0640. The new
+validation/normalization fragment runs after both first and matching-version
+installation, rejects unsafe layout/ownership/types/links/hard links/writable
+contents before chmod, and changes only verified CLI code permissions.
 
-The exact existing code-only artifact was independently verified and uploaded
-with SSE-S3, a matching S3 SHA-256 and object-version receipt:
+The code/tests were committed and pushed before host maintenance. Authenticated
+SSM verified the same instance, Region, protected encrypted EBS volume, original
+release and existing synthetic databases. The preserved dump, manifest and HBA
+hashes matched the preceding receipts. The AWS browser login was renewed using
+the existing named profile; no permanent keys or database passwords were created.
+
+Only the committed normalization fragment ran on the host. Before/after
+inventories of **8,740 entries** prove unchanged UID/GID, regular-file hashes,
+file sizes, link targets and inventory. Directories/executables are now 0755,
+ordinary files 0644; root ownership and no group/world write are preserved.
+Repeating the fragment changed nothing. All four real service identities executed
+the native **AWS CLI 2.38.5** with **NoNewPrivileges**; jobwatch-backup also passed
+an authenticated STS read using the existing instance role.
+
+No CLI reinstall, cloud-init rerun, group-membership change, application release
+installation, IAM/network change or infrastructure replacement was used.
+Changing checked-in bootstrap changes Terraform user-data and may propose a
+protected replacement. **Do not apply that proposal** to reconcile this repair.
+Remote state and replacement safeguards are unchanged; a future separately
+approved new/recovery host will use the corrected bootstrap.
+
+## Existing application and migrations
+
+The installed code-only artifact remains:
 
 ```text
 source commit: 1b72d0d76f1ed15b56859bc891af9953458f85cd
 archive SHA-256: 3e87cfcec9fd7143f31d5cb0f31cfbda4db391614ab2aac33a7fc538d7603876
 ```
 
-All 71 manifest files, member hashes, locked wheels, native CPython 3.12
-AArch64 binaries and three migrations in source/application wheel passed.
-Production data, owner records, private configuration, secrets and Git metadata
-were excluded. The instance downloaded the artifact using its existing role.
-
-First and repeated installation through the corrected trusted helper passed
-on the real ARM64 host. The current release, completion digest and manifest
-contents matched. All four actual service identities executed Python **3.12.3**,
-psycopg **3.2.13** and application imports. All five console commands passed
-`--help`: grad-job-watch, jobwatch-db-migrate, jobwatch-pg, jobwatch-pg-import
-and jobwatch-pg-ops. Checks over 1,553 non-symlink code entries confirmed root
-ownership and no group/world write access. No collection command was invoked.
-
-The documented `migrate_local.sh`, using the actual migration Unix-peer
-identity, applied unchanged migrations to PostgreSQL **17.11**. Repeating it
-applied nothing and verified the ledger. Checksums:
+Prior first/repeat ARM64 installation, manifest/root-code permissions, five
+console commands and all four service identities passed. Python **3.12.3** and
+psycopg **3.2.13** execute on ARM64 and were rechecked after reboot.
+PostgreSQL is **17.11**. Existing migrations were not rerun unnecessarily;
+unchanged ledger/schema survived backup, restoration and reboot:
 
 | Version | File | SHA-256 |
 |---|---|---|
@@ -43,126 +58,135 @@ applied nothing and verified the ledger. Checksums:
 | 2 | 0002_collection_receipts.sql | 71bc9c2c5c42a66d68c0fbf75409d7cd358cafb587fdcd95196e7c540b058e5a |
 | 3 | 0003_operational_views.sql | 34be63021b5ede06dff3c46977856fc4675fa35ee087bdfda24a7ba9db258f53 |
 
-All four current SQL views exist. Final counts in the intended `jobwatch`
-database are **zero in every domain table**: employers, sources, collection_runs,
-postings, posting_versions, posting_events, verifications, leads, applications,
-triage and owner_audit. Only the schema and three migration-ledger records exist.
-This database contains neither imported production data nor synthetic fixtures.
+All four views remain available. The production-intended `jobwatch` database has
+**three migration-ledger rows and zero rows in every domain table**: employers,
+sources, collection_runs, postings, posting_versions, posting_events,
+verifications, leads, applications, triage and owner_audit. No real or synthetic
+job/owner records were inserted there.
 
-## Isolated synthetic SQL tests passed
+## Preserved synthetic data and actual S3 backup
 
-Two explicitly named qualification/recovery databases were created on the
-existing cluster, owned by postgres with matching database grants/search paths.
-Only synthetic records were inserted into the qualification database. The
-recovery database remains fresh without an application schema.
+The existing synthetic source database was reused, with two postings, three
+versions, one material event, one application, one triage record and four audit
+rows; zero collection runs. Prior actual peer tests covered private-data
+separation, immutable evidence, NUL-safe values, actor/login attribution, audit
+rollback, BM25/FTS and daily/weekly report privacy. No setup/import/collection was
+repeated to populate this test.
 
-Actual peer-authenticated non-root processes verified:
+The **94,908-byte custom-format pg_dump archive and original manifest** matched
+their previously recorded hashes. The original manifest was preserved privately
+before the existing uploader added the archive receipt. No new dump of the empty
+intended database was substituted.
 
-- Migration application/repeat and restricted migration-role flags.
-- Collector denial of owner tables, audit reads and schema creation; owner denial
-  of evidence updates, audit deletion, schema alteration and trigger disabling.
-- Two retained all-verdict postings, three immutable evidence versions including
-  NUL-bearing parsed values, one linked synthetic material event and zero runs.
-- Nonempty synthetic application/triage records, required actor attribution,
-  authenticated database login attribution, and transactional data/audit rollback.
-- Current evidence inspection, BM25/FTS search, application precedence/conflicts,
-  and daily/weekly reports that omit private synthetic notes/CV labels.
+The actual jobwatch-backup OS identity, under NoNewPrivileges, called the existing
+upload implementation. Both PutObject requests succeeded with matching SHA-256
+and nonempty S3 version receipts. The archive uploaded first, manifest last; the
+completion manifest identifies the exact archive key/version/hash. Recovery
+operator GetObject requests selected those exact versions and independently
+confirmed **AES256**, S3 checksums, local SHA-256 and manifest linkage.
 
-Temporary HBA entries allowed only the exact two named databases and existing
-peer identities. The original HBA was backed up privately, then restored
-**byte-for-byte**, validated and reloaded after the stop. Fresh qualification
-connections through the removed entries were denied. Configuration remains
-root:jobwatch-db `0640`; no trust/TCP/password changes were introduced.
+An actual backup-version download by the instance role was denied. Read-only IAM
+simulation denied both DeleteObject and DeleteObjectVersion; **no destructive S3
+API was called**. Existing live inline IAM policies match the preserved Terraform
+state. No permissions were expanded and no backup version was deleted.
 
-## Real dump completed; S3 upload blocked
+## Fresh recovery database restored and independently checked
 
-The existing `database_backup.backup` function ran as jobwatch-backup, mapping
-to the restricted migration SQL role, against the synthetic database. Its
-exported REPEATABLE READ snapshot, exact fingerprint, real `pg_dump` custom
-archive and archived sequence inventory completed. The **94,908-byte** archive
-and integrity manifest remain private on the host. No production data was read
-into that dump.
+The existing fresh, separate recovery database was used, with the source's
+postgres database owner, grants, roles and search paths. Only narrowly scoped
+temporary Unix-peer entries for the exact two qualification database names and
+existing identities were added. No trust/TCP rule or credential was introduced.
 
-The existing upload function failed **before launching AWS CLI**:
-`PermissionError: [Errno 13] Permission denied: 'aws'`.
-No backup archive or completion manifest reached S3. Final bucket inspection
-found only the 5,094,550-byte code artifact; `backups/` remained empty.
+The operator-retrieved archive/manifest bytes were transferred through the
+authenticated SSM channel to a private migration-owned maintenance directory,
+then hash-verified. Existing `database_backup.restore` ran as the actual
+non-superuser migration identity, using real pg_restore with preserved ownership,
+ACLs and a single transaction. No clean/reset/trigger bypass occurred.
 
-The confirmed cause is `bootstrap_host.sh` running the signed AWS CLI installer
-under `umask 027`. The installed `/usr/local/aws-cli` directories and executable
-are root:root **0750**. `/usr/local/bin/aws` links into that inaccessible tree.
-Root can execute the exact absolute CLI path; all four non-root service users
-receive Permission denied on the same path. This is a filesystem defect,
-not an IAM denial, expired login or PATH-only issue. It also blocks future
-collector/backup operational-log delivery.
+The restored database equals the source and manifest for every application,
+evidence, history, owner, audit and migration row; schema/functions/triggers and
+ownership/grants/security fingerprints; and **every archived sequence's exact
+last_value/is_called**. All views operate. Search and reports pass. Independent
+actual collector/owner peer processes verified all-verdict research, private-data
+denials, immutable-evidence denial and owner/audit access. Corrupted archives and
+populated restore targets were refused without resetting a target.
 
-**Stopped at the owner's software-defect boundary.** No CLI permissions,
-reviewed software, IAM policy or infrastructure was changed to bypass it.
-The proposed minimal correction is to normalize only the root-owned AWS CLI
-code tree to readable/traversable directories, executable binaries and readable
-ordinary files, without following symlinks or touching private configuration.
-Validate ownership and real non-root execution even when installation is skipped
-because the version already matches. Add first/repeat, restrictive/ordinary
-umask and NoNewPrivileges regression checks. A private, **unapplied** patch
-records this proposal; no fix or regression pass is claimed.
+The original HBA was restored **byte-for-byte**, validated and reloaded. The
+synthetic source, restored database, original dump, retrieved copies and receipts
+are retained privately; none is an authoritative production dataset.
 
-An explicitly approved in-place CLI permission repair is needed on this host;
-a cloud-init change must not be applied as an EC2 replacement. Do not rerun the
-whole bootstrap or grant services root-group membership to work around this.
+One private test-driver call initially omitted its connection environment and
+stopped before opening a database. Inspection confirmed the target remained
+fresh; the corrected call resumed with the same bytes. Another read-only verifier
+needed to handle null serials on unrelated block devices. No application defect,
+software repair or database reset was required for either diagnostic correction.
 
-## Unfinished tests and current host status
+## One reboot, persistence, logs and monitoring
 
-S3 backup encryption/checksum/version and manifest-last receipts, runtime backup
-read/delete denial, recovery-operator retrieval, fresh-database restore,
-corrupt/archive and populated-target rejection remain **unexecuted**. No reboot
-or reboot persistence test occurred. Actual CloudWatch log delivery and remote
-SQL tunnelling remain untested. Even a later same-host database restore will not
-complete off-host disaster recovery or independent backup custody.
+After confirming zero active writers/prepared transactions and inactive services,
+**one ordinary EC2 reboot** was requested and acknowledged. Boot ID changed; the
+same instance returned with both EC2 health checks OK and SSM connected.
+The original encrypted EBS volume serial and filesystem UUID match the prior
+attachment/mount. PostgreSQL started using mounted PGDATA, with its mountpoint
+precondition/RequiresMountsFor intact; no root-storage fallback occurred.
 
-Final read-only checks: all three existing alarms **OK**, CPU-credit balance
-**43.12 and rising**, latest sampled CPU average about **1.70%**; log retention
-**14 days**. Root/data free space about **7.88/14.69 GiB**, available memory about
-**1.34 GiB** of 1.79 GiB, no swap. PostgreSQL active with zero service restarts
-and about **86.5 MiB** current service memory. These are small-test observations,
-not stress or steady-state production qualification. The exact mount/UUID was
-rechecked; persistence across reboot remains unproven.
+Pre/post-reboot hashes of every table in all three databases match, including the
+schema-only intended database and both nonempty synthetic databases. Application
+release, CLI inventory/hashes/permissions, original HBA, unset production role
+passwords and original dump persist. No stop/start, replacement, detach, format
+or destructive persistence experiment was performed.
 
-Both collection/backup timers are **installed, disabled and inactive**. Both
-services are inactive. All 11 stage SSM sessions were confirmed terminated.
-AWS authentication remained valid. Production role passwords remain unset.
-The synthetic databases, private dump and failure diagnostics are preserved;
-they must not be confused with production or silently discarded/reset.
+The intended non-root collector identity, with NoNewPrivileges, emitted only a
+redacted synthetic qualification message through the existing PutLogEvents
+permission. The collector/operation runner was **not** invoked. The operator
+independently read back that exact event. Log retention remains **14 days**.
+All three existing alarms are **OK**. Latest sampled CPU-credit balance:
+**266.82, rising**; CPU about **1.74%**. These datapoints precede the final check
+by a few minutes and describe small qualification operations, not production
+load. Alarm notification delivery/recipient setup was not tested.
 
-A private verifier initially tried to parse raw psql boolean output as JSON.
-It stopped before migrations/HBA reload. Inspection established the exact state;
-corrected diagnostic queries resumed without repeating database creation or
-overwriting the original HBA backup. This was a test-driver error, separate from
-the confirmed installed CLI defect. No reviewed application change was needed.
+After reboot: approximately **7.86 GiB root / 14.69 GiB data free**, **1.37 GiB
+memory available** of 1.79 GiB, no swap, PostgreSQL service memory about **43.7 MiB**
+with zero automatic service restarts. No memory/disk monitoring service was added;
+production needs explicit capacity and backup-freshness checks.
 
-No infrastructure/capacity, IAM, networking, spend limit, Terraform state,
-production workflow, main or Aurora snapshot changes occurred. The prior reviewed
-**approximately £17.53/month** estimate remains the infrastructure baseline,
-not a fresh bill forecast. The small code object and upload/download requests add
-storage/request usage; no new recurring resources were created. Existing Aurora
-snapshot charges remain separate. Credit eligibility/expiry is not inferred.
+Both timers are **installed, disabled and inactive**; both application services
+remain inactive. All nine opened stage SSM sessions were confirmed closed.
+The earlier expired-authentication attempt did not open a host session. Protected
+S3 Terraform state object version remains unchanged with **20 managed resources**.
 
-## Next approval and production gates
+## Tests, costs and remaining gates
 
-First approve a minimal AWS CLI permission correction, regression tests and
-scoped host repair. Then resume synthetic S3 backup/restore, logging and the
-single unused reboot qualification, without reinitializing the migrated database.
-The installed application/migrations need not be repeated to repair the CLI.
+The correction reran and passed: **8** new signed-distribution/real-user CLI
+permission tests, **211 offline tests on each of Python 3.11–3.13**, **105** local
+PostgreSQL tests plus frozen-import/repeat/real restore rehearsal, **6** installer
+permission tests, **2** destruction-plan protection tests, **5** Terraform mock
+tests, fmt/validate, bash/Python syntax and Ruff F checks. Commands and versions
+are recorded in the correction report. Hosted checks above used the actual
+installed application and existing backup/restore implementation, not copied
+reference logic. No live ATS transport was called.
 
-Subsequent separate gates remain: off-host restore/independent encrypted backup
-custody and RPO, nine genuine endpoint checks/coverage decisions, explicit
-legacy-evidence acceptance, final writer freeze and current Git snapshot,
-complete import/reconciliation, secure owner access, and owner production
-go/no-go. No live import, endpoint validation or authority switch is authorized
-by these receipts.
+No additional infrastructure or recurring capacity was created. The previous
+reviewed **approximately £17.53/month** remains the infrastructure baseline,
+not a new invoice forecast. Only small synthetic S3 storage/request usage was
+added alongside the existing code artifact; Aurora snapshot charges remain
+separate. Credits/expiry/coverage were not inferred or changed.
 
-Private receipts, dump hash, exact database/resource names and unapplied proposal
-are under `.local-reports/aws-hosted-resume-4b2c/` and protected host maintenance
-directories. They are excluded from Git. Earlier blocked attempts remain in Git
-history and the prior private qualification/correction directories. No offline or
-local Docker suites were rerun for this documentation-only update; the newly
-executed checks above used the actual hosted application and database.
+**This proves same-host fresh-database recovery, not off-host disaster recovery.**
+A separate host/failure-domain recovery rehearsal, independently retained
+secure backup custody, project-unavailability access, accepted RPO/restore time,
+alert recipient/budget and backup-freshness/capacity operations remain gates.
+Remote owner SQL access still requires separately approved credentials; none was
+created here.
+
+Next production stages require separate authorization: nine genuine endpoint
+checks/coverage decisions, explicit legacy-evidence acceptance, the old writer
+freeze and current authoritative Git commit, complete import/reconciliation,
+independent pre-cutover backup/restore, secure owner access and owner go/no-go.
+The existing Git-backed workflow/data, main, IAM/networking, storage protections
+and Aurora snapshot were untouched. No authoritative PostgreSQL write or
+production switch occurred.
+
+Private receipts and exact resource/database/object identifiers remain under
+`.local-reports/aws-cli-repair-4b2c/` and protected host maintenance directories.
+No credentials, dumps, raw owner information or private receipts are committed.
