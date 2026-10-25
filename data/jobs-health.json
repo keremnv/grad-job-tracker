@@ -2,10 +2,10 @@
   "boards": {
     "ashby:hyperexponential": {
       "count": 33,
-      "fetched_at": "2026-10-23T12:45:11Z",
+      "fetched_at": "2026-10-25T12:41:48Z",
       "index_complete_since": "2026-10-23T06:33:55Z",
-      "last_attempt": "2026-10-23T12:45:11Z",
-      "last_success": "2026-10-23T12:45:11Z",
+      "last_attempt": "2026-10-25T12:41:48Z",
+      "last_success": "2026-10-25T12:41:48Z",
       "screening": {
         "excluded": 30,
         "review": 3
@@ -16,10 +16,10 @@
     },
     "ashby:incident": {
       "count": 34,
-      "fetched_at": "2026-10-23T12:45:04Z",
+      "fetched_at": "2026-10-25T12:41:47Z",
       "index_complete_since": "2026-10-23T06:33:55Z",
-      "last_attempt": "2026-10-23T12:45:04Z",
-      "last_success": "2026-10-23T12:45:11Z",
+      "last_attempt": "2026-10-25T12:41:47Z",
+      "last_success": "2026-10-25T12:41:48Z",
       "screening": {
         "excluded": 30,
         "priority": 1,
@@ -31,10 +31,10 @@
     },
     "ashby:tracebit": {
       "count": 3,
-      "fetched_at": "2026-10-23T12:45:11Z",
+      "fetched_at": "2026-10-25T12:41:48Z",
       "index_complete_since": "2026-10-23T06:33:55Z",
-      "last_attempt": "2026-10-23T12:45:11Z",
-      "last_success": "2026-10-23T12:45:11Z",
+      "last_attempt": "2026-10-25T12:41:48Z",
+      "last_success": "2026-10-25T12:41:48Z",
       "screening": {
         "excluded": 3
       },
@@ -43,40 +43,40 @@
       "status": "success"
     },
     "greenhouse:cambridgeconsultantslimited": {
-      "count": 91,
-      "fetched_at": "2026-10-23T12:45:11Z",
+      "count": 92,
+      "fetched_at": "2026-10-25T12:41:48Z",
       "index_complete_since": "2026-10-23T06:33:55Z",
-      "last_attempt": "2026-10-23T12:45:10Z",
-      "last_success": "2026-10-23T12:45:11Z",
+      "last_attempt": "2026-10-25T12:41:48Z",
+      "last_success": "2026-10-25T12:41:48Z",
       "screening": {
-        "excluded": 70,
+        "excluded": 71,
         "priority": 4,
         "review": 17
       },
       "skipped_non_vacancies": 0,
-      "source_records": 91,
+      "source_records": 92,
       "status": "success"
     },
     "greenhouse:monzo": {
-      "count": 74,
-      "fetched_at": "2026-10-23T12:45:04Z",
+      "count": 72,
+      "fetched_at": "2026-10-25T12:41:47Z",
       "index_complete_since": "2026-10-23T06:33:55Z",
-      "last_attempt": "2026-10-23T12:45:04Z",
-      "last_success": "2026-10-23T12:45:11Z",
+      "last_attempt": "2026-10-25T12:41:47Z",
+      "last_success": "2026-10-25T12:41:48Z",
       "screening": {
-        "excluded": 73,
+        "excluded": 71,
         "review": 1
       },
       "skipped_non_vacancies": 0,
-      "source_records": 74,
+      "source_records": 72,
       "status": "success"
     },
     "greenhouse:mw-tech-grad": {
       "count": 5,
-      "fetched_at": "2026-10-23T12:45:11Z",
+      "fetched_at": "2026-10-25T12:41:48Z",
       "index_complete_since": "2026-10-23T06:33:55Z",
-      "last_attempt": "2026-10-23T12:45:11Z",
-      "last_success": "2026-10-23T12:45:11Z",
+      "last_attempt": "2026-10-25T12:41:48Z",
+      "last_success": "2026-10-25T12:41:48Z",
       "screening": {
         "excluded": 2,
         "review": 3
@@ -87,10 +87,10 @@
     },
     "greenhouse:riverlane": {
       "count": 36,
-      "fetched_at": "2026-10-23T12:45:11Z",
+      "fetched_at": "2026-10-25T12:41:48Z",
       "index_complete_since": "2026-10-23T06:33:55Z",
-      "last_attempt": "2026-10-23T12:45:11Z",
-      "last_success": "2026-10-23T12:45:11Z",
+      "last_attempt": "2026-10-25T12:41:48Z",
+      "last_success": "2026-10-25T12:41:48Z",
       "screening": {
         "excluded": 34,
         "priority": 1,
@@ -101,26 +101,26 @@
       "status": "success"
     },
     "lever:palantir": {
-      "count": 308,
-      "fetched_at": "2026-10-23T12:45:04Z",
+      "count": 309,
+      "fetched_at": "2026-10-25T12:41:47Z",
       "index_complete_since": "2026-10-23T06:33:55Z",
-      "last_attempt": "2026-10-23T12:44:57Z",
-      "last_success": "2026-10-23T12:45:11Z",
+      "last_attempt": "2026-10-25T12:41:32Z",
+      "last_success": "2026-10-25T12:41:48Z",
       "screening": {
-        "excluded": 289,
+        "excluded": 290,
         "priority": 2,
         "review": 17
       },
       "skipped_non_vacancies": 0,
-      "source_records": 308,
+      "source_records": 309,
       "status": "success"
     },
     "lever:scottlogic": {
       "count": 43,
-      "fetched_at": "2026-10-23T12:45:10Z",
+      "fetched_at": "2026-10-25T12:41:48Z",
       "index_complete_since": "2026-10-23T06:33:55Z",
-      "last_attempt": "2026-10-23T12:45:04Z",
-      "last_success": "2026-10-23T12:45:11Z",
+      "last_attempt": "2026-10-25T12:41:47Z",
+      "last_success": "2026-10-25T12:41:48Z",
       "screening": {
         "excluded": 39,
         "review": 4
@@ -131,83 +131,20 @@
     }
   },
   "last_scan": {
-    "at": "2026-10-23T12:45:11Z",
+    "at": "2026-10-25T12:41:48Z",
     "events": [
       {
-        "at": "2026-10-23T12:45:11Z",
-        "category": "source",
-        "company": "incident.io",
-        "fields": [
-          "salary"
-        ],
-        "key": "ashby:incident:1556e90c-1c75-494b-97d3-b471ae95fa6f",
-        "title": "Enterprise Business Development Representative ",
-        "type": "changed"
-      },
-      {
-        "at": "2026-10-23T12:45:11Z",
-        "category": "source",
-        "company": "Monzo",
-        "fields": [
-          "description_sha256",
-          "source_dates"
-        ],
-        "key": "greenhouse:monzo:8185694",
-        "title": "Lead Product Designer, Growth",
-        "type": "changed"
-      },
-      {
-        "at": "2026-10-23T12:45:11Z",
-        "category": "source",
-        "company": "Monzo",
-        "key": "greenhouse:monzo:8317753",
-        "title": "Lead Product Manager, Growth",
-        "type": "new"
-      },
-      {
-        "at": "2026-10-23T12:45:11Z",
-        "category": "source",
-        "company": "Monzo",
-        "key": "greenhouse:monzo:8212919",
-        "title": "Product Manager, Finance",
-        "type": "new"
-      },
-      {
-        "at": "2026-10-23T12:45:11Z",
-        "category": "source",
-        "company": "Monzo",
-        "key": "greenhouse:monzo:8312078",
-        "title": "Senior Product Manager, Web Growth",
-        "type": "new"
-      },
-      {
-        "at": "2026-10-23T12:45:11Z",
-        "category": "source",
-        "company": "Monzo",
-        "key": "greenhouse:monzo:8156058",
-        "title": "Lead Product Manager, Payments",
-        "type": "not_seen"
-      },
-      {
-        "at": "2026-10-23T12:45:11Z",
-        "category": "source",
-        "company": "Monzo",
-        "key": "greenhouse:monzo:8185670",
-        "title": "Business Recruiter",
-        "type": "not_seen"
-      },
-      {
-        "at": "2026-10-23T12:45:11Z",
+        "at": "2026-10-25T12:41:48Z",
         "category": "source",
         "company": "Palantir",
-        "key": "lever:palantir:7ea66860-ae93-4139-9388-b7284cb33f37",
-        "title": "Forward Deployed Software Engineer",
+        "key": "lever:palantir:6940fc9a-b79c-4935-a90f-1c6a02e54fb1",
+        "title": "Deployment Strategist - Germany Forward Deployed",
         "type": "new"
       }
     ],
     "failures": [],
     "rules_version": "screen-2026-10-23.1",
-    "started_at": "2026-10-23T12:44:57Z"
+    "started_at": "2026-10-25T12:41:32Z"
   },
   "schema": 1
 }
