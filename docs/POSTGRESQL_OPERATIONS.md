@@ -115,3 +115,11 @@ Baseline mode requires current full logical equivalence to the source-bound impo
 Checks include PostgreSQL 17, full applied migration checksums, runtime flags/membership/grants, immutable/private boundaries, all reporting views covering the corpus, FTS, presence anomalies, intended source activation, unresolved endpoint checks, source health and restore evidence bound to this frozen source/schema. Old Stage 3 two-migration restore proof is not accepted for the new schema. Current stale/failed/positive-only health is shown explicitly; freshness is not guessed from importer success.
 
 Exit 0 means **local structural/evidence checks passed**; 1 means unresolved checks; 2 means diagnostic execution/configuration failed. `deployment_ready` remains false: actual hosted TLS/roles/restore, owner acceptance, secrets, freeze and single-writer promotion cannot be proved by local diagnostics. They remain explicit external gates for Stage 4B, not flags an agent can silently approve. See the runbook.
+
+## Optional read-tool transport
+
+[Stage 4C](CHATGPT_READ_TOOLS.md) exposes the same research/report functions and
+composable SQL through five read-only tools. This adds no write workflow or
+mandatory API. Local JSON-lines, MCP stdio and loopback Streamable HTTP share one
+core and a dedicated proposed read login; hosted provisioning/online connection
+remain separate approvals.

@@ -140,3 +140,12 @@ Values are positive integers. The module explicitly sets these session defaults,
 Schema semantics follow the approved review. Provisioning is separated; the runner owns namespace/journal setup; a dedicated migration login replaces review-time superuser execution. SQL URL identity now matches existing Python behavior for empty query/fragment delimiters, empty/default/zero-padded HTTPS ports, and validates IPv6 literals rather than accepting malformed bracketed addresses. These refinements have regression tests and change no existing Python normalizer or deployed data.
 
 Stage 2 implements collection, publication, provider comparison, evidence/history, retries and source-locked rescreening with current v1 output. Stage 3 adds frozen Git import, historical recovery, full reconciliation and tested local pg_dump/pg_restore. Stage 4A adds SQL-backed research/reports, BM25 and FTS, multi-source collection, endpoint validation/activation, and explicit readiness checks. Hosted infrastructure, actual-host backups/PITR, real endpoint checks, the single authoritative production cutover, source discovery expansion, normalizer v2, pgvector and hybrid retrieval remain later work. Production remains file-backed.
+
+## Optional Stage 4C read tools
+
+The [read-tool contract](CHATGPT_READ_TOOLS.md) provides a transport-independent
+SQL/schema/evidence/search/report core, JSON-lines harness and optional official
+MCP SDK adapter. Install `.[chat-mcp]` only when using MCP; ordinary psycopg/psql
+and `.[postgres]` remain independent. Proposed role provisioning is separate from
+migrations and has run only against disposable databases. The existing production
+CLI, AWS roles, workflows and authoritative storage remain unchanged.

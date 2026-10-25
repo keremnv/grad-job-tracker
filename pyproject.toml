@@ -11,6 +11,7 @@ dependencies = []
 
 [project.optional-dependencies]
 postgres = ["psycopg[binary]>=3.2.13,<4"]
+chat-mcp = ["psycopg[binary]>=3.2.13,<4", "mcp>=1.30,<2"]
 
 [project.scripts]
 grad-job-watch = "jobwatch.cli:main"
@@ -18,6 +19,8 @@ jobwatch-db-migrate = "jobwatch.postgres.migrate:main"
 jobwatch-pg = "jobwatch.postgres.scan:main"
 jobwatch-pg-import = "jobwatch.postgres.import_cli:main"
 jobwatch-pg-ops = "jobwatch.postgres.operations:main"
+jobwatch-read-tools = "jobwatch.postgres.read_tools:main"
+jobwatch-read-mcp = "jobwatch.postgres.read_mcp:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
