@@ -1,29 +1,19 @@
-# AWS synthetic hosted qualification complete — cutover pending
+# AWS PostgreSQL production infrastructure
 
-**Backup monitoring is active:** [actual results](../../docs/AWS_BACKUP_ACTIVATION_REPORT.md)
-record release `19ee933`, confirmed subscription/three ALARM emails, real manual
-S3 backup and independent restore. Backup/health timers are enabled; scheduled
-health execution passed. First scheduled backup is due 27 October, 00:00 UTC,
-not yet observed. Collection stays disabled and Git remains authoritative.
+**Production activated 26 October 2026.** PostgreSQL is authoritative; the existing
+systemd collector is enabled and the Git writer retired. Use [the current handover](../../docs/AWS_PRODUCTION_HANDOVER.md)
+and [release ledger](../../docs/V1_RELEASE_CHECKLIST.md). Real-data S3 independent
+restores and controlled nine-source publication passed. Backup/health timers remain
+enabled at 00:00/12:00 UTC and every fifteen minutes. No inference on the 2 GiB host.
 
-[V1 hosted maintenance, 26 October](../../docs/AWS_V1_MAINTENANCE_REPORT.md)
-verified the existing twenty-resource deployment and installed the exact code-only
-release `43aab3b12e3277c96b3b0936839a6758ebda986b`, pgvector 0.8.7 and migration 0004.
-PostgreSQL remains 17.11 on protected encrypted EBS. Intended domain tables remain
-empty. That historical maintenance left all timers disabled; subsequent approved
-activation installed the **00:00/12:00 UTC** backup and fifteen-minute health
-schedules and enabled only those two timers. No inference runs on this 2 GiB host;
-no PostgreSQL/vector reinstall is required.
+Installed application `e3807a0`, PostgreSQL17.11/vector0.8.7, migrations0001–0004.
+No reprovisioning/reinstallation is required. The known Terraform user-data change
+still proposes a **blocked protected-instance replacement**; do not apply it or
+remove guards. Code-only maintenance uses the guarded artifact installer, pausing
+and restoring all affected active timers and checking no operation is in flight.
 
-Native ARM64 SQL/vector checks, a fresh versioned format-1 pre-upgrade backup and
-format-2 synthetic S3/hosted/independent restoration passed. Prior reboot/SSM/logging
-and CLI-permission results remain in [the historical hosted report](../../docs/AWS_HOSTED_QUALIFICATION_REPORT.md).
-Final real-data restore remains unqualified; manual backup and delivered monitoring
-are qualified, with the first scheduled backup still pending observation.
-The owner has selected [AWS-only twice-daily backups](../../docs/AWS_BACKUP_POLICY.md),
-accepting that this is not a maximum 12-hour RPO; external custody is not required. Use the [release checklist](../../docs/V1_RELEASE_CHECKLIST.md)
-for exact remaining gates. Production remains Git-backed and NO-GO; no instruction
-here authorises further AWS changes, real-data import, live ATS requests or timers.
+This documentation grants no new infrastructure, credential, data-sharing or
+maintenance authority. ChatGPT production access and Proton hosting remain separate.
 
 ## Resources and storage
 

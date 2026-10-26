@@ -1,10 +1,14 @@
 # PostgreSQL operational tools (Stage 4A)
 
-These are explicit development/operational entry points. The normal `grad-job-watch` CLI and active GitHub Actions workflow still use files. Installing/importing these modules does not connect, migrate, import, activate a source or select a different backend.
+PostgreSQL is the authoritative production store after the 26 October cutover.
+Use [the handover](AWS_PRODUCTION_HANDOVER.md) for authenticated SSM/owner-peer
+access and schedules. The file-backed CLI is retained for frozen-source rehearsal,
+not live writes; its GitHub workflow is retired. Importing modules never connects,
+migrates, activates a source or changes a backend automatically.
 
 Use PostgreSQL 17 and `pip install -e '.[postgres]'`; setup/roles are in [POSTGRESQL_DEVELOPMENT.md](POSTGRESQL_DEVELOPMENT.md). Apply packaged migrations explicitly. `0003_operational_views.sql` appends coverage/health columns without changing existing columns, fixes the missing `last_seen_run_id` exposure caused by PostgreSQL expanding `SELECT *` before migration 0002, and adds one private convenience view. Initial migrations remain byte-identical. No new domain table, trigger, runtime role or index is introduced.
 
-See the complete [functionality matrix](POSTGRESQL_FUNCTIONALITY.md), [ordinary SQL cookbook](../sql/postgresql/operational_queries.sql) and [unexecuted cutover runbook](POSTGRESQL_CUTOVER_RUNBOOK.md).
+See the complete [functionality matrix](POSTGRESQL_FUNCTIONALITY.md), [ordinary SQL cookbook](../sql/postgresql/operational_queries.sql) and [executed AWS cutover and recovery runbook](AWS_CUTOVER.md).
 
 ## SQL remains the primary read/write interface
 

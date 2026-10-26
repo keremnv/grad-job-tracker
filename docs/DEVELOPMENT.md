@@ -1,5 +1,9 @@
 # Development guide
 
+PostgreSQL is authoritative; [the production handover](AWS_PRODUCTION_HANDOVER.md)
+is the operating entry point. The commands here use isolated local fixtures or
+validate frozen legacy files; never run a legacy writer against tracked data.
+
 Read this only when the owner has asked for development work. Day-to-day
 operation is governed by `AGENTS.md`. The original build specification is kept
 for reference in `history/CODEX_BUILD_SPEC.md`; its backlog is not a mandate.
@@ -9,20 +13,20 @@ for reference in `history/CODEX_BUILD_SPEC.md`; its backlog is not a mandate.
 ```bash
 python -m venv .venv && .venv/bin/python -m pip install -e .
 .venv/bin/python -m unittest discover -s tests -v     # offline; no data/ or config/ needed
-.venv/bin/python -m jobwatch.cli validate-data         # checks the live operational files
+.venv/bin/python -m jobwatch.cli validate-data         # checks archived legacy files
 .venv/bin/python -m jobwatch.cli eval run --baseline   # synthetic screening diagnostics
 ```
 
 Optional PostgreSQL setup, migrations and disposable integration tests are
 documented in [POSTGRESQL_DEVELOPMENT.md](POSTGRESQL_DEVELOPMENT.md). The file-backed
-runtime and scheduled production data path remain authoritative and unchanged.
+runtime remains only for import/rehearsal compatibility; production uses SQL.
 The separate development collection/history path is described in
 [POSTGRESQL_COLLECTION.md](POSTGRESQL_COLLECTION.md).
 Frozen Git import/reconciliation and restore rehearsal are described in
 [POSTGRESQL_IMPORT.md](POSTGRESQL_IMPORT.md).
 SQL-backed operational reads, reports, search, scheduled-style collection and
 readiness checks are described in [POSTGRESQL_OPERATIONS.md](POSTGRESQL_OPERATIONS.md);
-the [cutover runbook](POSTGRESQL_CUTOVER_RUNBOOK.md) remains unexecuted.
+the [AWS cutover/recovery runbook](AWS_CUTOVER.md) records the executed switch.
 
 Never run `scan` against `data/` locally; use scratch `--state`, `--report`,
 `--config` and `--verifications` paths. Live provider checks are separate from
@@ -40,7 +44,7 @@ unit tests and should be rare.
 | `commands.py`, `contract.py` | Agent commands and the `jobwatch.cli/1` envelope. |
 | `triage.py`, `verifications.py`, `storage.py` | Owner/evidence writes: lock, snapshot, atomic replace. |
 | `evaluation.py`, `search.py` | Offline diagnostics and BM25. |
-| `postgres/` | Optional PostgreSQL development collection/history, import/reconciliation, operational SQL/reports/search, endpoint checks, readiness, connections and migrations. The file-backed CLI is unchanged. |
+| `postgres/` | PostgreSQL production and disposable development collection/history, import/reconciliation, operational SQL/reports/search, endpoint checks, readiness, connections and migrations. The file-backed CLI is unchanged. |
 | `datacheck.py` | `validate-data`: operational checks kept out of unit tests. |
 | `applications.py`, `overview.py`, `calendar.py`, `leads.py` | Ledger, weekly/requirements reports, ICS export, lead registry. |
 

@@ -15,18 +15,20 @@ No fixed restoration-time guarantee or automatic all-writer fencing is promised.
 
 ## Operation and retention
 
-[Activation results, 26 October](AWS_BACKUP_ACTIVATION_REPORT.md): release `19ee933`
-is installed; the confirmed SNS recipient received all three ALARM tests. The real
-manual backup and independent fresh-target restore passed. Backup/health timers
-are enabled, collection disabled; a scheduled health run passed. The first
-scheduled backup is due at 00:00 UTC on 27 October and has **not yet been observed**.
+[Production handover, 26 October](AWS_PRODUCTION_HANDOVER.md): PostgreSQL is now
+authoritative; collection, backup and health timers are enabled. Installed release
+`e3807a0` preserves this policy. Actual imported-baseline, activated-source and
+post-collection backups passed exact S3-version/checksum/manifest verification and
+independent fresh-target restoration, including security, audit and sequences.
+The confirmed SNS recipient previously received failure/stale/missing-heartbeat
+ALARM and recovery emails; final four alarms were OK.
 
-**Revised qualification decision, 26 October:** the owner accepts the successful
-[20:01 UTC installed-service test](AWS_BACKUP_ACTIVATION_REPORT.md#installed-service-qualification--26-october-2001-utc)
-as sufficient pre-cutover backup proof. A temporary one-shot timer invoked the
-actual installed service once; exact S3 completion/receipt and independent restore
-passed. The temporary unit was removed, permanent schedules unchanged. Waiting
-for the first midnight run is no longer required; do not claim it occurred.
+The owner accepted the earlier 20:01 UTC installed-service/temporary-timer recovery
+test instead of waiting for midnight. The first ordinary 27 October 00:00 UTC run
+is still future at the cutover checkpoint; monitor it normally, never infer success
+from the qualification backups. Qualification briefly reached the service's
+three-start/six-hour limit; one reviewed failed-counter acknowledgement was used,
+with guards unchanged. No recurring schedule or retention was weakened.
 
 - `jobwatch-backup.timer`: 00:00/12:00 UTC, one-minute accuracy, no random delay,
   persistent catch-up after downtime. Catch-up runs once, not once per missed slot.

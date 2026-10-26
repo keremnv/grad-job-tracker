@@ -27,59 +27,26 @@ infrastructure is needed to define V1.
 
 ## Verified implementation and remaining work
 
-| Area | Implemented | Remaining for usable V1 |
+**Core PostgreSQL production V1 activated 26 October 2026** under explicit owner GO.
+[The handover](AWS_PRODUCTION_HANDOVER.md) and [current ledger](V1_RELEASE_CHECKLIST.md)
+record the frozen source, reconciled import, actual collection and real recovery.
+Main preserves both the full feature chain and newer observation commits; archived
+observation files remain exactly C, not a second authority.
+
+| Area | Implemented / qualified | Remaining boundary |
 |---|---|---|
-| Storage/collection | PostgreSQL 17, migrations 0001–0004, full parsed evidence, material events, locked publication/rescreening, absence safety and narrow audit | Hosted vector/0004 qualified; final real-data import and reconciliation; genuine endpoint checks and transparent coverage |
-| Migration/recovery | Frozen Git importer, repeatability, local/hosted synthetic dump/restore and independent off-host synthetic recovery; owner-selected AWS-only backups every **12 hours**, not a strict RPO | Activate twice-daily S3 backups and CloudWatch/SNS failure/missing-run/age alerts; restore the final imported archive into a separate target; no external custody requirement |
-| Research/retrieval | Ordinary SQL/views, excluded postings, evidence/history, BM25/FTS/reports; local [EmbeddingGemma 2, exact vector/hybrid retrieval and recovery tests](POSTGRESQL_RETRIEVAL.md) | Hosted vector 0.8.7 qualified; inference stays on suitable local hardware |
-| Agent authority | Owner role supports audited owner/control/lead SQL writes separately from collector/migrator; Stage 4C supplies bounded read tools; [Stage 4E tests ordinary owner SQL](POSTGRESQL_OWNER_WORKFLOWS.md) end to end | Qualify usable scoped hosted connectivity; keep read-only ChatGPT identity separate |
-| Calendar/follow-ups | Shared ICS projection, programme deadlines, triage revisits and [minimal atomic subscription snapshots](PROTON_CALENDAR.md), with stable linkage IDs and revisions | Approve private HTTPS hosting/publication and credential custody; test a real Proton subscription and notification defaults; polling is not guaranteed alerting |
-| Online ChatGPT | Local five-tool interoperability and **real synthetic `sql_query` call** through the private tunnel; [Stage 4F](AGENT_CONNECTIVITY_REPORT.md) records scope and shutdown | Approved real-data scope, hosted read identity/authentication, trusted gateway availability and cost/terms; no public unauthenticated listener or inferred approval from the synthetic test |
-| Operations | AWS host, protected storage, SSM, logs/alarms and disabled systemd units qualified | Notification recipients, backup age/missing-run checks, secure access, scheduling and single-writer cutover approvals |
+| Storage/collection | PG17.11, vector0.8.7, migrations0001–0004, immutable evidence/history, narrow audit; nine genuine sources validated/activated, controlled publication passed, daily systemd collection enabled | Monitor actual scheduled execution and source failures; bounded feed coverage, not market completeness |
+| Migration/recovery | Final durable Git imported/reconciled; baseline and post-collection real-data S3 archives independently restored with exact data/security/sequences | Operate 00:00/12:00 UTC backups, health/email and restore practice; frequency is not a strict RPO, AWS-only risks accepted |
+| Research/retrieval | All-verdict SQL/views, BM25/FTS and actual owner-role reports/search; local EmbeddingGemma2 exact vector/hybrid implementation and tests | Production embeddings currently zero; inference/indexing on suitable local hardware, not the 2 GiB host |
+| Agent authority | Existing audited owner SQL through authenticated SSM/peer, separately scoped collector/migrator | Optional SQL-only remote credentials require their own access setup; no mandatory API or write MCP |
+| Calendar/follow-ups | Shared ICS, stable identities/uncertainty, privacy-minimised atomic feeds and ordinary owner follow-ups | Approve HTTPS sharing/custody and test actual Proton subscription; polling is not guaranteed alerting |
+| Online ChatGPT | Five read tools and real synthetic tunnel SQL call passed; test stopped, owner-reported disconnection/revocation not independently verified | Real-data scope, dedicated read identity/authentication and gateway approval; no production connection activated |
+| Operations | Protected existing EC2/EBS/S3/SSM, backups, logs, four healthy alarms and confirmed email delivery; Git writer retired | Known protected-instance Terraform replacement proposal remains blocked; no infra apply or guard removal |
 
-Baseline: Stage 4C `10d5f38` includes recovery `b3ba87f`. All nine worktrees were
-clean; both feature tips matched the live remote. Remote main is `b6e0167`:
-one observation commit absent from Stage 4C (local main is two commits behind).
-Preserve that commit and every subsequent production update during integration.
-This paragraph records the earlier baseline, not current release status.
-
-Stage 4E branch is based on retrieval `598a64b`. At its read-only remote check,
-main had advanced to observation commit `9bbcb0149d41250cc2e56b2cbb25779bd5fafc16`;
-it and every newer production update must be preserved.
-
-Release preparation now integrates `9bbcb01` and its predecessor `b6e0167` into
-`feat/v1-release-readiness`, based on portfolio `2cc24c4`. Data/config/owner files
-and the active workflow match that inspected main exactly; main itself is not
-merged or changed. [One current checklist](V1_RELEASE_CHECKLIST.md) records the
-integration, hosted differences, owner-approved AWS-only recovery policy and approvals.
-The final authoritative data commit is still selected only after the future freeze.
-
-[26 October host maintenance](AWS_V1_MAINTENANCE_REPORT.md) qualifies release
-`43aab3b`, PostgreSQL 17.11/vector 0.8.7 and migrations 0001–0004. Intended domain
-tables remain empty and timers disabled/inactive. [The later backup decision](AWS_BACKUP_POLICY.md)
-selects 00:00/12:00 UTC S3 backups, replacing strict RPO/external-custody proposals;
-source changes and email monitoring are not installed/activated. Stage 4C is not
-hosted. Git remains authoritative; these are dated results, not future guarantees.
-
-## Delivery order and boundaries
-
-1. Completed locally: retrieval, preserving normalisation/screening and lexical
-   defaults without coupling collection to models.
-2. Completed locally/synthetically: scoped owner SQL, reused calendar/follow-ups and
-   actual online ChatGPT SQL connectivity. Hosted access and Proton remain open.
-3. Close operating requirements: AWS-only twice-daily scheduling, email notifications, backup
-   age/missing-run monitoring and restore practice, spend/credit checks and source validation. Resolve the known
-   Terraform user-data replacement proposal without replacing the protected host.
-4. The release candidate locally preserves inspected main. Separately approve main
-   integration preserving any newer data, freeze the old writer,
-   select the actual final commit, import/reconcile, independently restore and verify,
-   then approve the single-writer switch and controlled first collection.
-
-V1 is complete when these capabilities work together with correctness, security,
-permission, integration and recovery tests. The £10–£20/month operating preference
-remains; credits/spend limits do not replace that budget or grant deployment approval.
-Neither this scope nor the retrieval plan authorises AWS changes, credentials,
-live ATS checks, timer activation, real-data import, main merge or cutover.
+No new infrastructure or model service was added for cutover. Preserve the
+£10–£20/month operating preference; credits/spend limits are not deployment
+approval. Agent/calendar real-data sharing remains a separate decision and does
+not block the now-active core database/collector.
 
 ## V2
 

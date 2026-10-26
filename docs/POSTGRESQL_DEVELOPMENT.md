@@ -1,6 +1,10 @@
 # PostgreSQL development (Stages 1–4A)
 
-PostgreSQL is a **development/test target** at this stage. The scheduled tracker still reads/writes its existing JSON/CSV/text files. Installing the optional dependency, importing the package or running the existing CLI does not connect to PostgreSQL or apply migrations. There is no synchronization between the two stores and no production cutover.
+PostgreSQL is now authoritative in production; see [the operating handover](AWS_PRODUCTION_HANDOVER.md).
+This guide creates **local disposable targets**, never the live database. Frozen
+JSON/CSV/text files remain import provenance; the old writer is retired. Installing
+dependencies or importing modules never connects or migrates automatically.
+There is no ongoing file/database synchronisation.
 
 The implementation follows review commit [`2966967`](https://github.com/keremnv/grad-job-tracker/tree/2966967c3cf7431dc3b487a72d251e6034d209e9/reviews/postgresql-final). Use PostgreSQL 17; the tested baseline is 17.11. Migration 0004 adds derived retrieval and requires separately provisioned public.vector 0.8.7. See [local retrieval](POSTGRESQL_RETRIEVAL.md) for text-only EmbeddingGemma 2, optional CPU dependencies, worker access and restore prerequisites. SQL/BM25/FTS do not require vectors or model files.
 
@@ -15,7 +19,7 @@ The base installation still has no runtime dependencies. The `postgres` extra in
 
 The one-time frozen Git importer, reconciliation and disposable backup/restore rehearsal are documented in [POSTGRESQL_IMPORT.md](POSTGRESQL_IMPORT.md). They require explicit invocation and do not change the production store.
 
-Operational SQL, reports, search, multi-source collection, endpoint checks and readiness are documented in [POSTGRESQL_OPERATIONS.md](POSTGRESQL_OPERATIONS.md). See the [functionality matrix](POSTGRESQL_FUNCTIONALITY.md) and the proposed, unexecuted [cutover runbook](POSTGRESQL_CUTOVER_RUNBOOK.md).
+Operational SQL, reports, search, multi-source collection, endpoint checks and readiness are documented in [POSTGRESQL_OPERATIONS.md](POSTGRESQL_OPERATIONS.md). See the [functionality matrix](POSTGRESQL_FUNCTIONALITY.md) and the executed [AWS handoff/recovery runbook](AWS_CUTOVER.md).
 
 Stage 4E adds [ordinary SQL owner workflows](POSTGRESQL_OWNER_WORKFLOWS.md) and
 [private subscription-ready ICS snapshots](PROTON_CALENDAR.md). Run the same
@@ -154,7 +158,13 @@ Values are positive integers. The module explicitly sets these session defaults,
 
 Schema semantics follow the approved review. Provisioning is separated; the runner owns namespace/journal setup; a dedicated migration login replaces review-time superuser execution. SQL URL identity now matches existing Python behavior for empty query/fragment delimiters, empty/default/zero-padded HTTPS ports, and validates IPv6 literals rather than accepting malformed bracketed addresses. These refinements have regression tests and change no existing Python normalizer or deployed data.
 
-Stage 2 implements collection, publication, provider comparison, evidence/history, retries and source-locked rescreening with current v1 output. Stage 3 adds frozen Git import, historical recovery, full reconciliation and tested local pg_dump/pg_restore. Stage 4A adds SQL-backed research/reports, BM25 and FTS, multi-source collection, endpoint validation/activation, and explicit readiness checks. Hosted infrastructure, actual-host backups/PITR, real endpoint checks, the single authoritative production cutover, source discovery expansion, normalizer v2, pgvector and hybrid retrieval remain later work. Production remains file-backed.
+Stages 2–4F implement collection/history, Git import/reconciliation, SQL operations,
+retrieval, owner workflows/calendar and read-only agent connectivity. Production
+now uses the existing AWS PostgreSQL host and systemd collector after the approved
+26 October cutover and independent real-data recovery. See the handover for exact
+versions and remaining optional real-data sharing decisions. Source expansion,
+normalizer v2 and retrieval optimisation remain separate future work; no PITR or
+external backup provider is promised by the owner-selected AWS-only policy.
 
 ## Optional Stage 4C read tools
 
@@ -162,5 +172,7 @@ The [read-tool contract](CHATGPT_READ_TOOLS.md) provides a transport-independent
 SQL/schema/evidence/search/report core, JSON-lines harness and optional official
 MCP SDK adapter. Install `.[chat-mcp]` only when using MCP; ordinary psycopg/psql
 and `.[postgres]` remain independent. Proposed role provisioning is separate from
-migrations and has run only against disposable databases. The existing production
-CLI, AWS roles, workflows and authoritative storage remain unchanged.
+migrations and has run only against disposable databases.
+The optional read interface changes no collector/owner authority. Production
+ChatGPT access has not been provisioned or approved; synthetic connectivity is
+separate from the now-live SQL store.

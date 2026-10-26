@@ -1,6 +1,8 @@
 # Operational functionality inventory (Stage 4A)
 
-The file-backed production CLI/workflow remains active and unchanged. This matrix describes the PostgreSQL replacement **after a separately authorized cutover**, not a compatibility promise for every old command/envelope.
+The approved PostgreSQL cutover was executed on 26 October 2026; the Git writer
+is retired. This inventory describes the SQL operational interface, not a
+compatibility promise for every old command/envelope. See [the current handover](AWS_PRODUCTION_HANDOVER.md).
 
 | Useful file-era operation | PostgreSQL decision | Implemented interface / reason |
 |---|---|---|
@@ -8,7 +10,7 @@ The file-backed production CLI/workflow remains active and unchanged. This matri
 | `queue`, `recent` | Direct SQL plus report convenience | `operational_postings` reuses application/triage precedence from `opportunity_workflow`. A WHERE clause selects attention; recent first observations filter `first_seen_basis='observed'`. Research never inherits that filter. |
 | `changes` | Direct SQL plus report convenience | `posting_events`; current provider/normalizer/screening/observation categories and explicitly labelled imported legacy categories. No new history store or inferred backfill events. |
 | `health` | Direct SQL plus report convenience | `source_health` and public research coverage flags distinguish success, failure, imported baselines, positive-only scans, actual positive times and qualified absence. |
-| `report`, daily scan summary | Retain convenience | `jobwatch-pg-ops report daily` uses consistent read-only SQL results. Scheduled Actions output uses the separate public orchestration summary, never owner reports. |
+| `report`, daily scan summary | Retain convenience | `jobwatch-pg-ops report daily` uses consistent read-only SQL results. The systemd collector uses the separate public orchestration summary, never owner reports. |
 | `weekly` | Retain convenience | `report weekly`: attention, seven-day material observations, dated independent/source evidence, owner follow-ups, applications, leads and attributed requirement mentions. Notes/CV labels omitted. |
 | `requirements` | Retain convenience | `report requirements`; same skill regex baseline, plus explicit C# mentions. Only exact current descriptions bound by an independent check qualify; all listed verdicts are eligible. No applicant fit/market-demand inference. |
 | `leads`, programme cycles | Direct SQL plus reports | `leads` preserves source wording, official/unverified status and quoted cycle/intake. Daily/weekly reports show windows/uncertainty and previous cycles without promoting them to a current opportunity. Raw research notes remain queryable in SQL. |

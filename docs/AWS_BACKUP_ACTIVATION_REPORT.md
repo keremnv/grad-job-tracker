@@ -1,5 +1,9 @@
 # AWS backup and monitoring activation
 
+**Historical activation evidence.** The later [production handover](AWS_PRODUCTION_HANDOVER.md)
+records real-data independent restoration and the completed single-writer switch.
+The empty-database/NO-GO statements below describe the earlier activation only.
+
 26 October 2026. Installed application: `19ee9338ae902423e69d01d6eeb6f0f00bceaec2`.
 **Production NO-GO. Git remains authoritative.** Backup and backup-health timers
 are enabled; PostgreSQL collection remains disabled. Intended domain tables are

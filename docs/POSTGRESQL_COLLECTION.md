@@ -1,6 +1,10 @@
 # PostgreSQL collection and history (Stage 2)
 
-This is a working **development/test collection path**. The scheduled JSON-backed tracker, its commands, data, rules and GitHub Actions workflow are unchanged. There is no dual write, live-state importer, hosted database, cutover or vector job. Setup and role provisioning remain in [POSTGRESQL_DEVELOPMENT.md](POSTGRESQL_DEVELOPMENT.md).
+This collector now runs in production through the existing AWS systemd service;
+[the handover](AWS_PRODUCTION_HANDOVER.md) records authority, schedules and recovery.
+The examples below use **local disposable fixtures**, never the live database.
+The old Git writer is retired; there is no dual write or model job in collection.
+Local setup remains in [POSTGRESQL_DEVELOPMENT.md](POSTGRESQL_DEVELOPMENT.md).
 
 ## Run locally with a fixture
 

@@ -5,10 +5,10 @@ of opportunities: what was observed, what changed and what remains uncertain.
 Built for researching UK 2027 graduate roles in software, systems and applied AI,
 it connects evidence-backed search with application triage and dated follow-ups.
 
-**Status · 26 October 2026:** the real corpus is imported into AWS PostgreSQL and
-independently restored/reconciled. Git collection is retired. Controlled collection
-and final activation checks are in progress; routine SQL collection remains disabled
-until they pass. [Production handover](docs/AWS_PRODUCTION_HANDOVER.md).
+**Production · 26 October 2026:** AWS PostgreSQL is authoritative. All nine sources
+passed their first controlled collection; daily systemd collection is enabled.
+Real-data S3 backups passed independent restoration. The Git writer is retired.
+[Operating handover](docs/AWS_PRODUCTION_HANDOVER.md).
 
 [Architecture](#how-it-works) · [Engineering decisions](#engineering-decisions) ·
 [Example workflow](#a-synthetic-research-to-follow-up-workflow) ·
@@ -32,14 +32,14 @@ until they pass. [Production handover](docs/AWS_PRODUCTION_HANDOVER.md).
 ## How it works
 
 PostgreSQL holds the imported and reconciled corpus on the existing AWS host.
-Source publication is undergoing its controlled first scan before daily scheduling.
+Source publication runs daily through the restricted collector identity.
 Frozen Git history is preserved as provenance; the dashed import edge is a completed
 one-time migration, not ongoing synchronisation.
 
 ```mermaid
 flowchart LR
     ATS["Public ATS APIs<br/>Greenhouse · Lever · Ashby"]
-    ATS --> PUBLISH["QUALIFYING · systemd<br/>validated source publication"]
+    ATS --> PUBLISH["LIVE · systemd<br/>validated source publication"]
     PUBLISH --> PG[("LIVE · PostgreSQL 17 on AWS<br/>evidence · history · owner records")]
     FILES[("FROZEN · Git history<br/>legacy import source C")] -. "one-time import completed" .-> PG
     OWNER["AVAILABLE · authorised owner SQL<br/>applications · triage · leads"] --> PG
@@ -51,8 +51,8 @@ flowchart LR
     classDef live fill:#e8f5e9,stroke:#287a42,color:#122619
     classDef qualified fill:#edf4ff,stroke:#3868a8,color:#172b49
     classDef pending fill:#f5f5f5,stroke:#666,color:#222,stroke-dasharray:5 4
-    class PG,OWNER,RESEARCH live
-    class PUBLISH,FILES,ICS qualified
+    class PG,OWNER,RESEARCH,PUBLISH live
+    class FILES,ICS qualified
     class MCP,PROTON pending
 ```
 
@@ -213,12 +213,12 @@ production access or a live Proton integration.
 |---|---|
 | **Authoritative store** | AWS PostgreSQL, imported from frozen `9bbcb01` with complete reconciliation and independent real-data S3 restoration. Git observation files remain archived provenance; the old workflow is disabled and retired. |
 | **PostgreSQL development** | Migrations 0001–0004, collection/history, importer, retrieval, owner SQL, calendar snapshots and read-only MCP locally qualified. |
-| **Last qualified AWS deployment** | 26 October 2026: ARM64 `t4g.small`, PostgreSQL 17.11, pgvector 0.8.7 and migrations 0001–0004; native retrieval/recovery qualified. [Release `e3807a0`, including Riverlane fix, installed and natively tested](docs/AWS_RIVERLANE_MAINTENANCE_REPORT.md). [Installed-service/timer/S3/independent restore passed](docs/AWS_BACKUP_ACTIVATION_REPORT.md#installed-service-qualification--26-october-2001-utc); backup/health timers enabled, alarms OK and notification delivery previously confirmed. Intended domain tables empty; collection disabled. |
-| **Activation in progress** | Owner GO and legacy acceptance recorded; nine real sources validated/activated. Controlled first collection and final scheduling checks remain. Real-data ChatGPT and Proton hosting remain separate follow-ons. |
+| **Last qualified AWS deployment** | 26 October 2026: ARM64 `t4g.small`, PostgreSQL 17.11, pgvector 0.8.7 and migrations 0001–0004; native retrieval/recovery qualified. [Release `e3807a0`, including Riverlane fix, installed and natively tested](docs/AWS_RIVERLANE_MAINTENANCE_REPORT.md). [Installed-service/timer/S3/independent restore passed](docs/AWS_BACKUP_ACTIVATION_REPORT.md#installed-service-qualification--26-october-2001-utc); backup/health timers enabled, alarms OK and notification delivery previously confirmed. Real imported and post-collection archives independently restored with exact rows/security/sequences. |
+| **Production operation** | First scan: nine sources published 620 positive observations, retaining exclusions and owner state. Daily collection at 06:15 UTC plus up to five minutes' delay; backups at 00:00/12:00 UTC; health every fifteen minutes. Real-data ChatGPT and Proton hosting remain separate follow-ons. |
 
 The owner accepted the known unavailable historical evidence and the unpublished
 26 October runner snapshot. Retained records are reconciled against the exact frozen
-Git source. Current activation evidence and the authority boundary are recorded in
+Git source. Current operating evidence and the authority boundary are recorded in
 the [production handover](docs/AWS_PRODUCTION_HANDOVER.md).
 
 ANN/rerankers and sophisticated autonomous actions are deferred.

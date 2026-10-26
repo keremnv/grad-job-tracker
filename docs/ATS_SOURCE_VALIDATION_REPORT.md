@@ -1,10 +1,33 @@
 # Nine-source validation — 26 October 2026
 
-**Nine PASS for bounded public validation; production remains NO-GO.** All nine
-employer mappings have supporting official evidence. The initial Riverlane check
-failed closed; the separately approved source-specific correction and one live
-revalidation now pass. The other eight were not refetched. No source was activated,
-removed or renamed. Git remains authoritative; neither stage connected to AWS.
+**Nine production sources validated, activated and successfully collected** under
+the owner's final GO. [The handover](AWS_PRODUCTION_HANDOVER.md) records the SQL
+single-writer switch and recovery. Earlier local checks below remain dated evidence;
+they did not themselves activate anything.
+
+## Production receipts and controlled publication
+
+Actual production endpoint checks ran **21:13:48–21:14:11 UTC** using the installed
+source-check interface, before activation through each latest successful same-source
+receipt and preserved employer-association evidence. No mapping time was reused as
+an endpoint-check time. All nine checks passed; no source was added or removed.
+The separate controlled collection ran **21:23:29–21:23:55 UTC**.
+
+| Source | Provider region | Valid records at production check | Controlled positives | Absence contract for these responses |
+|---|---|---|---|---|
+| `ashby:hyperexponential` | global | 32 | 32 | Safe, validated single response |
+| `ashby:incident` | global | 33 | 33 | Safe, validated single response |
+| `ashby:tracebit` | global | 3 | 3 | Safe, validated single response |
+| `greenhouse:cambridgeconsultantslimited` | eu | 91 | 91 | Safe, complete total |
+| `greenhouse:monzo` | global | 70 | 70 | Safe, complete total |
+| `greenhouse:mw-tech-grad` | global | 5 | 5 | Safe, complete total |
+| `greenhouse:riverlane` | eu | 36 | 36 | Safe, complete total; scoped official-URL rule |
+| `lever:palantir` | global | 307 | 307 | **Positive-only**, multiple offset pages |
+| `lever:scottlogic` | global | 43 | 43 | Safe for this short single page |
+
+All 620 positive observations published. No positive-only absence event occurred;
+feed absence is still not proof of closure, and coverage is bounded to these feeds.
+Private receipts preserve actual run IDs, timestamps, hashes and provenance.
 
 ## Baseline and method
 

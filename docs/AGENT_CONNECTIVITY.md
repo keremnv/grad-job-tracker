@@ -1,5 +1,11 @@
 # Agent connectivity qualification (Stage 4F)
 
+**Current production boundary, 26 October 2026:** PostgreSQL is now authoritative
+on AWS; [the handover](AWS_PRODUCTION_HANDOVER.md) records the qualified release,
+vector/migrations, recovery and owner SQL access. The synthetic MCP results below
+do not grant production sharing: no production chat-read login, hosted MCP process
+or tunnel has been activated. Dated host comparisons below are historical.
+
 The existing five read tools passed local qualification, followed by a real
 synthetic-only ChatGPT `sql_query` call over a private OpenAI tunnel. It is not
 hosted production access; see the [precise result](AGENT_CONNECTIVITY_REPORT.md#online-synthetic-milestone--complete).

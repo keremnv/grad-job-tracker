@@ -1,290 +1,64 @@
-# V1 release candidate — preflight, not production approval
+# V1 production release checklist
 
-25–26 October 2026. Branch `feat/v1-release-readiness`, based on portfolio `2cc24c4`.
-**Overall: NO-GO for production.** Git remains authoritative. The initial local
-release preparation used no authenticated AWS/Platform calls, hosted database,
-tunnel, timer activation or production import. Public documentation/prices were
-read. Subsequent authorised AWS inspection/maintenance is recorded below.
-
-A separately authorised [26 October hosted maintenance](AWS_V1_MAINTENANCE_REPORT.md)
-now qualifies the V1 artifact, pgvector 0.8.7, migration 0004 and synthetic format-2
-recovery on ARM64. Subsequent [backup activation](AWS_BACKUP_ACTIVATION_REPORT.md)
-installed release `19ee933` and enabled only backup/health timers after delivered
-ALARM tests and a verified manual S3 backup/independent restore. Collection remains
-disabled and intended domain tables empty. The first scheduled backup is still
-unobserved (due 27 October, 00:00 UTC). The owner withdrew waiting for it: the
-actual **20:01 UTC installed-service/one-shot-timer/S3/independent-restore test**
-now satisfies pre-cutover backup qualification. Real-data recovery and cutover
-remain unperformed. The no-AWS statement above describes earlier local preparation.
-
-This is the current compact release record. Older stage reports retain their
-historical results; their daily/26-hour recovery proposal is superseded by the
-owner's **AWS-only twice-daily backup policy**. The previous strict maximum-loss
-requirement is withdrawn; [the current policy](AWS_BACKUP_POLICY.md) records the
-accepted missed-run/project-lockout/Region risks. Frequency is not an RPO guarantee.
-
-## Consolidated decision packet — latest checkpoint
-
-**Ready for the owner's single final GO; production remains NO-GO until given.**
-Rechecked 26 October 2026 after the authorised 20:01 UTC installed-service test.
-The owner accepts that test instead of waiting for midnight. No writer was frozen,
-source activated, data imported or PostgreSQL collector started.
-
-| Item | Evidence / decision still required |
-|---|---|
-| Backup gate — VERIFIED | A unique temporary timer invoked the **actual installed backup service once** at 20:01 UTC. Journal identity/exit 0, new 97,567-byte archive, exact S3 versions/AES256/SHA-256/manifest linkage and fresh receipt verified. Downloaded archive independently restored into isolated PG17.11/vector0.8.7; exact schema/grants/migrations/rows/sequences and corrupt/populated refusal passed. Temporary timer removed; permanent backup/health timers enabled/active, fresh healthy metric and four alarms OK. No midnight-run claim. |
-| Durable Git baseline — VERIFIED | Remote main remains `9bbcb0149d41250cc2e56b2cbb25779bd5fafc16`, dated 25 October. All 15 worktrees clean at inspection; full fsck passes; release preserves main's data/config/owner/workflow tree. Old workflow active, no in-flight run. This is the latest durable baseline, **not frozen final C**. |
-| Import preparation — VERIFIED, not executed | Refreshed plan SHA-256 `96e99a0a0b41a408933b963142e126b9abcebde9a23ad99e9e6b7b28c1a22f7f`, identical to preparation: 631 postings (574 exclusions), 1,013 versions, 110 events, 44 employers, 9 sources, 34 leads/programmes, 24 verifications, zero applications/triage; 87 imported historical-health runs. All 3,510 recorded description references resolve; no new discrepancy. |
-| H1 / H2 — OWNER ACCEPTANCE PENDING | H1: missing original ATS fields/wording cannot be invented from normalized snapshots. H2: exclusions never indexed before coverage-first storage cannot be reconstructed. Retained records remain preserved; future native collection establishes honest baselines. |
-| Failed-push caveat — DISCLOSE WITH GO | The 26 October runner snapshot is unpublished and unrecovered, with no snapshot artifact or resolvable commit. Its nine reported changes are not nine proven lost postings. No later committed scan/re-observation exists at this checkpoint. Later private endpoint-validation responses are separate dated evidence, not recovery of the original run or imported history. Available evidence cannot prove permanent global irrecoverability. |
-| Host / execution route — PREPARED | Riverlane release `e3807a0`, PostgreSQL 17.11/vector 0.8.7, migrations 0001–0004, protected storage and empty domain tables verified. Independent recovery adapters qualified; actual imported-data reconciliation/restore still required after GO. No new infrastructure or fixed recurring cost proposed; ordinary S3 requests/recovery egress remain usage charges. |
-
-The owner's revised backup prerequisite is satisfied. Request **one** GO accepting
-H1/H2 plus the disclosed unpublished-snapshot boundary and authorising:
-freeze/wait/pin final C; plan/import once through temporary restricted access;
-full reconciliation and actual real-data S3 independent restore; genuine same-source
-checks/activation; retire the Git writer, controlled SQL scan, fresh verified backup
-and routine SQL scheduling only after every check passes. Preserve 00:00/12:00 UTC
-backups. No automatic stale-Git fallback after authoritative SQL writes. No final
-approval is recorded or inferred by this checkpoint; ChatGPT/Proton remain separate.
-
-## Integration evidence
-
-Fetched remote `main`, rechecked 26 October:
-`9bbcb0149d41250cc2e56b2cbb25779bd5fafc16`.
-Its only commits outside portfolio `2cc24c4` are observation updates:
-
-| Commit | UTC date | Inspection |
-|---|---|---|
-| `b6e01679d3c2e56f5b850fe814a90bc7df671d57` | 24 October 2026 | Observation files only |
-| `9bbcb0149d41250cc2e56b2cbb25779bd5fafc16` | 25 October 2026 | Observation files only |
-
-Common ancestor: `90434ea6d9a3457f9c8ba40f01ad25fa2ceffca3`. The normal merge
-is committed locally as `7d76a91`, with both histories intact and no conflicts.
-Six distinct paths changed on main, all under jobs/index/health/text/report
-observations. The integrated `data/`, `config/` and active workflow tree objects
-match inspected main exactly. Owner ledgers, including legitimately absent files,
-match byte-for-byte. No hand-edited data or obsolete snapshot replacement.
-All other worktrees were clean and preserved. **Nothing was merged into main.**
-
-Repeat this comparison after any new main commit. Merge new main into the release
-branch normally; stop on code/config/owner conflicts. Do not resolve with wholesale
-`ours`/`theirs`, squash an old data tree over main, or force-push. Code-artifact
-commit **R** and final authoritative data commit **C** are different identifiers:
-select C only after the approved writer freeze. This audit SHA is not automatically C.
-
-The actual importer **plan-only** operation against that inspected main validates:
-631 postings, 1,013 planned versions and 110 planned retained events, with no
-unrecoverable referenced-text entries reported. These are commit/date-specific
-plan counts, not a database import, live market coverage or repaired native history.
-Both known legacy limitations and all nine activation gates remain. The private
-machine-readable plan is outside Git; final C still needs a new plan/reconciliation.
-
-The separately approved [26 October public source validation](ATS_SOURCE_VALIDATION_REPORT.md)
-used only local qualification databases: initially eight PASS and Riverlane FAIL.
-The approved source-specific URL correction and **one revalidation at 15:52 UTC**
-passed all 35 Riverlane records; **all nine bounded public checks now pass**. All
-employer mappings are supported. No source was activated/configured differently;
-the other eight feeds were not refetched. Subsequent
-[native code-only AWS maintenance](AWS_RIVERLANE_MAINTENANCE_REPORT.md) installed
-release `e3807a0` containing the fix; backup/health timers were restored after an
-8.617-second pause, with collection still disabled and intended tables empty.
-The [historical-evidence acknowledgement](LEGACY_EVIDENCE_ACCEPTANCE.md) is prepared
-and explicitly **not accepted**; source-check approval supplies no acceptance.
-
-## Hosted compatibility — baseline and completed maintenance
-
-The table below retains the pre-maintenance comparison. Its release, vector, 0004
-and synthetic recovery work is now **VERIFIED**, with exact before/after results in
-[the hosted V1 maintenance report](AWS_V1_MAINTENANCE_REPORT.md). Optional roles and
-production authentication were not provisioned. Stage 4B reports retain their
-historical results; this does not authorise further maintenance.
-
-| Recorded host | V1 maintenance required, in order |
-|---|---|
-| ARM64 Ubuntu/Python 3.12, PostgreSQL 17.11, encrypted protected EBS; release `1b72d0d` | Read-only revalidation first. Preserve exact volume/UUID, zero inbound rules and SSM. No resize/replacement or Terraform apply. |
-| Migrations 0001–0003, intended domain tables empty; timers disabled | Verify unchanged checksums/emptiness and preserve a pre-upgrade backup with its old recovery bundle. Install a hash-verified current **code-only** artifact with both timers still disabled. |
-| No recorded pgvector installation | Separately approve pinned ARM64 PostgreSQL 17 extension software, verify source/package checksum and `public.vector` **0.8.7**; explicitly run `vector_extension.sql` as administrator before migration 0004. Package availability/ARM64 installation is not qualified by x86 local tests. |
-| Existing migrator/collector/owner and peer/socket controls | Apply only pending migration 0004 through `migrate_local.sh` as existing migration identity. Provision optional embedding/read roles explicitly through reviewed SQL; new roles have no password. Do not rerun initial `bootstrap.sql` over existing cluster roles. |
-| Old backup format 1 | Current code emits **format 2**, includes vectors, extension/role requirements and a conservative backup start timestamp. Restore 1 only with the pinned pre-vector code/tools; keep that bundle. Existing format-2 restores remain compatible; older manifests without start proof cannot pass the new freshness check. |
-| No production read login/authentication | Approve separate read-role scope, narrowly scoped HBA/authentication and temporary SSM forwarding. Read tools need 0004; owner credentials never substitute. The runtime artifact includes prerequisite SQL but does not execute it automatically. |
-
-Run new-release synthetic qualification and vector-aware backup/independent restore
-before accepting host maintenance. Keep intended production domain tables empty.
-The artifact ships base application/psycopg ARM64 wheels, **not** MCP/model inference
-dependencies or weights. Run model-free MCP on a separately approved trusted gateway
-with `requirements/agent-read.lock`. EmbeddingGemma float32 inference/indexing stays
-on suitable existing local hardware, not beside PostgreSQL on the 2 GiB host.
-SQL/BM25/FTS remain available without vector coverage or a running model.
-
-The recorded Terraform user-data drift proposes an EC2 replacement, blocked by
-`prevent_destroy`. Do not apply it, remove guards, edit state or hide it with an
-unreviewed ignore rule. Current code-only maintenance does not need Terraform.
-Resolve deployed-bootstrap version control separately before any future infra apply;
-retain protected EBS, backup bucket and separately protected native-locking S3 state.
-
-The readiness diagnostic's external transport label now recognises the approved
-authenticated SSM/peer-or-SCRAM path as well as direct TLS. It remains explicitly
-unverified by that command; no grant, authentication or readiness result is relaxed.
-
-## Recovery — owner-approved AWS-only policy
-
-Use [the compact backup policy](AWS_BACKUP_POLICY.md) for configuration, retention,
-monitoring/email, costs and activation. The strict 12-hour maximum data-loss,
-external encrypted custody/worker and automatic all-writer fencing proposals are
-superseded by the owner's 26 October decision.
-
-Installed and enabled under separate approval: **00:00/12:00 UTC backups**; a private atomic
-receipt only after confirmed S3 archive + manifest completion; a 15-minute local
-receipt checker through the existing log stream. Warning >=14h / critical >=26h
-are advisory. The single health metric/alarm treats missing heartbeat as
-breaching, in addition to existing process-failure alarms. The owner confirmed the
-SNS subscription and actual failure/stale/missing-heartbeat ALARM emails.
-
-The owner explicitly retains existing **30-day current + 30-day noncurrent**
-retention. The earlier shortening proposal is withdrawn from active configuration.
-[Activation evidence](AWS_BACKUP_ACTIVATION_REPORT.md): a real manual backup,
-exact S3 archive/manifest versions and receipt, plus an independent fresh-target
-restore passed. The health timer actually ran successfully at 12:45 UTC on
-26 October. The first scheduled backup remains due at 00:00 UTC on 27 October;
-do not infer its success from another test. The separately approved **20:01 UTC
-installed-service test** now proves an actual one-shot timer invocation, fresh S3
-versions/receipt and exact independent restore, satisfying the revised pre-cutover
-backup gate without awaiting midnight. Its temporary timer was removed and
-permanent schedules unchanged. Terraform has 25 managed entries
-after five normal imports, no apply/replacement; existing protections and 30+30
-retention are unchanged. Collection stays disabled.
-
-Integrity checks, exact S3 versions, conservative snapshot start and guarded
-fresh-target restore are unchanged. Synthetic hosted and independent restores
-passed; the actual imported production archive still needs restore/reconciliation.
-No external retained copy or strict RPO is required. Failed/missed backups, AWS
-project lockout, regional failure or administrator deletion can cause >12h loss.
-
-Marginal planning cost for 10–100 MiB archives is about **$0.43–$0.68/month**
-(illustrative £0.40–£0.63 including 20% VAT at £0.77/$), with one new metric/alarm
-and small SNS/log/request usage. Actual production size/current bill is unverified;
-no free allowance/credits assumed. Existing host estimate remains historical.
+**Executed 26 October 2026 under the owner's final production GO.** PostgreSQL is
+now authoritative. This is the compact current ledger; dated preparation reports
+remain historical. See [production handover](AWS_PRODUCTION_HANDOVER.md) for actual
+recovery evidence, SQL access and operating instructions.
 
 ## One release checklist and approval ledger
 
-The owner's coordinated V1 delivery instruction authorises routine preparation,
-existing-host code maintenance and bounded qualification without further small
-approval stages. **One consolidated GO is still required** for H1/H2 acceptance,
-writer freeze, real import/reconciliation/independent recovery, source activation
-and the controlled single-writer switch. After that GO, follow the runbook through
-routine substeps; stop on its data/recovery/writer/security/cost failure conditions.
-Do not treat this preparation authority as that GO.
-
-Current pre-freeze plan against `9bbcb01`: **631 postings** (574 excluded, 49 review,
-8 priority), **1,013 versions, 110 retained events, 44 employers, 9 sources,
-21 vacancy leads, 13 programme cycles, 24 verifications, zero applications/triage**.
-Repeated plan hashes agree. All 631 descriptions are available: 540 distinct texts,
-including three historical-only variants; 57 authentic native tuples cover 54
-postings. All 3,510 recorded description references resolve. Unknown posting-field
-inventory is empty; three legacy config/lead categories retain unprojected fields
-in labelled archives. No real import occurred. Replan actual final C after freeze.
-
-The prepared final-import recovery adapter passed an additional independent,
-nonempty synthetic frozen-Git restore/reconciliation after its source database was
-removed. Exact evidence/owner/audit/security/sequences matched; populated targets
-were refused. It reuses the existing production restore function. This is adapter
-qualification, not final real-data recovery; private receipts remain outside Git.
-
-The [maintenance report](AWS_RIVERLANE_MAINTENANCE_REPORT.md) also records today's
-GitHub push failure: nine reported changes in runner-only `95b7f71` were not
-published/recovered. Durable main is intact, but those intermediate updates must
-not be claimed as part of this import. Preserve its logs; disclose the last-durable
-snapshot boundary in the consolidated owner decision. This is distinct from H1/H2.
-
-**The midnight time gate is withdrawn by the owner.** The accepted immediate test
-uses the actual installed service through one temporary timer, not another manual
-backup script. Its exact S3 archive was independently restored; health/alarms and
-permanent schedules remain correct. Midnight execution remains unobserved and is
-left to normal monitoring. The historical private midnight checker must not be
-treated as an active prerequisite or background task. No further development or
-backup approval stage is needed before the consolidated GO decision.
-
-VERIFIED means the scoped evidence exists. READY FOR APPROVED EXECUTION means
-reviewable procedure/code, **not permission** or a passed hosted gate. BLOCKED
-means a dependency or safety implementation is still missing. No row supplies GO.
-
-| Status | Gate / exact next operation | Required authority, cost and consequence |
+| Gate | Status | Actual evidence / remaining boundary |
 |---|---|---|
-| VERIFIED | Feature chain + inspected main integrated without data conflicts | Local Git only; main/writer untouched. Refresh before final integration. |
-| VERIFIED | Real online synthetic ChatGPT `sql_query`; local five-tool tests | Synthetic runtime stopped locally; plugin/key withdrawal owner-reported, not independently checked. No production sharing implied. |
-| VERIFIED | Hosted ARM64 V1 and independent vector-aware synthetic recovery | Format 1 and 2 exact restores passed; intended domain tables empty. Does not prove final real-data recovery. |
-| VERIFIED | Bounded AWS/SSM/SQL/state inspection, 26 October | Initial twenty-resource baseline preserved. Later authorised monitoring imports bring state to 25 entries. Protections/roles/authentication unchanged; intended tables empty and collector disabled. Credit expiry/spend limit and current monthly bill remain unknown. No further permission implied. |
-| VERIFIED — owner decision | AWS-only backups every 12h, no strict RPO | Existing S3 only; missed/failed backups, project lockout and regional failure can cause greater loss. No external custody/worker or automatic fencing requirement. |
-| VERIFIED | Backup/monitoring activation, manual S3 backup and independent restore | Release `19ee933`, confirmed recipient, three actual ALARM emails and final recovery OK owner-confirmed; exact S3 versions/receipt and fresh-target restore passed. Backup/health timers enabled; actual scheduled health execution passed. No new instance IAM; about $0.43–$0.68/month marginal for 10–100 MiB archives. |
-| VERIFIED — revised owner prerequisite | Installed-service/timer-driven S3 backup and independent restore | 26 October 20:01 UTC: actual service/normal identity once, new exact-version S3 completion/receipt, independent restore and monitoring passed. Temporary timer removed; no permanent schedule edit. Midnight proof is no longer required for GO and is not claimed. Ordinary backup monitoring continues. |
-| VERIFIED — owner decision | Retain 30+30 lifecycle | Live and source configuration retain 30-day current/noncurrent expiration; shortening is not authorised or a V1 gate. |
-| VERIFIED | Code-only V1 host maintenance, vector 0.8.7, migration 0004 and synthetic requalification | Artifact R installed/replayed; PG17.11 unchanged; format-1 pre-upgrade and format-2 synthetic S3/restore proofs passed. No optional roles, inference, authentication changes, timer activation or infrastructure changes. |
-| NEEDS OWNER DECISION | [Explicit legacy-evidence acceptance](LEGACY_EVIDENCE_ACCEPTANCE.md) against final manifest | H1 missing native responses and H2 never-indexed pre-schema-2 exclusions remain unaccepted. No technical fee; private dated owner decision, no invented evidence or employer edit times. Additional reconciliation failures are not covered by accepting these two limits. |
-| VERIFIED — bounded public checks | [Nine-source endpoint/mapping gate](ATS_SOURCE_VALIDATION_REPORT.md) | Eight initial passes plus corrected Riverlane revalidation, 26 October 15:52 UTC: all 35 records accepted. Exact source-specific URLs/IDs/fragments preserved; all nine employer mappings supported. No coverage change, publication or activation. After import, genuine checks must be persisted against those actual source rows before separately authorised activation. |
-| VERIFIED | [Hosted code-only Riverlane release](AWS_RIVERLANE_MAINTENANCE_REPORT.md) | `e3807a0` installed/replayed; eleven native feed tests and SQL/vector/security checks passed. Backup/health timers restored after 8.617 seconds, scheduled healthy heartbeat and all four alarms OK. Database empty; no roles/schema/infra change, collection disabled. |
-| READY FOR APPROVED EXECUTION | Final code integration, Git/owner writer freeze and C pin | Repository/workflow administration + owner freeze approval. Wait for in-flight work, preserve/push legitimate edits, verify full history/remote equality. Collection pauses; main/workflow changes require a later explicit instruction. |
-| BLOCKED | Import C once into empty intended target, reconcile all datasets, then real-data independent restore | Needs prior gates and explicit real-data/temporary migration-access approval. Restore a downloaded S3 version into a separate target; no external storage service required. Migrator writes, scoped auth and operator version reads; S3/possible recovery egress costs. Never reset a populated target or count synthetic proof as real-data proof. |
-| VERIFIED — native access/security | Core owner SQL through authenticated operator SSM and existing Unix peer identity | Owner role is distinct from collector/migrator; existing audit/grant protections match, synthetic owner workflows passed. After import verify real baseline read-back without inventing a decision. SQL-only remote credentials/tunnels are a separate access setup, not permission to share owner records online. |
-| NEEDS OWNER DECISION — separate follow-on | Real-data ChatGPT MCP/read identity and remote credential custody | Explicit data-sharing/authentication/transport approval, scoped login/HBA and revocation; no owner/collector credential substitution or restart of the synthetic tunnel. Does not block the core collector/database cutover. Inference stays local. |
-| NEEDS OWNER DECISION — separate follow-on | Private revocable Proton-compatible HTTPS feed and actual subscription qualification | Stage 4E snapshots are local, not a live feed. Separately approve destination/domain/TLS, capability-URL custody/rotation, schedule/monitoring and cost; no notes/CVs. Polling is not guaranteed urgent alerting. Does not block the core cutover. |
-| BLOCKED | Consolidated GO, first controlled PostgreSQL scan, then routine scheduling | One explicit decision covers freeze/import/real-data recovery/source activation/switch, subject to passing every execution check; no repeat approval for routine substeps. Retire file writers/default instructions, keep alternative Actions collector inert. Inspect first-scan baselines/health/owner hashes and verify the S3 backup point before enabling routine collection. After SQL writes, recovery is roll-forward, not stale Git restart. |
-| BLOCKED | Any future Terraform infrastructure update | Recorded replacement proposal must be resolved by a separate reviewed bootstrap-version maintenance plan; no apply, state editing or guard removal. Not a reason to replace this host for a code release. |
+| Owner GO and legacy acceptance | VERIFIED | Owner explicitly accepted H1/H2 and the unpublished 26 October runner-snapshot caveat; approved freeze, import, real recovery and single-writer switch. [Acceptance record](LEGACY_EVIDENCE_ACCEPTANCE.md). |
+| Writer freeze and final C | VERIFIED | Old workflow disabled; no queued/running writer, no local owner/file writer. Frozen at 20:35 UTC: `9bbcb0149d41250cc2e56b2cbb25779bd5fafc16`. Complete Git history/bundle verified. |
+| Integration | VERIFIED | Both feature history and newer observation commits preserved. Main advanced normally; `data/`, `config/`, `reports/` remain byte-identical to C. Retired workflow has no schedule or writer. No force-push or stale snapshot replacement. |
+| Final plan and single import | VERIFIED | Plan SHA-256 `96e99a0a0b41a408933b963142e126b9abcebde9a23ad99e9e6b7b28c1a22f7f`. One committed import: 631 postings/574 exclusions, 1,013 versions, 110 events, 44 employers, nine sources, 34 leads/programmes, 24 verifications, zero applications/triage. 87 imported health runs; all 3,510 text references resolve. |
+| Reconciliation | VERIFIED | Exact imported datasets, evidence/provenance and audit images matched C. An initial timeout fully rolled back; emptiness was independently proved before the one committed retry with an operator-only longer timeout. Sequence gaps retained. |
+| Real-data independent recovery | VERIFIED | Imported-baseline, activated-source and post-scan actual S3 archives restored into separate network-disabled PG17.11/vector0.8.7 targets. Exact schema, security, data, audit, migrations and sequences; baseline reconciled to C, later immutable baseline retained. Exact versions/SHA-256/AES256/manifest linkage and populated-target refusal checked. |
+| Genuine sources | VERIFIED | All nine actual production sources checked 21:13–21:14 UTC, then activated through their same-source receipts and existing mapping evidence. No added/dropped source. [Dated source record](ATS_SOURCE_VALIDATION_REPORT.md). |
+| Controlled collection | VERIFIED | Actual installed service, 21:23:29–21:23:55 UTC: nine published runs, 620 positives, eight absence-safe and Palantir positive-only. No false positive-only absence or invented legacy employer edit. Imported immutable history and owner state unchanged. |
+| Current corpus | VERIFIED | 636 postings, 1,633 versions, 740 events; 579 exclusions; 34 leads, 24 verifications, zero applications/triage. 96 owner/control audits, unchanged by collection. Counts are dated observations, not market coverage. |
+| SQL operations/security | VERIFIED | Actual owner-role daily/weekly/requirements, BM25/FTS reads passed. PG17.11/vector0.8.7 and migrations0001–0004 unchanged; role denials, HBA, loopback/socket, protected mount and release verified. Temporary migration password removed and HBA restored exactly; no new permanent credential. |
+| Scheduling and exclusivity | VERIFIED | Existing systemd collector enabled at 22:31 UTC for 06:15 UTC daily + up to five minutes. No immediate duplicate scan. Git workflow disabled and inert; no alternative cron writer. Backup/health timers remained enabled. |
+| Backup monitoring | VERIFIED | 00:00/12:00 UTC, 30-day current + 30-day noncurrent S3 retention, fifteen-minute health checks. Fresh actual post-scan receipt; four alarms OK with configured actions. Prior failure/stale/missing-heartbeat ALARM and recovery emails owner-confirmed. Future scheduled runs must be monitored, not predeclared successful. |
+| Operating handover | VERIFIED | Main uses SQL-first AGENTS/CLAUDE guidance and retired workflow. Frozen Git remains provenance; never automatically restart it after authoritative SQL writes. [Runbook](AWS_CUTOVER.md) and [backup policy](AWS_BACKUP_POLICY.md). |
+| Real-data ChatGPT / Proton | NEEDS OWNER DECISION | Separate sharing scope, authentication/credential custody and revocation; no production read login, public endpoint, tunnel or calendar feed activated. Synthetic ChatGPT success is not real-data approval. |
+| Embedding population | READY FOR APPROVED EXECUTION | Exact vector/hybrid implementation available; production currently has zero embeddings. Index/query inference stays on suitable local hardware, off the 2 GiB host. SQL/BM25/FTS are live without vectors. |
+| Future Terraform operation | BLOCKED | Known bootstrap/user-data change proposes protected EC2 replacement. No apply, guard removal or state workaround. Resolve separately before any infrastructure change. |
 
-The [cutover runbook](AWS_CUTOVER.md) supplies the ordered execution and recovery
-boundaries. Follow it only after the corresponding approval; never bundle every
-row into implied permission from a successful synthetic test.
+## Recovery and known limits
 
-## Executed local checks
+Frequency is **not** a maximum twelve-hour RPO. Failed/missed runs, AWS project
+lockout, Region failure or administrator deletion can cause greater loss. The
+owner-selected AWS-only design has no external custodian, worker or replication.
+Restore exact archive/manifest versions to a separate target; preserve later valid
+observations and decisions before promotion. Do not reset a populated database.
 
-Latest coordinated preparation: **258 offline tests on each Python 3.11.16,
-3.12.14 and 3.13.12; 144 PostgreSQL tests**, all passed without skips. Native ARM64
-owner SQL, daily/weekly/requirements reports, BM25/FTS and eleven feed tests passed.
-The [maintenance report](AWS_RIVERLANE_MAINTENANCE_REPORT.md) records commands,
-exact S3 manual-archive recovery and the separate synthetic final-import adapter
-test. Neither is a first scheduled backup or real-data import. Earlier counts below
-remain historical stage results, not the latest suite size.
+The installed service's three-start/six-hour limit was reached by successful
+qualification backups. One failed-counter acknowledgement allowed the verified
+post-scan backup; the limit and permanent units were unchanged. Routine cadence
+fits the existing limit. Investigate real failures rather than repeatedly resetting.
 
-The [AWS-only policy validation](AWS_BACKUP_POLICY.md#local-validation-26-october-2026)
-adds seven receipt/health tests: **252 offline passed on each Python 3.11/3.12/3.13**,
-**141 PostgreSQL tests**, **19 deployment/protection tests** and **five Terraform
-mock tests**, all final runs without skips. Archive integrity/security and actual
-fresh-target restore checks remain. No host/credential/state changes or new AWS
-inspection occurred in this policy stage. Logs are private outside Git.
+The generic readiness CLI still consumes the older Stage3 restore-rehearsal receipt;
+its `local_restore_rehearsal` label is not passed by inventing one. Independently
+verified format2 production restores are recorded in the handover/private proofs.
 
-Earlier release-preparation baseline:
+## Software and validation references
 
-- **245 offline tests passed on each Python 3.11.16, 3.12.14 and 3.13.12**, no skips;
-  eight new integrity/age, failure/privacy, code-whitelist and cadence tests.
-- **141 PostgreSQL tests passed**, no skips: PostgreSQL 17.11, pgvector 0.8.7,
-  Python 3.12.14/psycopg 3.2.13, cached offline real-model inference. Includes actual
-  import/repeatability/reconciliation/pg_dump/pg_restore, security, concurrent
-  publication/rescreening, owner/calendar/MCP and isolated vector-aware recovery.
-  The real dump additionally passes the new age/integrity validator after simulated
-  S3 receipts; that simulation is not a new hosted upload.
-- Schedule parsed with `systemd-analyze calendar --iterations=5
-  '*-*-* 00,06,12,18:00:00 UTC'`; no service/timer was started.
-- Terraform 1.17.0: backend-disabled local init, format/validate and **5 mock tests**
-  passed. **19 deployment tests** passed, including real non-root installer/CLI
-  permission checks in network-disabled containers and EBS/backup deletion-refusal
-  plans against fake local state. No live AWS backend, plan, inventory or mutation.
-  The first deployment run lacked the required CLI archive; rerun passed after
-  fetching the pinned public installer/signature and verifying it with GnuPG.
+Installed application R: `e3807a084f837ede9754b406a5813a22965fa298`, artifact SHA-256
+`7660c46153ddc1f301e91ea351fba22184fc03a082a6e1b2a964e5a5e5f9931a`.
+Native ARM64/Python3.12.3/psycopg3.2.13; all four migration contents unchanged.
+No model inference, Terraform apply, new infrastructure or public exposure for cutover.
 
-Principal commands: `PYTHONPATH=src <pinned-python> -m unittest discover -s tests -v`;
-`HF_HUB_OFFLINE=1 JOBWATCH_REAL_MODEL_TEST=1 HF_HOME=<existing-cache>
-PYTHON=<model-venv>/bin/python bash scripts/test_postgres.sh`. Both use isolated
-fixtures, not production records. Private local logs are outside Git.
+Earlier full preparation: 258 offline checks on Python3.11–3.13 and 144 disposable
+PostgreSQL17.11/vector0.8.7 checks, including cached real-model qualification; see
+[the pre-cutover ledger](https://github.com/keremnv/grad-job-tracker/blob/feb3dbc2d90a35bc47296ed9b4dc39c2159d2746/docs/V1_RELEASE_CHECKLIST.md).
+Current cutover adds actual native reports/search, nine provider publications,
+three real-data independent restores, immutable/owner integrity and operational
+schedule/security/monitoring checks. Private receipts remain outside Git; infrastructure identifiers and application
+records are not published in this repository.
 
-Historical initial V1 artifact (superseded by the later reviewed backup-policy and
-Riverlane releases): the code-only release was built from frozen code commit
-`43aab3b12e3277c96b3b0936839a6758ebda986b`. Archive SHA-256:
-`f08b1911157428329485c27a94bf91388407444cc1d3c1fdcea208e3291ec31e`.
-The existing installer verifier accepted its manifest/inventory/hashes. All four
-migrations match Git and are present in the wheel; the four reviewed provisioning
-SQL files and four hash-locked wheels are included. Native dependency tags target
-ARM64/Python 3.12. No tracker data/config, Git metadata, model weights or credentials
-are shipped. The original x86 build did not qualify ARM64 execution. Subsequent explicitly
-approved [hosted maintenance](AWS_V1_MAINTENANCE_REPORT.md) uploaded and installed
-this exact artifact and passed native checks. Later documentation-only commits
-do not change this frozen code identity or authorise another deployment.
+Final integrated-checkout rerun: **258 offline + 144 PostgreSQL tests passed** on
+Python3.12.14/psycopg3.2.13; PostgreSQL17.11/vector0.8.7, including the cached real
+model and import/restore suite. No skips. Markdown lint/relative links/Mermaid and
+Git whitespace checks passed; full commands are in the handover.

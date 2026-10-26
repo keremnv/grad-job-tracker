@@ -1,8 +1,9 @@
 # Owner workflows through ordinary SQL (Stage 4E)
 
 PostgreSQL owns decisions, applications, pending follow-ups and evidenced leads.
-These workflows are implemented/tested locally; the live Git-backed tracker is
-unchanged. There is no new role, migration, CRUD service or write MCP tool.
+These workflows are implemented/tested and available on authoritative production
+PostgreSQL through [authenticated owner SQL](AWS_PRODUCTION_HANDOVER.md#sql-first-operation).
+There is no new role, migration, CRUD service or write MCP tool.
 
 Use `jobwatch_owner` through psql or psycopg, with existing securely supplied
 runtime configuration. Never use collector, migration or infrastructure credentials
