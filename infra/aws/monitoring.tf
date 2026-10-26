@@ -18,19 +18,25 @@ resource "aws_cloudwatch_metric_alarm" "host" {
   threshold           = 0
   treat_missing_data  = "missing"
   dimensions          = { InstanceId = aws_instance.tracker.id }
-  # Console alarms only: no email/contact or subscription is silently created.
+  # Owner-approved notifications; preserve all existing metric/evaluation settings.
+  alarm_actions             = [aws_sns_topic.backup_alerts.arn]
+  ok_actions                = [aws_sns_topic.backup_alerts.arn]
+  insufficient_data_actions = [aws_sns_topic.backup_alerts.arn]
 }
 resource "aws_cloudwatch_metric_alarm" "credits" {
-  alarm_name          = "grad-jobwatch-cpu-credit-balance"
-  namespace           = "AWS/EC2"
-  metric_name         = "CPUCreditBalance"
-  statistic           = "Minimum"
-  period              = 300
-  evaluation_periods  = 3
-  comparison_operator = "LessThanThreshold"
-  threshold           = 12
-  treat_missing_data  = "missing"
-  dimensions          = { InstanceId = aws_instance.tracker.id }
+  alarm_name                = "grad-jobwatch-cpu-credit-balance"
+  namespace                 = "AWS/EC2"
+  metric_name               = "CPUCreditBalance"
+  statistic                 = "Minimum"
+  period                    = 300
+  evaluation_periods        = 3
+  comparison_operator       = "LessThanThreshold"
+  threshold                 = 12
+  treat_missing_data        = "missing"
+  dimensions                = { InstanceId = aws_instance.tracker.id }
+  alarm_actions             = [aws_sns_topic.backup_alerts.arn]
+  ok_actions                = [aws_sns_topic.backup_alerts.arn]
+  insufficient_data_actions = [aws_sns_topic.backup_alerts.arn]
 }
 resource "aws_cloudwatch_log_metric_filter" "failures" {
   name           = "jobwatch-operation-failures"
@@ -43,13 +49,16 @@ resource "aws_cloudwatch_log_metric_filter" "failures" {
   }
 }
 resource "aws_cloudwatch_metric_alarm" "failures" {
-  alarm_name          = "grad-jobwatch-operation-failure"
-  namespace           = "JobWatch"
-  metric_name         = "FailedOperations"
-  statistic           = "Sum"
-  period              = 300
-  evaluation_periods  = 1
-  comparison_operator = "GreaterThanThreshold"
-  threshold           = 0
-  treat_missing_data  = "notBreaching"
+  alarm_name                = "grad-jobwatch-operation-failure"
+  namespace                 = "JobWatch"
+  metric_name               = "FailedOperations"
+  statistic                 = "Sum"
+  period                    = 300
+  evaluation_periods        = 1
+  comparison_operator       = "GreaterThanThreshold"
+  threshold                 = 0
+  treat_missing_data        = "notBreaching"
+  alarm_actions             = [aws_sns_topic.backup_alerts.arn]
+  ok_actions                = [aws_sns_topic.backup_alerts.arn]
+  insufficient_data_actions = [aws_sns_topic.backup_alerts.arn]
 }

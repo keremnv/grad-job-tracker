@@ -33,7 +33,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "backups" {
     status = "Enabled"
     filter { prefix = "backups/" }
     expiration { days = 30 }
-    noncurrent_version_expiration { noncurrent_days = 1 }
+    noncurrent_version_expiration { noncurrent_days = 30 }
     abort_incomplete_multipart_upload { days_after_initiation = 1 }
   }
 }

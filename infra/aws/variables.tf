@@ -55,3 +55,15 @@ variable "owner_tag" {
   type    = string
   default = "personal-tracker"
 }
+
+# Supplied only through private operator inputs. Never commit an email address.
+variable "backup_notification_email" {
+  type      = string
+  sensitive = true
+  nullable  = true
+  default   = null
+  validation {
+    condition     = var.backup_notification_email == null ? true : can(regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$", var.backup_notification_email))
+    error_message = "Supply the owner-confirmed email privately, or leave subscription absent."
+  }
+}

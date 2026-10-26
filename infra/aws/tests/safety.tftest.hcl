@@ -26,16 +26,27 @@ run "safe_initial_plan" {
   assert {
     condition = alltrue([for r in aws_s3_bucket_lifecycle_configuration.backups.rule :
       alltrue([for e in r.expiration : e.days == 30]) &&
-      alltrue([for e in r.noncurrent_version_expiration : e.noncurrent_days == 1])
+      alltrue([for e in r.noncurrent_version_expiration : e.noncurrent_days == 30])
     ])
-    error_message = "Keep the reviewed approximately 31-day versioned backup retention."
+    error_message = "Keep the existing 30-day current/noncurrent retention; shortening is not approved."
+  }
+  assert {
+    condition = (
+      aws_cloudwatch_metric_alarm.backup_health.period == 900 &&
+      aws_cloudwatch_metric_alarm.backup_health.datapoints_to_alarm == 2 &&
+      aws_cloudwatch_metric_alarm.backup_health.treat_missing_data == "breaching" &&
+      length(aws_cloudwatch_metric_alarm.backup_health.alarm_actions) == 1 &&
+      jsondecode(aws_sns_topic_policy.backup_alerts.policy).Statement[0].Principal.Service == "cloudwatch.amazonaws.com" &&
+      length(jsondecode(aws_sns_topic_policy.backup_alerts.policy).Statement[0].Condition.ArnEquals["aws:SourceArn"]) == 4
+    )
+    error_message = "Backup alerts need missing-heartbeat handling and a scoped CloudWatch-only publisher."
   }
   assert {
     condition     = aws_instance.tracker.metadata_options[0].http_tokens == "required" && aws_instance.tracker.credit_specification[0].cpu_credits == "standard"
     error_message = "IMDSv2 and bounded CPU charges required."
   }
 }
-# Same five mock runs; lifecycle is a proposal, never a live bucket update.
+# Same five mock runs; no live bucket update or notification is performed.
 run "reject_wrong_region" {
   command = plan
   variables { region = "us-east-1" }
