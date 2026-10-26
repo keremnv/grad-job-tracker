@@ -209,8 +209,8 @@ production access or a live Proton integration.
 |---|---|
 | **Live `main`** | GitHub Actions collection, tracked JSON/text observations, file-backed owner ledgers and CLI/reports. The release branch preserves the latest inspected observations without changing the live writer. |
 | **PostgreSQL development** | Migrations 0001–0004, collection/history, importer, retrieval, owner SQL, calendar snapshots and read-only MCP locally qualified. |
-| **Last qualified AWS deployment** | ARM64 `t4g.small`, PostgreSQL 17.11 and migrations 0001–0003; synthetic recovery, SSM, logs and persistence checked. Intended production domain tables empty; collector/backup timers disabled. These are recorded qualification results, not a fresh health check. |
-| **Pending activation** | Hosted retrieval/access qualification; Proton HTTPS subscription; durable backup custody, scheduled freshness checks, notification delivery and final single-writer cutover. Synthetic online ChatGPT SQL qualification is complete. |
+| **Last qualified AWS deployment** | 26 October 2026: ARM64 `t4g.small`, PostgreSQL 17.11, pgvector 0.8.7 and migrations 0001–0004; native retrieval and synthetic S3/independent restore qualified. Intended production domain tables empty; collector/backup timers disabled. [Hosted results](docs/AWS_V1_MAINTENANCE_REPORT.md). |
+| **Pending activation** | Production private agent-access qualification; Proton HTTPS subscription; durable backup custody, scheduled freshness checks, notification delivery and final single-writer cutover. Synthetic online ChatGPT SQL qualification is complete. |
 
 Cutover also requires nine genuine endpoint checks, historical-evidence acceptance,
 integration preserving newer `main` data, a writer freeze, final-commit import and

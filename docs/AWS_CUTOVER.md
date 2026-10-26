@@ -1,10 +1,11 @@
 # AWS authority handoff — prepared, not executed
 
-The last committed host qualification has release `1b72d0d`, migrations 0001–0003,
-empty intended domain tables and disabled timers. Synthetic hosted and off-host
-recovery passed; see [hosted results](AWS_HOSTED_QUALIFICATION_REPORT.md) and
-[historical independent results](AWS_RECOVERY_READINESS_REPORT.md). No new AWS
-inspection is implied. Current V1 code has migration 0004 and format-2 backups.
+The [26 October host maintenance](AWS_V1_MAINTENANCE_REPORT.md) qualifies release
+`43aab3b`, PostgreSQL 17.11, public.vector 0.8.7 and migrations 0001–0004. Intended
+domain tables remain empty; both timers remain disabled/inactive. Format-1
+pre-upgrade recovery and vector-aware format-2 synthetic hosted/independent restores
+passed. Durable custody, the 12-hour operating objective and real-data restoration
+remain open; this runbook does not authorise their execution.
 
 The accepted maximum loss tolerance is **12 hours**, superseding daily/26-hour
 proposals. Durable independent custody, freshness/notification operation and

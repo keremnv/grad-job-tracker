@@ -1,9 +1,16 @@
 # V1 release candidate — preflight, not production approval
 
 25–26 October 2026. Branch `feat/v1-release-readiness`, based on portfolio `2cc24c4`.
-**Overall: NO-GO for production.** Git remains authoritative. This stage used no
-authenticated AWS/Platform calls, live ATS requests, hosted database, tunnel,
-timer activation or production import. Public documentation/prices were read.
+**Overall: NO-GO for production.** Git remains authoritative. The initial local
+release preparation used no authenticated AWS/Platform calls, hosted database,
+tunnel, timer activation or production import. Public documentation/prices were
+read. Subsequent authorised AWS inspection/maintenance is recorded below.
+
+A separately authorised [26 October hosted maintenance](AWS_V1_MAINTENANCE_REPORT.md)
+now qualifies the V1 artifact, pgvector 0.8.7, migration 0004 and synthetic format-2
+recovery on ARM64. Both timers remain disabled/inactive and intended domain tables
+remain empty. This does not qualify production recovery or cutover. The no-AWS
+statement above describes the earlier local release-preparation stage.
 
 This is the current compact release record. Older stage reports retain their
 historical results; their daily/26-hour recovery proposal is superseded by the
@@ -41,10 +48,13 @@ plan counts, not a database import, live market coverage or repaired native hist
 Both known legacy limitations and all nine activation gates remain. The private
 machine-readable plan is outside Git; final C still needs a new plan/reconciliation.
 
-## Hosted compatibility — committed evidence only
+## Hosted compatibility — baseline and completed maintenance
 
-Last recorded host: [Stage 4B qualification](AWS_HOSTED_QUALIFICATION_REPORT.md)
-and [independent recovery](AWS_RECOVERY_READINESS_REPORT.md), not re-inspected here.
+The table below retains the pre-maintenance comparison. Its release, vector, 0004
+and synthetic recovery work is now **VERIFIED**, with exact before/after results in
+[the hosted V1 maintenance report](AWS_V1_MAINTENANCE_REPORT.md). Optional roles and
+production authentication were not provisioned. Stage 4B reports retain their
+historical results; this does not authorise further maintenance.
 
 | Recorded host | V1 maintenance required, in order |
 |---|---|
@@ -175,11 +185,11 @@ means a dependency or safety implementation is still missing. No row supplies GO
 |---|---|---|
 | VERIFIED | Feature chain + inspected main integrated without data conflicts | Local Git only; main/writer untouched. Refresh before final integration. |
 | VERIFIED | Real online synthetic ChatGPT `sql_query`; local five-tool tests | Synthetic runtime stopped locally; plugin/key withdrawal owner-reported, not independently checked. No production sharing implied. |
-| VERIFIED | Recorded AWS synthetic recovery; current vector-aware independent disposable restore | No new AWS inspection. Does not prove final real-data recovery/custody. |
-| READY FOR APPROVED EXECUTION | **First approval-sized step:** read-only AWS/SSM/SQL/state revalidation | Approve existing-host inspection, 20-resource state comparison, mount/role/migration/timer/log/alarm status and available billing labels. Read-only AWS + SSM host inspection; ordinary read/log request costs only, no repair, credentials or new plan/apply. Stop on mismatch. |
+| VERIFIED | Hosted ARM64 V1 and independent vector-aware synthetic recovery | Format 1 and 2 exact restores passed; intended domain tables empty. Does not prove final real-data recovery/custody. |
+| VERIFIED | Bounded AWS/SSM/SQL/state inspection, 26 October | Twenty-resource state and protections unchanged; intended tables empty; timers disabled. Alarms have no notification destinations; credit expiry/spend limit and current monthly bill remain unknown. No further permission implied. |
 | NEEDS OWNER DECISION | Independent destination, key custody, always-on worker and notification recipient/RTO/response | Approve ciphertext destination/retention, renewal identity and private-data handling; owner retains recovery key. Four-hour operator-available RTO is proposed, not accepted. Existing storage preferred; worker/egress/destination/alert cost unquoted. 12h tolerance is already accepted, not reopened. |
 | BLOCKED | Demonstrate six-hour backup/copy + independent freshness/missing-run monitoring + delivered alerts + all-writer response | These jobs/custody controls are not installed. Later approval must name schedules, scoped read/write permissions, recipient and write-freeze consequences. A validator and daily timer do not pass this gate. |
-| READY FOR APPROVED EXECUTION | Code-only host maintenance, pinned vector 0.8.7, migration 0004 and isolated synthetic requalification | After revalidation, approve root code/package install, PostgreSQL admin extension and restricted migrator DDL. Preserve data/roles, disabled timers and Terraform guards; no inference/weights. Existing-host CPU/log usage; no extra infrastructure. |
+| VERIFIED | Code-only V1 host maintenance, vector 0.8.7, migration 0004 and synthetic requalification | Artifact R installed/replayed; PG17.11 unchanged; format-1 pre-upgrade and format-2 synthetic S3/restore proofs passed. No optional roles, inference, authentication changes, timer activation or infrastructure changes. |
 | NEEDS OWNER DECISION | Explicit legacy-evidence acceptance against final manifest | Missing complete schema-2 native responses and never-indexed pre-schema-2 exclusions cannot be reconstructed. No technical fee; private dated owner acceptance, no invented evidence or employer edit times. |
 | READY FOR APPROVED EXECUTION | Nine genuine endpoint checks and employer/region mapping review | Separate live HTTPS approval, initially only in a non-authoritative qualification DB, no posting publication. Repeat/persist final checks on imported source rows before activation; collector validation + audited owner activation. Failed/renamed boards need a coverage decision; no new employers. |
 | READY FOR APPROVED EXECUTION | Final code integration, Git/owner writer freeze and C pin | Repository/workflow administration + owner freeze approval. Wait for in-flight work, preserve/push legitimate edits, verify full history/remote equality. Collection pauses; main/workflow changes require a later explicit instruction. |
@@ -224,6 +234,7 @@ The existing installer verifier accepted its manifest/inventory/hashes. All four
 migrations match Git and are present in the wheel; the four reviewed provisioning
 SQL files and four hash-locked wheels are included. Native dependency tags target
 ARM64/Python 3.12. No tracker data/config, Git metadata, model weights or credentials
-are shipped. This x86 build/inspection is not ARM64 execution qualification. The
-artifact remains private/local, unuploaded and uninstalled. Later documentation-only
-commits do not change this frozen code-artifact identity or authorise deployment.
+are shipped. The original x86 build did not qualify ARM64 execution. Subsequent explicitly
+approved [hosted maintenance](AWS_V1_MAINTENANCE_REPORT.md) uploaded and installed
+this exact artifact and passed native checks. Later documentation-only commits
+do not change this frozen code identity or authorise another deployment.

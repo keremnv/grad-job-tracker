@@ -1,5 +1,10 @@
 # Stage 4B.2c — synthetic hosted qualification complete
 
+**26 October V1 follow-up:** [host maintenance and native vector/recovery results](AWS_V1_MAINTENANCE_REPORT.md)
+now record release `43aab3b`, migrations 0001–0004 and vector 0.8.7. Intended domain
+tables remain empty and timers disabled. The report below preserves the earlier
+Stage 4B.2c evidence; production remains NO-GO.
+
 Checked 25 October 2026, `feat/aws-deployment-preflight`. AWS CLI correction:
 `7146de1f93a93d5b39c75bf541b448961423add0`. Installed application remains
 `1b72d0d76f1ed15b56859bc891af9953458f85cd`; it was not reinstalled or upgraded.

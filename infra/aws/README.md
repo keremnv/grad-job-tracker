@@ -1,15 +1,19 @@
 # AWS synthetic hosted qualification complete — cutover pending
 
-The paragraphs below record the last hosted qualification, **not a fresh AWS
-inspection**. Current V1 source adds migration 0004, pinned vector prerequisites,
-format-2 backups with a conservative start timestamp and a prepared six-hour
-backup timer. None has been installed by the release-preflight stage. The accepted
-loss tolerance is **12 hours**; use the [current release checklist](../../docs/V1_RELEASE_CHECKLIST.md)
-for the compatibility order, custody/monitoring gaps, costs and approvals.
+[V1 hosted maintenance, 26 October](../../docs/AWS_V1_MAINTENANCE_REPORT.md)
+verified the existing twenty-resource deployment and installed the exact code-only
+release `43aab3b12e3277c96b3b0936839a6758ebda986b`, pgvector 0.8.7 and migration 0004.
+PostgreSQL remains 17.11 on protected encrypted EBS. Intended domain tables remain
+empty. Both timers are installed, **disabled and inactive**, including the prepared
+six-hour backup definition. No inference runs on this 2 GiB host.
 
-The approved infrastructure at `afda366faabf0db3bf289d55f66fb3dac7445fe1` is deployed: 20 Terraform-managed resources, PostgreSQL 17.11 on independent encrypted EBS and working SSM. Corrected application release `1b72d0d76f1ed15b56859bc891af9953458f85cd` is installed; unchanged migrations 0001–0003 are applied. The intended database contains schema/ledger only, with every domain table empty. Both timers are installed, disabled and inactive.
-
-Hosted synthetic SQL, actual S3 backup/fresh-database restore, one reboot/EBS persistence check and redacted CloudWatch delivery have passed. The service-user AWS CLI permission defect is corrected in bootstrap and repaired in place with unchanged file contents/ownership; see [the correction report](../../docs/AWS_CLI_CORRECTION_REPORT.md). Read [the current hosted report](../../docs/AWS_HOSTED_QUALIFICATION_REPORT.md) for exact results and limitations. A subsequent [independent recovery rehearsal](../../docs/AWS_RECOVERY_READINESS_REPORT.md) restored the decrypted synthetic backup into network-isolated local PostgreSQL 17 without EC2 access. Durable owner-held encrypted custody and production-data recovery remain pending. The file-backed production workflow remains authoritative. Nothing here authorizes further infrastructure changes, live ATS requests, real-data import, timer activation or cutover. Application domain logic and migrations remain unchanged.
+Native ARM64 SQL/vector checks, a fresh versioned format-1 pre-upgrade backup and
+format-2 synthetic S3/hosted/independent restoration passed. Prior reboot/SSM/logging
+and CLI-permission results remain in [the historical hosted report](../../docs/AWS_HOSTED_QUALIFICATION_REPORT.md).
+This does not establish durable owner-held custody, delivered monitoring or the
+accepted **12-hour** recovery limit. Use the [release checklist](../../docs/V1_RELEASE_CHECKLIST.md)
+for exact remaining gates. Production remains Git-backed and NO-GO; no instruction
+here authorises further AWS changes, real-data import, live ATS requests or timers.
 
 ## Resources and storage
 
@@ -73,7 +77,7 @@ PostgreSQL's three configuration files are `root:jobwatch-db`, mode `0640`, so t
 
    Completed code directories/application parents are explicitly `0755`; ordinary files are `0644` and executable files `0755`, independent of the operator's umask. Ownership stays root and runtime identities cannot modify code. Venv symlinks are skipped; symlinked installation parents/releases are refused. Database configuration/data are outside this normalization. Run `python3 -m unittest discover -s infra/aws/tests -p test_installer_permissions.py -v` for the pinned, network-disabled real-Linux-user tests. Updating only an archive does not replace the old trusted installer: any checksum-verified in-place maintenance of `/opt/jobwatch-bootstrap/deploy_release.py` requires its own authorization, original-file check and private backup. Do not replace EC2 to update that helper.
 4. Run `sudo bash /opt/jobwatch/current/infra/aws/scripts/migrate_local.sh` explicitly. It uses the existing `jobwatch-db-migrate` and Unix peer migration identity. Repeated migrations verify checksums; altered or divergent migrations fail. Then perform the separately approved frozen importer/reconciliation procedure, **not** an automatic startup import.
-5. Both `jobwatch-collect.timer` and `jobwatch-backup.timer` are installed **disabled**. Confirm with `systemctl is-enabled`/`is-active`. Only the owner go/no-go may enable collection after all cutover gates. Backups can be enabled earlier only after an approved imported baseline and an independent restore. Services retry failed work at most three times per six hours with 15-minute backoff. Stage 2 transactions preserve per-source commits; failure retries are genuinely new scheduled fetch attempts. Daily timer misses are not replayed (`Persistent=false`).
+5. Both `jobwatch-collect.timer` and `jobwatch-backup.timer` are installed **disabled**. Confirm with `systemctl is-enabled`/`is-active`. Only the owner go/no-go may enable collection after all cutover gates. Backups can be enabled earlier only after an approved imported baseline and an independent restore. Services retry failed work at most three times per six hours with 15-minute backoff. Stage 2 transactions preserve per-source commits; failure retries are genuinely new scheduled fetch attempts. The installed V1 backup timer is persistent but disabled; no recurring backup is yet authorised.
 
 ## IAM, SSM and SQL-first agents
 
