@@ -54,5 +54,87 @@ class FeedTests(unittest.TestCase):
             collect_board({'company': 'Monzo', 'provider': 'greenhouse', 'board': 'monzo'}, lambda u: {})
 
 
+class RiverlaneURLTests(unittest.TestCase):
+    entry = {'company': 'Riverlane', 'provider': 'greenhouse', 'board': 'riverlane', 'region': 'eu'}
+    url = 'https://www.riverlane.com/jobs?gh_jid=17'
+
+    def response(self, url=None, identifier=17):
+        return {'jobs': [{'id': identifier, 'internal_job_id': 99, 'title': 'Graduate Engineer',
+                          'absolute_url': self.url if url is None else url,
+                          'location': {'name': 'Cambridge'}, 'content': 'Build systems'}],
+                'meta': {'total': 1}}
+
+    def test_custom_url_preserves_native_identity_and_original_url(self):
+        for url in (self.url, self.url + '#vacancies'):
+            with self.subTest(url=url):
+                data = self.response(url)
+                row = collect_board(self.entry, lambda _: data)[0]
+                self.assertEqual(row.key, 'greenhouse:riverlane:17')
+                self.assertEqual(row.url, url)
+                self.assertEqual(row.raw, data['jobs'][0])
+        for host in ('boards.eu.greenhouse.io', 'job-boards.eu.greenhouse.io'):
+            old_url = f'https://{host}/riverlane/jobs/17'
+            old = collect_board(self.entry, lambda _: self.response(old_url))[0]
+            self.assertEqual(old.key, row.key)
+            self.assertEqual(old.url, old_url)
+
+    def test_custom_rule_requires_exact_board_and_eu_region(self):
+        for changes in ({'board': 'monzo'}, {'board': 'other'}, {'board': 'Riverlane'},
+                        {'region': 'global'}, {'region': 'us'}):
+            with self.subTest(changes=changes), self.assertRaises(ValueError):
+                collect_board({**self.entry, **changes}, lambda _: self.response())
+
+    def test_spoofed_host_path_scheme_and_authority_fail_closed(self):
+        urls = [
+            'http://www.riverlane.com/jobs?gh_jid=17',
+            'https://riverlane.com/jobs?gh_jid=17',
+            'https://jobs.riverlane.com/jobs?gh_jid=17',
+            'https://www.riverlane.com.evil.example/jobs?gh_jid=17',
+            'https://www.riverlane.com@evil.example/jobs?gh_jid=17',
+            'https://evil.example@www.riverlane.com/jobs?gh_jid=17',
+            'https://www.riverlane.com%2eevil.example/jobs?gh_jid=17',
+            'https://www.riverlane.com:8443/jobs?gh_jid=17',
+            'https://www.riverlane.com/jobs/?gh_jid=17',
+            'https://www.riverlane.com/Jobs?gh_jid=17',
+            'https://www.riverlane.com/other/../jobs?gh_jid=17',
+            'https://www.riverlane.com/%6aobs?gh_jid=17',
+            self.url + '#other',
+            self.url + '#%76acancies',
+            self.url + '#vacancies#other',
+            'https://www.riverlane.com/jobs\\?gh_jid=17',
+        ]
+        for url in urls:
+            with self.subTest(url=url), self.assertRaises(ValueError):
+                collect_board(self.entry, lambda _: self.response(url))
+
+    def test_missing_wrong_duplicate_and_encoded_query_ids_fail_closed(self):
+        # Even valid percent-encoded alternatives are outside this one canonical form.
+        queries = ['', '?gh_jid=', '?id=17', '?gh_jid=18', '?gh_jid=017', '?gh_jid=abc',
+                   '?gh_jid=17&gh_jid=17', '?gh_jid=17&gh_jid=18', '?gh_jid=17&other=1',
+                   '?gh_jid=17&', '?gh_jid=17;gh_jid=18', '?gh%5Fjid=17', '?gh_jid=%31%37',
+                   '?gh_jid=%', '?gh_jid=%1', '?gh_jid=%ZZ', '?gh_jid=%FF', '?gh_jid=17%00',
+                   '?gh_jid=+17', '?gh_jid=%2531%2537', '?gh_jid=17%26gh_jid=17']
+        for query in queries:
+            with self.subTest(query=query), self.assertRaises(ValueError):
+                collect_board(self.entry, lambda _: self.response('https://www.riverlane.com/jobs' + query))
+
+    def test_bad_record_after_valid_record_is_not_a_partial_or_empty_board(self):
+        data = self.response()
+        data['jobs'] += self.response('https://www.riverlane.com/jobs?gh_jid=19', 18)['jobs']
+        data['meta']['total'] = 2
+        stats = {}
+        with self.assertRaises(ValueError):
+            collect_board(self.entry, lambda _: data, stats=stats)
+        self.assertEqual(stats, {})
+        self.assertEqual(collect_board(self.entry, lambda _: {'jobs': [], 'meta': {'total': 0}}), [])
+
+    def test_duplicate_native_postings_remain_invalid(self):
+        data = self.response()
+        data['jobs'] *= 2
+        data['meta']['total'] = 2
+        with self.assertRaisesRegex(ValueError, 'duplicate posting identity'):
+            collect_board(self.entry, lambda _: data)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -102,6 +102,12 @@ def _identity(value) -> str:
 def _link(value, kind, board, region="global") -> tuple[str, str]:
     if not public_url(value):
         raise ValueError("invalid posting URL")
+    if (kind, board, region) == ("greenhouse", "riverlane", "eu"):
+        # This board uses its official careers page. Accept only the observed
+        # canonical query form; no decoding, extra parameters or custom-host fallback.
+        match = re.fullmatch(r"https://www\.riverlane\.com/jobs\?gh_jid=([0-9]+)(?:#vacancies)?", value)
+        if match:
+            return value, match[1]  # collect_board also checks this against the native ID.
     u = urlsplit(value)
     parts = u.path.strip("/").split("/")
     if kind == "greenhouse":
