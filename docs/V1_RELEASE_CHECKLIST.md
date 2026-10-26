@@ -177,7 +177,7 @@ means a dependency or safety implementation is still missing. No row supplies GO
 | VERIFIED | Real online synthetic ChatGPT `sql_query`; local five-tool tests | Synthetic runtime stopped locally; plugin/key withdrawal owner-reported, not independently checked. No production sharing implied. |
 | VERIFIED | Recorded AWS synthetic recovery; current vector-aware independent disposable restore | No new AWS inspection. Does not prove final real-data recovery/custody. |
 | READY FOR APPROVED EXECUTION | **First approval-sized step:** read-only AWS/SSM/SQL/state revalidation | Approve existing-host inspection, 20-resource state comparison, mount/role/migration/timer/log/alarm status and available billing labels. Read-only AWS + SSM host inspection; ordinary read/log request costs only, no repair, credentials or new plan/apply. Stop on mismatch. |
-| NEEDS OWNER DECISION | Independent destination, key custody, always-on worker and notification recipient/response | Approve ciphertext destination/retention, renewal identity and private-data handling; owner retains recovery key. Existing storage preferred; worker/egress/destination/alert cost unquoted. 12h tolerance is already accepted, not reopened. |
+| NEEDS OWNER DECISION | Independent destination, key custody, always-on worker and notification recipient/RTO/response | Approve ciphertext destination/retention, renewal identity and private-data handling; owner retains recovery key. Four-hour operator-available RTO is proposed, not accepted. Existing storage preferred; worker/egress/destination/alert cost unquoted. 12h tolerance is already accepted, not reopened. |
 | BLOCKED | Demonstrate six-hour backup/copy + independent freshness/missing-run monitoring + delivered alerts + all-writer response | These jobs/custody controls are not installed. Later approval must name schedules, scoped read/write permissions, recipient and write-freeze consequences. A validator and daily timer do not pass this gate. |
 | READY FOR APPROVED EXECUTION | Code-only host maintenance, pinned vector 0.8.7, migration 0004 and isolated synthetic requalification | After revalidation, approve root code/package install, PostgreSQL admin extension and restricted migrator DDL. Preserve data/roles, disabled timers and Terraform guards; no inference/weights. Existing-host CPU/log usage; no extra infrastructure. |
 | NEEDS OWNER DECISION | Explicit legacy-evidence acceptance against final manifest | Missing complete schema-2 native responses and never-indexed pre-schema-2 exclusions cannot be reconstructed. No technical fee; private dated owner acceptance, no invented evidence or employer edit times. |
@@ -216,3 +216,14 @@ Principal commands: `PYTHONPATH=src <pinned-python> -m unittest discover -s test
 `HF_HUB_OFFLINE=1 JOBWATCH_REAL_MODEL_TEST=1 HF_HOME=<existing-cache>
 PYTHON=<model-venv>/bin/python bash scripts/test_postgres.sh`. Both use isolated
 fixtures, not production records. Private local logs are outside Git.
+
+The code-only release was built from frozen code commit
+`43aab3b12e3277c96b3b0936839a6758ebda986b`. Archive SHA-256:
+`f08b1911157428329485c27a94bf91388407444cc1d3c1fdcea208e3291ec31e`.
+The existing installer verifier accepted its manifest/inventory/hashes. All four
+migrations match Git and are present in the wheel; the four reviewed provisioning
+SQL files and four hash-locked wheels are included. Native dependency tags target
+ARM64/Python 3.12. No tracker data/config, Git metadata, model weights or credentials
+are shipped. This x86 build/inspection is not ARM64 execution qualification. The
+artifact remains private/local, unuploaded and uninstalled. Later documentation-only
+commits do not change this frozen code-artifact identity or authorise deployment.
