@@ -110,6 +110,9 @@ def backup(conn, archive, *, execute=utility):
         raise BackupError('Backup output already exists')
     if conn.info.server_version // 10000 != 17:
         raise BackupError('PostgreSQL 17 required')
+    # A conservative recovery-point lower bound, before acquiring the snapshot.
+    # Manifest creation/upload time must never stand in for snapshot freshness.
+    backup_started_at = datetime.now(timezone.utc).isoformat()
     # pg_dump's external transaction uses precisely this snapshot. No lock during S3 upload.
     with conn.transaction():
         conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
@@ -124,7 +127,8 @@ def backup(conn, archive, *, execute=utility):
     expected = {r['sequencename'] for r in conn.execute("SELECT sequencename FROM pg_sequences WHERE schemaname='jobwatch'")}
     if set(sequence_state) != expected:
         raise BackupError('Archive sequence inventory mismatch')
-    manifest = {'schema': 'jobwatch.aws-backup/2', 'created_at': datetime.now(timezone.utc).isoformat(),
+    manifest = {'schema': 'jobwatch.aws-backup/2', 'backup_started_at': backup_started_at,
+                'created_at': datetime.now(timezone.utc).isoformat(),
                 'archive_sha256': sha256(data).hexdigest(), 'archive_bytes': len(data),
                 'postgres_version': conn.info.server_version, 'fingerprint': before,
                 'sequences': sequence_state, 'extensions': extension_requirements(conn),

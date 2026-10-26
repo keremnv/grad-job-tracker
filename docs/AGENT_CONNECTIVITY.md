@@ -1,7 +1,9 @@
 # Agent connectivity qualification (Stage 4F)
 
-This is a local/disposable route to the existing five read tools, not a hosted
-deployment or claim of an online ChatGPT connection. Ordinary psql/psycopg SQL
+The existing five read tools passed local qualification, followed by a real
+synthetic-only ChatGPT `sql_query` call over a private OpenAI tunnel. It is not
+hosted production access; see the [precise result](AGENT_CONNECTIVITY_REPORT.md#online-synthetic-milestone--complete).
+Ordinary psql/psycopg SQL
 remains primary and independent of MCP. No mandatory query sequence or research
 policy is introduced. [Implementation scope](AGENT_CONNECTIVITY_PLAN.md).
 
@@ -22,8 +24,10 @@ Codex/operator -> ordinary psql/psycopg over SSM -> appropriate SQL identity
 Proton -> separately approved HTTPS minimal ICS endpoint (not the MCP tunnel)
 ```
 
-The private tunnel is a recommendation conditional on account access, price and
-owner approval. It is not created here. It avoids a public MCP endpoint and new
+The private tunnel route has now worked in the owner's intended personal context
+with a disposable fixture. That test runtime is stopped; plugin disconnection and
+key revocation are owner-reported, not independently verified. Production access
+still needs its own approval, scope and credentials. The route avoids a public MCP endpoint and new
 cloud compute. The trusted machine must stay awake, connected and patched while
 ChatGPT calls it. Disconnects fail closed; they must not fall back to owner SQL.
 An always-on private MCP process on EC2 with **inference disabled** is a possible
@@ -31,22 +35,25 @@ later lexical route, but its runtime/deployment/access still need approval.
 
 ## Current OpenAI documentation versus account access
 
-Checked 25 October 2026 using the official sources below:
+Checked 25 October 2026 using the official sources below. The subsequent online
+synthetic test established this owner's creation/use path; it does not establish
+other workspaces' entitlement, hosted access or tunnel pricing. The table separates
+documented support from observed qualification and remaining limits:
 
-| Documented | Still requires the owner's actual UI/access test |
+| Documented | Qualification and remaining limits |
 |---|---|
-| Web Plugins → + → Add custom MCP server; URL or Tunnel; configure authentication, create/install and invoke the plugin. Streaming HTTP/SSE supported; arbitrary tools need not be renamed search/fetch. Workspace restrictions apply. [Custom MCP](https://developers.openai.com/api/docs/guides/custom-mcp-server) | Whether these controls exist and permit creation in this personal Plus workspace; do not equate a visible `+` with the Plus subscription tier. |
+| Web Plugins → + → Add custom MCP server; URL or Tunnel; configure authentication, create/install and invoke the plugin. Streaming HTTP/SSE supported; arbitrary tools need not be renamed search/fetch. Workspace restrictions apply. [Custom MCP](https://developers.openai.com/api/docs/guides/custom-mcp-server) | Creation and a real synthetic SQL call worked in the owner's personal context. This does not establish every Plus workspace's entitlement or qualify production data. |
 | Plugins can contain MCP servers and/or skills. Installation and service connections have separate lifecycles. [Plugins](https://learn.chatgpt.com/docs/plugins) | Installed connector/catalog tools do not establish permission to add this custom server. No plugin was installed or suggested by this stage. |
-| Secure MCP Tunnel forwards private stdio/HTTP through outbound HTTPS, without inbound access. It requires a tunnel ID, runtime API key, Platform permissions and target-workspace associations. Creation needs Read+Manage; runtime/use needs Read+Use. Personal contexts are described. [Tunnels](https://developers.openai.com/api/docs/guides/secure-mcp-tunnels) | Actual Platform tunnel access, organization/workspace association and permission; no new key, tunnel or association was created. |
+| Secure MCP Tunnel forwards private stdio/HTTP through outbound HTTPS, without inbound access. It requires a tunnel ID, runtime API key, Platform permissions and target-workspace associations. Creation needs Read+Manage; runtime/use needs Read+Use. Personal contexts are described. [Tunnels](https://developers.openai.com/api/docs/guides/secure-mcp-tunnels) | Actual private tunnel/runtime/ChatGPT routing succeeded for the synthetic fixture. Runtime stopped; owner reports plugin/key withdrawal. Pricing and future real-data approval are separate. |
 
 The fetched custom-server/Plugins/tunnel documentation does **not establish this
 owner's personal Plus entitlement or tunnel price**. The
 [pricing page](https://learn.chatgpt.com/docs/pricing) lists Codex plugin/MCP
 availability on Plus; that is not proof of this particular ChatGPT custom-server
 or tunnel control. No upgrade or API credit purchase is recommended on that basis.
-The UI check remains pending unless explicitly recorded in the stage report.
+The stage report now records the successful synthetic UI/tunnel/tool call.
 
-Check the personal workspace's creation/Tunnel controls without making a
+For a different, not-yet-approved context, check creation/Tunnel controls without making a
 connection. If absent, retain direct Codex SQL and local MCP; confirm current
 eligibility with OpenAI before paying for a different plan. With separate approval,
 complete the documented tunnel/client setup and then make a synthetic ChatGPT
@@ -183,12 +190,11 @@ credits do not turn uncertain new charges into an approved budget.
 
 ## Next authorised qualification to request
 
-1. Owner reports actual Plus UI and Platform tunnel access/cost; choose the trusted
-   local gateway availability model and approve the real data-sharing scope.
-2. Separately authorise an OpenAI private tunnel/runtime credential and actual
-   ChatGPT plugin test against the **local disposable synthetic database first**.
-   This can prove UI/auth/routing, disconnect/revocation and optional local vector
-   latency without any AWS change or private tracker-data sharing.
+1. Synthetic online UI/routing is complete. Before any real-data connection,
+   confirm current terms, trusted-gateway availability and explicit private-data scope.
+2. Re-authorise any runtime credential/connection for that new scope; the synthetic
+   runtime is stopped. Do not treat the earlier test as approval to share owner or
+   audit records, restart a tunnel or run inference on the database host.
 3. Then separately approve hosted schema/runtime/read identity/HBA and scoped SSM
    access before testing against AWS; approve real private-data scope before use.
    Independently approve Proton HTTPS hosting and test a synthetic subscription.

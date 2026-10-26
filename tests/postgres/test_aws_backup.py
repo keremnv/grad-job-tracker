@@ -18,6 +18,7 @@ from support import ENABLED, Target
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]/'infra/aws/scripts'))
 import database_backup
+import backup_freshness
 
 
 @unittest.skipUnless(ENABLED,'Use scripts/test_postgres.sh; no arbitrary database URLs accepted')
@@ -115,6 +116,23 @@ class AWSBackupTests(unittest.TestCase):
                     items=chunks(v,Tokenizer());write_chunks(source,v,items,[unit()]*len(items))
                     before=database_backup.fingerprint(source)
                     manifest=database_backup.backup(source,archive,execute=utility(names[0]))
+                    # Real dump start, not upload/manifest time, bounds recoverable age.
+                    from datetime import datetime
+                    self.assertLessEqual(datetime.fromisoformat(manifest['backup_started_at']),
+                                         datetime.fromisoformat(manifest['created_at']))
+                    with self.assertRaisesRegex(ValueError,'completion_link'):
+                        backup_freshness.inspect(archive,manifest)
+                    def receipt_only(args,**kwargs):
+                        # No AWS call: exercise the production manifest-last writer
+                        # and offline validator with simulated PutObject receipts.
+                        return subprocess.CompletedProcess(args,0,stdout=json.dumps({
+                            'ChecksumSHA256':args[args.index('--checksum-sha256')+1],
+                            'VersionId':'synthetic-completion-version'}))
+                    database_backup.upload(archive,{'bucket':'synthetic','region':'eu-north-1'},run_command=receipt_only)
+                    manifest=json.loads(archive.with_suffix('.json').read_text())
+                    age=backup_freshness.inspect(archive,manifest)
+                    self.assertEqual(age['status'],'fresh')
+                    self.assertFalse(age['independent_custody_verified'])
                     # Receipt does not disclose private fixture notes; exact field hashes cover them.
                     self.assertNotIn('private application',json.dumps(manifest))
                     self.assertEqual(before,manifest['fingerprint'])

@@ -1,5 +1,12 @@
 # AWS synthetic hosted qualification complete — cutover pending
 
+The paragraphs below record the last hosted qualification, **not a fresh AWS
+inspection**. Current V1 source adds migration 0004, pinned vector prerequisites,
+format-2 backups with a conservative start timestamp and a prepared six-hour
+backup timer. None has been installed by the release-preflight stage. The accepted
+loss tolerance is **12 hours**; use the [current release checklist](../../docs/V1_RELEASE_CHECKLIST.md)
+for the compatibility order, custody/monitoring gaps, costs and approvals.
+
 The approved infrastructure at `afda366faabf0db3bf289d55f66fb3dac7445fe1` is deployed: 20 Terraform-managed resources, PostgreSQL 17.11 on independent encrypted EBS and working SSM. Corrected application release `1b72d0d76f1ed15b56859bc891af9953458f85cd` is installed; unchanged migrations 0001–0003 are applied. The intended database contains schema/ledger only, with every domain table empty. Both timers are installed, disabled and inactive.
 
 Hosted synthetic SQL, actual S3 backup/fresh-database restore, one reboot/EBS persistence check and redacted CloudWatch delivery have passed. The service-user AWS CLI permission defect is corrected in bootstrap and repaired in place with unchanged file contents/ownership; see [the correction report](../../docs/AWS_CLI_CORRECTION_REPORT.md). Read [the current hosted report](../../docs/AWS_HOSTED_QUALIFICATION_REPORT.md) for exact results and limitations. A subsequent [independent recovery rehearsal](../../docs/AWS_RECOVERY_READINESS_REPORT.md) restored the decrypted synthetic backup into network-isolated local PostgreSQL 17 without EC2 access. Durable owner-held encrypted custody and production-data recovery remain pending. The file-backed production workflow remains authoritative. Nothing here authorizes further infrastructure changes, live ATS requests, real-data import, timer activation or cutover. Application domain logic and migrations remain unchanged.
@@ -112,7 +119,16 @@ sudo -u jobwatch-migrator env JOBWATCH_MIGRATION_DATABASE_URL='host=/run/jobwatc
 
 Provision a recovery database with the **same database owner as the source** (the host bootstrap uses postgres), revoke PUBLIC schema/database CREATE, grant runtime CONNECT and migration CONNECT/CREATE, set role search paths as in bootstrap. Add a **local peer HBA entry for that specific recovery database** deliberately; the live database HBA does not accept arbitrary new databases. No TCP migration permission is introduced. A recovery host must also reproduce/verify OS/HBA configuration; a schema dump deliberately excludes cluster-role passwords and OS files. If AWS is unavailable, an authorized operator must have a separately retained encrypted offline copy and documented role/bootstrap artifacts. **Before cutover**, choose and test this off-project backup custody/retention with the owner; same-project S3 alone does not cover project lockout. Do not commit dumps or embed backup encryption keys.
 
-Keep the current DB before repairs. Stop all writers, take/preserve a current backup, restore separately, reconcile valid later evidence and owner decisions, and only then promote. After the first authoritative PostgreSQL write, restarting the frozen Git writer loses data and is prohibited as an automatic rollback. This implementation does not provide PITR/WAL archiving: daily dumps imply up to 24 hours' data loss unless additional verified backups survive. Owner acceptance of that RPO, manual pre-change backups, real AWS restore proof and an independent copy are cutover gates.
+Keep the current DB before repairs. Stop all writers, take/preserve a current backup,
+restore separately, reconcile valid later evidence/owner decisions, then promote
+only after approval. After authoritative PostgreSQL writes, restarting stale Git
+loses data and is not automatic rollback. No PITR/WAL archiving is implemented.
+Daily dumps fail the accepted 12-hour tolerance. The prepared six-hour schedule
+requires independent encrypted copying, freshness/missing-run checks, delivered
+notifications and an effective all-writer response; none is established merely by
+installing the timer. Manual pre-change backups and real-data independent restore
+remain gates. Keep the old format-1 recovery bundle for old archives; the current
+format-2 utility needs vector 0.8.7 and migration/role-compatible fresh targets.
 
 ## Monitoring and costs
 

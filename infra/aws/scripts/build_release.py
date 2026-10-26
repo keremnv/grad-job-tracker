@@ -15,7 +15,9 @@ import subprocess
 import tarfile
 import tempfile
 
-PATHS = ('src', 'pyproject.toml', 'infra/aws/scripts', 'infra/aws/systemd', 'sql/postgresql/bootstrap.sql')
+PATHS = ('src', 'pyproject.toml', 'infra/aws/scripts', 'infra/aws/systemd',
+         'sql/postgresql/bootstrap.sql', 'sql/postgresql/vector_extension.sql',
+         'sql/postgresql/embedding_access.sql', 'sql/postgresql/chat_readonly.sql')
 
 
 def build(repo, commit, output):

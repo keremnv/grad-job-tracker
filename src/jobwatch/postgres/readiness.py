@@ -6,7 +6,7 @@ from .import_plan import digest
 from .collection import iso
 
 EXTERNAL_GATES = (
-    'Hosted database provisioned and authenticated TLS verified in the selected environment',
+    'Hosted database identity and approved encrypted transport verified (TLS or authenticated SSM with local peer/SCRAM)',
     'Restore capability rehearsed in that actual hosting environment',
     'Owner explicitly accepts unarchived native responses and unretained schema-1 exclusions',
     'Production connection secrets and the replacement schedule prepared separately',

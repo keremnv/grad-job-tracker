@@ -1,4 +1,26 @@
-# Stage 4F — local qualification results
+# Stage 4F — qualification results
+
+## Online synthetic milestone — complete
+
+After the local baseline below, the owner completed a real ChatGPT `sql_query`
+call through a private OpenAI Secure MCP Tunnel to the existing disposable
+PostgreSQL fixture. The owner supplied the tool-card result; the local agent
+confirmed its unpublished synthetic marker matched the fixture and its reported
+identity/transaction mode matched the restricted read contract. Query inference
+was disabled. This was actual online routing, not another local SDK call.
+
+Only `sql_query` was qualified online; all five tools retain their local tests.
+No hosted PostgreSQL, real tracker/owner data, AWS change or production access was
+involved. The local tunnel runtime stopped and its runtime files were removed,
+verified locally. Plugin disconnection and credential revocation were reported
+by the owner and were **not independently verified**. No transcript contents,
+marker, tunnel identifier or credential are recorded here. Successful use in this
+personal context does not establish universal plan eligibility or a free tariff.
+
+The [V1 release checklist](V1_RELEASE_CHECKLIST.md) supersedes earlier pending-online
+status; hosted read access and actual private-data-sharing approval remain open.
+
+## Original local baseline
 
 25 October 2026. Branch `feat/agent-connectivity-qualification`, based on accepted
 Stage 4E `5d5c8f88bce1789ff78638765eeb893e1c723240`.
@@ -72,18 +94,18 @@ An initial combined-lock dry-run omitted the required CPU index flag and could
 not resolve the existing torch CPU wheel; the documented command above resolves.
 No outstanding local test failure remains. No Terraform or hosted tests were run.
 
-## Verified documentation; not verified account/deployment
+## Documentation/account status at the original local baseline
 
 Official [custom MCP guidance](https://developers.openai.com/api/docs/guides/custom-mcp-server)
 describes Plugins creation, URL/Tunnel connections and workspace restrictions.
 [Secure MCP Tunnel](https://developers.openai.com/api/docs/guides/secure-mcp-tunnels)
 documents outbound private access and separate Platform/context permissions.
 Neither establishes this owner's actual personal Plus entitlement or tunnel price.
-The UI question remains unconfirmed; no browser account, key, tunnel or connection
-was accessed/created. An SDK client is not an online ChatGPT test.
+At that baseline, the UI question was unconfirmed; no browser account, key, tunnel
+or connection was accessed/created. An SDK client is not an online ChatGPT test.
 
-Recommended next approval: a **synthetic local database → private tunnel → actual
-ChatGPT** trial, after the owner verifies UI/Platform access and any charges.
+The originally recommended next approval was a **synthetic local database → private
+tunnel → actual ChatGPT** trial, now completed as recorded above.
 That requires OpenAI tunnel/key/connection approval but no AWS change. Do not
 require a hosted upgrade merely to prove the online transport.
 

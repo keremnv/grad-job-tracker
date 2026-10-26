@@ -5,7 +5,7 @@ of opportunities: what was observed, what changed and what remains uncertain.
 Built for researching UK 2027 graduate roles in software, systems and applied AI,
 it connects evidence-backed search with application triage and dated follow-ups.
 
-**Status · 25 October 2026:** the live tracker still uses Git-backed files.
+**Status · 26 October 2026:** the live tracker still uses Git-backed files.
 The PostgreSQL replacement is implemented and locally qualified; an AWS host has
 passed synthetic deployment/recovery checks. Production migration is pending.
 
@@ -22,6 +22,7 @@ passed synthetic deployment/recovery checks. Production migration is pending.
 - **Composable research:** ordinary SQL, Python BM25, PostgreSQL full-text search
   and exact pgvector similarity, with optional hybrid ranking.
 - **Scoped agent access:** five read-only MCP tools; separate, audited owner SQL.
+  A real ChatGPT SQL call through a private tunnel passed against synthetic data.
 - **Useful owner workflow:** applications, triage, evidenced leads, programme cycles
   and minimal deadline/action calendars share the same records.
 - **Operational engineering:** Terraform, ARM64 EC2, protected encrypted storage,
@@ -100,7 +101,9 @@ SQL/BM25/FTS need no model.
 reconciles each dataset. Terraform protects persistent EBS, backups and versioned
 S3 state with native locking. SSM replaces public SSH/PostgreSQL access.
 Hash/version-verified PostgreSQL archives have been restored into fresh targets,
-including off-host. The planned daily dumps do not provide point-in-time recovery.
+including off-host. Prepared six-hour dumps target the accepted 12-hour loss
+tolerance; custody, freshness monitoring and notifications remain cutover gates.
+Dump backups do not provide point-in-time recovery.
 
 ## A synthetic research-to-follow-up workflow
 
@@ -176,13 +179,15 @@ Subscription refresh is asynchronous, not guaranteed deadline alerting.
 
 ## Evidence and validation
 
-Recorded full-suite results, **25 October 2026**, at the Stage 4F baseline:
+Release-candidate checks, **25–26 October 2026**; hosted results remain dated
+qualification evidence, not a fresh host inspection:
 
 | Evidence | What it establishes |
 |---|---|
-| **237 offline tests** on each of Python 3.11, 3.12 and 3.13 | Provider/screening regressions, identity, file durability, privacy, calendar revision behaviour and connection-probe boundaries. |
+| **245 offline tests** on each of Python 3.11, 3.12 and 3.13 | Provider/screening regressions, identity, file durability, privacy, calendar revisions, connection boundaries and backup-age/packaging checks. |
 | **141 PostgreSQL tests**, including cached real-model inference | Actual migrations, constraints, grants, concurrent publication/rescreening, rollback, importer reconciliation, vector/hybrid queries, owner/audit workflows and local MCP interoperability. |
 | **Hosted and independent synthetic recovery** | Real EC2-to-S3 backup, fresh-database restore, reboot/EBS persistence and ARM64-origin archive restoration into isolated local PostgreSQL 17, with row/security/sequence comparisons. |
+| **Online ChatGPT synthetic connectivity** | An actual `sql_query` call traversed a private OpenAI tunnel to the restricted disposable database. Only this tool was exercised online; the remaining tools have local interoperability tests. |
 
 [Connectivity test results](docs/AGENT_CONNECTIVITY_REPORT.md) ·
 [Hosted qualification](docs/AWS_HOSTED_QUALIFICATION_REPORT.md) ·
@@ -193,22 +198,26 @@ and a substantive Cambridge Consultants `Job Summary` update.
 
 The real-model smoke test proves the implemented inference/retrieval path works;
 it is not a relevance benchmark. Synthetic recovery does not establish
-production-scale recovery time, durable owner-held backup custody or an accepted
-data-loss objective. Local MCP tests do not prove an online ChatGPT connection.
+production-scale recovery time or durable owner-held backup custody. The accepted
+12-hour maximum loss tolerance still needs qualified scheduling, monitoring and
+independent copies. The online test proves synthetic connectivity, not hosted
+production access or a live Proton integration.
 
 ## Status and roadmap
 
-| Area | Status at this README's 25 October 2026 review |
+| Area | Status at this README's 26 October 2026 review |
 |---|---|
-| **Live `main`** | GitHub Actions collection, tracked JSON/text observations, file-backed owner ledgers and CLI/reports. Newer observation commits remain separate from feature work. |
+| **Live `main`** | GitHub Actions collection, tracked JSON/text observations, file-backed owner ledgers and CLI/reports. The release branch preserves the latest inspected observations without changing the live writer. |
 | **PostgreSQL development** | Migrations 0001–0004, collection/history, importer, retrieval, owner SQL, calendar snapshots and read-only MCP locally qualified. |
 | **Last qualified AWS deployment** | ARM64 `t4g.small`, PostgreSQL 17.11 and migrations 0001–0003; synthetic recovery, SSM, logs and persistence checked. Intended production domain tables empty; collector/backup timers disabled. These are recorded qualification results, not a fresh health check. |
-| **Pending integration** | Hosted retrieval/access qualification; actual online ChatGPT call; Proton HTTPS subscription; durable backup custody, freshness checks and monitoring delivery. |
+| **Pending activation** | Hosted retrieval/access qualification; Proton HTTPS subscription; durable backup custody, scheduled freshness checks, notification delivery and final single-writer cutover. Synthetic online ChatGPT SQL qualification is complete. |
 
 Cutover also requires nine genuine endpoint checks, historical-evidence acceptance,
 integration preserving newer `main` data, a writer freeze, final-commit import and
 reconciliation, independent restore and explicit single-writer approval.
 [V1 roadmap](docs/V1_SCOPE_AND_ROADMAP.md) · [Cutover runbook](docs/AWS_CUTOVER.md).
+[Current release checklist](docs/V1_RELEASE_CHECKLIST.md) records exact approvals
+and the local integration/validation evidence. There is no production go decision.
 ANN/rerankers and sophisticated autonomous actions are deferred.
 
 ## Quickstart
@@ -245,7 +254,7 @@ hosted database, migrates production or starts collection automatically.
 | [Operational research](docs/POSTGRESQL_OPERATIONS.md) | SQL views, search, reports, health and source activation |
 | [Retrieval](docs/POSTGRESQL_RETRIEVAL.md) | Model/profile provenance, indexing, exact cosine and hybrid SQL |
 | [Owner SQL workflows](docs/POSTGRESQL_OWNER_WORKFLOWS.md) | Authorised writes, audit, concurrency guards and read-back |
-| [Agent connectivity](docs/AGENT_CONNECTIVITY.md) | Five-tool contract, local qualification and pending online access |
+| [Agent connectivity](docs/AGENT_CONNECTIVITY.md) | Five-tool contract, synthetic online qualification and pending production access |
 | [Proton calendar path](docs/PROTON_CALENDAR.md) | Minimal feeds, stable identities, privacy and subscription limits |
 | [AWS infrastructure](infra/aws/README.md) | Terraform protections, SSM, deployment and backup/restore procedures |
 
