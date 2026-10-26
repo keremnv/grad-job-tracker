@@ -53,7 +53,12 @@ first scheduled backup and normal alarm recovery before treating scheduling as
 qualified. No external-copy job or automatic writer fencing is required. Record
 actual restore results, never a promised 12-hour maximum loss bound.
 
-All nine previously enabled sources still need separately authorized **real endpoint checks**, not fixtures or historical mapping timestamps:
+[26 October real endpoint checks](ATS_SOURCE_VALIDATION_REPORT.md), authorised only
+against a local qualification database, returned **eight PASS and one FAIL**.
+All nine employer associations are supported. Riverlane's HTTP-200 response uses
+official-site URLs rejected by the current client; approve its narrow compatibility
+correction and bounded revalidation before closing the nine-source gate. No source
+was activated, removed or renamed. Intended coverage remains:
 
 - `ashby:hyperexponential`
 - `ashby:incident`
@@ -65,10 +70,10 @@ All nine previously enabled sources still need separately authorized **real endp
 - `lever:palantir`
 - `lever:scottlogic`
 
-With separate live-check approval, inspect mappings and run initial
-`jobwatch-pg-ops source inspect/check` checks in a **non-authoritative qualification
-database**, preserving provider/board/region and dated receipts. These checks do not
-publish postings. Do not seed checks/sources in the intended import target first:
+The initial live-check approval is now executed; it does not authorise repeated
+requests or deployment. Preserve provider/board/region and dated receipts. These
+checks did not publish postings. Do not seed checks/sources in the intended import
+target first:
 the importer deliberately refuses populated domain tables. Do not copy a synthetic
 or unrelated source's run as validation evidence. After final import, repeat/persist
 genuine checks against its actual sources, then use owner-authorised `source activate`
@@ -76,7 +81,8 @@ with the latest successful same-source run. Endpoint validity alone is insuffici
 employer association evidence. Renamed/failed/ambiguous boards require an explicit
 coverage decision; do not silently drop them or expand employers.
 
-Owner acceptance of these unavailable legacy facts is pending:
+Owner acceptance of these unavailable legacy facts is pending; the
+[prepared acknowledgement](LEGACY_EVIDENCE_ACCEPTANCE.md) is **NOT ACCEPTED**:
 
 1. Schema-2 snapshots did not archive complete current native ATS responses. Retained normalized fields/descriptions and genuine recovered native Git evidence remain labelled honestly; the next real native observation creates a baseline, not a fabricated past employer edit.
 2. Roles rejected before coverage-first schema 2 and never indexed have unknown identities/counts. Import cannot reconstruct them. Future successful PostgreSQL collections retain excluded postings and full parsed provider records, not original HTTP bytes.
