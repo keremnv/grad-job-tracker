@@ -5,6 +5,10 @@
 are enabled; PostgreSQL collection remains disabled. Intended domain tables are
 still empty. This approval did not include production import or cutover.
 
+Subsequent [26 October code-only maintenance](AWS_RIVERLANE_MAINTENANCE_REPORT.md)
+installed Riverlane release `e3807a0` and restored both backup schedules. This report
+retains the original activation evidence; it is not a first-midnight-backup claim.
+
 ## Executed and verified
 
 | Operation | Observed result |

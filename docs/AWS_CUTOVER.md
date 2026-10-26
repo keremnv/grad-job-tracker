@@ -22,6 +22,18 @@ ChatGPT SQL connectivity is complete; production access and Proton hosting are n
 This runbook grants no permission for AWS changes, import, credentials, live
 checks, timer/workflow activation, main merge or authority switch.
 
+The latest owner instruction supplies coordinated preparation authority: reviewed
+code-only maintenance, routine fixes/tests, read-only inspections and private
+import/recovery preparation may continue autonomously. **One consolidated final
+GO**, after the first actual scheduled-backup proof, must explicitly cover H1/H2,
+the disclosed final retained Git baseline, writer freeze, real import/recovery and
+single-writer activation. That GO covers routine substeps below; do not seek a
+new approval for each command while checks pass. Stop on unexplained data loss,
+reconciliation/corruption/recovery failures, unaccounted writers, destructive or
+elevated-permission requirements, coverage failures, new meaningful cost/exposure
+or disclosure to a new external service. Do not improvise a populated-target reset.
+ChatGPT/Proton sharing have separate approvals and do not block the core cutover.
+
 ## State and infrastructure approval boundary
 
 The state bucket and tracker infrastructure already exist in the committed
@@ -38,9 +50,11 @@ Before provisioning, the owner reviews a fresh private Terraform plan, estimated
 After a new approved deployment, keep all timers disabled. Verify cloud-init completed, exact EBS mount/UUID, PostgreSQL 17, Python 3.12 ARM64, patched SSM Agent and authenticated SSM channels, no inbound SG rules, loopback-only SQL, root/OS/socket permissions, role denials, migration checksums, S3 checksum/version receipts, logs, console alarms and CPU Standard mode. Reboot and prove the data mount is required; exercise an approved replacement recovery without formatting existing storage. Application installation, restricted SQL access, migrations, synthetic S3 backup/fresh same-host restore, reboot/persistence and log delivery have passed on the existing host. Synthetic off-host restoration and subsequent manual backup/monitoring activation are qualified separately. Production data/load and the first scheduled backup remain unqualified. The current activation report takes precedence over historical preflight status. Do not repeat deployment or replace persistent resources to address an already repaired CLI defect.
 
 V1 software/extension maintenance has passed; do not reinstall PostgreSQL, vector
-or migrations unnecessarily. The reviewed backup-policy update is installed;
-collection stays disabled. Future code updates need separate maintenance approval
-to pause the active backup/health timers and satisfy the installer's refusal of
+or migrations unnecessarily. The Riverlane release and reviewed backup-policy
+update are installed; collection stays disabled. The coordinated preparation
+instruction authorises necessary code-only maintenance: check no operation is in
+flight, capture timer states, pause only backup/health timers for the guarded
+installer, then restore/verify both in a finally path. Never bypass its refusal of
 enabled timers. Existing restore targets
 must match role flags, DB grants/settings and vector 0.8.7 ownership; keep inference
 off this 2 GiB host.
@@ -58,10 +72,11 @@ against local qualification databases, initially returned eight PASS and Riverla
 FAIL. The separately approved, source-specific URL correction and **one Riverlane
 revalidation at 15:52 UTC** passed all 35 records: **all nine bounded public checks
 now pass**, with employer associations supported. The other eight were not refetched.
-No source was activated, removed or renamed. The tested fix (`254e2a6`) is not yet
-installed on AWS; include it in the next separately approved code-only maintenance
-release, preserving the backup/health schedules and keeping collection disabled.
-No Terraform, role or schema change is needed. Intended coverage remains:
+No source was activated, removed or renamed. Subsequent authorised
+[code-only maintenance](AWS_RIVERLANE_MAINTENANCE_REPORT.md) installed release
+`e3807a0` containing the fix and passed native qualification. Backup/health schedules
+were restored; collection remains disabled. No Terraform, role or schema change.
+Intended coverage remains:
 
 - `ashby:hyperexponential`
 - `ashby:incident`
@@ -95,7 +110,7 @@ Record explicit acceptance, actor, timestamp and final reconciliation references
 ## Integration and freeze
 
 1. Build a reviewable integration branch preserving **all** legitimate current-main commits and the complete PostgreSQL feature chain. Merge current main into that integration branch normally; inspect changes to data/config/owner files and resolve any conflict without replacing newer data with the old rehearsal tree. Never squash a stale data snapshot over production main. Test code again. Keep the active workflow unchanged until the authorized freeze/switch.
-2. Prepare the code-only artifact from an explicit integrated application commit. Its hash and commit are independent of the eventual authoritative **data** commit. Deploy while the timers remain disabled. No application import/migration on scheduled startup.
+2. Prepare the code-only artifact from an explicit integrated application commit. Its hash and commit are independent of the eventual authoritative **data** commit. The current Riverlane artifact is already installed. Any necessary later code-only update uses the captured-state/pause/install/restore procedure above, not permanent backup disablement. No application import/migration on scheduled startup.
 3. Close initial source/coverage, legacy-acceptance, host/current-recovery,
    backup/monitoring and access-preparation gates before requesting a freeze.
    Obtain an explicit owner freeze window. Disable the old file-backed schedule
@@ -131,8 +146,15 @@ The committed `recover_offhost.py` harness deliberately accepts only its synthet
 fixture. Do not bypass its guard or call it a production restore test. The
 production restore operation is the existing `database_backup.restore` against a
 fresh, independently prepared PostgreSQL 17/vector target with matching role/DB
-security. A reviewed operator connection/utility adapter and real-data handling
-approval are required; preserve failed targets. Never restore onto `jobwatch`.
+security. A private operator connection/utility adapter must pin the code/image,
+refuse remote Docker engines and published ports, verify the exact S3 versions and
+manifest, provision only a newly labelled network-isolated local target, and run
+the existing restore/fingerprint verifier plus reconciliation against C. The empty
+manual-archive adapter and the prepared final-import adapter both pass; the latter
+was exercised with a nonempty synthetic import after removing its disposable source
+database, including private owner fixtures and exact security/sequence equality.
+Its S3 receipt was simulated, not a new hosted upload. Real-data handling is covered only by
+the consolidated GO. Preserve failed targets. Never restore onto hosted `jobwatch`.
 
 Then persist genuine source checks/owner activation on the imported source IDs.
 Run report/search/read-identity checks and compare the import baseline in
@@ -153,7 +175,14 @@ RTO is promised. A separate-target real-data restore is mandatory after final im
 
 ## Owner go/no-go and switch
 
-**NO-GO** if any endpoint/coverage, source reconciliation, historical acceptance, independent hosted restore, role/SSM, S3 backup/monitoring, production credential, freeze/single-writer or operational-report gate remains unresolved. Record the owner's explicit decision privately; this branch does not supply it.
+Request the consolidated GO only after preparation and scheduled-backup proof.
+That decision may authorise the freeze/import/real-data restore sequence; it does
+not predeclare those execution checks passed. **Do not promote** if any required
+endpoint/coverage, reconciliation, historical acceptance, independent real-data
+restore, core role/SSM, S3 backup/monitoring, temporary migration access or
+freeze/single-writer check fails. Record the actual owner decision privately.
+Real-data ChatGPT/Proton and optional SQL-only remote credentials are separate
+follow-ons, not conditions for the existing authenticated operator/peer path.
 
 After separate explicit GO, integrate/deploy the exact reviewed code and update
 `AGENTS.md`/`CLAUDE.md` and owner operating instructions to the approved SQL-first
@@ -164,7 +193,15 @@ When systemd is selected, the alternative PostgreSQL Actions template **stays
 inert**. Never activate two collectors. Preserve the frozen Git snapshot as recovery
 evidence, not an active data source; no deletion of old runtime code is implied.
 
-Keep the collection timer disabled for the first explicitly approved controlled `jobwatch-collect.service` invocation. Confirm actual identity, per-source run receipt/outcome, independent successes/failures, native baselines, source history, health, positive-only Lever behavior, no false `not_seen`, all-verdict research, deadlines/uncertainty, SQL reports/search, unchanged owner hashes and audit attribution. A partially failed scan may already have committed successful sources. Enable the collection timer only after these checks and a fresh verified backup; enable backup scheduling deliberately. Review `systemctl list-timers`, failure/restart limits, journal and CloudWatch output.
+Prepared, inactive handover material: [retired workflow](templates/scan-retired.yml.disabled)
+(manual explanation only, no schedule/checkout/write permission) and
+[SQL-first operating text](templates/AGENTS.postgresql.md.disabled). Apply them only
+inside the approved cutover: disable the existing workflow, wait for its runs,
+freeze/pin C, preserve/reconcile the data, then retire the old definition/instructions
+under the GO. Do not rerun historical file-backed jobs after the switch. Preserve
+workspace/AWS guidance and the owner's ordinary SQL authority; MCP is optional.
+
+Keep the collection timer disabled for the first controlled `jobwatch-collect.service` invocation under the consolidated GO. Confirm actual identity, per-source run receipt/outcome, independent successes/failures, native baselines, source history, health, positive-only Lever behavior, no false `not_seen`, all-verdict research, deadlines/uncertainty, SQL reports/search, unchanged owner hashes and audit attribution. A partially failed scan may already have committed successful sources. Enable the collection timer only after these checks and a fresh verified backup pass, within the same GO; stop on a mandatory failure rather than asking for another routine activation approval. Review `systemctl list-timers`, failure/restart limits, journal and CloudWatch output.
 
 Make the post-scan backup and verify exact S3 versions/freshness. Confirm the
 approved **00:00/12:00 UTC** backup and 15-minute health timers are active, with

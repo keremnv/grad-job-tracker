@@ -58,7 +58,10 @@ used only local qualification databases: initially eight PASS and Riverlane FAIL
 The approved source-specific URL correction and **one revalidation at 15:52 UTC**
 passed all 35 Riverlane records; **all nine bounded public checks now pass**. All
 employer mappings are supported. No source was activated/configured differently;
-the other eight feeds were not refetched. The tested fix is not deployed to AWS.
+the other eight feeds were not refetched. Subsequent
+[native code-only AWS maintenance](AWS_RIVERLANE_MAINTENANCE_REPORT.md) installed
+release `e3807a0` containing the fix; backup/health timers were restored after an
+8.617-second pause, with collection still disabled and intended tables empty.
 The [historical-evidence acknowledgement](LEGACY_EVIDENCE_ACCEPTANCE.md) is prepared
 and explicitly **not accepted**; source-check approval supplies no acceptance.
 
@@ -134,6 +137,43 @@ no free allowance/credits assumed. Existing host estimate remains historical.
 
 ## One release checklist and approval ledger
 
+The owner's coordinated V1 delivery instruction authorises routine preparation,
+existing-host code maintenance and bounded qualification without further small
+approval stages. **One consolidated GO is still required** for H1/H2 acceptance,
+writer freeze, real import/reconciliation/independent recovery, source activation
+and the controlled single-writer switch. After that GO, follow the runbook through
+routine substeps; stop on its data/recovery/writer/security/cost failure conditions.
+Do not treat this preparation authority as that GO.
+
+Current pre-freeze plan against `9bbcb01`: **631 postings** (574 excluded, 49 review,
+8 priority), **1,013 versions, 110 retained events, 44 employers, 9 sources,
+21 vacancy leads, 13 programme cycles, 24 verifications, zero applications/triage**.
+Repeated plan hashes agree. All 631 descriptions are available: 540 distinct texts,
+including three historical-only variants; 57 authentic native tuples cover 54
+postings. All 3,510 recorded description references resolve. Unknown posting-field
+inventory is empty; three legacy config/lead categories retain unprojected fields
+in labelled archives. No real import occurred. Replan actual final C after freeze.
+
+The prepared final-import recovery adapter passed an additional independent,
+nonempty synthetic frozen-Git restore/reconciliation after its source database was
+removed. Exact evidence/owner/audit/security/sequences matched; populated targets
+were refused. It reuses the existing production restore function. This is adapter
+qualification, not final real-data recovery; private receipts remain outside Git.
+
+The [maintenance report](AWS_RIVERLANE_MAINTENANCE_REPORT.md) also records today's
+GitHub push failure: nine reported changes in runner-only `95b7f71` were not
+published/recovered. Durable main is intact, but those intermediate updates must
+not be claimed as part of this import. Preserve its logs; disclose the last-durable
+snapshot boundary in the consolidated owner decision. This is distinct from H1/H2.
+
+**The first scheduled backup is still a time gate**, due 27 October, 00:00 UTC.
+Manual recovery, maintenance and healthy heartbeats do not close it. The prepared
+private post-midnight checker verifies timer/journal execution and exact S3
+versions/checksums/manifest/receipt, then an isolated restore verifies recovery.
+It refuses to run early; no background task is running. Complete this proof before
+requesting the final GO. Existing preparation approval suffices; no new maintenance
+approval is needed merely to resume after that event.
+
 VERIFIED means the scoped evidence exists. READY FOR APPROVED EXECUTION means
 reviewable procedure/code, **not permission** or a passed hosted gate. BLOCKED
 means a dependency or safety implementation is still missing. No row supplies GO.
@@ -151,12 +191,13 @@ means a dependency or safety implementation is still missing. No row supplies GO
 | VERIFIED | Code-only V1 host maintenance, vector 0.8.7, migration 0004 and synthetic requalification | Artifact R installed/replayed; PG17.11 unchanged; format-1 pre-upgrade and format-2 synthetic S3/restore proofs passed. No optional roles, inference, authentication changes, timer activation or infrastructure changes. |
 | NEEDS OWNER DECISION | [Explicit legacy-evidence acceptance](LEGACY_EVIDENCE_ACCEPTANCE.md) against final manifest | H1 missing native responses and H2 never-indexed pre-schema-2 exclusions remain unaccepted. No technical fee; private dated owner decision, no invented evidence or employer edit times. Additional reconciliation failures are not covered by accepting these two limits. |
 | VERIFIED — bounded public checks | [Nine-source endpoint/mapping gate](ATS_SOURCE_VALIDATION_REPORT.md) | Eight initial passes plus corrected Riverlane revalidation, 26 October 15:52 UTC: all 35 records accepted. Exact source-specific URLs/IDs/fragments preserved; all nine employer mappings supported. No coverage change, publication or activation. After import, genuine checks must be persisted against those actual source rows before separately authorised activation. |
-| READY FOR APPROVED EXECUTION | Hosted code-only release containing Riverlane fix `254e2a6` or its reviewed descendant | Fix tested locally, not installed on AWS. Separate maintenance approval: build/hash-verify release, deliberately pause active backup/health timers as required by installer, install/replay and recheck; restore those schedules, keep collection disabled. Existing infrastructure/roles/migrations unchanged; small artifact storage/requests only, no new compute or Terraform apply. |
+| VERIFIED | [Hosted code-only Riverlane release](AWS_RIVERLANE_MAINTENANCE_REPORT.md) | `e3807a0` installed/replayed; eleven native feed tests and SQL/vector/security checks passed. Backup/health timers restored after 8.617 seconds, scheduled healthy heartbeat and all four alarms OK. Database empty; no roles/schema/infra change, collection disabled. |
 | READY FOR APPROVED EXECUTION | Final code integration, Git/owner writer freeze and C pin | Repository/workflow administration + owner freeze approval. Wait for in-flight work, preserve/push legitimate edits, verify full history/remote equality. Collection pauses; main/workflow changes require a later explicit instruction. |
 | BLOCKED | Import C once into empty intended target, reconcile all datasets, then real-data independent restore | Needs prior gates and explicit real-data/temporary migration-access approval. Restore a downloaded S3 version into a separate target; no external storage service required. Migrator writes, scoped auth and operator version reads; S3/possible recovery egress costs. Never reset a populated target or count synthetic proof as real-data proof. |
-| BLOCKED | Production owner SQL and separately scoped ChatGPT read access | Approve private owner/audit read exposure, server-side credential custody, narrow HBA and authenticated SSM forwarding; no collector/admin fallback. Separate runtime tunnel approval/terms; no restart of the synthetic tunnel or host inference. |
-| NEEDS OWNER DECISION | Private revocable Proton-compatible HTTPS feed and actual subscription qualification | Stage 4E snapshots are local, not a live feed. Approve destination/domain/TLS, capability-URL custody/rotation, schedule/monitoring and cost; no public MCP, no notes/CVs. Polling is not guaranteed urgent alerting. Remains V1 work. |
-| BLOCKED | Explicit single-writer GO, first controlled PostgreSQL scan, then routine scheduling | Needs all mandatory gates and separate switch/ATS/service approvals. Retire file writers/default instructions, keep alternative Actions collector inert. Inspect first-scan baselines/health/owner hashes; verify the S3 backup point, then approve collection activation. After SQL writes, recovery is roll-forward, not stale Git restart. |
+| VERIFIED — native access/security | Core owner SQL through authenticated operator SSM and existing Unix peer identity | Owner role is distinct from collector/migrator; existing audit/grant protections match, synthetic owner workflows passed. After import verify real baseline read-back without inventing a decision. SQL-only remote credentials/tunnels are a separate access setup, not permission to share owner records online. |
+| NEEDS OWNER DECISION — separate follow-on | Real-data ChatGPT MCP/read identity and remote credential custody | Explicit data-sharing/authentication/transport approval, scoped login/HBA and revocation; no owner/collector credential substitution or restart of the synthetic tunnel. Does not block the core collector/database cutover. Inference stays local. |
+| NEEDS OWNER DECISION — separate follow-on | Private revocable Proton-compatible HTTPS feed and actual subscription qualification | Stage 4E snapshots are local, not a live feed. Separately approve destination/domain/TLS, capability-URL custody/rotation, schedule/monitoring and cost; no notes/CVs. Polling is not guaranteed urgent alerting. Does not block the core cutover. |
+| BLOCKED | Consolidated GO, first controlled PostgreSQL scan, then routine scheduling | One explicit decision covers freeze/import/real-data recovery/source activation/switch, subject to passing every execution check; no repeat approval for routine substeps. Retire file writers/default instructions, keep alternative Actions collector inert. Inspect first-scan baselines/health/owner hashes and verify the S3 backup point before enabling routine collection. After SQL writes, recovery is roll-forward, not stale Git restart. |
 | BLOCKED | Any future Terraform infrastructure update | Recorded replacement proposal must be resolved by a separate reviewed bootstrap-version maintenance plan; no apply, state editing or guard removal. Not a reason to replace this host for a code release. |
 
 The [cutover runbook](AWS_CUTOVER.md) supplies the ordered execution and recovery
@@ -164,6 +205,14 @@ boundaries. Follow it only after the corresponding approval; never bundle every
 row into implied permission from a successful synthetic test.
 
 ## Executed local checks
+
+Latest coordinated preparation: **258 offline tests on each Python 3.11.16,
+3.12.14 and 3.13.12; 144 PostgreSQL tests**, all passed without skips. Native ARM64
+owner SQL, daily/weekly/requirements reports, BM25/FTS and eleven feed tests passed.
+The [maintenance report](AWS_RIVERLANE_MAINTENANCE_REPORT.md) records commands,
+exact S3 manual-archive recovery and the separate synthetic final-import adapter
+test. Neither is a first scheduled backup or real-data import. Earlier counts below
+remain historical stage results, not the latest suite size.
 
 The [AWS-only policy validation](AWS_BACKUP_POLICY.md#local-validation-26-october-2026)
 adds seven receipt/health tests: **252 offline passed on each Python 3.11/3.12/3.13**,
@@ -196,7 +245,8 @@ Principal commands: `PYTHONPATH=src <pinned-python> -m unittest discover -s test
 PYTHON=<model-venv>/bin/python bash scripts/test_postgres.sh`. Both use isolated
 fixtures, not production records. Private local logs are outside Git.
 
-The code-only release was built from frozen code commit
+Historical initial V1 artifact (superseded by the later reviewed backup-policy and
+Riverlane releases): the code-only release was built from frozen code commit
 `43aab3b12e3277c96b3b0936839a6758ebda986b`. Archive SHA-256:
 `f08b1911157428329485c27a94bf91388407444cc1d3c1fdcea208e3291ec31e`.
 The existing installer verifier accepted its manifest/inventory/hashes. All four

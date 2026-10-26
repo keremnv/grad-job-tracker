@@ -94,9 +94,10 @@ The fresh local qualification database recorded one `mode='validate'` /
 publication pointer and audit count stayed unchanged; postings, versions, events,
 applications, triage, leads, verifications and embeddings remained zero. The
 private receipt/archive were preserved and the owned container stopped. Other
-sources were not requested again. All nine dated public checks now pass; the
-installed AWS release **does not contain this fix yet**. A separately approved
-code-only release is needed, with no Terraform or schema change.
+sources were not requested again. All nine dated public checks now pass. Subsequent
+authorised [code-only AWS maintenance](AWS_RIVERLANE_MAINTENANCE_REPORT.md) installed
+release `e3807a0` containing the fix and passed native tests. No source was activated;
+no Terraform or schema change was needed.
 
 ### Executed regression checks
 
@@ -150,8 +151,8 @@ credential, timer, source activation, owner acceptance or production change occu
 ## Migration readiness
 
 **The bounded nine-source public-validation gate is satisfied.** No intended
-coverage was removed. This is not production activation: the tested Riverlane fix
-still needs a reviewed hosted code-only release, and the owner must explicitly
+coverage was removed. This is not production activation: the Riverlane fix is now
+installed/qualified on AWS, but the owner must explicitly
 review [the historical-evidence acceptance record](LEGACY_EVIDENCE_ACCEPTANCE.md).
 Both historical limitations remain **unaccepted**. Production is still NO-GO.
 

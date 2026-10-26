@@ -1,0 +1,14 @@
+# INERT: copy to .github/workflows/scan.yml only under the consolidated cutover GO.
+# First disable the live workflow and wait for every old run to finish.
+name: Retired Git-backed job watch scan
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  retired:
+    if: github.event.repository.private == true && github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Explain the active authority
+        run: echo 'Git-backed collection is retired. Use the authorised PostgreSQL systemd collector and SQL operations. Do not rerun historical file-backed jobs.'

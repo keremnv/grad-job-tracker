@@ -186,8 +186,8 @@ qualification evidence, not a fresh host inspection:
 
 | Evidence | What it establishes |
 |---|---|
-| **252 offline tests** on Python 3.12 (prior 245-test baseline also passed on 3.11/3.13) | Provider/screening regressions, identity, file durability, privacy, calendar revisions, connection boundaries and backup-age/packaging checks. |
-| **141 PostgreSQL tests**, including cached real-model inference | Actual migrations, constraints, grants, concurrent publication/rescreening, rollback, importer reconciliation, vector/hybrid queries, owner/audit workflows and local MCP interoperability. |
+| **258 offline tests** on each Python 3.11/3.12/3.13 | Provider/screening regressions, Riverlane URL spoofing/identity checks, file durability, privacy, calendar revisions, connection boundaries and backup-age/packaging checks. |
+| **144 PostgreSQL tests**, including cached real-model inference | Actual migrations, constraints, grants, concurrent publication/rescreening, fail-closed publication, importer reconciliation, vector/hybrid queries, owner/audit workflows and local MCP interoperability. |
 | **Hosted and independent synthetic recovery** | Real EC2-to-S3 backup, fresh-database restore, reboot/EBS persistence and ARM64-origin archive restoration into isolated local PostgreSQL 17, with row/security/sequence comparisons. |
 | **Online ChatGPT synthetic connectivity** | An actual `sql_query` call traversed a private OpenAI tunnel to the restricted disposable database. Only this tool was exercised online; the remaining tools have local interoperability tests. |
 
@@ -212,7 +212,7 @@ production access or a live Proton integration.
 |---|---|
 | **Live `main`** | GitHub Actions collection, tracked JSON/text observations, file-backed owner ledgers and CLI/reports. The release branch preserves the latest inspected observations without changing the live writer. |
 | **PostgreSQL development** | Migrations 0001–0004, collection/history, importer, retrieval, owner SQL, calendar snapshots and read-only MCP locally qualified. |
-| **Last qualified AWS deployment** | 26 October 2026: ARM64 `t4g.small`, PostgreSQL 17.11, pgvector 0.8.7 and migrations 0001–0004; native retrieval and synthetic recovery qualified. Release `19ee933` installed; [backup/monitoring enabled](docs/AWS_BACKUP_ACTIVATION_REPORT.md) after confirmed ALARM emails, manual S3 backup and independent restore. Scheduled health run passed; first scheduled backup due 27 October, 00:00 UTC, not yet observed. Intended domain tables empty; collection disabled. |
+| **Last qualified AWS deployment** | 26 October 2026: ARM64 `t4g.small`, PostgreSQL 17.11, pgvector 0.8.7 and migrations 0001–0004; native retrieval/recovery qualified. [Release `e3807a0`, including Riverlane fix, installed and natively tested](docs/AWS_RIVERLANE_MAINTENANCE_REPORT.md); backup/health timers restored and alarms OK. Confirmed ALARM emails and independent S3 restore passed. First scheduled backup due 27 October, 00:00 UTC, not yet observed. Intended domain tables empty; collection disabled. |
 | **Pending activation** | Production private agent access, Proton HTTPS subscription, first scheduled-backup observation and final single-writer cutover. Synthetic online ChatGPT SQL qualification is complete. |
 
 Cutover also requires nine genuine endpoint checks, historical-evidence acceptance,
