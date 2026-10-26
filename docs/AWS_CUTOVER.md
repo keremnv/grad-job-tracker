@@ -1,14 +1,18 @@
 # AWS authority handoff — prepared, not executed
 
-The [26 October host maintenance](AWS_V1_MAINTENANCE_REPORT.md) qualifies release
-`43aab3b`, PostgreSQL 17.11, public.vector 0.8.7 and migrations 0001–0004. Intended
-domain tables remain empty; both timers remain disabled/inactive. Format-1
-pre-upgrade recovery and vector-aware format-2 synthetic hosted/independent restores
-passed. Twice-daily backup/monitoring activation and real-data restoration
-remain open; this runbook does not authorise their execution.
+The [26 October host maintenance](AWS_V1_MAINTENANCE_REPORT.md) qualifies PostgreSQL
+17.11, public.vector 0.8.7 and migrations 0001–0004. Subsequent approved
+[backup activation](AWS_BACKUP_ACTIVATION_REPORT.md) installed release `19ee933`,
+qualified manual S3 backup/independent restore and actual ALARM emails, then enabled
+only backup/health timers. Collection remains disabled and intended domain tables
+empty. A scheduled health run passed; the first scheduled backup is due 27 October,
+00:00 UTC and has not yet been observed. Format-1 pre-upgrade recovery and format-2
+synthetic restores passed; real-data import/recovery remain open. This runbook
+does not authorise their execution.
 
 The owner's [AWS-only policy](AWS_BACKUP_POLICY.md) now specifies **00:00/12:00 UTC**
-backups to existing versioned S3, approximately 30-day retention, process/age/missing-run
+backups to existing versioned S3, retained 30-day current plus 30-day noncurrent
+expiration, process/age/missing-run
 monitoring and confirmed SNS email. It supersedes the strict maximum-loss, six-hour,
 external-custody and fencing proposals. **Frequency is not a maximum RPO:** missed
 runs, project lockout and regional failure can cause greater loss. The [release
@@ -31,20 +35,23 @@ releases use the existing artifact installer, not cloud-init replacement.
 
 Before provisioning, the owner reviews a fresh private Terraform plan, estimated post-credit cost, credit eligibility/expiry, spending-limit status and permissions. Explicit apply approval is separate. Preserve encrypted state, a recovery custodian and a scoped deployment identity; do not edit the project's `/managed/` roles. Verify the chosen subnet/AMI are still available. A plan proves API compatibility for reads, not permission to create resources. `prevent_destroy` deliberately blocks ordinary replacements and must not be removed to make a plan pass.
 
-After an approved deployment, keep both timers disabled. Verify cloud-init completed, exact EBS mount/UUID, PostgreSQL 17, Python 3.12 ARM64, patched SSM Agent and authenticated SSM channels, no inbound SG rules, loopback-only SQL, root/OS/socket permissions, role denials, migration checksums, S3 checksum/version receipts, logs, console alarms and CPU Standard mode. Reboot and prove the data mount is required; exercise an approved replacement recovery without formatting existing storage. Application installation, restricted SQL access, migrations, synthetic S3 backup/fresh same-host restore, reboot/persistence and log delivery have passed on the existing host. Synthetic off-host data restoration is now qualified separately. Twice-daily scheduling, alert delivery, backup freshness and production data/load remain unqualified. The current report takes precedence over historical preflight status. Do not repeat deployment or replace persistent resources to address the CLI defect.
+After a new approved deployment, keep all timers disabled. Verify cloud-init completed, exact EBS mount/UUID, PostgreSQL 17, Python 3.12 ARM64, patched SSM Agent and authenticated SSM channels, no inbound SG rules, loopback-only SQL, root/OS/socket permissions, role denials, migration checksums, S3 checksum/version receipts, logs, console alarms and CPU Standard mode. Reboot and prove the data mount is required; exercise an approved replacement recovery without formatting existing storage. Application installation, restricted SQL access, migrations, synthetic S3 backup/fresh same-host restore, reboot/persistence and log delivery have passed on the existing host. Synthetic off-host restoration and subsequent manual backup/monitoring activation are qualified separately. Production data/load and the first scheduled backup remain unqualified. The current activation report takes precedence over historical preflight status. Do not repeat deployment or replace persistent resources to address an already repaired CLI defect.
 
 V1 software/extension maintenance has passed; do not reinstall PostgreSQL, vector
-or migrations unnecessarily. Deploy only the reviewed backup-policy software update,
-with all timers still disabled until separately authorised. Existing restore targets
+or migrations unnecessarily. The reviewed backup-policy update is installed;
+collection stays disabled. Future code updates need separate maintenance approval
+to pause the active backup/health timers and satisfy the installer's refusal of
+enabled timers. Existing restore targets
 must match role flags, DB grants/settings and vector 0.8.7 ownership; keep inference
 off this 2 GiB host.
 
-Before freezing production, separately qualify the [AWS-only monitoring setup](AWS_BACKUP_POLICY.md):
+Before freezing production, recheck the qualified [AWS-only monitoring setup](AWS_BACKUP_POLICY.md):
 confirmed S3 completion receipt, failed/stale/missing backup and checker-heartbeat
-alarms, confirmed SNS recipient and real delivery. Enable only backup/health timers
-when explicitly authorised; collection remains disabled. No external-copy job or
-automatic writer fencing is required. Record actual restore results, never a promised
-12-hour maximum loss bound.
+alarms, confirmed SNS recipient and real delivery. Backup/health timers are already
+enabled under their separate approval; collection remains disabled. Observe the
+first scheduled backup and normal alarm recovery before treating scheduling as
+qualified. No external-copy job or automatic writer fencing is required. Record
+actual restore results, never a promised 12-hour maximum loss bound.
 
 All nine previously enabled sources still need separately authorized **real endpoint checks**, not fixtures or historical mapping timestamps:
 

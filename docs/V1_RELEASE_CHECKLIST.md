@@ -8,9 +8,12 @@ read. Subsequent authorised AWS inspection/maintenance is recorded below.
 
 A separately authorised [26 October hosted maintenance](AWS_V1_MAINTENANCE_REPORT.md)
 now qualifies the V1 artifact, pgvector 0.8.7, migration 0004 and synthetic format-2
-recovery on ARM64. Both timers remain disabled/inactive and intended domain tables
-remain empty. This does not qualify production recovery or cutover. The no-AWS
-statement above describes the earlier local release-preparation stage.
+recovery on ARM64. Subsequent [backup activation](AWS_BACKUP_ACTIVATION_REPORT.md)
+installed release `19ee933` and enabled only backup/health timers after delivered
+ALARM tests and a verified manual S3 backup/independent restore. Collection remains
+disabled and intended domain tables empty. The first scheduled backup is still
+unobserved (due 27 October, 00:00 UTC). This does not qualify production recovery
+or cutover. The no-AWS statement above describes the earlier local preparation.
 
 This is the current compact release record. Older stage reports retain their
 historical results; their daily/26-hour recovery proposal is superseded by the
@@ -92,20 +95,22 @@ monitoring/email, costs and activation. The strict 12-hour maximum data-loss,
 external encrypted custody/worker and automatic all-writer fencing proposals are
 superseded by the owner's 26 October decision.
 
-Prepared, **not installed/activated**: 00:00/12:00 UTC backups; a private atomic
+Installed and enabled under separate approval: **00:00/12:00 UTC backups**; a private atomic
 receipt only after confirmed S3 archive + manifest completion; a 15-minute local
 receipt checker through the existing log stream. Warning >=14h / critical >=26h
-are advisory. The proposed single health metric/alarm treats missing heartbeat as
-breaching, in addition to existing process-failure alarms. Owner-confirmed SNS
-email and hosted failure/missing-run delivery tests are still required.
+are advisory. The single health metric/alarm treats missing heartbeat as
+breaching, in addition to existing process-failure alarms. The owner confirmed the
+SNS subscription and actual failure/stale/missing-heartbeat ALARM emails.
 
 The owner explicitly retains existing **30-day current + 30-day noncurrent**
 retention. The earlier shortening proposal is withdrawn from active configuration.
-[Activation is paused](AWS_BACKUP_ACTIVATION_REPORT.md): release `19ee933` is installed,
-SNS/filter/alarm configuration exists, but no subscription, delivery test, manual
-backup/receipt or timer activation has occurred. Four Terraform imports remain.
-The corrected plan-only mock assertion passes; no further AWS mutation is authorised
-until the owner resumes after the required failed-verification stop.
+[Activation evidence](AWS_BACKUP_ACTIVATION_REPORT.md): a real manual backup,
+exact S3 archive/manifest versions and receipt, plus an independent fresh-target
+restore passed. The health timer actually ran successfully at 12:45 UTC on
+26 October. The first scheduled backup remains due at 00:00 UTC on 27 October;
+do not infer its success from the manual test. Terraform has 25 managed entries
+after five normal imports, no apply/replacement; existing protections and 30+30
+retention are unchanged. Collection stays disabled.
 
 Integrity checks, exact S3 versions, conservative snapshot start and guarded
 fresh-target restore are unchanged. Synthetic hosted and independent restores
@@ -129,9 +134,10 @@ means a dependency or safety implementation is still missing. No row supplies GO
 | VERIFIED | Feature chain + inspected main integrated without data conflicts | Local Git only; main/writer untouched. Refresh before final integration. |
 | VERIFIED | Real online synthetic ChatGPT `sql_query`; local five-tool tests | Synthetic runtime stopped locally; plugin/key withdrawal owner-reported, not independently checked. No production sharing implied. |
 | VERIFIED | Hosted ARM64 V1 and independent vector-aware synthetic recovery | Format 1 and 2 exact restores passed; intended domain tables empty. Does not prove final real-data recovery. |
-| VERIFIED | Bounded AWS/SSM/SQL/state inspection, 26 October | Twenty-resource state and protections unchanged; intended tables empty; timers disabled. Alarms have no notification destinations; credit expiry/spend limit and current monthly bill remain unknown. No further permission implied. |
+| VERIFIED | Bounded AWS/SSM/SQL/state inspection, 26 October | Initial twenty-resource baseline preserved. Later authorised monitoring imports bring state to 25 entries. Protections/roles/authentication unchanged; intended tables empty and collector disabled. Credit expiry/spend limit and current monthly bill remain unknown. No further permission implied. |
 | VERIFIED — owner decision | AWS-only backups every 12h, no strict RPO | Existing S3 only; missed/failed backups, project lockout and regional failure can cause greater loss. No external custody/worker or automatic fencing requirement. |
-| BLOCKED — verification stop | Resume approved backup/monitoring activation | Release installed; topic/filter/alarm configured. New mock assertion initially could not evaluate computed ARNs; corrected five mock tests pass. Owner resume, four Terraform imports, private email/confirmation, delivered fault/missing-heartbeat tests and verified backup/restore remain; timers disabled. Existing instance log IAM suffices; about $0.43–$0.68/month marginal for 10–100 MiB archives. |
+| VERIFIED | Backup/monitoring activation, manual S3 backup and independent restore | Release `19ee933`, confirmed recipient, three actual ALARM emails and final recovery OK owner-confirmed; exact S3 versions/receipt and fresh-target restore passed. Backup/health timers enabled; actual scheduled health execution passed. No new instance IAM; about $0.43–$0.68/month marginal for 10–100 MiB archives. |
+| READY FOR APPROVED EXECUTION — read-only observation | Verify first scheduled backup after 27 October, 00:00 UTC | It has not run as of this activation report. Inspect service result, conservative receipt time, exact archive/manifest versions and alarm recovery. Existing automatic backup approval permits the schedule; this row is no claim of success or further mutation approval. |
 | VERIFIED — owner decision | Retain 30+30 lifecycle | Live and source configuration retain 30-day current/noncurrent expiration; shortening is not authorised or a V1 gate. |
 | VERIFIED | Code-only V1 host maintenance, vector 0.8.7, migration 0004 and synthetic requalification | Artifact R installed/replayed; PG17.11 unchanged; format-1 pre-upgrade and format-2 synthetic S3/restore proofs passed. No optional roles, inference, authentication changes, timer activation or infrastructure changes. |
 | NEEDS OWNER DECISION | Explicit legacy-evidence acceptance against final manifest | Missing complete schema-2 native responses and never-indexed pre-schema-2 exclusions cannot be reconstructed. No technical fee; private dated owner acceptance, no invented evidence or employer edit times. |

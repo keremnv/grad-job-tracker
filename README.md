@@ -200,9 +200,10 @@ and a substantive Cambridge Consultants `Job Summary` update.
 
 The real-model smoke test proves the implemented inference/retrieval path works;
 it is not a relevance benchmark. Synthetic recovery does not establish
-production-scale recovery time. Twice-daily AWS-only scheduling and email
-monitoring still require authorised activation; no strict maximum-loss guarantee
-or external custody requirement is claimed. The online test proves synthetic connectivity, not hosted
+production-scale recovery time. Twice-daily AWS-only backup and health timers are
+enabled after delivered email ALARM tests and a verified manual backup/independent
+restore. The first scheduled backup remains unobserved; no strict maximum-loss
+guarantee or external custody requirement is claimed. The online test proves synthetic connectivity, not hosted
 production access or a live Proton integration.
 
 ## Status and roadmap
@@ -211,8 +212,8 @@ production access or a live Proton integration.
 |---|---|
 | **Live `main`** | GitHub Actions collection, tracked JSON/text observations, file-backed owner ledgers and CLI/reports. The release branch preserves the latest inspected observations without changing the live writer. |
 | **PostgreSQL development** | Migrations 0001–0004, collection/history, importer, retrieval, owner SQL, calendar snapshots and read-only MCP locally qualified. |
-| **Last qualified AWS deployment** | 26 October 2026: ARM64 `t4g.small`, PostgreSQL 17.11, pgvector 0.8.7 and migrations 0001–0004; native retrieval and synthetic S3/independent restore qualified. Intended production domain tables empty; timers disabled. Backup-policy release `19ee933` is installed; [monitoring activation is paused](docs/AWS_BACKUP_ACTIVATION_REPORT.md) before subscription, tests and scheduling. [Hosted qualification](docs/AWS_V1_MAINTENANCE_REPORT.md). |
-| **Pending activation** | Production private agent-access qualification; Proton HTTPS subscription; twice-daily S3 scheduling, freshness checks, email delivery and final single-writer cutover. Synthetic online ChatGPT SQL qualification is complete. |
+| **Last qualified AWS deployment** | 26 October 2026: ARM64 `t4g.small`, PostgreSQL 17.11, pgvector 0.8.7 and migrations 0001–0004; native retrieval and synthetic recovery qualified. Release `19ee933` installed; [backup/monitoring enabled](docs/AWS_BACKUP_ACTIVATION_REPORT.md) after confirmed ALARM emails, manual S3 backup and independent restore. Scheduled health run passed; first scheduled backup due 27 October, 00:00 UTC, not yet observed. Intended domain tables empty; collection disabled. |
+| **Pending activation** | Production private agent access, Proton HTTPS subscription, first scheduled-backup observation and final single-writer cutover. Synthetic online ChatGPT SQL qualification is complete. |
 
 Cutover also requires nine genuine endpoint checks, historical-evidence acceptance,
 integration preserving newer `main` data, a writer freeze, final-commit import and

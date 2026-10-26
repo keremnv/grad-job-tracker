@@ -1,20 +1,24 @@
-# AWS backup activation — paused after verification failure
+# AWS backup and monitoring activation
 
-26 October 2026. Application base `19ee9338ae902423e69d01d6eeb6f0f00bceaec2`.
-**Production NO-GO. Git remains authoritative.** This is a partial execution record,
-not notification or scheduled-backup qualification.
+26 October 2026. Installed application: `19ee9338ae902423e69d01d6eeb6f0f00bceaec2`.
+**Production NO-GO. Git remains authoritative.** Backup and backup-health timers
+are enabled; PostgreSQL collection remains disabled. Intended domain tables are
+still empty. This approval did not include production import or cutover.
 
 ## Executed and verified
 
-| Operation | Result |
+| Operation | Observed result |
 |---|---|
-| Baseline | Intended domain/audit/embedding tables empty; matching protected EBS mount, PostgreSQL 17.11/vector 0.8.7, migrations 0001–0004, roles/authentication and protections. |
-| Artifact | Built/verified code-only ARM64/Python 3.12 release from `19ee933`; SHA-256 below. No data/config/secrets/model weights included. |
-| Installation | Installed/replayed safely through existing trusted helper. Eight command-help checks and imports as all four OS service identities passed; root-owned code not writable by runtime users. No PostgreSQL/extension/migration reinstall. |
-| SNS | One approved Standard alerts topic and its CloudWatch-only publish policy created; source project + four intended alarm ARNs constrain the policy. No instance IAM/SQL-role change. |
-| CloudWatch | New backup-health metric filter/alarm configured. SNS actions added to existing host/credit/failure alarms; fresh before/after comparisons confirm unrelated evaluation/configuration settings preserved. |
-| Stop-state recheck | Intended tables still empty; collection, backup and backup-health timers all **disabled/inactive**. HBA/configuration, PostgreSQL start time, migration checksums, roles and original grant/trigger checks unchanged. |
-| Storage/state | Live S3 retention remains **30-day current / 30-day noncurrent**; no lifecycle change. Existing Terraform state still has twenty resources and unchanged object version. No apply, replacement, guard removal or state write. |
+| Baseline/final inspection | Same protected encrypted EBS mount, PostgreSQL 17.11/vector 0.8.7, migrations 0001–0004, roles, grants, audit triggers and authentication. All twelve intended domain/audit/embedding tables remain empty. No PostgreSQL restart, package reinstall or migration. |
+| Code-only installation | Built, verified, installed and safely replayed release `19ee933`. Eight command-help checks and imports as all four OS service identities passed. Root-owned code is not writable by runtime users; artifact contains no production data, secrets or model weights. |
+| Monitoring | One SNS Standard topic, its constrained CloudWatch publish policy, one confirmed email subscription, one health metric filter and one health alarm. Added notification actions to the three existing host/credit/failure alarms without changing their evaluation settings. Existing instance IAM suffices; no SQL-role or IAM-role changes. Logs retain fourteen days. |
+| Terraform ownership | Imported the exact existing topic, policy attribute, subscription, filter and health alarm with protected S3/native locking. State now has **25 managed entries**, including the unchanged original twenty. No Terraform apply, instance replacement or protection removal. |
+| Email | Owner confirmed subscription and receipt of **all three actual ALARM emails**: operation failure, stale backup health and missing checker heartbeat. AWS action history also records successful SNS actions. Labelled baseline OK emails were not counted as ALARM tests. |
+| Manual backup | One real format-2 custom archive of the still-empty intended database: **97,567 bytes**. Archive and completion manifest uploaded with AES256 using the backup identity; exact S3 versions, checksums, manifest-last linkage and private atomic completion receipt verified. |
+| Independent restoration | Operator retrieved the exact versions. Pinned recovery code restored into fresh, network-isolated local PostgreSQL **17.11/vector 0.8.7**, without querying EC2. Exact rows, schema, owners/grants, extension requirements and sequence fingerprints matched. Populated-target refusal passed. Restore/verification took about **0.59 seconds** for this empty archive, not a production RTO. |
+| Scheduling | Backup timer enabled/active at **00:00 and 12:00 UTC**; health timer enabled/active every fifteen minutes. Actual scheduled health execution at **12:45:13 UTC** completed successfully and CloudWatch received `BackupHealthy=1`. Collection timer remains disabled/inactive and its service inactive. |
+| First scheduled backup | **Not yet observed.** At the final host check its next execution was **27 October 2026, 00:00 UTC** and no timer trigger had occurred. Manual success is not scheduled-execution proof. Check the actual archive, manifest and receipt after that run. |
+| Retention/security | Existing **30-day current / 30-day noncurrent** lifecycle unchanged, with versioning, SSE-S3, public-access blocking and ACL-disabled ownership. Encrypted volumes, termination protection, zero inbound rules, IMDSv2 and Standard CPU credits remain. |
 
 Installed artifact SHA-256:
 
@@ -22,63 +26,89 @@ Installed artifact SHA-256:
 3ddb7de922a03e05add2d0e2eee124c2be4f0220a21a7819216f89692239ce94
 ```
 
-## Verification failure and sequencing error
+Private receipts retain exact S3 object/version links, checksums, test timestamps
+and protected state history. No address, infrastructure identifier, receipt, dump,
+private record or credential is committed here.
 
-The initial five mock runs passed after adding the monitoring resource declarations.
-An additional security assertion then failed: computed SNS/alarm ARNs were unknown
-at plan time, so Terraform could not evaluate the JSON policy assertion. This was
-an offline test-fixture defect, not an observed AWS policy or application failure.
-The command chain was not correctly gated on that new failure, and the monitoring
-API sequence completed before its result was inspected. This was an execution
-sequencing error. No further AWS mutation occurred after discovery; subsequent
-AWS/SSM operations were read-only checks.
+## How the notification tests worked
 
-The mock-only correction supplies explicit dummy ARNs using plan-time overrides;
-no policy assertion was removed or weakened, and no mock apply is used. Offline
-format/validate and all **five mock tests now pass**; both protected EBS/bucket
-destruction-refusal tests also passed locally. These results do not erase the failed check or grant
-permission to resume beyond the owner's requested verification stop.
+- **Operation failure:** the installed backup command refused an invalid option
+  combination before database/S3 work. Its nonzero redacted result went through
+  the real non-root log publisher and existing failure metric/alarm.
+- **Stale backup:** the installed checker evaluated a separate synthetic receipt
+  older than fourteen hours and published unhealthy status. The real last-good
+  completion receipt was never replaced by test data.
+- **Missing heartbeat:** temporarily selected an intentionally unpublished metric
+  on the same health alarm, retaining its 900-second/two-of-three/missing-breaching
+  evaluation. Real missing-data evaluation generated ALARM. The final
+  `BackupHealthy` configuration was restored and verified before activation.
 
-The root Terraform replacement risk was not bypassed. Source now describes the
-approved monitoring objects/actions and preserves 30+30 retention. **Four normal
-Terraform resource imports remain pending**: topic, topic-policy attribute, metric
-filter and health alarm. The three new AWS resources exist but are not yet in
-Terraform state. Import them with normal protected backend locking before any
-future root plan/apply; do not recreate/adopt them silently or apply the blocked
-instance replacement. A confirmed subscription would be a fifth import later.
+The two health cases used clearly labelled forced **OK baselines**, then required
+actual metric-driven ALARM transitions and delivered emails. No forced ALARM was
+counted as evidence. After real healthy heartbeats, the health alarm returned to
+**OK through normal evaluation at 12:56 UTC**; the operation-failure alarm had also
+recovered. This was not a forced reset. CloudWatch can retain a test ALARM while
+older/missing periods remain in its evaluation range; a successful checker alone
+does not establish recovery. SNS action history confirms the recovery action;
+the owner also confirmed receipt of the final recovery **OK email**, separately
+from the synthetic baselines, as well as all three required ALARM emails.
 
-## Not performed
+## Execution history and infrastructure review
 
-- No notification address collected, subscription created or email delivered.
-- No receipt-generating manual backup, S3 archive retrieval/restore or freshness
-  initialisation in this stage. The completion receipt remains absent.
-- No timer enabled/started, collector run or scheduled execution observed.
-- No production import, owner-record write, credential/SQL-role change, live ATS
-  call, GitHub workflow change, main merge or authority switch.
+The first attempt paused after a new mock-policy assertion could not evaluate
+unknown computed ARNs. Its command chain had not gated AWS configuration on that
+new result: an execution sequencing error. Mock-only explicit dummy ARN overrides
+fixed the test without weakening policy checks. The owner subsequently instructed
+resume, confirmed the subscription, and acknowledged the three ALARM emails.
 
-The health alarm is currently ALARM because no health heartbeat exists. With zero
-subscriptions, that is **not** email-delivery evidence. Do not enable backup/health
-timers until actual notification/failure/missing-heartbeat tests and the approved
-manual backup/restore checks succeed.
+A read-only refresh initially flagged more fields than its narrow alarm-only
+allowlist. All **25 semantic comparisons** resolved them as the approved alarm
+actions, empty-map normalization and existing separately managed EBS attachment,
+IAM inline policy and S3 policy/versioning/30+30 lifecycle appearing in parent
+resource projections. No unexpected infrastructure change was found and no refresh
+plan was applied. The known source user-data replacement remains blocked by
+`prevent_destroy`; this activation did not resolve or bypass it. A future root
+Terraform update needs a separate reviewed maintenance plan, never blind apply.
 
-## Costs and resume point
+## Validation and costs
 
-Current additions are one Standard SNS topic, one log metric filter and one standard
-alarm, plus the small code artifact in existing S3. No new compute or IAM role.
-No active checker or scheduled backups; no email charges from this stage. The new
-alarm's public list rate is $0.10/month prorated; metric/request/storage charges
-depend on usage, not a verified invoice. With the retained 30+30 lifecycle, future
-10–100 MiB twice-daily archives plus monitoring are approximately **$0.43–$0.68/month**
-(illustrative £0.40–£0.63 with 20% VAT at £0.77/$), allowing 124 archive-sized versions.
-At 1 GiB/archive the estimate is $3.26/month. No credit eligibility or total project
-monthly spending is inferred. [Current policy/rates](AWS_BACKUP_POLICY.md).
+- Final read-only audit: **40 checks passed** across host, EBS, security group,
+  IAM, S3, notification setup, database metadata and timer state. Protected S3
+  backend verified encrypted/versioned, default workspace, `use_lockfile=true`,
+  lock released and state unchanged since the five imports.
+- This resume reran **7 receipt/monitor tests** and **8 deployment tests**, all
+  passing, using `PYTHONPATH=src python3 -m unittest discover -s tests -p
+  test_backup_monitor.py -v` and the same command with `test_aws_deployment.py`.
+  Documentation lint, 53 relative link targets and `git diff --check` passed.
+- Five Terraform mock tests, format/validate and both persistent-resource
+  destruction-refusal tests passed during this activation's local preparation.
+- Earlier approved policy validation remains **252 offline tests on each Python
+  3.11/3.12/3.13**, **141 PostgreSQL tests** and **19 deployment/protection tests**.
+  These full suites were not repeated for this status-only documentation update.
+- Hosted checks above exercise the installed application, non-root services,
+  actual SNS/CloudWatch delivery, S3 uploads/version reads, guarded independent
+  restore and one actual scheduled health run. They do not prove a scheduled
+  backup, production-data recovery or production-scale load.
 
-Resume requires the owner's instruction following this failed-verification stop:
-record the four exact existing resources through normal Terraform imports, collect
-the intended email through a private local file, subscribe and await owner confirmation,
-test actual alert/recovery delivery and missing heartbeat, run/verify the empty-DB
-manual backup and a fresh-target restore, then enable only the approved backup and
-health timers. Do not repeat installation, recreate the topic/alarm/filter, shorten
-retention or reinstall PostgreSQL/vector/migrations. Record a scheduled execution
-only after it actually occurs. All private identifiers, receipts and logs stay
-outside Git. Production cutover remains separately gated.
+No new compute, storage bucket, instance IAM permission or outside provider.
+Retaining 30+30, twice-daily **10–100 MiB** archives plus the new metric/alarm and
+small SNS/log/request usage are estimated at **$0.43–$0.68/month** marginal
+(illustrative £0.40–£0.63 with 20% VAT at £0.77/$). At 1 GiB/archive, about
+$3.26/month. This is an estimate, not a verified invoice or credit entitlement;
+the historical £17.53 base-host estimate and retained Aurora snapshot are separate.
+[Rates and accepted risks](AWS_BACKUP_POLICY.md).
+
+## Remaining gates
+
+Observe the first scheduled backup and its receipt; maintain monthly and pre-change
+restore checks. Twelve hours is frequency, **not a maximum RPO**. Missing/failed
+runs, AWS project lockout and regional failure can cause greater loss. Notifications
+are state changes, not repeated reminders or a guarantee.
+
+Next approval-sized work: genuine checks of the existing nine ATS endpoints and
+employer mappings in the non-authoritative qualification database, without posting
+publication, plus the owner's explicit legacy-evidence acceptance. Final writer
+freeze/commit pin, real import/reconciliation, real-data independent restore,
+private production access and the single-writer switch still require their own
+approvals. No live ATS request, collection, production import, owner write,
+credential change, GitHub workflow change, main merge, tunnel or cutover occurred.

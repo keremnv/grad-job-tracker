@@ -13,7 +13,13 @@ failure but not independent of the AWS project/Region. The owner accepts this
 trade-off. Private decisions made since the last usable snapshot may be lost.
 No fixed restoration-time guarantee or automatic all-writer fencing is promised.
 
-## Prepared operation and retention
+## Operation and retention
+
+[Activation results, 26 October](AWS_BACKUP_ACTIVATION_REPORT.md): release `19ee933`
+is installed; the confirmed SNS recipient received all three ALARM tests. The real
+manual backup and independent fresh-target restore passed. Backup/health timers
+are enabled, collection disabled; a scheduled health run passed. The first
+scheduled backup is due at 00:00 UTC on 27 October and has **not yet been observed**.
 
 - `jobwatch-backup.timer`: 00:00/12:00 UTC, one-minute accuracy, no random delay,
   persistent catch-up after downtime. Catch-up runs once, not once per missed slot.
@@ -35,10 +41,10 @@ No fixed restoration-time guarantee or automatic all-writer fencing is promised.
 
 [Versioned S3 expiration semantics](https://docs.aws.amazon.com/AmazonS3/latest/userguide/lifecycle-expire-general-considerations.html).
 
-## Minimum monitoring — prepared locally, not deployed
+## Minimum monitoring — deployed and delivery-tested
 
 1. **Failed process:** reuse the existing `FailedOperations` log metric/alarm.
-   Connect its currently empty notification actions to an approved SNS topic.
+   Its notification actions now point to the approved SNS topic.
 2. **Missed backup / stale recovery point:** after BOTH S3 uploads are checksum/version
    confirmed, the backup command atomically saves a private `0600` completion receipt
    under `/var/lib/jobwatch-backup/`. Invalid/incomplete uploads cannot replace the
@@ -56,15 +62,18 @@ No fixed restoration-time guarantee or automatic all-writer fencing is promised.
    **breaching**. Thus backup-timer disablement ages the last receipt into ALARM;
    host/checker/log-delivery failure stops the heartbeat and also alarms. No default
    metric value is set: collector logs must not fabricate backup health.
-   [Reviewable input](../infra/aws/backup-monitoring.example.json) is inert and has
-   no configured SNS ARN. Actual delivery/evaluation timing needs hosted testing;
-   CloudWatch's wider evaluation range means missing-data alerts can be delayed.
+   [Reviewable input](../infra/aws/backup-monitoring.example.json) stays inert and
+   has no configured SNS ARN. Actual stale and missing-heartbeat ALARM emails were
+   delivered in the hosted qualification; CloudWatch's wider evaluation range
+   means missing-data alerts can be delayed. This is not an immediate alert SLA.
 5. **Email:** one Stockholm SNS **Standard** topic, owner-selected email and confirmed
    subscription; CloudWatch-only publish permission constrained to the intended
    project/alarm ARNs. Attach ALARM/OK/INSUFFICIENT_DATA actions to the new alarm and
    the existing failure/host/credit alarms without overwriting other settings.
-   No email address, ARN or subscription has been created by this work. The owner
-   must confirm the subscription and observe real alarm/recovery delivery.
+   The owner confirmed the subscription, all three actual ALARM deliveries and
+   the final normal-recovery OK email. Email/ARN details remain private. Use
+   observed normal state recovery, not a forced OK baseline, when checking
+   recovery notifications.
 
 [CloudWatch missing-data behaviour](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html)
 and [SNS email confirmation](https://docs.aws.amazon.com/sns/latest/dg/sns-email-notifications.html).
@@ -124,20 +133,21 @@ The previous £17.53 host estimate is historical, not a current invoice. Preserv
 £10–£20/month where practical; measure real dump growth and include the retained
 Aurora snapshot and existing usage before promising the total.
 
-## Activation — authorised, currently paused
+## Activation — enabled under the separate owner approval
 
-The owner authorised the following bounded activation. [Partial execution](AWS_BACKUP_ACTIVATION_REPORT.md)
-installed the release and configured monitoring, then stopped at a failed new mock
-assertion. The mock correction now passes; an owner resume instruction is required
-before further AWS writes. Remaining scope on the existing empty host:
-install a separately verified code-only release with these changes, keep collection
-inactive, establish the SNS topic/confirmed owner email/filter/alarm and attach
-notification actions, then take one verified manual backup to initialise the
-receipt (the prepared backup service supplies `--receipt`; an ordinary manual
-CLI backup without that option does not initialise monitoring). Test failure, stale/missing receipt, missing checker heartbeat and delivered
-email/recovery without altering real records; explicitly enable only backup and
-health timers after those checks. No SQL roles/credentials or instance IAM changes
-are proposed. No PostgreSQL/vector reinstall or schema migration is needed.
+[Actual execution](AWS_BACKUP_ACTIVATION_REPORT.md) installed the reviewed code-only
+release, configured monitoring and paused at an offline mock assertion. Following
+the passing mock correction and the owner's resume instruction, the exact
+monitoring resources were imported into protected Terraform state, the private
+recipient confirmed the subscription and all three delivered ALARM tests, and a
+real manual backup initialised the private completion receipt. The exact S3
+versions restored successfully into an independent disposable local target.
+Only backup and health timers were then enabled. The backup service supplies
+`--receipt`; an ordinary manual CLI backup without that option does not initialise
+monitoring. No SQL roles, credentials or instance IAM permissions changed. No
+PostgreSQL/vector reinstall or migration was required. Intended domain tables
+remain empty and collection stays disabled. Observe the first scheduled backup
+separately; manual success must not be reported as scheduler proof.
 
 The owner explicitly retains 30+30; lifecycle shortening is outside this approval.
 Any Terraform execution needs a fresh plan excluding the known protected instance
@@ -171,6 +181,7 @@ live; **production NO-GO** until those gates close.
 
 The initial minimal Python environment lacked the optional MCP runtime and
 skipped two tests; the final runs above used the existing complete environments
-and skipped none. These are local/disposable results, not deployed monitoring,
-SNS email delivery or a fresh AWS inspection. No AWS credentials or project APIs
-were used; public documentation/pricing downloads only. Private logs stay outside Git.
+and skipped none. These describe the earlier local/disposable policy-validation
+stage, which used no AWS credentials or project APIs, only public documentation/
+pricing downloads. The subsequent authorised hosted activation and actual
+delivery/restore evidence are recorded separately above. Private logs stay outside Git.
