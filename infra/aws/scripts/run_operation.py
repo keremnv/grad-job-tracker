@@ -12,7 +12,8 @@ def run(operation, *, config_path=Path('/etc/jobwatch/aws.json'), run_command=su
     release = Path(__file__).resolve().parents[3]
     command = ([sys.executable, '-m', 'jobwatch.postgres.operations', 'scan',
                 '--actor', 'scheduled:systemd', '--format', 'json'] if operation == 'collect' else
-               [sys.executable, str(release / 'infra/aws/scripts/database_backup.py'), 'backup', '--upload'])
+               [sys.executable, str(release / 'infra/aws/scripts/database_backup.py'), 'backup', '--upload',
+                '--receipt', '/var/lib/jobwatch-backup/latest.json'])
     started = time.monotonic()
     result = run_command(command, capture_output=True, text=True, timeout=2600)
     # The collector's exit code is authoritative; a logging error never masks a collection error.
@@ -31,6 +32,12 @@ def run(operation, *, config_path=Path('/etc/jobwatch/aws.json'), run_command=su
                 for row in data.get('sources', [])[:1000]]
         except (ValueError, TypeError):
             summary['summary_available'] = False
+    publish(summary, config, run_command=run_command)
+    return result.returncode
+
+
+def publish(summary, config, *, run_command=subprocess.run):
+    """Publish an already allowlisted summary to the existing restricted log stream."""
     message = json.dumps(summary, sort_keys=True)
     print(message, flush=True)
     try:
@@ -38,11 +45,12 @@ def run(operation, *, config_path=Path('/etc/jobwatch/aws.json'), run_command=su
                               '--log-group-name', config['log_group'], '--log-stream-name', config['log_stream'],
                               '--log-events', json.dumps([{'timestamp': int(time.time()*1000), 'message': message}])],
                              capture_output=True, text=True, timeout=30)
-        if logged.returncode:
-            print('Operational log delivery failed; inspect local journal', file=sys.stderr)
+        if logged.returncode == 0:
+            return True
     except (OSError, subprocess.SubprocessError):
-        print('Operational log delivery failed; inspect local journal', file=sys.stderr)
-    return result.returncode
+        pass
+    print('Operational log delivery failed; inspect local journal', file=sys.stderr)
+    return False
 
 
 if __name__ == '__main__':

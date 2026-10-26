@@ -1,7 +1,7 @@
 [Unit]
-Description=Six-hour Job Watch backup — enable only after custody and restore approval
+Description=Twelve-hour Job Watch backup — enable only after monitoring and restore approval
 [Timer]
-OnCalendar=*-*-* 00,06,12,18:00:00 UTC
+OnCalendar=*-*-* 00,12:00:00 UTC
 AccuracySec=1min
 RandomizedDelaySec=0
 Persistent=true

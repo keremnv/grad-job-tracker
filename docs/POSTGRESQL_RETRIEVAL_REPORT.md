@@ -1,5 +1,10 @@
 # V1 local pgvector implementation results
 
+**Policy superseded, 26 October 2026:** [the current owner-approved policy](AWS_BACKUP_POLICY.md)
+uses AWS-only 00:00/12:00 UTC S3 backups, not a strict maximum-loss guarantee.
+External custody/worker and automatic writer fencing are not V1 requirements.
+This document preserves historical test results/proposals, not current permission.
+
 25 October 2026. Branch `feat/pgvector-retrieval`, based on roadmap commit
 `4374716`, including Stage 4C `10d5f38` and recovery `b3ba87f`.
 The owner-selected model is implemented, not an alternative-model comparison.

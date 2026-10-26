@@ -31,24 +31,26 @@ class BackupFreshnessTests(unittest.TestCase):
                       'archive_object': {'key': 'backups/synthetic.dump', 'version_id': 'synthetic-version',
                                          'sha256': digest}}, now
 
-    def test_snapshot_age_boundaries_and_no_custody_claim(self):
+    def test_snapshot_age_boundaries_are_advisory_not_an_rpo(self):
         with TemporaryDirectory() as d:
-            for hours, status in [(1, 'fresh'), (7.99, 'fresh'), (8, 'warning'),
-                                  (10, 'critical'), (12, 'breached'), (26, 'breached')]:
+            for hours, status in [(1, 'fresh'), (12, 'fresh'), (13.99, 'fresh'), (14, 'warning'),
+                                  (25.99, 'warning'), (26, 'critical')]:
                 with self.subTest(hours=hours):
                     archive, manifest, now = self.fixture(d, hours)
                     result = backup_freshness.inspect(archive, manifest, now=now)
                     self.assertEqual(result['status'], status)
                     self.assertGreaterEqual(result['conservative_snapshot_age_seconds'], hours*3600)
-                    self.assertFalse(result['independent_custody_verified'])
+                    self.assertFalse(result['s3_availability_verified'])
+                    self.assertFalse(result['maximum_data_loss_guaranteed'])
+                    self.assertNotIn('maximum_age_seconds', result)
                     self.assertFalse(result['alert_delivery_verified'])
                     self.assertFalse(result['production_ready'])
 
     def test_delayed_upload_or_fresh_manifest_never_refreshes_old_snapshot(self):
         with TemporaryDirectory() as d:
-            archive, manifest, now = self.fixture(d, 13)
+            archive, manifest, now = self.fixture(d, 27)
             manifest['created_at'] = (now-timedelta(minutes=1)).isoformat()
-            self.assertEqual(backup_freshness.inspect(archive, manifest, now=now)['status'], 'breached')
+            self.assertEqual(backup_freshness.inspect(archive, manifest, now=now)['status'], 'critical')
 
     def test_missing_start_or_completion_version_is_not_a_success(self):
         with TemporaryDirectory() as d:
@@ -119,9 +121,9 @@ class ReleasePreparationTests(unittest.TestCase):
                 names = {m.name for m in archive if m.isfile()}
             self.assertEqual(names, set(files))
 
-    def test_prepared_six_hour_schedule_avoids_random_delay_and_is_not_enabled_by_installer(self):
+    def test_prepared_twelve_hour_schedule_avoids_random_delay_and_is_not_enabled_by_installer(self):
         timer = (ROOT/'infra/aws/systemd/jobwatch-backup.timer').read_text()
-        self.assertIn('OnCalendar=*-*-* 00,06,12,18:00:00 UTC', timer)
+        self.assertIn('OnCalendar=*-*-* 00,12:00:00 UTC', timer)
         self.assertIn('RandomizedDelaySec=0', timer)
         self.assertIn('AccuracySec=1min', timer)
         # Existing deployment tests exercise successful/repeated installs and

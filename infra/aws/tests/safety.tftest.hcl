@@ -24,10 +24,18 @@ run "safe_initial_plan" {
     error_message = "Encrypted durable storage required."
   }
   assert {
+    condition = alltrue([for r in aws_s3_bucket_lifecycle_configuration.backups.rule :
+      alltrue([for e in r.expiration : e.days == 30]) &&
+      alltrue([for e in r.noncurrent_version_expiration : e.noncurrent_days == 1])
+    ])
+    error_message = "Keep the reviewed approximately 31-day versioned backup retention."
+  }
+  assert {
     condition     = aws_instance.tracker.metadata_options[0].http_tokens == "required" && aws_instance.tracker.credit_specification[0].cpu_credits == "standard"
     error_message = "IMDSv2 and bounded CPU charges required."
   }
 }
+# Same five mock runs; lifecycle is a proposal, never a live bucket update.
 run "reject_wrong_region" {
   command = plan
   variables { region = "us-east-1" }

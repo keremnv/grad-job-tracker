@@ -1,0 +1,18 @@
+[Unit]
+Description=Job Watch last-confirmed backup health (no database or S3 reads)
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=oneshot
+User=jobwatch-backup
+Group=jobwatch-db
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/jobwatch/current/venv/bin/python /opt/jobwatch/current/infra/aws/scripts/backup_monitor.py
+TimeoutStartSec=1min
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+StateDirectory=jobwatch-backup
+StateDirectoryMode=0700
+UMask=0077

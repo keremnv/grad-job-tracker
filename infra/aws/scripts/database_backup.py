@@ -207,6 +207,7 @@ def main():
     b = sub.add_parser('backup')
     b.add_argument('--output', type=Path)
     b.add_argument('--upload', action='store_true')
+    b.add_argument('--receipt', type=Path, help='Private last-success receipt; requires --upload')
     r = sub.add_parser('restore')
     r.add_argument('archive', type=Path)
     r.add_argument('--manifest', type=Path, required=True)
@@ -218,6 +219,8 @@ def main():
             os.environ.pop(key)
     os.environ.update(PGHOST='/run/jobwatch-postgresql', PGDATABASE='jobwatch', PGUSER='jobwatch_migrator')
     try:
+        if args.command == 'backup' and args.receipt and not args.upload:
+            raise BackupError('A completion receipt requires a confirmed S3 upload')
         with connect(purpose='migration') as conn:
             if conn.info.host != '/run/jobwatch-postgresql' or conn.info.user != 'jobwatch_migrator':
                 raise BackupError('CLI requires local peer migration identity')
@@ -233,7 +236,10 @@ def main():
                     result = {'archive_sha256': manifest['archive_sha256'], 'archive_bytes': manifest['archive_bytes']}
                     if args.upload:
                         config = json.loads(Path('/etc/jobwatch/aws.json').read_text())
-                        upload(archive, config)
+                        receipts = upload(archive, config)
+                        if args.receipt:
+                            from backup_monitor import record
+                            record(archive, receipts, args.receipt)
                         result['s3_checksum_and_version_confirmed'] = True
                     print(json.dumps(result))
         return 0

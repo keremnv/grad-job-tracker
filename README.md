@@ -101,9 +101,11 @@ SQL/BM25/FTS need no model.
 reconciles each dataset. Terraform protects persistent EBS, backups and versioned
 S3 state with native locking. SSM replaces public SSH/PostgreSQL access.
 Hash/version-verified PostgreSQL archives have been restored into fresh targets,
-including off-host. Prepared six-hour dumps target the accepted 12-hour loss
-tolerance; custody, freshness monitoring and notifications remain cutover gates.
-Dump backups do not provide point-in-time recovery.
+including off-host. The owner-selected V1 policy uses twice-daily dumps to existing
+versioned S3, approximately 30-day retention and CloudWatch/SNS email alerts.
+Frequency is not a maximum RPO; missed runs, project lockout and regional failure
+can cause greater loss. No external backup worker/provider is required.
+[Backup policy and activation status](docs/AWS_BACKUP_POLICY.md).
 
 ## A synthetic research-to-follow-up workflow
 
@@ -184,7 +186,7 @@ qualification evidence, not a fresh host inspection:
 
 | Evidence | What it establishes |
 |---|---|
-| **245 offline tests** on each of Python 3.11, 3.12 and 3.13 | Provider/screening regressions, identity, file durability, privacy, calendar revisions, connection boundaries and backup-age/packaging checks. |
+| **252 offline tests** on Python 3.12 (prior 245-test baseline also passed on 3.11/3.13) | Provider/screening regressions, identity, file durability, privacy, calendar revisions, connection boundaries and backup-age/packaging checks. |
 | **141 PostgreSQL tests**, including cached real-model inference | Actual migrations, constraints, grants, concurrent publication/rescreening, rollback, importer reconciliation, vector/hybrid queries, owner/audit workflows and local MCP interoperability. |
 | **Hosted and independent synthetic recovery** | Real EC2-to-S3 backup, fresh-database restore, reboot/EBS persistence and ARM64-origin archive restoration into isolated local PostgreSQL 17, with row/security/sequence comparisons. |
 | **Online ChatGPT synthetic connectivity** | An actual `sql_query` call traversed a private OpenAI tunnel to the restricted disposable database. Only this tool was exercised online; the remaining tools have local interoperability tests. |
@@ -198,9 +200,9 @@ and a substantive Cambridge Consultants `Job Summary` update.
 
 The real-model smoke test proves the implemented inference/retrieval path works;
 it is not a relevance benchmark. Synthetic recovery does not establish
-production-scale recovery time or durable owner-held backup custody. The accepted
-12-hour maximum loss tolerance still needs qualified scheduling, monitoring and
-independent copies. The online test proves synthetic connectivity, not hosted
+production-scale recovery time. Twice-daily AWS-only scheduling and email
+monitoring still require authorised activation; no strict maximum-loss guarantee
+or external custody requirement is claimed. The online test proves synthetic connectivity, not hosted
 production access or a live Proton integration.
 
 ## Status and roadmap
@@ -210,7 +212,7 @@ production access or a live Proton integration.
 | **Live `main`** | GitHub Actions collection, tracked JSON/text observations, file-backed owner ledgers and CLI/reports. The release branch preserves the latest inspected observations without changing the live writer. |
 | **PostgreSQL development** | Migrations 0001–0004, collection/history, importer, retrieval, owner SQL, calendar snapshots and read-only MCP locally qualified. |
 | **Last qualified AWS deployment** | 26 October 2026: ARM64 `t4g.small`, PostgreSQL 17.11, pgvector 0.8.7 and migrations 0001–0004; native retrieval and synthetic S3/independent restore qualified. Intended production domain tables empty; collector/backup timers disabled. [Hosted results](docs/AWS_V1_MAINTENANCE_REPORT.md). |
-| **Pending activation** | Production private agent-access qualification; Proton HTTPS subscription; durable backup custody, scheduled freshness checks, notification delivery and final single-writer cutover. Synthetic online ChatGPT SQL qualification is complete. |
+| **Pending activation** | Production private agent-access qualification; Proton HTTPS subscription; twice-daily S3 scheduling, freshness checks, email delivery and final single-writer cutover. Synthetic online ChatGPT SQL qualification is complete. |
 
 Cutover also requires nine genuine endpoint checks, historical-evidence acceptance,
 integration preserving newer `main` data, a writer freeze, final-commit import and
@@ -256,6 +258,7 @@ hosted database, migrates production or starts collection automatically.
 | [Owner SQL workflows](docs/POSTGRESQL_OWNER_WORKFLOWS.md) | Authorised writes, audit, concurrency guards and read-back |
 | [Agent connectivity](docs/AGENT_CONNECTIVITY.md) | Five-tool contract, synthetic online qualification and pending production access |
 | [Proton calendar path](docs/PROTON_CALENDAR.md) | Minimal feeds, stable identities, privacy and subscription limits |
+| [AWS-only backup policy](docs/AWS_BACKUP_POLICY.md) | Twice-daily schedule, retention, missing-run alerts, costs and restore procedure |
 | [AWS infrastructure](infra/aws/README.md) | Terraform protections, SSM, deployment and backup/restore procedures |
 
 This repository includes operational and private data. A recruiter-facing README

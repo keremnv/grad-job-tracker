@@ -198,7 +198,7 @@ credits do not turn uncertain new charges into an approved budget.
 3. Then separately approve hosted schema/runtime/read identity/HBA and scoped SSM
    access before testing against AWS; approve real private-data scope before use.
    Independently approve Proton HTTPS hosting and test a synthetic subscription.
-4. Retain all V1 activation gates: independent backup custody/RPO, notifications,
+4. Retain all V1 activation gates: [AWS-only backup/restore policy](AWS_BACKUP_POLICY.md), notifications,
    nine genuine ATS checks, historical-evidence acceptance, integration preserving
    newer main observations, final writer freeze/commit, import/reconciliation and
    independent restore, then explicit single-writer cutover approval.

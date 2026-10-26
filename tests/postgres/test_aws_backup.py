@@ -128,11 +128,16 @@ class AWSBackupTests(unittest.TestCase):
                         return subprocess.CompletedProcess(args,0,stdout=json.dumps({
                             'ChecksumSHA256':args[args.index('--checksum-sha256')+1],
                             'VersionId':'synthetic-completion-version'}))
-                    database_backup.upload(archive,{'bucket':'synthetic','region':'eu-north-1'},run_command=receipt_only)
+                    receipts=database_backup.upload(archive,{'bucket':'synthetic','region':'eu-north-1'},run_command=receipt_only)
+                    import backup_monitor
+                    receipt_path=Path(d)/'latest.json'
+                    backup_monitor.record(archive,receipts,receipt_path)
+                    self.assertEqual(backup_monitor.health(receipt_path)['backup_healthy'],1)
                     manifest=json.loads(archive.with_suffix('.json').read_text())
                     age=backup_freshness.inspect(archive,manifest)
                     self.assertEqual(age['status'],'fresh')
-                    self.assertFalse(age['independent_custody_verified'])
+                    self.assertFalse(age['s3_availability_verified'])
+                    self.assertFalse(age['maximum_data_loss_guaranteed'])
                     # Receipt does not disclose private fixture notes; exact field hashes cover them.
                     self.assertNotIn('private application',json.dumps(manifest))
                     self.assertEqual(before,manifest['fingerprint'])

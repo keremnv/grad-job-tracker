@@ -14,7 +14,9 @@ statement above describes the earlier local release-preparation stage.
 
 This is the current compact release record. Older stage reports retain their
 historical results; their daily/26-hour recovery proposal is superseded by the
-owner's accepted **12-hour maximum data-loss tolerance**.
+owner's **AWS-only twice-daily backup policy**. The previous strict maximum-loss
+requirement is withdrawn; [the current policy](AWS_BACKUP_POLICY.md) records the
+accepted missed-run/project-lockout/Region risks. Frequency is not an RPO guarantee.
 
 ## Integration evidence
 
@@ -83,97 +85,37 @@ The readiness diagnostic's external transport label now recognises the approved
 authenticated SSM/peer-or-SCRAM path as well as direct TLS. It remains explicitly
 unverified by that command; no grant, authentication or readiness result is relaxed.
 
-## Recovery implementation and 12-hour operating requirement
+## Recovery — owner-approved AWS-only policy
 
-Prepared source changes, **not installed or activated**:
+Use [the compact backup policy](AWS_BACKUP_POLICY.md) for configuration, retention,
+monitoring/email, costs and activation. The strict 12-hour maximum data-loss,
+external encrypted custody/worker and automatic all-writer fencing proposals are
+superseded by the owner's 26 October decision.
 
-- Backup timer: **00:00, 06:00, 12:00, 18:00 UTC**, one-minute accuracy, no random
-  delay, persistent catch-up when enabled. Deployment still refuses active/enabled
-  timers and never enables them. Service duration remains bounded at 45 minutes.
-- Format-2 manifests now record `backup_started_at` before the exported transaction
-  snapshot. This is a conservative lower bound, not an exact snapshot timestamp.
-  Late S3 upload or manifest creation cannot make old data appear fresh.
-- `backup_freshness.py` streams local archive hashing, verifies size and the completion
-  manifest's exact archive-version linkage, rejects missing/future/reversed timing,
-  and reports **warning at 8h, critical at 10h, breached at 12h**. Exit 0 is fresh,
-  1 warning, 2 invalid/critical/breached. It makes no cloud call or readiness claim.
+Prepared, **not installed/activated**: 00:00/12:00 UTC backups; a private atomic
+receipt only after confirmed S3 archive + manifest completion; a 15-minute local
+receipt checker through the existing log stream. Warning >=14h / critical >=26h
+are advisory. The proposed single health metric/alarm treats missing heartbeat as
+breaching, in addition to existing process-failure alarms. Owner-confirmed SNS
+email and hosted failure/missing-run delivery tests are still required.
 
-```sh
-# After approved retrieval of the EXACT trusted manifest/archive versions.
-python3 infra/aws/scripts/backup_freshness.py \
-  --archive /PRIVATE/database.dump --manifest /PRIVATE/database.json
-```
+Source retention proposes 30-day current + one-day noncurrent expiration (roughly
+31–32 days), versioning/encryption/protections unchanged. This lifecycle change is
+not applied; the recorded bucket is still 30+30. No S3 delete or policy update ran.
+The host retains the previously qualified `43aab3b` release and disabled six-hour
+timer definition until a separately approved code-only update; do not describe the
+prepared twelve-hour configuration as already deployed.
 
-Smallest proposed operating arrangement: retain the existing write-only EC2 →
-versioned S3 backup path. An **existing owner-controlled, reliably online backup
-worker** retrieves exact completed versions after each six-hour run, checks them,
-encrypts a recovery package and verifies its ciphertext copy at an approved
-independent destination within one hour of backup completion. The package includes
-dump, manifest, trusted receipts, code/migration/extension pins and role/grant
-reconstruction instructions. Only ciphertext leaves that worker; the private key
-or recovery secret stays in owner-controlled independently recoverable custody,
-with an offline recovery copy. An ephemeral Codex directory is not that destination.
+Integrity checks, exact S3 versions, conservative snapshot start and guarded
+fresh-target restore are unchanged. Synthetic hosted and independent restores
+passed; the actual imported production archive still needs restore/reconciliation.
+No external retained copy or strict RPO is required. Failed/missed backups, AWS
+project lockout, regional failure or administrator deletion can cause >12h loss.
 
-Keep all four recovery points/day for **at least 30 days** offsite, test decrypt/
-fresh-target restore monthly and after upgrades/key changes, and retain old keys
-until their archives expire or are re-encrypted and verified. Take verified manual
-backups before migrations/upgrades and before/after the authority switch.
-Do not grant the instance backup reads/deletes to implement copying. The offsite
-worker needs only approved prefix-scoped list/version-read and destination-write
-permissions, with renewable temporary authentication; an expiring browser session
-and a sleeping laptop are not unattended scheduling.
-
-Healthy six-hour cadence + 45-minute service bound + one-hour offsite completion
-budget + scheduling slack keeps the older recoverable copy approximately under
-eight hours. This is a planning bound to measure, not an availability guarantee.
-An **independent** check at least every 15 minutes must verify the latest usable
-S3 point **and independently retained ciphertext/receipt**, age from backup start,
-hash/version linkage, copy-job heartbeat and credential renewal. Test a delivered
-warning/failure notification and a missing-run alarm. Existing success/error log
-alarms alone cannot detect a backup that never ran. The local validator is only
-one component; no copy/monitor/notification job was deployed by this stage.
-
-At 10 hours, the runbook requires pausing **all** collector and owner writers while
-repairing backup/custody; at 12 hours the recovery objective is breached. A missed
-backup plus unattended alerts otherwise has no finite worst-case loss bound.
-**Cutover remains blocked until an owner-approved, tested response/write-freeze
-arrangement can protect the 12-hour limit.** Owner SQL is not automatically fenced
-by this helper or by stopping only the collector. Do not describe the current
-configuration as meeting a hard 12-hour guarantee. If reliable response coverage
-is unavailable, a narrowly approved automatic writer-fencing change is required;
-neither silent RPO relaxation nor a new replication platform is proposed here.
-
-Four hours during operator availability remains a **proposed RTO**, not accepted
-or production-measured. Synthetic sub-second SQL restore timings do not include
-host provisioning, production volume, key retrieval or human response. Project-loss
-recovery must work from already retained ciphertext, reviewed tools and owner keys
-without S3, SSM or the original EC2 host. Fence old writers before any promotion.
-
-## Cost boundary
-
-No new AWS resource or paid service is proposed by these local changes. Use existing
-owner storage/worker if suitable. Historical host/state allowance is **£17.53/month**
-under its recorded FX/20% VAT assumptions, not a current bill or spending guarantee.
-The public Stockholm S3 tariff checked here is $0.023/GB-month, PUT/LIST $0.005/1,000,
-GET $0.004/10,000. [Official pricing](https://aws.amazon.com/s3/pricing/) and
-[regional tariff](https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonS3/current/eu-north-1/index.json).
-
-Four full dumps/day with the current 30-day current + 30-day noncurrent expiration
-can retain approximately **240 archive-sized objects**, not just 120: expiration
-adds a delete marker before noncurrent deletion. Every version is charged in full.
-[Versioning](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html).
-For a **hypothetical** 0.1 GB archive this is about $0.552/month storage; for 1 GB,
-$5.52/month. Under the previous conversion/VAT scenario, conservatively adding the
-whole latter amount to the base already exceeds £20. These are sizing examples,
-not measured production backup sizes or a newly approved retention policy change.
-
-Request charges are small at this cadence, but independent-copy internet egress,
-notifications, logs, destination storage and worker operation must be priced after
-owner selection. Existing Aurora snapshot billed size remains unknown; no snapshot
-was inspected or changed here. Credits, expiry/eligibility and spend limit are not
-freshly verified and do not approve deployment. Budget GO requires measured archive
-growth/retention and those charges, preserving the £10–£20 preference. Do not lengthen
-the backup interval to save money; review retention/derived-vector storage first.
+Marginal planning cost for 10–100 MiB archives is about **$0.42–$0.55/month**
+(illustrative £0.39–£0.51 including 20% VAT at £0.77/$), with one new metric/alarm
+and small SNS/log/request usage. Actual production size/current bill is unverified;
+no free allowance/credits assumed. Existing host estimate remains historical.
 
 ## One release checklist and approval ledger
 
@@ -185,18 +127,19 @@ means a dependency or safety implementation is still missing. No row supplies GO
 |---|---|---|
 | VERIFIED | Feature chain + inspected main integrated without data conflicts | Local Git only; main/writer untouched. Refresh before final integration. |
 | VERIFIED | Real online synthetic ChatGPT `sql_query`; local five-tool tests | Synthetic runtime stopped locally; plugin/key withdrawal owner-reported, not independently checked. No production sharing implied. |
-| VERIFIED | Hosted ARM64 V1 and independent vector-aware synthetic recovery | Format 1 and 2 exact restores passed; intended domain tables empty. Does not prove final real-data recovery/custody. |
+| VERIFIED | Hosted ARM64 V1 and independent vector-aware synthetic recovery | Format 1 and 2 exact restores passed; intended domain tables empty. Does not prove final real-data recovery. |
 | VERIFIED | Bounded AWS/SSM/SQL/state inspection, 26 October | Twenty-resource state and protections unchanged; intended tables empty; timers disabled. Alarms have no notification destinations; credit expiry/spend limit and current monthly bill remain unknown. No further permission implied. |
-| NEEDS OWNER DECISION | Independent destination, key custody, always-on worker and notification recipient/RTO/response | Approve ciphertext destination/retention, renewal identity and private-data handling; owner retains recovery key. Four-hour operator-available RTO is proposed, not accepted. Existing storage preferred; worker/egress/destination/alert cost unquoted. 12h tolerance is already accepted, not reopened. |
-| BLOCKED | Demonstrate six-hour backup/copy + independent freshness/missing-run monitoring + delivered alerts + all-writer response | These jobs/custody controls are not installed. Later approval must name schedules, scoped read/write permissions, recipient and write-freeze consequences. A validator and daily timer do not pass this gate. |
+| VERIFIED — owner decision | AWS-only backups every 12h, no strict RPO | Existing S3 only; missed/failed backups, project lockout and regional failure can cause greater loss. No external custody/worker or automatic fencing requirement. |
+| READY FOR APPROVED EXECUTION | Backup-only code update, SNS email and process/age/missing-heartbeat monitoring | Approve verified release install, one SNS Standard topic/confirmed private recipient, one metric/filter/alarm and existing alarm actions; manual synthetic/failure tests and explicit backup/health timer activation. Existing instance log IAM suffices; roughly $0.42–$0.55/month marginal for 10–100 MiB archives. Collection remains disabled. |
+| NEEDS OWNER APPROVAL | Approximately 30-day lifecycle | Prepared 30-day current + one-day noncurrent expiration; reducing the existing noncurrent period can delete older noncurrent versions. Inventory/review first; no live lifecycle change yet. |
 | VERIFIED | Code-only V1 host maintenance, vector 0.8.7, migration 0004 and synthetic requalification | Artifact R installed/replayed; PG17.11 unchanged; format-1 pre-upgrade and format-2 synthetic S3/restore proofs passed. No optional roles, inference, authentication changes, timer activation or infrastructure changes. |
 | NEEDS OWNER DECISION | Explicit legacy-evidence acceptance against final manifest | Missing complete schema-2 native responses and never-indexed pre-schema-2 exclusions cannot be reconstructed. No technical fee; private dated owner acceptance, no invented evidence or employer edit times. |
 | READY FOR APPROVED EXECUTION | Nine genuine endpoint checks and employer/region mapping review | Separate live HTTPS approval, initially only in a non-authoritative qualification DB, no posting publication. Repeat/persist final checks on imported source rows before activation; collector validation + audited owner activation. Failed/renamed boards need a coverage decision; no new employers. |
 | READY FOR APPROVED EXECUTION | Final code integration, Git/owner writer freeze and C pin | Repository/workflow administration + owner freeze approval. Wait for in-flight work, preserve/push legitimate edits, verify full history/remote equality. Collection pauses; main/workflow changes require a later explicit instruction. |
-| BLOCKED | Import C once into empty intended target, reconcile all datasets, then real-data independent restore | Needs prior gates and explicit real-data/temporary migration-access approval. Migrator writes, scoped admin auth setup and approved recovery-operator version reads; private storage/S3/egress costs. Never reset a populated target or count synthetic proof as real-data proof. |
+| BLOCKED | Import C once into empty intended target, reconcile all datasets, then real-data independent restore | Needs prior gates and explicit real-data/temporary migration-access approval. Restore a downloaded S3 version into a separate target; no external storage service required. Migrator writes, scoped auth and operator version reads; S3/possible recovery egress costs. Never reset a populated target or count synthetic proof as real-data proof. |
 | BLOCKED | Production owner SQL and separately scoped ChatGPT read access | Approve private owner/audit read exposure, server-side credential custody, narrow HBA and authenticated SSM forwarding; no collector/admin fallback. Separate runtime tunnel approval/terms; no restart of the synthetic tunnel or host inference. |
 | NEEDS OWNER DECISION | Private revocable Proton-compatible HTTPS feed and actual subscription qualification | Stage 4E snapshots are local, not a live feed. Approve destination/domain/TLS, capability-URL custody/rotation, schedule/monitoring and cost; no public MCP, no notes/CVs. Polling is not guaranteed urgent alerting. Remains V1 work. |
-| BLOCKED | Explicit single-writer GO, first controlled PostgreSQL scan, then routine scheduling | Needs all mandatory gates and separate switch/ATS/service approvals. Retire file writers/default instructions, keep alternative Actions collector inert. Inspect first-scan baselines/health/owner hashes; verify backup/offsite point, then approve timer activation. After SQL writes, recovery is roll-forward, not stale Git restart. |
+| BLOCKED | Explicit single-writer GO, first controlled PostgreSQL scan, then routine scheduling | Needs all mandatory gates and separate switch/ATS/service approvals. Retire file writers/default instructions, keep alternative Actions collector inert. Inspect first-scan baselines/health/owner hashes; verify the S3 backup point, then approve collection activation. After SQL writes, recovery is roll-forward, not stale Git restart. |
 | BLOCKED | Any future Terraform infrastructure update | Recorded replacement proposal must be resolved by a separate reviewed bootstrap-version maintenance plan; no apply, state editing or guard removal. Not a reason to replace this host for a code release. |
 
 The [cutover runbook](AWS_CUTOVER.md) supplies the ordered execution and recovery
@@ -204,6 +147,15 @@ boundaries. Follow it only after the corresponding approval; never bundle every
 row into implied permission from a successful synthetic test.
 
 ## Executed local checks
+
+The [AWS-only policy validation](AWS_BACKUP_POLICY.md#local-validation-26-october-2026)
+adds seven receipt/health tests: **252 offline passed on each Python 3.11/3.12/3.13**,
+**141 PostgreSQL tests**, **19 deployment/protection tests** and **five Terraform
+mock tests**, all final runs without skips. Archive integrity/security and actual
+fresh-target restore checks remain. No host/credential/state changes or new AWS
+inspection occurred in this policy stage. Logs are private outside Git.
+
+Earlier release-preparation baseline:
 
 - **245 offline tests passed on each Python 3.11.16, 3.12.14 and 3.13.12**, no skips;
   eight new integrity/age, failure/privacy, code-whitelist and cadence tests.

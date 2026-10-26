@@ -19,4 +19,6 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
+StateDirectory=jobwatch-backup
+StateDirectoryMode=0700
 UMask=0077

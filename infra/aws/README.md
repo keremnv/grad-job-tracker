@@ -5,13 +5,16 @@ verified the existing twenty-resource deployment and installed the exact code-on
 release `43aab3b12e3277c96b3b0936839a6758ebda986b`, pgvector 0.8.7 and migration 0004.
 PostgreSQL remains 17.11 on protected encrypted EBS. Intended domain tables remain
 empty. Both timers are installed, **disabled and inactive**, including the prepared
-six-hour backup definition. No inference runs on this 2 GiB host.
+six-hour backup definition qualified at that time. **Current prepared source is
+twelve-hour, not installed by this local policy change.** No inference runs on this
+2 GiB host; no PostgreSQL/vector reinstall is required.
 
 Native ARM64 SQL/vector checks, a fresh versioned format-1 pre-upgrade backup and
 format-2 synthetic S3/hosted/independent restoration passed. Prior reboot/SSM/logging
 and CLI-permission results remain in [the historical hosted report](../../docs/AWS_HOSTED_QUALIFICATION_REPORT.md).
-This does not establish durable owner-held custody, delivered monitoring or the
-accepted **12-hour** recovery limit. Use the [release checklist](../../docs/V1_RELEASE_CHECKLIST.md)
+Delivered monitoring/scheduling and final real-data restore remain unqualified.
+The owner has selected [AWS-only twice-daily backups](../../docs/AWS_BACKUP_POLICY.md),
+accepting that this is not a maximum 12-hour RPO; external custody is not required. Use the [release checklist](../../docs/V1_RELEASE_CHECKLIST.md)
 for exact remaining gates. Production remains Git-backed and NO-GO; no instruction
 here authorises further AWS changes, real-data import, live ATS requests or timers.
 
@@ -77,7 +80,7 @@ PostgreSQL's three configuration files are `root:jobwatch-db`, mode `0640`, so t
 
    Completed code directories/application parents are explicitly `0755`; ordinary files are `0644` and executable files `0755`, independent of the operator's umask. Ownership stays root and runtime identities cannot modify code. Venv symlinks are skipped; symlinked installation parents/releases are refused. Database configuration/data are outside this normalization. Run `python3 -m unittest discover -s infra/aws/tests -p test_installer_permissions.py -v` for the pinned, network-disabled real-Linux-user tests. Updating only an archive does not replace the old trusted installer: any checksum-verified in-place maintenance of `/opt/jobwatch-bootstrap/deploy_release.py` requires its own authorization, original-file check and private backup. Do not replace EC2 to update that helper.
 4. Run `sudo bash /opt/jobwatch/current/infra/aws/scripts/migrate_local.sh` explicitly. It uses the existing `jobwatch-db-migrate` and Unix peer migration identity. Repeated migrations verify checksums; altered or divergent migrations fail. Then perform the separately approved frozen importer/reconciliation procedure, **not** an automatic startup import.
-5. Both `jobwatch-collect.timer` and `jobwatch-backup.timer` are installed **disabled**. Confirm with `systemctl is-enabled`/`is-active`. Only the owner go/no-go may enable collection after all cutover gates. Backups can be enabled earlier only after an approved imported baseline and an independent restore. Services retry failed work at most three times per six hours with 15-minute backoff. Stage 2 transactions preserve per-source commits; failure retries are genuinely new scheduled fetch attempts. The installed V1 backup timer is persistent but disabled; no recurring backup is yet authorised.
+5. Both `jobwatch-collect.timer` and `jobwatch-backup.timer` are installed **disabled**. Confirm with `systemctl is-enabled`/`is-active`. Only the owner go/no-go may enable collection after all cutover gates. Backup/health timers may be enabled earlier only under separate approval after synthetic S3/restore and delivered monitoring checks, even before the real import. Services retry failed work at most three times per six hours with 15-minute backoff. Stage 2 transactions preserve per-source commits; failure retries are genuinely new scheduled fetch attempts. The installed timer is persistent but disabled. Source now prepares 00:00/12:00 UTC backups and a separate 15-minute health timer; neither update nor activation is authorised by this document.
 
 ## IAM, SSM and SQL-first agents
 
@@ -102,7 +105,7 @@ The CLI bootstrap now validates and normalizes only its root-owned installation 
 
 `database_backup.py backup` takes an exported **REPEATABLE READ** snapshot, hashes every exact application/audit/ledger row, captures schema/functions/triggers/ownership/grants and database/role security fingerprints, and executes a real `pg_dump -Fc --schema=jobwatch --snapshot=...`. Every archived sequence state is extracted from the archive, not inferred from a concurrently advancing sequence. The receipt includes hashes/counts, not notes or source text. Files are `0600` in private directories. No database lock is held while uploading to S3.
 
-The single-PutObject uploader bounds archives to 4 GB, sends AES256 and SHA-256, verifies S3's returned checksum **and version ID**, then uploads the manifest last. The completion manifest records the exact uploaded archive key/version. No `HeadObject`/backup-read grant is required. A complete manifest is the backup-completion marker. Failed upload/receipt verification is nonzero; partial objects expire. The bucket has public access blocked, ACLs disabled, TLS-only policy, SSE-S3, versioning, 30-day current-object expiration, 30-day noncurrent expiration and one-day incomplete multipart cleanup. A compromised host role could write bogus later backups; versioned older copies and independent custody remain essential. Unique daily keys avoid overwrite; noncurrent copies can persist longer during expiry/version cleanup. This is encrypted retention, **not Object Lock or protection against a project administrator deleting it**.
+The single-PutObject uploader bounds archives to 4 GB, sends AES256 and SHA-256, verifies S3's returned checksum **and version ID**, then uploads the manifest last. The completion manifest records the exact uploaded archive key/version. No `HeadObject`/backup-read grant is required. A complete manifest is the backup-completion marker. Failed upload/receipt verification is nonzero; partial objects expire. The bucket has public access blocked, ACLs disabled, TLS-only policy, SSE-S3, versioning, recorded 30-day current-object expiration, 30-day noncurrent expiration and one-day incomplete multipart cleanup. Source proposes 30-day current + one-day noncurrent retention; only a future separately reviewed lifecycle change may shorten the live retention. A compromised host can write bogus later backups; preserve versioned older copies and test restore. The owner accepts same-project recovery risk. Unique per-run keys avoid overwrite; noncurrent copies can persist longer during expiry/version cleanup. This is encrypted retention, **not Object Lock or protection against a project administrator deleting it**.
 
 Future local host invocation (peer maintenance account):
 
@@ -121,20 +124,24 @@ sudo -u jobwatch-migrator env JOBWATCH_MIGRATION_DATABASE_URL='host=/run/jobwatc
   --manifest /PRIVATE/database.json --confirm-fresh-target
 ```
 
-Provision a recovery database with the **same database owner as the source** (the host bootstrap uses postgres), revoke PUBLIC schema/database CREATE, grant runtime CONNECT and migration CONNECT/CREATE, set role search paths as in bootstrap. Add a **local peer HBA entry for that specific recovery database** deliberately; the live database HBA does not accept arbitrary new databases. No TCP migration permission is introduced. A recovery host must also reproduce/verify OS/HBA configuration; a schema dump deliberately excludes cluster-role passwords and OS files. If AWS is unavailable, an authorized operator must have a separately retained encrypted offline copy and documented role/bootstrap artifacts. **Before cutover**, choose and test this off-project backup custody/retention with the owner; same-project S3 alone does not cover project lockout. Do not commit dumps or embed backup encryption keys.
+Provision a recovery database with the **same database owner as the source** (the host bootstrap uses postgres), revoke PUBLIC schema/database CREATE, grant runtime CONNECT and migration CONNECT/CREATE, set role search paths as in bootstrap. Add a **local peer HBA entry for that specific recovery database** deliberately; the live database HBA does not accept arbitrary new databases. No TCP migration permission is introduced. A recovery host must also reproduce/verify OS/HBA configuration; a schema dump deliberately excludes cluster-role passwords and OS files. Keep the pinned role/bootstrap/restore tools available. AWS-only S3 cannot recover data during project lockout or a Region-wide outage; the owner explicitly accepts that risk. No external custody service or permanent backup encryption key is required. Do not commit dumps or credentials.
 
 Keep the current DB before repairs. Stop all writers, take/preserve a current backup,
 restore separately, reconcile valid later evidence/owner decisions, then promote
 only after approval. After authoritative PostgreSQL writes, restarting stale Git
 loses data and is not automatic rollback. No PITR/WAL archiving is implemented.
-Daily dumps fail the accepted 12-hour tolerance. The prepared six-hour schedule
-requires independent encrypted copying, freshness/missing-run checks, delivered
-notifications and an effective all-writer response; none is established merely by
-installing the timer. Manual pre-change backups and real-data independent restore
-remain gates. Keep the old format-1 recovery bundle for old archives; the current
-format-2 utility needs vector 0.8.7 and migration/role-compatible fresh targets.
+The owner-selected schedule is every twelve hours, not a strict loss bound.
+Manual pre-change backups and a separate-target restore of actual imported data
+remain gates. Keep the format-1 recovery bundle for old archives; format 2 needs
+vector 0.8.7 and migration/role-compatible fresh targets. No automatic writer
+fencing or external backup worker is required.
 
 ## Monitoring and costs
+
+The [AWS-only policy](../../docs/AWS_BACKUP_POLICY.md) defines the prepared private
+completion receipt, 15-minute local checker, one missing-heartbeat/age metric/alarm
+and owner-confirmed SNS email. No new instance permission is required: health uses
+existing PutLogEvents only. These are local preparations, not deployed monitoring.
 
 Basic EC2 metrics, console alarms for host status/low CPU credits/failed operations, 14-day CloudWatch summary logs; no application descriptions/notes/credentials are forwarded. Failed source counts and positive-only/absence-safe counts remain visible; nonzero exit never implies that other source commits rolled back. No notification recipient is created. Configure an approved notification and budget alert before production; neither is a spending cap. Disk and backup freshness must also be checked operationally; basic EC2 metrics do not measure filesystem usage.
 

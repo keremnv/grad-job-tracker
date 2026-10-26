@@ -1,5 +1,10 @@
 # Existing-host V1 maintenance — qualified, production NO-GO
 
+**Policy superseded, 26 October 2026:** [the current owner-approved policy](AWS_BACKUP_POLICY.md)
+uses AWS-only 00:00/12:00 UTC S3 backups, not a strict maximum-loss guarantee.
+External custody/worker and automatic writer fencing are not V1 requirements.
+This document preserves historical test results/proposals, not current permission.
+
 26 October 2026, `feat/v1-release-readiness`, starting at
 `57e633c66b2dbe030837349a80e586966881c25c`. This records separately authorised
 maintenance of the existing Stockholm ARM64 host. Git remains authoritative.

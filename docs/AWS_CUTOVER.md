@@ -4,15 +4,16 @@ The [26 October host maintenance](AWS_V1_MAINTENANCE_REPORT.md) qualifies releas
 `43aab3b`, PostgreSQL 17.11, public.vector 0.8.7 and migrations 0001–0004. Intended
 domain tables remain empty; both timers remain disabled/inactive. Format-1
 pre-upgrade recovery and vector-aware format-2 synthetic hosted/independent restores
-passed. Durable custody, the 12-hour operating objective and real-data restoration
+passed. Twice-daily backup/monitoring activation and real-data restoration
 remain open; this runbook does not authorise their execution.
 
-The accepted maximum loss tolerance is **12 hours**, superseding daily/26-hour
-proposals. Durable independent custody, freshness/notification operation and
-production recovery remain gates. The [single release checklist](V1_RELEASE_CHECKLIST.md)
-records integration, hosted differences, costs and exact approvals. It takes
-precedence over historical proposals. Synthetic ChatGPT SQL connectivity is
-complete; hosted private-data access and Proton hosting are not.
+The owner's [AWS-only policy](AWS_BACKUP_POLICY.md) now specifies **00:00/12:00 UTC**
+backups to existing versioned S3, approximately 30-day retention, process/age/missing-run
+monitoring and confirmed SNS email. It supersedes the strict maximum-loss, six-hour,
+external-custody and fencing proposals. **Frequency is not a maximum RPO:** missed
+runs, project lockout and regional failure can cause greater loss. The [release
+checklist](V1_RELEASE_CHECKLIST.md) remains the current approval ledger. Synthetic
+ChatGPT SQL connectivity is complete; production access and Proton hosting are not.
 
 This runbook grants no permission for AWS changes, import, credentials, live
 checks, timer/workflow activation, main merge or authority switch.
@@ -30,23 +31,20 @@ releases use the existing artifact installer, not cloud-init replacement.
 
 Before provisioning, the owner reviews a fresh private Terraform plan, estimated post-credit cost, credit eligibility/expiry, spending-limit status and permissions. Explicit apply approval is separate. Preserve encrypted state, a recovery custodian and a scoped deployment identity; do not edit the project's `/managed/` roles. Verify the chosen subnet/AMI are still available. A plan proves API compatibility for reads, not permission to create resources. `prevent_destroy` deliberately blocks ordinary replacements and must not be removed to make a plan pass.
 
-After an approved deployment, keep both timers disabled. Verify cloud-init completed, exact EBS mount/UUID, PostgreSQL 17, Python 3.12 ARM64, patched SSM Agent and authenticated SSM channels, no inbound SG rules, loopback-only SQL, root/OS/socket permissions, role denials, migration checksums, S3 checksum/version receipts, logs, console alarms and CPU Standard mode. Reboot and prove the data mount is required; exercise an approved replacement recovery without formatting existing storage. Application installation, restricted SQL access, migrations, synthetic S3 backup/fresh same-host restore, reboot/persistence and log delivery have passed on the existing host. Synthetic off-host data restoration is now qualified separately. Durable independent custody, alert delivery, backup freshness and production data/load remain unqualified. The current report takes precedence over historical preflight status. Do not repeat deployment or replace persistent resources to address the CLI defect.
+After an approved deployment, keep both timers disabled. Verify cloud-init completed, exact EBS mount/UUID, PostgreSQL 17, Python 3.12 ARM64, patched SSM Agent and authenticated SSM channels, no inbound SG rules, loopback-only SQL, root/OS/socket permissions, role denials, migration checksums, S3 checksum/version receipts, logs, console alarms and CPU Standard mode. Reboot and prove the data mount is required; exercise an approved replacement recovery without formatting existing storage. Application installation, restricted SQL access, migrations, synthetic S3 backup/fresh same-host restore, reboot/persistence and log delivery have passed on the existing host. Synthetic off-host data restoration is now qualified separately. Twice-daily scheduling, alert delivery, backup freshness and production data/load remain unqualified. The current report takes precedence over historical preflight status. Do not repeat deployment or replace persistent resources to address the CLI defect.
 
-Before final import, separately qualify the current code-only release on ARM64:
-verify existing emptiness/checksums; preserve a pre-upgrade backup and its pinned
-format-1 recovery bundle; install the release without activation; explicitly
-install/verify pinned vector 0.8.7 as administrator; apply 0004 through the migration
-identity. Provision approved optional roles without resetting existing ones.
-Current backup/restore requires the extension and format 2. Reconstruct role flags,
-DB grants/settings and extension ownership on the recovery target before restoring
-its archived ACLs. Requalify using separate synthetic databases, leaving intended
-production domain tables empty. Keep inference off the 2 GiB host.
+V1 software/extension maintenance has passed; do not reinstall PostgreSQL, vector
+or migrations unnecessarily. Deploy only the reviewed backup-policy software update,
+with all timers still disabled until separately authorised. Existing restore targets
+must match role flags, DB grants/settings and vector 0.8.7 ownership; keep inference
+off this 2 GiB host.
 
-Demonstrate six-hour backups, independent encrypted copies, a <=12-hour conservative
-recovery-point age, independent missing-run/freshness monitoring, delivered alerts
-and an effective all-writer response. Follow the [12-hour operating requirements](V1_RELEASE_CHECKLIST.md#recovery-implementation-and-12-hour-operating-requirement).
-The prepared validator and source timer are not a deployed monitor or schedule.
-Do not proceed if only daily backups or unacknowledged notifications exist.
+Before freezing production, separately qualify the [AWS-only monitoring setup](AWS_BACKUP_POLICY.md):
+confirmed S3 completion receipt, failed/stale/missing backup and checker-heartbeat
+alarms, confirmed SNS recipient and real delivery. Enable only backup/health timers
+when explicitly authorised; collection remains disabled. No external-copy job or
+automatic writer fencing is required. Record actual restore results, never a promised
+12-hour maximum loss bound.
 
 All nine previously enabled sources still need separately authorized **real endpoint checks**, not fixtures or historical mapping timestamps:
 
@@ -83,7 +81,7 @@ Record explicit acceptance, actor, timestamp and final reconciliation references
 1. Build a reviewable integration branch preserving **all** legitimate current-main commits and the complete PostgreSQL feature chain. Merge current main into that integration branch normally; inspect changes to data/config/owner files and resolve any conflict without replacing newer data with the old rehearsal tree. Never squash a stale data snapshot over production main. Test code again. Keep the active workflow unchanged until the authorized freeze/switch.
 2. Prepare the code-only artifact from an explicit integrated application commit. Its hash and commit are independent of the eventual authoritative **data** commit. Deploy while the timers remain disabled. No application import/migration on scheduled startup.
 3. Close initial source/coverage, legacy-acceptance, host/current-recovery,
-   custody/monitoring and access-preparation gates before requesting a freeze.
+   backup/monitoring and access-preparation gates before requesting a freeze.
    Obtain an explicit owner freeze window. Disable the old file-backed schedule
    only with approval, wait for every in-flight run/retry to finish, and stop owner
    ledger/config/triage/verification writes. Preserve and push legitimate pending
@@ -108,8 +106,10 @@ Take a format-2 backup of the imported baseline and independently restore the
 **actual downloaded archive**, not a freshly constructed lookalike. Reconcile that
 target against C and compare source/restore fingerprints, grants, roles, audit,
 sequences, extension and migration checksums. Check exclusions/history, owner-state
-hashes and operational queries. Prove encrypted independent custody of this real
-backup; synthetic proof does not suffice. Keep both timers disabled.
+hashes and operational queries. Use this real S3 archive, not synthetic proof. A
+separate temporary local recovery target is sufficient; no external backup service
+is required. Keep collection disabled; retain the separately approved backup/health
+schedule, or perform verified manual backups while it is deliberately paused.
 
 The committed `recover_offhost.py` harness deliberately accepts only its synthetic
 fixture. Do not bypass its guard or call it a production restore test. The
@@ -126,18 +126,18 @@ including activation facts. Do not claim this post-activation DB is byte-identic
 to the frozen baseline: the extra attributed runs/control audit are intentional.
 
 The existing readiness CLI's `--restore` accepts the Stage 3 local-rehearsal receipt,
-not the AWS format-2 restore result. Keep actual hosted/offsite proof in the release
+not the AWS format-2 restore result. Keep actual hosted/separate-target proof in the release
 ledger; never fabricate a matching receipt. The CLI always reports
 `deployment_ready=false`: it cannot accept history, prove writer freeze or grant GO.
 
 Use the [current release checklist](V1_RELEASE_CHECKLIST.md#one-release-checklist-and-approval-ledger),
-not the historical daily/26-hour proposal. Twelve-hour loss tolerance is accepted;
-the operating controls and proposed four-hour operator-available RTO are not yet
-qualified/accepted. A real-data independent restore is mandatory after final import.
+not historical daily/strict-RPO proposals. Twice-daily frequency and its AWS-only
+risks are accepted; scheduling/notifications still need qualification. No fixed
+RTO is promised. A separate-target real-data restore is mandatory after final import.
 
 ## Owner go/no-go and switch
 
-**NO-GO** if any endpoint/coverage, source reconciliation, historical acceptance, independent hosted restore, role/SSM, backup custody/RPO, production credential, freeze/single-writer or operational-report gate remains unresolved. Record the owner's explicit decision privately; this branch does not supply it.
+**NO-GO** if any endpoint/coverage, source reconciliation, historical acceptance, independent hosted restore, role/SSM, S3 backup/monitoring, production credential, freeze/single-writer or operational-report gate remains unresolved. Record the owner's explicit decision privately; this branch does not supply it.
 
 After separate explicit GO, integrate/deploy the exact reviewed code and update
 `AGENTS.md`/`CLAUDE.md` and owner operating instructions to the approved SQL-first
@@ -150,9 +150,11 @@ evidence, not an active data source; no deletion of old runtime code is implied.
 
 Keep the collection timer disabled for the first explicitly approved controlled `jobwatch-collect.service` invocation. Confirm actual identity, per-source run receipt/outcome, independent successes/failures, native baselines, source history, health, positive-only Lever behavior, no false `not_seen`, all-verdict research, deadlines/uncertainty, SQL reports/search, unchanged owner hashes and audit attribution. A partially failed scan may already have committed successful sources. Enable the collection timer only after these checks and a fresh verified backup; enable backup scheduling deliberately. Review `systemctl list-timers`, failure/restart limits, journal and CloudWatch output.
 
-Make the post-scan backup, independently confirm custody/freshness, and explicitly
-enable six-hour backups plus the already qualified independent monitoring/copy jobs.
-Verify their next deadlines and missing-run alert before enabling routine collection.
+Make the post-scan backup and verify exact S3 versions/freshness. Confirm the
+approved **00:00/12:00 UTC** backup and 15-minute health timers are active, with
+next deadlines and delivered process/missing-run alarms, before enabling routine
+collection. Activate them only under the separate backup/monitoring approval;
+never start a second Git/database writer or an external copy job.
 Qualify owner SQL and the separate production read identity through authenticated
 SSM. If online ChatGPT is approved for real data, deliberately establish its own
 authenticated tunnel/credential scope and make a bounded production read; the

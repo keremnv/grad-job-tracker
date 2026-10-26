@@ -3,7 +3,8 @@
 
 No AWS calls, credentials, writes, notification delivery or custody attestation.
 Retrieve exact manifest/archive versions through the separately approved recovery
-path first. A local file cannot prove independent storage or trusted provenance.
+path first. A local file cannot prove current S3 availability or trusted provenance.
+Twice-daily backups are a frequency, not a maximum data-loss guarantee.
 """
 import argparse
 from datetime import datetime, timezone
@@ -51,14 +52,27 @@ def inspect(archive, manifest, *, now=None):
         digest = file_digest(stream, 'sha256').hexdigest()
     if digest != manifest.get('archive_sha256') or digest != link.get('sha256'):
         raise ValueError('archive_hash_mismatch')
+    return age_report(start, created, now=checked) | {
+        'local_archive_matches_completion_manifest': True,
+        's3_availability_verified': False, 'alert_delivery_verified': False,
+        'production_ready': False}
+
+
+def age_report(start, completed, *, now=None):
+    """Advisory age thresholds, not an RPO or writer-fencing policy."""
+    start = _time(start) if isinstance(start, str) else start
+    completed = _time(completed) if isinstance(completed, str) else completed
+    checked = now or datetime.now(timezone.utc)
+    if any(not isinstance(t, datetime) or t.tzinfo is None or t.utcoffset() is None
+           for t in (start, completed, checked)) or not start <= completed <= checked:
+        raise ValueError('invalid_chronology')
     age = math.ceil((checked - start).total_seconds())
-    status = ('breached' if age >= 12 * 3600 else 'critical' if age >= 10 * 3600
-              else 'warning' if age >= 8 * 3600 else 'fresh')
-    return {'schema': 'jobwatch.backup-freshness/1', 'status': status,
-            'conservative_snapshot_age_seconds': age, 'maximum_age_seconds': 12 * 3600,
-            'local_archive_matches_completion_manifest': True,
-            'independent_custody_verified': False, 'alert_delivery_verified': False,
-            'production_ready': False}
+    return {'schema': 'jobwatch.backup-freshness/2',
+            'status': 'critical' if age >= 26*3600 else 'warning' if age >= 14*3600 else 'fresh',
+            'conservative_snapshot_age_seconds': age,
+            'expected_interval_seconds': 12*3600,
+            'warning_age_seconds': 14*3600, 'critical_age_seconds': 26*3600,
+            'maximum_data_loss_guaranteed': False}
 
 
 def main(argv=None):
@@ -70,7 +84,7 @@ def main(argv=None):
         result = inspect(args.archive, json.loads(args.manifest.read_text()))
     except (OSError, ValueError, TypeError, KeyError):
         # No paths, input data or exception text in unattended output.
-        print(json.dumps({'schema': 'jobwatch.backup-freshness/1', 'status': 'invalid',
+        print(json.dumps({'schema': 'jobwatch.backup-freshness/2', 'status': 'invalid',
                           'production_ready': False}))
         return 2
     print(json.dumps(result, sort_keys=True))

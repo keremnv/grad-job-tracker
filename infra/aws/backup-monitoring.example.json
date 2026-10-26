@@ -1,0 +1,25 @@
+{
+  "metric_filter": {
+    "filterName": "jobwatch-backup-health",
+    "logGroupName": "/grad-jobwatch/operations",
+    "filterPattern": "{ $.operation = \"backup_health\" }",
+    "metricTransformations": [
+      {"metricName": "BackupHealthy", "metricNamespace": "JobWatch", "metricValue": "$.backup_healthy", "unit": "Count"}
+    ]
+  },
+  "alarm": {
+    "AlarmName": "grad-jobwatch-backup-health",
+    "Namespace": "JobWatch",
+    "MetricName": "BackupHealthy",
+    "Statistic": "Minimum",
+    "Period": 900,
+    "EvaluationPeriods": 3,
+    "DatapointsToAlarm": 2,
+    "Threshold": 1,
+    "ComparisonOperator": "LessThanThreshold",
+    "TreatMissingData": "breaching",
+    "AlarmActions": ["REPLACE_WITH_APPROVED_SNS_TOPIC_ARN"],
+    "OKActions": ["REPLACE_WITH_APPROVED_SNS_TOPIC_ARN"],
+    "InsufficientDataActions": ["REPLACE_WITH_APPROVED_SNS_TOPIC_ARN"]
+  }
+}

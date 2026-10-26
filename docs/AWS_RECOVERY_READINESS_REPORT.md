@@ -1,9 +1,13 @@
 # Stage 4B.2d — independent recovery and remaining readiness decisions
 
-**Historical qualification record.** The later owner-accepted maximum data-loss
-tolerance is **12 hours**. The daily/26-hour policy proposed below is superseded
-and does not meet it. Use the [current release checklist](V1_RELEASE_CHECKLIST.md)
-and updated [cutover sequence](AWS_CUTOVER.md); no new AWS inspection is implied.
+**Policy superseded, 26 October 2026:** [the current owner-approved policy](AWS_BACKUP_POLICY.md)
+uses AWS-only 00:00/12:00 UTC S3 backups, not a strict maximum-loss guarantee.
+External custody/worker and automatic writer fencing are not V1 requirements.
+This document preserves historical test results/proposals, not current permission.
+
+**Historical qualification record.** The earlier daily/26-hour and later strict
+12-hour proposals are superseded by the policy above. Test results remain valid;
+no fresh AWS inspection or deployment is implied.
 
 Checked 25 October 2026, base `3f8f7a4a7d28e4d34a92819eac96f974f5a898f9`,
 branch `feat/aws-deployment-preflight`. Git remains authoritative. No production
