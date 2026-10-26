@@ -201,8 +201,9 @@ and a substantive Cambridge Consultants `Job Summary` update.
 The real-model smoke test proves the implemented inference/retrieval path works;
 it is not a relevance benchmark. Synthetic recovery does not establish
 production-scale recovery time. Twice-daily AWS-only backup and health timers are
-enabled after delivered email ALARM tests and a verified manual backup/independent
-restore. The first scheduled backup remains unobserved; no strict maximum-loss
+enabled after delivered email ALARM tests. An actual one-shot systemd timer invoked
+the installed backup service, with verified S3 completion and independent restore.
+The first ordinary midnight run remains unobserved; no strict maximum-loss
 guarantee or external custody requirement is claimed. The online test proves synthetic connectivity, not hosted
 production access or a live Proton integration.
 
@@ -212,8 +213,8 @@ production access or a live Proton integration.
 |---|---|
 | **Live `main`** | GitHub Actions collection, tracked JSON/text observations, file-backed owner ledgers and CLI/reports. The release branch preserves the latest inspected observations without changing the live writer. |
 | **PostgreSQL development** | Migrations 0001–0004, collection/history, importer, retrieval, owner SQL, calendar snapshots and read-only MCP locally qualified. |
-| **Last qualified AWS deployment** | 26 October 2026: ARM64 `t4g.small`, PostgreSQL 17.11, pgvector 0.8.7 and migrations 0001–0004; native retrieval/recovery qualified. [Release `e3807a0`, including Riverlane fix, installed and natively tested](docs/AWS_RIVERLANE_MAINTENANCE_REPORT.md); backup/health timers restored and alarms OK. Confirmed ALARM emails and independent S3 restore passed. First scheduled backup due 27 October, 00:00 UTC, not yet observed. Intended domain tables empty; collection disabled. |
-| **Pending activation** | Production private agent access, Proton HTTPS subscription, first scheduled-backup observation and final single-writer cutover. Synthetic online ChatGPT SQL qualification is complete. |
+| **Last qualified AWS deployment** | 26 October 2026: ARM64 `t4g.small`, PostgreSQL 17.11, pgvector 0.8.7 and migrations 0001–0004; native retrieval/recovery qualified. [Release `e3807a0`, including Riverlane fix, installed and natively tested](docs/AWS_RIVERLANE_MAINTENANCE_REPORT.md). [Installed-service/timer/S3/independent restore passed](docs/AWS_BACKUP_ACTIVATION_REPORT.md#installed-service-qualification--26-october-2001-utc); backup/health timers enabled, alarms OK and notification delivery previously confirmed. Intended domain tables empty; collection disabled. |
+| **Pending activation** | Historical-evidence acceptance, final import/real-data recovery and the single-writer GO. Real-data ChatGPT access and Proton HTTPS subscription remain separately approved follow-ons. Synthetic online ChatGPT SQL qualification is complete. |
 
 Cutover also requires nine genuine endpoint checks, historical-evidence acceptance,
 integration preserving newer `main` data, a writer freeze, final-commit import and

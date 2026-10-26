@@ -9,6 +9,30 @@ Subsequent [26 October code-only maintenance](AWS_RIVERLANE_MAINTENANCE_REPORT.m
 installed Riverlane release `e3807a0` and restored both backup schedules. This report
 retains the original activation evidence; it is not a first-midnight-backup claim.
 
+## Installed-service qualification — 26 October, 20:01 UTC
+
+**Pre-cutover backup qualification PASSED.** The owner withdrew the requirement
+to await the first midnight run and approved this immediate end-to-end test.
+Production remains NO-GO pending the consolidated freeze/import/switch decision.
+
+| Check | Actual result |
+|---|---|
+| Preconditions | Same approved project/host and encrypted data-volume UUID; release `e3807a0`, PostgreSQL 17.11/vector 0.8.7, unchanged migrations 0001–0004 and security. All twelve intended domain/audit/embedding tables empty; no backup or other DB transaction in flight. Installed unit bytes match reviewed source with no drop-ins. |
+| Actual systemd path | One uniquely named runtime-only timer, `OnActiveSec=5s`, invoked **the existing `jobwatch-backup.service` exactly once**. No alternate backup script or transient replacement service. Its existing OS user/group, peer migration identity, hardening, configuration, S3 upload, manifest and receipt paths were retained. Journal UID/invocation and service exit 0 confirmed. |
+| Timing | Test 20:01:10–20:01:21 UTC. Conservative backup start **20:01:16.457510 UTC**; completed receipt **20:01:18.918822 UTC**. Service's redacted elapsed time: three seconds. |
+| S3 and receipt | Fresh **97,567-byte format-2 custom archive**, manifest-last completion, new exact archive/manifest versions, AES256, S3/local SHA-256, size and manifest-to-archive-version linkage verified. Operator retrieved both exact versions. Receipt is valid/fresh and reflects this service invocation. Older versions preserved; 30+30 retention unchanged. |
+| Independent recovery | Downloaded archive restored using pinned `e3807a0` recovery code into a new local **network-disabled** PostgreSQL 17.11/vector 0.8.7 target. Exact rows, schema, owners/grants, migration/security fingerprints, extension requirements and sequences matched. Corrupt-archive and populated-target refusal passed. Restore verification took **0.493 seconds for the empty archive**, not a production RTO. Only the verified disposable local target was removed. No EC2 DB connection during restore. |
+| Monitoring | Actual installed health service succeeded. CloudWatch received the backup exit-0 and fresh healthy-check events; a new `BackupHealthy=1` metric point was verified. All four alarms OK with notification actions enabled. Earlier delivered ALARM/recovery emails remain the notification proof; no new email was expected while alarms stayed OK. |
+| Cleanup and final state | Temporary timer stopped, runtime file removed and unit unloaded. Both permanent timers remained enabled/active throughout; backup next **27 October 00:00 UTC**, health every fifteen minutes. Permanent unit bytes unchanged. Collection disabled/inactive; intended DB still empty; HBA/roles/grants/schema/mount/release unchanged; PostgreSQL not restarted. |
+
+This proves an actual timer-driven execution of the installed service, **not the
+27 October midnight run**. That future run is left to ordinary monitoring and is
+no longer a cutover gate under the owner's revised decision. The test adds only
+ordinary tiny S3/log/request usage, no infrastructure or recurring service.
+Private receipts retain invocation details, exact versions and hashes; no dump,
+credential or resource identifier is committed. No production import, source
+request, collector activation, workflow change or Terraform operation occurred.
+
 ## Executed and verified
 
 | Operation | Observed result |
@@ -104,15 +128,16 @@ the historical £17.53 base-host estimate and retained Aurora snapshot are separ
 
 ## Remaining gates
 
-Observe the first scheduled backup and its receipt; maintain monthly and pre-change
-restore checks. Twelve hours is frequency, **not a maximum RPO**. Missing/failed
+The installed-service qualification above closes the revised pre-cutover backup
+gate; the first ordinary midnight run remains a normal monitoring check, not an
+approval prerequisite. Maintain monthly and pre-change restore checks.
+Twelve hours is frequency, **not a maximum RPO**. Missing/failed
 runs, AWS project lockout and regional failure can cause greater loss. Notifications
 are state changes, not repeated reminders or a guarantee.
 
-Next approval-sized work: genuine checks of the existing nine ATS endpoints and
-employer mappings in the non-authoritative qualification database, without posting
-publication, plus the owner's explicit legacy-evidence acceptance. Final writer
-freeze/commit pin, real import/reconciliation, real-data independent restore,
-private production access and the single-writer switch still require their own
-approvals. No live ATS request, collection, production import, owner write,
-credential change, GitHub workflow change, main merge, tunnel or cutover occurred.
+The next decision is **one consolidated GO** covering H1/H2, the disclosed failed
+GitHub push, writer freeze/final C, real import/reconciliation/independent restore,
+genuine checks/activation against imported sources and the controlled single-writer
+switch. All nine bounded public checks already pass; do not refetch them during
+preparation. Routine execution substeps need no repeated approval after GO while
+checks pass. Real-data ChatGPT/Proton sharing remain separate. Git stays authoritative.

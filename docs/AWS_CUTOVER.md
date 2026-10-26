@@ -6,7 +6,10 @@ The [26 October host maintenance](AWS_V1_MAINTENANCE_REPORT.md) qualifies Postgr
 qualified manual S3 backup/independent restore and actual ALARM emails, then enabled
 only backup/health timers. Collection remains disabled and intended domain tables
 empty. A scheduled health run passed; the first scheduled backup is due 27 October,
-00:00 UTC and has not yet been observed. Format-1 pre-upgrade recovery and format-2
+00:00 UTC and has not yet been observed. The owner subsequently accepted the
+[20:01 installed-service/timer/S3/independent-restore proof](AWS_BACKUP_ACTIVATION_REPORT.md#installed-service-qualification--26-october-2001-utc)
+instead of waiting for that slot; **the pre-cutover backup gate is satisfied**.
+Format-1 pre-upgrade recovery and format-2
 synthetic restores passed; real-data import/recovery remain open. This runbook
 does not authorise their execution.
 
@@ -25,7 +28,7 @@ checks, timer/workflow activation, main merge or authority switch.
 The latest owner instruction supplies coordinated preparation authority: reviewed
 code-only maintenance, routine fixes/tests, read-only inspections and private
 import/recovery preparation may continue autonomously. **One consolidated final
-GO**, after the first actual scheduled-backup proof, must explicitly cover H1/H2,
+GO**, after the accepted installed-service backup qualification, must explicitly cover H1/H2,
 the disclosed final retained Git baseline, writer freeze, real import/recovery and
 single-writer activation. That GO covers routine substeps below; do not seek a
 new approval for each command while checks pass. Stop on unexplained data loss,
@@ -62,9 +65,10 @@ off this 2 GiB host.
 Before freezing production, recheck the qualified [AWS-only monitoring setup](AWS_BACKUP_POLICY.md):
 confirmed S3 completion receipt, failed/stale/missing backup and checker-heartbeat
 alarms, confirmed SNS recipient and real delivery. Backup/health timers are already
-enabled under their separate approval; collection remains disabled. Observe the
-first scheduled backup and normal alarm recovery before treating scheduling as
-qualified. No external-copy job or automatic writer fencing is required. Record
+enabled under their separate approval; collection remains disabled. The accepted
+installed-service test proves one actual temporary-timer invocation, S3 completion,
+fresh monitoring and independent restore; ordinary midnight execution remains
+unobserved and is no longer a prerequisite. No external-copy job or automatic writer fencing is required. Record
 actual restore results, never a promised 12-hour maximum loss bound.
 
 [26 October real endpoint checks](ATS_SOURCE_VALIDATION_REPORT.md), authorised only
@@ -175,7 +179,8 @@ RTO is promised. A separate-target real-data restore is mandatory after final im
 
 ## Owner go/no-go and switch
 
-Request the consolidated GO only after preparation and scheduled-backup proof.
+Preparation and the owner's revised backup qualification are complete; request
+the consolidated GO without waiting for the first midnight run.
 That decision may authorise the freeze/import/real-data restore sequence; it does
 not predeclare those execution checks passed. **Do not promote** if any required
 endpoint/coverage, reconciliation, historical acceptance, independent real-data

@@ -2,7 +2,10 @@
 
 **Installed and qualified; production NO-GO, Git remains authoritative.** The owner
 withdrew the midnight-backup prerequisite for this code update, retaining it as a
-pre-cutover requirement. No source request, production import or authority change
+pre-cutover requirement **at that maintenance time**. The later
+[20:01 UTC installed-service qualification](AWS_BACKUP_ACTIVATION_REPORT.md#installed-service-qualification--26-october-2001-utc)
+passed under the owner's revised decision and removes that waiting requirement.
+No source request, production import or authority change
 occurred during maintenance.
 
 | Check | Actual result |

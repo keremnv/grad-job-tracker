@@ -12,8 +12,10 @@ recovery on ARM64. Subsequent [backup activation](AWS_BACKUP_ACTIVATION_REPORT.m
 installed release `19ee933` and enabled only backup/health timers after delivered
 ALARM tests and a verified manual S3 backup/independent restore. Collection remains
 disabled and intended domain tables empty. The first scheduled backup is still
-unobserved (due 27 October, 00:00 UTC). This does not qualify production recovery
-or cutover. The no-AWS statement above describes the earlier local preparation.
+unobserved (due 27 October, 00:00 UTC). The owner withdrew waiting for it: the
+actual **20:01 UTC installed-service/one-shot-timer/S3/independent-restore test**
+now satisfies pre-cutover backup qualification. Real-data recovery and cutover
+remain unperformed. The no-AWS statement above describes earlier local preparation.
 
 This is the current compact release record. Older stage reports retain their
 historical results; their daily/26-hour recovery proposal is superseded by the
@@ -23,23 +25,22 @@ accepted missed-run/project-lockout/Region risks. Frequency is not an RPO guaran
 
 ## Consolidated decision packet — latest checkpoint
 
-**NO-GO, rechecked 26 October 2026 at 18:58 UTC.** Local/tool clocks and the
-NTP-synchronised AWS host still precede the 27 October midnight slot. No writer
-was frozen, source activated, data imported or PostgreSQL collector started.
+**Ready for the owner's single final GO; production remains NO-GO until given.**
+Rechecked 26 October 2026 after the authorised 20:01 UTC installed-service test.
+The owner accepts that test instead of waiting for midnight. No writer was frozen,
+source activated, data imported or PostgreSQL collector started.
 
 | Item | Evidence / decision still required |
 |---|---|
-| Backup gate — NOT YET DUE | Next execution **27 October, 00:00 UTC**. Current receipt is the verified **26 October 12:32 manual** backup; the 27 October S3 prefix has no objects. Backup/health timers enabled/active, fresh receipt and four alarms OK. No scheduled archive exists to independently restore yet; earlier manual/synthetic restores do not close this gate. |
+| Backup gate — VERIFIED | A unique temporary timer invoked the **actual installed backup service once** at 20:01 UTC. Journal identity/exit 0, new 97,567-byte archive, exact S3 versions/AES256/SHA-256/manifest linkage and fresh receipt verified. Downloaded archive independently restored into isolated PG17.11/vector0.8.7; exact schema/grants/migrations/rows/sequences and corrupt/populated refusal passed. Temporary timer removed; permanent backup/health timers enabled/active, fresh healthy metric and four alarms OK. No midnight-run claim. |
 | Durable Git baseline — VERIFIED | Remote main remains `9bbcb0149d41250cc2e56b2cbb25779bd5fafc16`, dated 25 October. All 15 worktrees clean at inspection; full fsck passes; release preserves main's data/config/owner/workflow tree. Old workflow active, no in-flight run. This is the latest durable baseline, **not frozen final C**. |
 | Import preparation — VERIFIED, not executed | Refreshed plan SHA-256 `96e99a0a0b41a408933b963142e126b9abcebde9a23ad99e9e6b7b28c1a22f7f`, identical to preparation: 631 postings (574 exclusions), 1,013 versions, 110 events, 44 employers, 9 sources, 34 leads/programmes, 24 verifications, zero applications/triage; 87 imported historical-health runs. All 3,510 recorded description references resolve; no new discrepancy. |
 | H1 / H2 — OWNER ACCEPTANCE PENDING | H1: missing original ATS fields/wording cannot be invented from normalized snapshots. H2: exclusions never indexed before coverage-first storage cannot be reconstructed. Retained records remain preserved; future native collection establishes honest baselines. |
 | Failed-push caveat — DISCLOSE WITH GO | The 26 October runner snapshot is unpublished and unrecovered, with no snapshot artifact or resolvable commit. Its nine reported changes are not nine proven lost postings. No later committed scan/re-observation exists at this checkpoint. Later private endpoint-validation responses are separate dated evidence, not recovery of the original run or imported history. Available evidence cannot prove permanent global irrecoverability. |
 | Host / execution route — PREPARED | Riverlane release `e3807a0`, PostgreSQL 17.11/vector 0.8.7, migrations 0001–0004, protected storage and empty domain tables verified. Independent recovery adapters qualified; actual imported-data reconciliation/restore still required after GO. No new infrastructure or fixed recurring cost proposed; ordinary S3 requests/recovery egress remain usage charges. |
 
-After actual scheduled execution, verify timer/service invocation, conservative
-snapshot timestamp, exact S3 archive/manifest versions and checksums, receipt,
-health/alarms and independent fresh-target restoration. Then request **one** GO
-accepting H1/H2 plus the disclosed unpublished-snapshot boundary and authorising:
+The owner's revised backup prerequisite is satisfied. Request **one** GO accepting
+H1/H2 plus the disclosed unpublished-snapshot boundary and authorising:
 freeze/wait/pin final C; plan/import once through temporary restricted access;
 full reconciliation and actual real-data S3 independent restore; genuine same-source
 checks/activation; retire the Git writer, controlled SQL scan, fresh verified backup
@@ -146,7 +147,11 @@ retention. The earlier shortening proposal is withdrawn from active configuratio
 exact S3 archive/manifest versions and receipt, plus an independent fresh-target
 restore passed. The health timer actually ran successfully at 12:45 UTC on
 26 October. The first scheduled backup remains due at 00:00 UTC on 27 October;
-do not infer its success from the manual test. Terraform has 25 managed entries
+do not infer its success from another test. The separately approved **20:01 UTC
+installed-service test** now proves an actual one-shot timer invocation, fresh S3
+versions/receipt and exact independent restore, satisfying the revised pre-cutover
+backup gate without awaiting midnight. Its temporary timer was removed and
+permanent schedules unchanged. Terraform has 25 managed entries
 after five normal imports, no apply/replacement; existing protections and 30+30
 retention are unchanged. Collection stays disabled.
 
@@ -192,13 +197,13 @@ published/recovered. Durable main is intact, but those intermediate updates must
 not be claimed as part of this import. Preserve its logs; disclose the last-durable
 snapshot boundary in the consolidated owner decision. This is distinct from H1/H2.
 
-**The first scheduled backup is still a time gate**, due 27 October, 00:00 UTC.
-Manual recovery, maintenance and healthy heartbeats do not close it. The prepared
-private post-midnight checker verifies timer/journal execution and exact S3
-versions/checksums/manifest/receipt, then an isolated restore verifies recovery.
-It refuses to run early; no background task is running. Complete this proof before
-requesting the final GO. Existing preparation approval suffices; no new maintenance
-approval is needed merely to resume after that event.
+**The midnight time gate is withdrawn by the owner.** The accepted immediate test
+uses the actual installed service through one temporary timer, not another manual
+backup script. Its exact S3 archive was independently restored; health/alarms and
+permanent schedules remain correct. Midnight execution remains unobserved and is
+left to normal monitoring. The historical private midnight checker must not be
+treated as an active prerequisite or background task. No further development or
+backup approval stage is needed before the consolidated GO decision.
 
 VERIFIED means the scoped evidence exists. READY FOR APPROVED EXECUTION means
 reviewable procedure/code, **not permission** or a passed hosted gate. BLOCKED
@@ -212,7 +217,7 @@ means a dependency or safety implementation is still missing. No row supplies GO
 | VERIFIED | Bounded AWS/SSM/SQL/state inspection, 26 October | Initial twenty-resource baseline preserved. Later authorised monitoring imports bring state to 25 entries. Protections/roles/authentication unchanged; intended tables empty and collector disabled. Credit expiry/spend limit and current monthly bill remain unknown. No further permission implied. |
 | VERIFIED — owner decision | AWS-only backups every 12h, no strict RPO | Existing S3 only; missed/failed backups, project lockout and regional failure can cause greater loss. No external custody/worker or automatic fencing requirement. |
 | VERIFIED | Backup/monitoring activation, manual S3 backup and independent restore | Release `19ee933`, confirmed recipient, three actual ALARM emails and final recovery OK owner-confirmed; exact S3 versions/receipt and fresh-target restore passed. Backup/health timers enabled; actual scheduled health execution passed. No new instance IAM; about $0.43–$0.68/month marginal for 10–100 MiB archives. |
-| READY FOR APPROVED EXECUTION — read-only observation | Verify first scheduled backup after 27 October, 00:00 UTC | It has not run as of this activation report. Inspect service result, conservative receipt time, exact archive/manifest versions and alarm recovery. Existing automatic backup approval permits the schedule; this row is no claim of success or further mutation approval. |
+| VERIFIED — revised owner prerequisite | Installed-service/timer-driven S3 backup and independent restore | 26 October 20:01 UTC: actual service/normal identity once, new exact-version S3 completion/receipt, independent restore and monitoring passed. Temporary timer removed; no permanent schedule edit. Midnight proof is no longer required for GO and is not claimed. Ordinary backup monitoring continues. |
 | VERIFIED — owner decision | Retain 30+30 lifecycle | Live and source configuration retain 30-day current/noncurrent expiration; shortening is not authorised or a V1 gate. |
 | VERIFIED | Code-only V1 host maintenance, vector 0.8.7, migration 0004 and synthetic requalification | Artifact R installed/replayed; PG17.11 unchanged; format-1 pre-upgrade and format-2 synthetic S3/restore proofs passed. No optional roles, inference, authentication changes, timer activation or infrastructure changes. |
 | NEEDS OWNER DECISION | [Explicit legacy-evidence acceptance](LEGACY_EVIDENCE_ACCEPTANCE.md) against final manifest | H1 missing native responses and H2 never-indexed pre-schema-2 exclusions remain unaccepted. No technical fee; private dated owner decision, no invented evidence or employer edit times. Additional reconciliation failures are not covered by accepting these two limits. |

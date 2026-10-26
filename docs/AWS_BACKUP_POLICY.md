@@ -21,6 +21,13 @@ manual backup and independent fresh-target restore passed. Backup/health timers
 are enabled, collection disabled; a scheduled health run passed. The first
 scheduled backup is due at 00:00 UTC on 27 October and has **not yet been observed**.
 
+**Revised qualification decision, 26 October:** the owner accepts the successful
+[20:01 UTC installed-service test](AWS_BACKUP_ACTIVATION_REPORT.md#installed-service-qualification--26-october-2001-utc)
+as sufficient pre-cutover backup proof. A temporary one-shot timer invoked the
+actual installed service once; exact S3 completion/receipt and independent restore
+passed. The temporary unit was removed, permanent schedules unchanged. Waiting
+for the first midnight run is no longer required; do not claim it occurred.
+
 - `jobwatch-backup.timer`: 00:00/12:00 UTC, one-minute accuracy, no random delay,
   persistent catch-up after downtime. Catch-up runs once, not once per missed slot.
   The existing service remains bounded to 45 minutes with limited failure retries.
@@ -146,8 +153,9 @@ Only backup and health timers were then enabled. The backup service supplies
 `--receipt`; an ordinary manual CLI backup without that option does not initialise
 monitoring. No SQL roles, credentials or instance IAM permissions changed. No
 PostgreSQL/vector reinstall or migration was required. Intended domain tables
-remain empty and collection stays disabled. Observe the first scheduled backup
-separately; manual success must not be reported as scheduler proof.
+remain empty and collection stays disabled. The later installed-service test above
+adds actual one-shot timer proof; the first ordinary scheduled backup is monitored
+separately and is no longer a pre-cutover prerequisite.
 
 The owner explicitly retains 30+30; lifecycle shortening is outside this approval.
 Any Terraform execution needs a fresh plan excluding the known protected instance
