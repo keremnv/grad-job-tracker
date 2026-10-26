@@ -5,9 +5,10 @@ of opportunities: what was observed, what changed and what remains uncertain.
 Built for researching UK 2027 graduate roles in software, systems and applied AI,
 it connects evidence-backed search with application triage and dated follow-ups.
 
-**Status · 26 October 2026:** the live tracker still uses Git-backed files.
-The PostgreSQL replacement is implemented and locally qualified; an AWS host has
-passed synthetic deployment/recovery checks. Production migration is pending.
+**Status · 26 October 2026:** the real corpus is imported into AWS PostgreSQL and
+independently restored/reconciled. Git collection is retired. Controlled collection
+and final activation checks are in progress; routine SQL collection remains disabled
+until they pass. [Production handover](docs/AWS_PRODUCTION_HANDOVER.md).
 
 [Architecture](#how-it-works) · [Engineering decisions](#engineering-decisions) ·
 [Example workflow](#a-synthetic-research-to-follow-up-workflow) ·
@@ -30,30 +31,29 @@ passed synthetic deployment/recovery checks. Production migration is pending.
 
 ## How it works
 
-The Git-backed collector remains authoritative. The PostgreSQL path is tested
-with mock feeds and frozen-snapshot import rehearsals. The dashed import edge is
+PostgreSQL holds the imported and reconciled corpus on the existing AWS host.
+Source publication is undergoing its controlled first scan before daily scheduling.
+Frozen Git history is preserved as provenance; the dashed import edge is a completed
 one-time migration, not ongoing synchronisation.
 
 ```mermaid
 flowchart LR
     ATS["Public ATS APIs<br/>Greenhouse · Lever · Ashby"]
-    ATS --> SCAN["LIVE · GitHub Actions<br/>collector"]
-    SCAN --> FILES[("LIVE · Git-backed<br/>observations and reports")]
-    ATS -. "mock-feed tests" .-> PUBLISH["LOCAL · validated<br/>source publication"]
-    PUBLISH --> PG[("LOCAL · PostgreSQL 17<br/>evidence · history<br/>owner records")]
-    FILES -. "one-time import" .-> PG
-    OWNER["LOCAL · authorised SQL<br/>applications · triage · leads"] --> PG
-    PG --> RESEARCH["LOCAL · research<br/>SQL · lexical · vector<br/>optional read-only MCP"]
-    PG --> ICS["LOCAL · minimal ICS<br/>deadlines and actions"]
-    PG -. "cutover pending" .-> AWS["HOSTED · AWS qualification<br/>synthetic data only"]
-    ICS -. "HTTPS feed pending" .-> PROTON["PENDING · Proton<br/>subscription"]
+    ATS --> PUBLISH["QUALIFYING · systemd<br/>validated source publication"]
+    PUBLISH --> PG[("LIVE · PostgreSQL 17 on AWS<br/>evidence · history · owner records")]
+    FILES[("FROZEN · Git history<br/>legacy import source C")] -. "one-time import completed" .-> PG
+    OWNER["AVAILABLE · authorised owner SQL<br/>applications · triage · leads"] --> PG
+    PG --> RESEARCH["AVAILABLE · SQL · BM25 · FTS<br/>vector/hybrid with local inference"]
+    RESEARCH -. "synthetic online qualified" .-> MCP["OPTIONAL · read-only MCP<br/>real-data access not deployed"]
+    PG --> ICS["IMPLEMENTED · private ICS<br/>deadlines and actions"]
+    ICS -. "HTTPS approval pending" .-> PROTON["PENDING · Proton<br/>subscription"]
 
     classDef live fill:#e8f5e9,stroke:#287a42,color:#122619
     classDef qualified fill:#edf4ff,stroke:#3868a8,color:#172b49
     classDef pending fill:#f5f5f5,stroke:#666,color:#222,stroke-dasharray:5 4
-    class SCAN,FILES live
-    class PUBLISH,PG,RESEARCH,OWNER,ICS qualified
-    class AWS,PROTON pending
+    class PG,OWNER,RESEARCH live
+    class PUBLISH,FILES,ICS qualified
+    class MCP,PROTON pending
 ```
 
 Coverage is bounded by configured feeds, not the graduate job market. The
@@ -211,38 +211,37 @@ production access or a live Proton integration.
 
 | Area | Status at this README's 26 October 2026 review |
 |---|---|
-| **Live `main`** | GitHub Actions collection, tracked JSON/text observations, file-backed owner ledgers and CLI/reports. The release branch preserves the latest inspected observations without changing the live writer. |
+| **Authoritative store** | AWS PostgreSQL, imported from frozen `9bbcb01` with complete reconciliation and independent real-data S3 restoration. Git observation files remain archived provenance; the old workflow is disabled and retired. |
 | **PostgreSQL development** | Migrations 0001–0004, collection/history, importer, retrieval, owner SQL, calendar snapshots and read-only MCP locally qualified. |
 | **Last qualified AWS deployment** | 26 October 2026: ARM64 `t4g.small`, PostgreSQL 17.11, pgvector 0.8.7 and migrations 0001–0004; native retrieval/recovery qualified. [Release `e3807a0`, including Riverlane fix, installed and natively tested](docs/AWS_RIVERLANE_MAINTENANCE_REPORT.md). [Installed-service/timer/S3/independent restore passed](docs/AWS_BACKUP_ACTIVATION_REPORT.md#installed-service-qualification--26-october-2001-utc); backup/health timers enabled, alarms OK and notification delivery previously confirmed. Intended domain tables empty; collection disabled. |
-| **Pending activation** | Historical-evidence acceptance, final import/real-data recovery and the single-writer GO. Real-data ChatGPT access and Proton HTTPS subscription remain separately approved follow-ons. Synthetic online ChatGPT SQL qualification is complete. |
+| **Activation in progress** | Owner GO and legacy acceptance recorded; nine real sources validated/activated. Controlled first collection and final scheduling checks remain. Real-data ChatGPT and Proton hosting remain separate follow-ons. |
 
-Cutover also requires nine genuine endpoint checks, historical-evidence acceptance,
-integration preserving newer `main` data, a writer freeze, final-commit import and
-reconciliation, independent restore and explicit single-writer approval.
-[V1 roadmap](docs/V1_SCOPE_AND_ROADMAP.md) · [Cutover runbook](docs/AWS_CUTOVER.md).
-[Current release checklist](docs/V1_RELEASE_CHECKLIST.md) records exact approvals
-and the local integration/validation evidence. There is no production go decision.
+The owner accepted the known unavailable historical evidence and the unpublished
+26 October runner snapshot. Retained records are reconciled against the exact frozen
+Git source. Current activation evidence and the authority boundary are recorded in
+the [production handover](docs/AWS_PRODUCTION_HANDOVER.md).
+
 ANN/rerankers and sophisticated autonomous actions are deferred.
 
 ## Quickstart
 
-Python **3.11+**; the base file-backed package uses the standard library. Repository
-access is required: this is private source, not a public release. From this
-checkout, these commands make no employer requests and need no database:
+Python **3.11+**. Repository access is required: this is private source, not a
+public release. For production SQL access, use the authenticated SSM/owner-peer
+commands in the [handover](docs/AWS_PRODUCTION_HANDOVER.md#sql-first-operation).
+For local development, these commands make no employer requests:
 
 ```sh
 python3 -m venv .venv
-.venv/bin/python -m pip install -e .
-.venv/bin/python -m jobwatch.cli capabilities --json
-.venv/bin/python -m unittest discover -s tests -v
-```
-
-For the PostgreSQL path, Docker and the optional psycopg dependency are required:
-
-```sh
 .venv/bin/python -m pip install -e '.[postgres]'
+.venv/bin/jobwatch-pg-ops --help
+.venv/bin/python -m unittest discover -s tests -v
+
+# Requires Docker; creates only its own disposable database:
 PYTHON=.venv/bin/python bash scripts/test_postgres.sh
 ```
+
+The old `jobwatch.cli` file-backed path is retained for frozen import/rehearsal
+compatibility; it is not the production read/write interface.
 
 The harness creates and removes its own verified disposable PostgreSQL 17/pgvector
 container; it accepts no production database URL. Optional MCP and real-model tests
@@ -253,6 +252,7 @@ hosted database, migrates production or starts collection automatically.
 
 | Guide | Read it for |
 |---|---|
+| [Production handover](docs/AWS_PRODUCTION_HANDOVER.md) | Authority, SQL access, schedules and recovery |
 | [Development and local PostgreSQL](docs/POSTGRESQL_DEVELOPMENT.md) | Installation, roles, migrations and disposable testing |
 | [Collection and material history](docs/POSTGRESQL_COLLECTION.md) | Publication transactions, absence contracts and evidence comparison |
 | [Operational research](docs/POSTGRESQL_OPERATIONS.md) | SQL views, search, reports, health and source activation |

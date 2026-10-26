@@ -1,79 +1,14 @@
-name: Job watch scan
+# Retired under the owner's final production GO, 26 October 2026.
+# PostgreSQL systemd is the sole collector; this workflow cannot collect or commit.
+name: Retired Git-backed job watch scan
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '27 7 * * *' # 07:27 GMT / 08:27 BST; best-effort UTC schedule.
 permissions:
-  contents: write
-concurrency:
-  group: jobwatch-state
-  cancel-in-progress: false
+  contents: read
 jobs:
-  scan:
+  retired:
     if: github.event.repository.private == true && github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
-    timeout-minutes: 12
     steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: true
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Install package
-        run: python -m pip install -e .
-      - name: Test offline
-        run: python -m unittest discover -s tests -v
-      # Exit 0: written; 1: written, some or all boards failed; 2: error, outputs
-      # must not be committed (nothing written, or a write was interrupted).
-      - name: Collect public ATS feeds
-        id: collect
-        continue-on-error: true
-        shell: bash
-        run: |
-          set +e
-          python -m jobwatch.cli scan
-          code=$?
-          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
-          exit "$code"
-      - name: Publish report in GitHub Actions summary
-        if: always() && (steps.collect.outputs.exit_code == '0' || steps.collect.outputs.exit_code == '1')
-        shell: bash
-        run: |
-          if [[ -f reports/latest.md ]]; then
-            cat reports/latest.md >> "$GITHUB_STEP_SUMMARY"
-          fi
-      - name: Commit updated observations
-        if: always() && (steps.collect.outputs.exit_code == '0' || steps.collect.outputs.exit_code == '1')
-        shell: bash
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          # Index, health and content-addressed source text (deletions included).
-          git add -A -- data/jobs.json reports/latest.md
-          for path in data/jobs-health.json data/jobs-text; do
-            if [[ -e "$path" ]] || git ls-files --error-unmatch -- "$path" >/dev/null 2>&1; then
-              git add -A -- "$path"
-            fi
-          done
-          if ! git diff --cached --quiet; then
-            git commit -m 'data: refresh observed job postings'
-            # A concurrent owner push (triage, ledger) is rejected. Owner commits never
-            # touch scan files, so replay this one commit once; a conflict stops here.
-            # Never force, reset or merge.
-            if ! git push origin HEAD; then
-              git pull --rebase --no-autostash origin "$GITHUB_REF_NAME"
-              git push origin HEAD
-            fi
-          else
-            echo 'No changes to commit'
-          fi
-      - name: Surface scan failures
-        if: steps.collect.outcome == 'failure'
-        run: |
-          if [[ '${{ steps.collect.outputs.exit_code }}' == '1' ]]; then
-            echo 'One or more feeds failed. Check log and report; failed boards retain previous state.'
-          else
-            echo 'Scan error (exit ${{ steps.collect.outputs.exit_code }}): nothing was committed; the repository data is unchanged.'
-          fi
-          exit 1
+      - name: Explain the active authority
+        run: echo 'Git-backed collection is retired. Use the authorised PostgreSQL systemd collector and SQL operations. Do not rerun historical file-backed jobs.'

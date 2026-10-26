@@ -1,10 +1,17 @@
+# Claude Code operating instructions
+
 @AGENTS.md
 
 ## Claude Code specifics
 
-- Run commands as `.venv/bin/python -m jobwatch.cli <command> --json` from the
-  repository root and parse the envelope; do not scrape Markdown reports.
-- Routine questions need no subagents, plans or file exploration: the commands
-  in §2 answer them directly.
-- Development work happens only when the owner asks for it in the current task;
-  then read `docs/DEVELOPMENT.md` and run the offline tests.
+Use ordinary PostgreSQL through psql/psycopg with the appropriate SQL identity.
+`jobwatch_owner` supports authorised research and audited owner transactions;
+collector and migrator credentials are separate operational capabilities.
+Use the SQL cookbooks and explicit `jobwatch-pg-ops` read conveniences from
+AGENTS.md. The legacy `jobwatch.cli` JSON/CSV path is a frozen import/rehearsal
+facility, not the production interface. Never write it or sync it with PostgreSQL.
+
+MCP is optional. Production ChatGPT access and Proton hosting require separate
+approval; do not expose real owner records through the earlier synthetic tunnel.
+Read `docs/DEVELOPMENT.md` only for owner-requested development, and use verified
+disposable PostgreSQL targets for tests.
