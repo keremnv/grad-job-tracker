@@ -24,18 +24,14 @@ No fixed restoration-time guarantee or automatic all-writer fencing is promised.
 - The instance can upload backups but cannot read/delete them. Recovery uses the
   separately authorised operator and exact S3 object versions; no runtime IAM
   expansion is needed for the prepared checker.
-- **Proposed retention:** expire current backup objects after 30 days; delete
-  noncurrent versions one day later; retain one-day incomplete-upload cleanup.
-  With unique backup keys this is roughly 31–32 days / 62–64 archive-sized objects
-  at two runs/day, plus small manifests and any extra manual backups. S3 lifecycle
-  is asynchronous and day-rounded, not an exact count/age cap. Versioning, encryption,
-  public blocking and destruction protections remain enabled.
-- This lifecycle proposal changes only `backups/`, never artifacts or Terraform
-  state. **It is not applied.** The recorded bucket still has 30-day current +
-  30-day noncurrent retention, potentially roughly 60 days / 120+ archives at
-  two/day. Applying the one-day noncurrent rule later can permanently remove
-  already-noncurrent versions older than one day; inspect inventory first and
-  approve that consequence explicitly. It is not Object Lock/WORM.
+- **Current approved retention:** keep the existing **30-day current + 30-day
+  noncurrent** expiration and one-day incomplete-upload cleanup. Unique keys
+  therefore can retain roughly 60–62 days / 120–124 archive-sized versions at
+  two/day, plus small manifests/manual backups. This is asynchronous lifecycle,
+  not an exact age/count cap. Versioning/encryption/protections remain enabled.
+- The prior 30+1 shortening proposal is **not approved** and is no longer the
+  source configuration. Do not change lifecycle, artifacts or Terraform state
+  retention during backup activation. S3 versioning is not Object Lock/WORM.
 
 [Versioned S3 expiration semantics](https://docs.aws.amazon.com/AmazonS3/latest/userguide/lifecycle-expire-general-considerations.html).
 
@@ -108,11 +104,11 @@ credits or a spending limit. Existing host/storage/state/alarms are reused.
 
 | Compressed archive size (scenario, not measured production) | Backup storage + new monitoring/requests/month, USD | Illustrative GBP including 20% VAT at £0.77/$ |
 |---|---:|---:|
-| 10 MiB | $0.42 | £0.39 |
-| 100 MiB | $0.55 | £0.51 |
-| 1 GiB | $1.88 | £1.73 |
+| 10 MiB | $0.43 | £0.40 |
+| 100 MiB | $0.68 | £0.63 |
+| 1 GiB | $3.26 | £3.01 |
 
-Calculated conservatively with 64 retained archives, 120 backup PUTs/month, 100
+Calculated conservatively with 124 retained archives, 120 backup PUTs/month, 100
 email/publish events and 1 KiB/15-minute heartbeat. Small manifests/log storage
 add fractions of a cent; manual backups/retries increase usage. No Glacier,
 paid query/observability service, external copy or new instance is proposed.
@@ -128,9 +124,12 @@ The previous £17.53 host estimate is historical, not a current invoice. Preserv
 £10–£20/month where practical; measure real dump growth and include the retained
 Aurora snapshot and existing usage before promising the total.
 
-## Smallest next approval
+## Activation — authorised, currently paused
 
-Approve one **backup/monitoring-only activation** on the existing empty host:
+The owner authorised the following bounded activation. [Partial execution](AWS_BACKUP_ACTIVATION_REPORT.md)
+installed the release and configured monitoring, then stopped at a failed new mock
+assertion. The mock correction now passes; an owner resume instruction is required
+before further AWS writes. Remaining scope on the existing empty host:
 install a separately verified code-only release with these changes, keep collection
 inactive, establish the SNS topic/confirmed owner email/filter/alarm and attach
 notification actions, then take one verified manual backup to initialise the
@@ -140,7 +139,7 @@ email/recovery without altering real records; explicitly enable only backup and
 health timers after those checks. No SQL roles/credentials or instance IAM changes
 are proposed. No PostgreSQL/vector reinstall or schema migration is needed.
 
-Review the lifecycle shortening separately (or retain existing 30+30 initially).
+The owner explicitly retains 30+30; lifecycle shortening is outside this approval.
 Any Terraform execution needs a fresh plan excluding the known protected instance
 replacement; do not apply the root stack blindly, remove guards, use `-target` or
 hide drift in state. No new AWS action is authorised by this document. Final source

@@ -1,5 +1,10 @@
 # AWS synthetic hosted qualification complete — cutover pending
 
+**Backup activation is paused:** [partial results](../../docs/AWS_BACKUP_ACTIVATION_REPORT.md)
+record installed release `19ee933` and configured SNS/filter/alarm. Subscription,
+delivery/backup tests, Terraform imports and timer activation remain incomplete.
+Collection stays disabled and Git remains authoritative.
+
 [V1 hosted maintenance, 26 October](../../docs/AWS_V1_MAINTENANCE_REPORT.md)
 verified the existing twenty-resource deployment and installed the exact code-only
 release `43aab3b12e3277c96b3b0936839a6758ebda986b`, pgvector 0.8.7 and migration 0004.
@@ -105,7 +110,7 @@ The CLI bootstrap now validates and normalizes only its root-owned installation 
 
 `database_backup.py backup` takes an exported **REPEATABLE READ** snapshot, hashes every exact application/audit/ledger row, captures schema/functions/triggers/ownership/grants and database/role security fingerprints, and executes a real `pg_dump -Fc --schema=jobwatch --snapshot=...`. Every archived sequence state is extracted from the archive, not inferred from a concurrently advancing sequence. The receipt includes hashes/counts, not notes or source text. Files are `0600` in private directories. No database lock is held while uploading to S3.
 
-The single-PutObject uploader bounds archives to 4 GB, sends AES256 and SHA-256, verifies S3's returned checksum **and version ID**, then uploads the manifest last. The completion manifest records the exact uploaded archive key/version. No `HeadObject`/backup-read grant is required. A complete manifest is the backup-completion marker. Failed upload/receipt verification is nonzero; partial objects expire. The bucket has public access blocked, ACLs disabled, TLS-only policy, SSE-S3, versioning, recorded 30-day current-object expiration, 30-day noncurrent expiration and one-day incomplete multipart cleanup. Source proposes 30-day current + one-day noncurrent retention; only a future separately reviewed lifecycle change may shorten the live retention. A compromised host can write bogus later backups; preserve versioned older copies and test restore. The owner accepts same-project recovery risk. Unique per-run keys avoid overwrite; noncurrent copies can persist longer during expiry/version cleanup. This is encrypted retention, **not Object Lock or protection against a project administrator deleting it**.
+The single-PutObject uploader bounds archives to 4 GB, sends AES256 and SHA-256, verifies S3's returned checksum **and version ID**, then uploads the manifest last. The completion manifest records the exact uploaded archive key/version. No `HeadObject`/backup-read grant is required. A complete manifest is the backup-completion marker. Failed upload/receipt verification is nonzero; partial objects expire. The bucket has public access blocked, ACLs disabled, TLS-only policy, SSE-S3, versioning, 30-day current-object expiration, 30-day noncurrent expiration and one-day incomplete multipart cleanup. The owner explicitly keeps this retention; no shortening is authorised. A compromised host can write bogus later backups; preserve versioned older copies and test restore. The owner accepts same-project recovery risk. Unique per-run keys avoid overwrite; noncurrent copies can persist longer during expiry/version cleanup. This is encrypted retention, **not Object Lock or protection against a project administrator deleting it**.
 
 Future local host invocation (peer maintenance account):
 

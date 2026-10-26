@@ -99,12 +99,13 @@ are advisory. The proposed single health metric/alarm treats missing heartbeat a
 breaching, in addition to existing process-failure alarms. Owner-confirmed SNS
 email and hosted failure/missing-run delivery tests are still required.
 
-Source retention proposes 30-day current + one-day noncurrent expiration (roughly
-31–32 days), versioning/encryption/protections unchanged. This lifecycle change is
-not applied; the recorded bucket is still 30+30. No S3 delete or policy update ran.
-The host retains the previously qualified `43aab3b` release and disabled six-hour
-timer definition until a separately approved code-only update; do not describe the
-prepared twelve-hour configuration as already deployed.
+The owner explicitly retains existing **30-day current + 30-day noncurrent**
+retention. The earlier shortening proposal is withdrawn from active configuration.
+[Activation is paused](AWS_BACKUP_ACTIVATION_REPORT.md): release `19ee933` is installed,
+SNS/filter/alarm configuration exists, but no subscription, delivery test, manual
+backup/receipt or timer activation has occurred. Four Terraform imports remain.
+The corrected plan-only mock assertion passes; no further AWS mutation is authorised
+until the owner resumes after the required failed-verification stop.
 
 Integrity checks, exact S3 versions, conservative snapshot start and guarded
 fresh-target restore are unchanged. Synthetic hosted and independent restores
@@ -112,8 +113,8 @@ passed; the actual imported production archive still needs restore/reconciliatio
 No external retained copy or strict RPO is required. Failed/missed backups, AWS
 project lockout, regional failure or administrator deletion can cause >12h loss.
 
-Marginal planning cost for 10–100 MiB archives is about **$0.42–$0.55/month**
-(illustrative £0.39–£0.51 including 20% VAT at £0.77/$), with one new metric/alarm
+Marginal planning cost for 10–100 MiB archives is about **$0.43–$0.68/month**
+(illustrative £0.40–£0.63 including 20% VAT at £0.77/$), with one new metric/alarm
 and small SNS/log/request usage. Actual production size/current bill is unverified;
 no free allowance/credits assumed. Existing host estimate remains historical.
 
@@ -130,8 +131,8 @@ means a dependency or safety implementation is still missing. No row supplies GO
 | VERIFIED | Hosted ARM64 V1 and independent vector-aware synthetic recovery | Format 1 and 2 exact restores passed; intended domain tables empty. Does not prove final real-data recovery. |
 | VERIFIED | Bounded AWS/SSM/SQL/state inspection, 26 October | Twenty-resource state and protections unchanged; intended tables empty; timers disabled. Alarms have no notification destinations; credit expiry/spend limit and current monthly bill remain unknown. No further permission implied. |
 | VERIFIED — owner decision | AWS-only backups every 12h, no strict RPO | Existing S3 only; missed/failed backups, project lockout and regional failure can cause greater loss. No external custody/worker or automatic fencing requirement. |
-| READY FOR APPROVED EXECUTION | Backup-only code update, SNS email and process/age/missing-heartbeat monitoring | Approve verified release install, one SNS Standard topic/confirmed private recipient, one metric/filter/alarm and existing alarm actions; manual synthetic/failure tests and explicit backup/health timer activation. Existing instance log IAM suffices; roughly $0.42–$0.55/month marginal for 10–100 MiB archives. Collection remains disabled. |
-| NEEDS OWNER APPROVAL | Approximately 30-day lifecycle | Prepared 30-day current + one-day noncurrent expiration; reducing the existing noncurrent period can delete older noncurrent versions. Inventory/review first; no live lifecycle change yet. |
+| BLOCKED — verification stop | Resume approved backup/monitoring activation | Release installed; topic/filter/alarm configured. New mock assertion initially could not evaluate computed ARNs; corrected five mock tests pass. Owner resume, four Terraform imports, private email/confirmation, delivered fault/missing-heartbeat tests and verified backup/restore remain; timers disabled. Existing instance log IAM suffices; about $0.43–$0.68/month marginal for 10–100 MiB archives. |
+| VERIFIED — owner decision | Retain 30+30 lifecycle | Live and source configuration retain 30-day current/noncurrent expiration; shortening is not authorised or a V1 gate. |
 | VERIFIED | Code-only V1 host maintenance, vector 0.8.7, migration 0004 and synthetic requalification | Artifact R installed/replayed; PG17.11 unchanged; format-1 pre-upgrade and format-2 synthetic S3/restore proofs passed. No optional roles, inference, authentication changes, timer activation or infrastructure changes. |
 | NEEDS OWNER DECISION | Explicit legacy-evidence acceptance against final manifest | Missing complete schema-2 native responses and never-indexed pre-schema-2 exclusions cannot be reconstructed. No technical fee; private dated owner acceptance, no invented evidence or employer edit times. |
 | READY FOR APPROVED EXECUTION | Nine genuine endpoint checks and employer/region mapping review | Separate live HTTPS approval, initially only in a non-authoritative qualification DB, no posting publication. Repeat/persist final checks on imported source rows before activation; collector validation + audited owner activation. Failed/renamed boards need a coverage decision; no new employers. |

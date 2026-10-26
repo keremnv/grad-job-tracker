@@ -102,7 +102,7 @@ reconciles each dataset. Terraform protects persistent EBS, backups and versione
 S3 state with native locking. SSM replaces public SSH/PostgreSQL access.
 Hash/version-verified PostgreSQL archives have been restored into fresh targets,
 including off-host. The owner-selected V1 policy uses twice-daily dumps to existing
-versioned S3, approximately 30-day retention and CloudWatch/SNS email alerts.
+versioned S3, 30-day current/noncurrent retention and CloudWatch/SNS email alerts.
 Frequency is not a maximum RPO; missed runs, project lockout and regional failure
 can cause greater loss. No external backup worker/provider is required.
 [Backup policy and activation status](docs/AWS_BACKUP_POLICY.md).
@@ -211,7 +211,7 @@ production access or a live Proton integration.
 |---|---|
 | **Live `main`** | GitHub Actions collection, tracked JSON/text observations, file-backed owner ledgers and CLI/reports. The release branch preserves the latest inspected observations without changing the live writer. |
 | **PostgreSQL development** | Migrations 0001–0004, collection/history, importer, retrieval, owner SQL, calendar snapshots and read-only MCP locally qualified. |
-| **Last qualified AWS deployment** | 26 October 2026: ARM64 `t4g.small`, PostgreSQL 17.11, pgvector 0.8.7 and migrations 0001–0004; native retrieval and synthetic S3/independent restore qualified. Intended production domain tables empty; collector/backup timers disabled. [Hosted results](docs/AWS_V1_MAINTENANCE_REPORT.md). |
+| **Last qualified AWS deployment** | 26 October 2026: ARM64 `t4g.small`, PostgreSQL 17.11, pgvector 0.8.7 and migrations 0001–0004; native retrieval and synthetic S3/independent restore qualified. Intended production domain tables empty; timers disabled. Backup-policy release `19ee933` is installed; [monitoring activation is paused](docs/AWS_BACKUP_ACTIVATION_REPORT.md) before subscription, tests and scheduling. [Hosted qualification](docs/AWS_V1_MAINTENANCE_REPORT.md). |
 | **Pending activation** | Production private agent-access qualification; Proton HTTPS subscription; twice-daily S3 scheduling, freshness checks, email delivery and final single-writer cutover. Synthetic online ChatGPT SQL qualification is complete. |
 
 Cutover also requires nine genuine endpoint checks, historical-evidence acceptance,

@@ -15,6 +15,32 @@ variables {
 }
 run "safe_initial_plan" {
   command = plan
+  # Computed ARNs must be known for the policy assertions; never apply the mock.
+  override_resource {
+    target          = aws_sns_topic.backup_alerts
+    values          = { arn = "arn:aws:sns:eu-north-1:000000000000:fixture-alerts" }
+    override_during = plan
+  }
+  override_resource {
+    target          = aws_cloudwatch_metric_alarm.host
+    values          = { arn = "arn:aws:cloudwatch:eu-north-1:000000000000:alarm:fixture-host" }
+    override_during = plan
+  }
+  override_resource {
+    target          = aws_cloudwatch_metric_alarm.credits
+    values          = { arn = "arn:aws:cloudwatch:eu-north-1:000000000000:alarm:fixture-credits" }
+    override_during = plan
+  }
+  override_resource {
+    target          = aws_cloudwatch_metric_alarm.failures
+    values          = { arn = "arn:aws:cloudwatch:eu-north-1:000000000000:alarm:fixture-failures" }
+    override_during = plan
+  }
+  override_resource {
+    target          = aws_cloudwatch_metric_alarm.backup_health
+    values          = { arn = "arn:aws:cloudwatch:eu-north-1:000000000000:alarm:fixture-backup_health" }
+    override_during = plan
+  }
   assert {
     condition     = length(aws_security_group.tracker.ingress) == 0
     error_message = "Inbound ports configured."
