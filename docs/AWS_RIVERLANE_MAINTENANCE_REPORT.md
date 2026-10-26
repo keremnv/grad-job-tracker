@@ -80,6 +80,23 @@ integration/plan. The final owner decision must identify the retained source bei
 accepted; H1/H2 acceptance does not silently cover unexplained new reconciliation
 errors. The current plan has no missing retained evidence references or hash errors.
 
+Resume inspection at **26 October 18:58 UTC** confirms the host clock is
+NTP-synchronised: the midnight backup remains future, not failed or verified.
+The receipt still identifies the 12:32 manual backup; next execution is 27 October
+00:00 UTC, with no objects in that date's backup prefix. All four alarms remain OK;
+backup/health timers active, collector disabled and all intended tables empty.
+
+Remote main still has no later commit or completed scan. The failed run exposes
+zero saved snapshot artifacts; `95b7f71` still returns HTTP 422 and no matching
+full SHA appears in available logs. Treat its original snapshot as unavailable,
+without claiming to prove permanent irrecoverability or nine missing postings.
+All previously committed records remain preserved. Subsequent public validation
+responses retain separately dated source evidence privately; they are not the
+runner snapshot, do not restore its original observation times/history, and are
+not silently substituted into the frozen-Git importer. A future re-observation
+can preserve current information without recreating that missing intermediate run.
+The refreshed plan against durable `9bbcb01` has the same SHA-256 and counts.
+
 No new infrastructure or meaningful recurring resource cost: existing host,
 backup/monitoring and private S3 were reused. Code artifact requests/storage are
 ordinary small usage, not a verified bill. Current credit expiry/spend limits and

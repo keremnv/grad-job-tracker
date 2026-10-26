@@ -21,6 +21,32 @@ owner's **AWS-only twice-daily backup policy**. The previous strict maximum-loss
 requirement is withdrawn; [the current policy](AWS_BACKUP_POLICY.md) records the
 accepted missed-run/project-lockout/Region risks. Frequency is not an RPO guarantee.
 
+## Consolidated decision packet — latest checkpoint
+
+**NO-GO, rechecked 26 October 2026 at 18:58 UTC.** Local/tool clocks and the
+NTP-synchronised AWS host still precede the 27 October midnight slot. No writer
+was frozen, source activated, data imported or PostgreSQL collector started.
+
+| Item | Evidence / decision still required |
+|---|---|
+| Backup gate — NOT YET DUE | Next execution **27 October, 00:00 UTC**. Current receipt is the verified **26 October 12:32 manual** backup; the 27 October S3 prefix has no objects. Backup/health timers enabled/active, fresh receipt and four alarms OK. No scheduled archive exists to independently restore yet; earlier manual/synthetic restores do not close this gate. |
+| Durable Git baseline — VERIFIED | Remote main remains `9bbcb0149d41250cc2e56b2cbb25779bd5fafc16`, dated 25 October. All 15 worktrees clean at inspection; full fsck passes; release preserves main's data/config/owner/workflow tree. Old workflow active, no in-flight run. This is the latest durable baseline, **not frozen final C**. |
+| Import preparation — VERIFIED, not executed | Refreshed plan SHA-256 `96e99a0a0b41a408933b963142e126b9abcebde9a23ad99e9e6b7b28c1a22f7f`, identical to preparation: 631 postings (574 exclusions), 1,013 versions, 110 events, 44 employers, 9 sources, 34 leads/programmes, 24 verifications, zero applications/triage; 87 imported historical-health runs. All 3,510 recorded description references resolve; no new discrepancy. |
+| H1 / H2 — OWNER ACCEPTANCE PENDING | H1: missing original ATS fields/wording cannot be invented from normalized snapshots. H2: exclusions never indexed before coverage-first storage cannot be reconstructed. Retained records remain preserved; future native collection establishes honest baselines. |
+| Failed-push caveat — DISCLOSE WITH GO | The 26 October runner snapshot is unpublished and unrecovered, with no snapshot artifact or resolvable commit. Its nine reported changes are not nine proven lost postings. No later committed scan/re-observation exists at this checkpoint. Later private endpoint-validation responses are separate dated evidence, not recovery of the original run or imported history. Available evidence cannot prove permanent global irrecoverability. |
+| Host / execution route — PREPARED | Riverlane release `e3807a0`, PostgreSQL 17.11/vector 0.8.7, migrations 0001–0004, protected storage and empty domain tables verified. Independent recovery adapters qualified; actual imported-data reconciliation/restore still required after GO. No new infrastructure or fixed recurring cost proposed; ordinary S3 requests/recovery egress remain usage charges. |
+
+After actual scheduled execution, verify timer/service invocation, conservative
+snapshot timestamp, exact S3 archive/manifest versions and checksums, receipt,
+health/alarms and independent fresh-target restoration. Then request **one** GO
+accepting H1/H2 plus the disclosed unpublished-snapshot boundary and authorising:
+freeze/wait/pin final C; plan/import once through temporary restricted access;
+full reconciliation and actual real-data S3 independent restore; genuine same-source
+checks/activation; retire the Git writer, controlled SQL scan, fresh verified backup
+and routine SQL scheduling only after every check passes. Preserve 00:00/12:00 UTC
+backups. No automatic stale-Git fallback after authoritative SQL writes. No final
+approval is recorded or inferred by this checkpoint; ChatGPT/Proton remain separate.
+
 ## Integration evidence
 
 Fetched remote `main`, rechecked 26 October:
