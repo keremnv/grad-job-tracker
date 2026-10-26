@@ -33,5 +33,6 @@ Record the owner's actual decision, date and the applicable final commit/manifes
 reference in the private cutover record. Do not fill those fields on the owner's
 behalf or treat approval of source validation as historical-data acceptance.
 
-No decision about these two limits resolves the [Riverlane compatibility blocker](ATS_SOURCE_VALIDATION_REPORT.md#riverlane-blocker-and-required-approval)
-or any other production gate.
+[Riverlane correction/revalidation](ATS_SOURCE_VALIDATION_REPORT.md#riverlane-correction-and-revalidation)
+now qualifies the ninth public source check. It does not record acceptance of
+these two limits or satisfy the other production gates.

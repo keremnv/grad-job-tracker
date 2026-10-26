@@ -54,11 +54,12 @@ Both known legacy limitations and all nine activation gates remain. The private
 machine-readable plan is outside Git; final C still needs a new plan/reconciliation.
 
 The separately approved [26 October public source validation](ATS_SOURCE_VALIDATION_REPORT.md)
-used only a local qualification database: **eight PASS, one FAIL**. All nine employer
-mappings are supported; Riverlane's HTTP-200 feed now supplies custom official-site
-URLs rejected by the current client. No source was activated/configured differently.
-That scoped correction/revalidation remains a gate. The
-[historical-evidence acknowledgement](LEGACY_EVIDENCE_ACCEPTANCE.md) is prepared
+used only local qualification databases: initially eight PASS and Riverlane FAIL.
+The approved source-specific URL correction and **one revalidation at 15:52 UTC**
+passed all 35 Riverlane records; **all nine bounded public checks now pass**. All
+employer mappings are supported. No source was activated/configured differently;
+the other eight feeds were not refetched. The tested fix is not deployed to AWS.
+The [historical-evidence acknowledgement](LEGACY_EVIDENCE_ACCEPTANCE.md) is prepared
 and explicitly **not accepted**; source-check approval supplies no acceptance.
 
 ## Hosted compatibility — baseline and completed maintenance
@@ -149,7 +150,8 @@ means a dependency or safety implementation is still missing. No row supplies GO
 | VERIFIED — owner decision | Retain 30+30 lifecycle | Live and source configuration retain 30-day current/noncurrent expiration; shortening is not authorised or a V1 gate. |
 | VERIFIED | Code-only V1 host maintenance, vector 0.8.7, migration 0004 and synthetic requalification | Artifact R installed/replayed; PG17.11 unchanged; format-1 pre-upgrade and format-2 synthetic S3/restore proofs passed. No optional roles, inference, authentication changes, timer activation or infrastructure changes. |
 | NEEDS OWNER DECISION | [Explicit legacy-evidence acceptance](LEGACY_EVIDENCE_ACCEPTANCE.md) against final manifest | H1 missing native responses and H2 never-indexed pre-schema-2 exclusions remain unaccepted. No technical fee; private dated owner decision, no invented evidence or employer edit times. Additional reconciliation failures are not covered by accepting these two limits. |
-| BLOCKED — eight of nine verified | [Nine-source endpoint/mapping gate](ATS_SOURCE_VALIDATION_REPORT.md) | Approved local live checks: eight PASS, Riverlane FAIL despite HTTP 200; all nine employer mappings supported. Separately approve narrow Riverlane custom-URL validation/tests and subsequent bounded recheck. No config/coverage change, publication or activation occurred. After import, genuine checks must be persisted against those source rows before separately authorised activation. |
+| VERIFIED — bounded public checks | [Nine-source endpoint/mapping gate](ATS_SOURCE_VALIDATION_REPORT.md) | Eight initial passes plus corrected Riverlane revalidation, 26 October 15:52 UTC: all 35 records accepted. Exact source-specific URLs/IDs/fragments preserved; all nine employer mappings supported. No coverage change, publication or activation. After import, genuine checks must be persisted against those actual source rows before separately authorised activation. |
+| READY FOR APPROVED EXECUTION | Hosted code-only release containing Riverlane fix `254e2a6` or its reviewed descendant | Fix tested locally, not installed on AWS. Separate maintenance approval: build/hash-verify release, deliberately pause active backup/health timers as required by installer, install/replay and recheck; restore those schedules, keep collection disabled. Existing infrastructure/roles/migrations unchanged; small artifact storage/requests only, no new compute or Terraform apply. |
 | READY FOR APPROVED EXECUTION | Final code integration, Git/owner writer freeze and C pin | Repository/workflow administration + owner freeze approval. Wait for in-flight work, preserve/push legitimate edits, verify full history/remote equality. Collection pauses; main/workflow changes require a later explicit instruction. |
 | BLOCKED | Import C once into empty intended target, reconcile all datasets, then real-data independent restore | Needs prior gates and explicit real-data/temporary migration-access approval. Restore a downloaded S3 version into a separate target; no external storage service required. Migrator writes, scoped auth and operator version reads; S3/possible recovery egress costs. Never reset a populated target or count synthetic proof as real-data proof. |
 | BLOCKED | Production owner SQL and separately scoped ChatGPT read access | Approve private owner/audit read exposure, server-side credential custody, narrow HBA and authenticated SSM forwarding; no collector/admin fallback. Separate runtime tunnel approval/terms; no restart of the synthetic tunnel or host inference. |

@@ -54,11 +54,14 @@ qualified. No external-copy job or automatic writer fencing is required. Record
 actual restore results, never a promised 12-hour maximum loss bound.
 
 [26 October real endpoint checks](ATS_SOURCE_VALIDATION_REPORT.md), authorised only
-against a local qualification database, returned **eight PASS and one FAIL**.
-All nine employer associations are supported. Riverlane's HTTP-200 response uses
-official-site URLs rejected by the current client; approve its narrow compatibility
-correction and bounded revalidation before closing the nine-source gate. No source
-was activated, removed or renamed. Intended coverage remains:
+against local qualification databases, initially returned eight PASS and Riverlane
+FAIL. The separately approved, source-specific URL correction and **one Riverlane
+revalidation at 15:52 UTC** passed all 35 records: **all nine bounded public checks
+now pass**, with employer associations supported. The other eight were not refetched.
+No source was activated, removed or renamed. The tested fix (`254e2a6`) is not yet
+installed on AWS; include it in the next separately approved code-only maintenance
+release, preserving the backup/health schedules and keeping collection disabled.
+No Terraform, role or schema change is needed. Intended coverage remains:
 
 - `ashby:hyperexponential`
 - `ashby:incident`
@@ -70,7 +73,7 @@ was activated, removed or renamed. Intended coverage remains:
 - `lever:palantir`
 - `lever:scottlogic`
 
-The initial live-check approval is now executed; it does not authorise repeated
+Both bounded live-check approvals are now executed; they do not authorise further
 requests or deployment. Preserve provider/board/region and dated receipts. These
 checks did not publish postings. Do not seed checks/sources in the intended import
 target first:
