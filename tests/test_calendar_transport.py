@@ -24,6 +24,21 @@ class CalendarTransportTests(unittest.TestCase):
     def setUp(self):
         self.publisher=load('calendar_publish');self.caps=load('calendar_capabilities')
 
+    def test_missing_uid_cache_requires_explicit_first_initialization(self):
+        with TemporaryDirectory() as tmp:
+            os.chmod(tmp,0o700);root=Path(tmp)/'snapshots'
+            config={'bucket':'synthetic-calendar-only','region':'eu-north-1'}
+            now=data(generated_at=datetime.now(timezone.utc).isoformat())
+            with self.assertRaises(calendar_feed.FeedError):self.publisher.regenerate(now,root,config)
+            def aws(args,**kw):return SimpleNamespace(returncode=0,stdout=json.dumps({
+                'VersionId':'synthetic-v1','ServerSideEncryption':'AES256',
+                'ChecksumSHA256':args[args.index('--checksum-sha256')+1]}))
+            self.publisher.regenerate(now,root,config,initialize=True,run_command=aws)
+            before=(root/'uploaded.json').read_bytes();(root/'current').unlink()
+            with self.assertRaises(calendar_feed.FeedError):self.publisher.regenerate(now,root,config,run_command=aws)
+            with self.assertRaises(calendar_feed.FeedError):self.publisher.regenerate(now,root,config,initialize=True,run_command=aws)
+            self.assertEqual((root/'uploaded.json').read_bytes(),before)
+
     def test_upload_whitelist_checksum_unchanged_and_failure_preservation(self):
         with TemporaryDirectory() as tmp:
             os.chmod(tmp,0o700);root=Path(tmp)/'snapshots';now=datetime.now(timezone.utc).isoformat()

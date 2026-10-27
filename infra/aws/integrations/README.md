@@ -120,7 +120,10 @@ changes SQL/authentication or starts/enables anything.
    readable only by the calendar identity's group. Existing `/etc/jobwatch/aws.json`
    must be readable for redacted operational logging; no credential copying.
    Set the intended SQL reader identity in the supplied unit. Run synthetic/native
-   qualification, then enable the approved calendar timer/path and real projection.
+   qualification. The first approved publication must explicitly pass `--initialize`
+   as the calendar identity; no scheduled unit passes it. Missing transport cache
+   after host loss must be recovered from private S3 metadata, never initialized
+   over an existing feed. Then enable the approved calendar timer/path and projection.
    Hourly at minute 10 UTC (up to 30 s jitter), plus committed-owner refresh hints;
    ordinary psql owner writes appear through the hourly fallback.
 10. Create/select exactly the two intended personal Platform tunnels/connections,

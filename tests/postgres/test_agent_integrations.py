@@ -104,10 +104,11 @@ class AgentIntegrationTests(DatabaseTest):
         self.commit(self.change('update_stage',job_key='manual:synthetic',stage='applied',date_applied='2026-10-27'))
         self.assertEqual(self.scalar('SELECT job_key FROM jobwatch.applications'),'manual:synthetic')
         self.assertEqual(self.scalar('SELECT stage FROM jobwatch.applications'),'applied')
-        with self.target.connect('jobwatch_owner') as c,c.transaction():
-            actor(c)
-            c.execute("INSERT INTO jobwatch.leads(lead_key,kind,company,title,url,wording,checked_at,checked_by) VALUES ('lead:synthetic','vacancy','Synthetic','Unlinked','https://example.org/manual','Observed wording',now(),'owner')")
-        linked=self.change('link_lead',lead_key='lead:synthetic',posting_key=self.key)
+        self.commit(self.change('record_lead',lead_key='vacancy:synthetic',kind='vacancy',
+            company='Synthetic',title='Unlinked',state='unverified',official=False,
+            source_note='Synthetic source',url='https://example.org/manual',wording='Observed wording',
+            checked_at=(datetime.now(timezone.utc)-timedelta(seconds=1)).isoformat()))
+        linked=self.change('link_lead',lead_key='vacancy:synthetic',posting_key=self.key)
         self.commit(linked)
         self.assertEqual(self.scalar('SELECT posting_key FROM jobwatch.leads'),self.key)
 

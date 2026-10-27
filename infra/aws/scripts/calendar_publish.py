@@ -7,6 +7,7 @@ metadata, not as an application ledger. Never upload reports, backups or notes.
 """
 import argparse
 import base64
+from dataclasses import replace
 from hashlib import sha256
 import json
 import os
@@ -16,7 +17,7 @@ import subprocess
 import tempfile
 
 from jobwatch.postgres import reports,calendar_feed
-from jobwatch.postgres.connection import connect
+from jobwatch.postgres.connection import connect,DatabaseConfig
 from run_operation import publish as operational_log
 
 
@@ -105,21 +106,32 @@ def restore_transport_state(root, completion, contents):
     return {'restored':True,'database_writes':False}
 
 
+def regenerate(data,root,config,*,initialize=False,run_command=subprocess.run):
+    # Initialization is an explicit first-publication operation. Missing UID/cache
+    # state on a replacement host must fail, never silently reset subscriptions.
+    if not initialize and not (root/'current').is_symlink():
+        raise calendar_feed.FeedError('Missing calendar transport state; recover it before publication')
+    calendar_feed.publish(data,root,initialize=initialize)
+    return publish_snapshot(root,config,run_command=run_command)
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--config',type=Path,default=Path('/etc/jobwatch/calendar.json'))
+    p.add_argument('--initialize',action='store_true',help='Explicit first publication only; never use for recovery')
     a=p.parse_args();os.umask(0o077)
     status={'operation':'calendar','exit_code':2,'healthy':0}
     try:
         config=json.loads(a.config.read_text());root=Path(config['output'])
         calendar_feed.private_directory(root.parent)
         with calendar_feed.publication_lock(root.parent):
-            with connect() as conn:
+            settings=replace(DatabaseConfig.from_env(),statement_timeout_ms=15000,
+                lock_timeout_ms=1000,idle_transaction_timeout_ms=15000)
+            with connect(settings) as conn:
                 r=conn.execute('SELECT current_user AS name').fetchone()
                 if r['name']!='jobwatch_calendar_reader':raise ValueError('Wrong calendar read identity')
                 data=reports.calendar_data(conn,shared=True,deadline_selection_sql=Path(config['deadline_policy']).read_text())
-            calendar_feed.publish(data,root,initialize=not (root/'current').exists())
-            status=publish_snapshot(root,config)
+            status=regenerate(data,root,config,initialize=a.initialize)
     except Exception:
         # No raw SQL, values, object keys, URLs or credential-bearing diagnostics.
         pass
