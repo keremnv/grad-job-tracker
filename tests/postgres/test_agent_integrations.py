@@ -149,6 +149,16 @@ class AgentIntegrationTests(DatabaseTest):
             wording="Apply by 2026-11-15; '); DELETE FROM jobwatch.postings; --",deadline_date='2026-11-15',
             deadline_wording='Apply by 15 November 2026',checked_at=(now-timedelta(seconds=1)).isoformat())
         p=self.change('record_lead',**values);self.commit(p)
+        with self.target.connect('jobwatch_owner') as c,c.transaction():
+            actor(c)
+            legacy=json.dumps({'deadline':{'url':'https://example.org/official-deadline'},'note':'PRIVATE_LEGACY_NOTE'})
+            c.execute("UPDATE jobwatch.leads SET details=jsonb_build_object('legacy_json',%s::text) WHERE lead_key=%s",(legacy,values['lead_key']))
+        result=self.read.call('sql_query',{'sql':'SELECT details FROM jobwatch.agent_leads','limit':5})
+        self.assertNotIn('PRIVATE_LEGACY_NOTE',json.dumps(result))
+        with self.target.connect('jobwatch_calendar_reader') as c:
+            projected=reports.calendar_data(c,shared=True)
+        lead=next(d for d in projected['deadlines'] if d.get('lead_key')==values['lead_key'])
+        self.assertEqual(lead['url'],'https://example.org/official-deadline')
         self.assertTrue(self.commit(p)['replayed'])
         self.assertEqual(self.scalar('SELECT cycle_year FROM jobwatch.leads'),2027)
         self.assertEqual(str(self.scalar('SELECT deadline_date FROM jobwatch.leads')),'2026-11-15')

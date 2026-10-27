@@ -33,6 +33,7 @@ SELECT lead_key,kind,company,title,programme_key,cycle_year,cycle_wording,state,
   posting_key,checked_at,checked_by,
   jsonb_strip_nulls(jsonb_build_object(
     'window',coalesce(details->>'window',(details->>'legacy_json')::jsonb->>'window'),
+    'deadline_source_url',coalesce(details#>>'{deadline,url}',((details->>'legacy_json')::jsonb)#>>'{deadline,url}'),
     'uncertainty',coalesce(details->>'uncertainty',(details->>'legacy_json')::jsonb->>'uncertainty')))
     AS details
 FROM jobwatch.leads;
