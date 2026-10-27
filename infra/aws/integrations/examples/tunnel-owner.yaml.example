@@ -1,0 +1,21 @@
+# Private operator replaces the tunnel ID only; keys remain environment references.
+config_version: 1
+control_plane:
+  base_url: https://api.openai.com
+  tunnel_id: REPLACE_WITH_PERSONAL_OWNER_TUNNEL_ID
+  api_key: env:CONTROL_PLANE_API_KEY
+  max_inflight_requests: 2
+log:
+  level: warn
+  format: json
+health:
+  unix_socket: /run/jobwatch-tunnel-owner/health.sock
+admin_ui:
+  open_browser: false
+mcp:
+  server_urls:
+    - channel: main
+      url: http://127.0.0.1:8766/mcp # HTTP Host only; transport is the Unix socket below
+      unix_socket: /run/jobwatch-agent-owner/mcp.sock
+  max_concurrent_requests: 2
+  startup_wait_timeout: 30s

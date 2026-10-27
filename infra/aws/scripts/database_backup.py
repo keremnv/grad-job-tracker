@@ -43,7 +43,7 @@ def security_snapshot(conn):
             WHERE setdatabase=(SELECT oid FROM pg_database WHERE datname=current_database())
                OR (setdatabase=0 AND pg_get_userbyid(setrole) LIKE 'jobwatch_%') ORDER BY 1,2""").fetchall(),
         'roles': conn.execute("""SELECT rolname,rolsuper,rolinherit,rolcreaterole,rolcreatedb,rolcanlogin,rolreplication,rolbypassrls,rolconnlimit
-            FROM pg_roles WHERE rolname IN ('jobwatch_owner','jobwatch_collector','jobwatch_migrator','jobwatch_embedding_writer','jobwatch_chat_readonly') ORDER BY rolname""").fetchall(),
+            FROM pg_roles WHERE rolname IN ('jobwatch_owner','jobwatch_collector','jobwatch_migrator','jobwatch_embedding_writer','jobwatch_chat_readonly','jobwatch_agent_readonly','jobwatch_agent_owner','jobwatch_calendar_reader') ORDER BY rolname""").fetchall(),
         'memberships': conn.execute("""SELECT pg_get_userbyid(roleid) AS role,pg_get_userbyid(member) AS member,admin_option
             FROM pg_auth_members WHERE pg_get_userbyid(roleid) LIKE 'jobwatch_%' OR pg_get_userbyid(member) LIKE 'jobwatch_%'
             ORDER BY 1,2""").fetchall(),
@@ -69,6 +69,57 @@ def extension_requirements(conn):
     if len(rows) != 1 or rows[0]['extversion'] != '0.8.7' or rows[0]['schema'] != 'public':
         raise BackupError('Expected separately provisioned public.vector 0.8.7')
     return rows
+
+
+def prepare_recovery_roles(conn, manifest):
+    """Explicit admin prerequisite on a fresh target, never called by restore().
+
+    Passwords are never archived/created. Refuse elevated/unknown roles, memberships,
+    settings outside the bounded application defaults, or existing role drift.
+    Older format-2 manifests retain their documented manual prerequisites.
+    """
+    from psycopg import sql
+    req = manifest.get('security_requirements')
+    if not req:
+        raise BackupError('Older archive: use its pinned documented role prerequisites')
+    fresh_restore_target(conn, manifest['extensions'])
+    names = {'jobwatch_owner','jobwatch_collector','jobwatch_migrator',
+             'jobwatch_embedding_writer','jobwatch_chat_readonly','jobwatch_agent_readonly',
+             'jobwatch_agent_owner','jobwatch_calendar_reader'}
+    allowed_settings = {'search_path','default_transaction_read_only','statement_timeout',
+        'lock_timeout','idle_in_transaction_session_timeout','transaction_timeout','work_mem'}
+    if req['memberships']:
+        raise BackupError('Unexpected recovery role memberships')
+    with conn.transaction():
+        for role in req['roles']:
+            name=role['rolname']
+            if name not in names or any(role[k] for k in ('rolsuper','rolcreaterole','rolcreatedb','rolreplication','rolbypassrls')):
+                raise BackupError('Unexpected recovery role authority')
+            old=conn.execute("SELECT rolname,rolsuper,rolinherit,rolcreaterole,rolcreatedb,rolcanlogin,rolreplication,rolbypassrls,rolconnlimit FROM pg_roles WHERE rolname=%s",(name,)).fetchone()
+            if old is not None and dict(old)!=role:
+                raise BackupError('Existing recovery role differs; never reset it')
+            if old is None:
+                conn.execute(sql.SQL('CREATE ROLE {} {} {} NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS CONNECTION LIMIT {}').format(
+                    sql.Identifier(name),sql.SQL('LOGIN' if role['rolcanlogin'] else 'NOLOGIN'),
+                    sql.SQL('INHERIT' if role['rolinherit'] else 'NOINHERIT'),sql.Literal(role['rolconnlimit'])))
+            acl=next((a.split('=',1)[1].split('/',1)[0] for a in req['database']['acl'] if a.startswith(name+'=')),None)
+            if acl is not None:
+                if acl=='c':privileges='CONNECT'
+                elif name=='jobwatch_migrator' and set(acl)=={'C','c'}:privileges='CONNECT,CREATE'
+                else:raise BackupError('Unexpected runtime database grant')
+                conn.execute(sql.SQL('GRANT '+privileges+' ON DATABASE {} TO {}').format(sql.Identifier(conn.info.dbname),sql.Identifier(name)))
+        for row in req['role_settings']:
+            if row['role'] not in names or row['scope'] not in ('cluster','database'):
+                raise BackupError('Unexpected recovery settings target')
+            for item in row['setconfig']:
+                key,sep,value=item.partition('=')
+                if not sep or key not in allowed_settings or len(value)>100:
+                    raise BackupError('Unexpected recovery setting')
+                if key=='search_path' and value.replace(' ','')!='jobwatch,pg_catalog':
+                    raise BackupError('Unexpected recovery search path')
+                scope=sql.SQL('') if row['scope']=='cluster' else sql.SQL(' IN DATABASE {}').format(sql.Identifier(conn.info.dbname))
+                setting=sql.SQL('jobwatch,pg_catalog') if key=='search_path' else sql.Literal(value)
+                conn.execute(sql.SQL('ALTER ROLE {}{} SET {} TO {}').format(sql.Identifier(row['role']),scope,sql.Identifier(key),setting))
 
 
 def fresh_restore_target(conn, requirements):
@@ -132,7 +183,8 @@ def backup(conn, archive, *, execute=utility):
                 'archive_sha256': sha256(data).hexdigest(), 'archive_bytes': len(data),
                 'postgres_version': conn.info.server_version, 'fingerprint': before,
                 'sequences': sequence_state, 'extensions': extension_requirements(conn),
-                'dump_version': execute(['pg_dump', '--version']).decode().strip()}
+                'dump_version': execute(['pg_dump', '--version']).decode().strip(),
+                'security_requirements': security_snapshot(conn)}
     archive.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     fd = os.open(archive, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
     with os.fdopen(fd, 'wb') as stream:

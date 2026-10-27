@@ -1,0 +1,33 @@
+[Unit]
+Description=Private confirmed owner actions MCP using the SQL cookbook
+Requires=jobwatch-postgresql.service
+After=jobwatch-postgresql.service
+[Service]
+User=jobwatch-agent-owner
+Group=jobwatch-agent-owner
+SupplementaryGroups=jobwatch-db
+RuntimeDirectory=jobwatch-agent-owner
+RuntimeDirectoryMode=0750
+Environment="JOBWATCH_AGENT_OWNER_DATABASE_URL=host=/run/jobwatch-postgresql dbname=jobwatch user=jobwatch_agent_owner"
+Environment=PYTHONDONTWRITEBYTECODE=1
+UnsetEnvironment=JOBWATCH_DATABASE_URL JOBWATCH_MIGRATION_DATABASE_URL JOBWATCH_EMBEDDING_DATABASE_URL JOBWATCH_CHAT_DATABASE_URL CONTROL_PLANE_API_KEY OPENAI_API_KEY OPENAI_ADMIN_KEY AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_PROFILE
+ExecStart=/opt/jobwatch-agent-runtime/bin/jobwatch-owner-mcp --transport streamable-http --unix-socket /run/jobwatch-agent-owner/mcp.sock --refresh-hint /var/lib/jobwatch-agent-owner/calendar.refresh
+Restart=on-failure
+RestartSec=15s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectProc=invisible
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+IPAddressDeny=any
+IPAddressAllow=localhost
+StateDirectory=jobwatch-agent-owner
+StateDirectoryMode=0700
+MemoryMax=192M
+CPUQuota=25%
+UMask=0077
+[Install]
+WantedBy=multi-user.target

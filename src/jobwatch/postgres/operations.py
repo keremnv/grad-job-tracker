@@ -43,6 +43,7 @@ def main(argv=None):
     snapshot.add_argument('--output-dir',type=Path,required=True);snapshot.add_argument('--initialize',action='store_true')
     snapshot.add_argument('--feeds',nargs='+',choices=('deadlines','actions'),default=['deadlines','actions'])
     snapshot.add_argument('--past-days',type=int,default=30);snapshot.add_argument('--future-days',type=int,default=366)
+    snapshot.add_argument('--deadline-policy',type=Path,help='Read-only SQL selecting retained posting_key/lead_key as evidence_key')
     snapshot.add_argument('--max-bytes',type=int,default=calendar_feed.MAX_BYTES)
     status=cs.add_parser('status');status.add_argument('--output-dir',type=Path,required=True)
     status.add_argument('--max-age-hours',type=int,default=2)
@@ -66,7 +67,7 @@ def main(argv=None):
                 result=calendar_feed.summary(manifest,max_age_hours=args.max_age_hours)
                 code=0 if result['fresh'] else 1
             else:
-                with connect() as conn:data=reports.calendar_data(conn)
+                with connect() as conn:data=reports.calendar_data(conn,deadline_selection_sql=args.deadline_policy.read_text() if args.deadline_policy else None)
                 result=calendar_feed.publish(data,args.output_dir,initialize=args.initialize,feeds=args.feeds,
                     past_days=args.past_days,future_days=args.future_days,max_bytes=args.max_bytes)
                 code=1 if result['warnings'] else 0

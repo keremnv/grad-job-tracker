@@ -111,7 +111,10 @@ class ReleasePreparationTests(unittest.TestCase):
             files = ['src/jobwatch/postgres/migrations/0004_embeddings.sql', 'pyproject.toml',
                      'infra/aws/scripts/deploy_release.py', 'infra/aws/systemd/jobwatch-backup.timer',
                      'sql/postgresql/bootstrap.sql', 'sql/postgresql/vector_extension.sql',
-                     'sql/postgresql/embedding_access.sql', 'sql/postgresql/chat_readonly.sql']
+                     'sql/postgresql/embedding_access.sql', 'sql/postgresql/chat_readonly.sql',
+                     'sql/postgresql/owner_workflows.sql','sql/postgresql/agent_roles.sql',
+                     'sql/postgresql/agent_access.sql','sql/postgresql/calendar_deadlines.sql',
+                     'infra/aws/integrations/systemd/jobwatch-agent-read.service']
             for name in [*files, 'data/applications.csv', 'config/employers.json', '.env', 'reports/latest.md']:
                 p = repo/name;p.parent.mkdir(parents=True, exist_ok=True);p.write_text('synthetic canary\n')
             git('add', '.')

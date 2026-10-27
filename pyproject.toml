@@ -21,6 +21,7 @@ jobwatch-pg = "jobwatch.postgres.scan:main"
 jobwatch-pg-import = "jobwatch.postgres.import_cli:main"
 jobwatch-pg-ops = "jobwatch.postgres.operations:main"
 jobwatch-read-tools = "jobwatch.postgres.read_tools:main"
+jobwatch-owner-mcp = "jobwatch.postgres.owner_mcp:main"
 jobwatch-read-mcp = "jobwatch.postgres.read_mcp:main"
 jobwatch-read-probe = "jobwatch.postgres.connection_probe:main"
 jobwatch-embeddings = "jobwatch.postgres.embeddings:main"
@@ -33,3 +34,6 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.setuptools.data-files]
+"share/grad-job-watch" = ["sql/postgresql/owner_workflows.sql"]

@@ -188,6 +188,10 @@ not automatically a current deadline. Undated actions are still visible in the
 weekly report/all application rows; no date means no timed reminder.
 
 For a private manual calendar snapshot, use the [existing calendar guide](PROTON_CALENDAR.md).
+The optional [agent owner tools](AGENT_OWNER_TOOLS.md) and automatically refreshed
+Proton feeds are locally implemented; real-data connections/publication await the
+[separate sharing approval](AGENT_CALENDAR_APPROVAL.md). Ordinary owner SQL works
+without either integration.
 It retains stable identities and omits notes/CV/free-form action text. HTTPS feeds
 and a live Proton subscription are **not active**. Use your own reminder for urgent
 actions; future Proton polling is not guaranteed timely alerting.

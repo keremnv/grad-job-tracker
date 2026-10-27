@@ -13,13 +13,13 @@ def disabled_query_inference(_):
     raise ReadError('query_inference_disabled')
 
 
-def server(core=None, *, port=8765, query_inference='disabled'):
+def server(core=None, *, port=8765, query_inference='disabled', shared=False):
     from mcp.server.fastmcp import FastMCP
     from mcp.types import CallToolResult, TextContent, ToolAnnotations
 
     if query_inference not in ('disabled', 'local'):
         raise ValueError('Invalid query inference mode')
-    core = core or ReadTools()
+    core = core or ReadTools(shared=shared)
     if query_inference == 'disabled':
         core.query_encoder = disabled_query_inference
     mcp = FastMCP('Graduate Job Watch read tools', host='127.0.0.1', port=port,
@@ -74,6 +74,8 @@ def server(core=None, *, port=8765, query_inference='disabled'):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--unix-socket', help='Permissioned private Unix socket instead of TCP')
+    parser.add_argument('--shared', action='store_true', help='Narrow production read identity; excludes notes/CV/audit images')
     parser.add_argument('--transport', choices=('stdio', 'streamable-http'), default='stdio')
     parser.add_argument('--port', type=int, default=8765)
     parser.add_argument('--query-inference', choices=('disabled', 'local'), default='disabled',
@@ -81,7 +83,12 @@ def main():
     args = parser.parse_args()
     if not 1 <= args.port <= 65535:
         parser.error('Port must be 1..65535')
-    server(port=args.port, query_inference=args.query_inference).run(transport=args.transport)
+    mcp=server(port=args.port, query_inference=args.query_inference, shared=args.shared)
+    if args.unix_socket:
+        if args.transport!='streamable-http':parser.error('Unix socket requires streamable-http')
+        from .unix_mcp import run
+        run(mcp,args.unix_socket)
+    else:mcp.run(transport=args.transport)
 
 
 if __name__ == '__main__':

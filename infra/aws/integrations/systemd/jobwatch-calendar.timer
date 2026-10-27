@@ -1,0 +1,9 @@
+[Unit]
+Description=Hourly calendar fallback independent of agent sessions
+[Timer]
+OnCalendar=*-*-* *:10:00 UTC
+Persistent=true
+RandomizedDelaySec=30s
+Unit=jobwatch-calendar.service
+[Install]
+WantedBy=timers.target

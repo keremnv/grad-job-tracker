@@ -56,7 +56,11 @@ def wire(value):
 
 
 class ReadTools:
-    def __init__(self, config=None, *, max_bytes=MAX_BYTES, timeout_ms=5000, query_encoder=None):
+    def __init__(self, config=None, *, max_bytes=MAX_BYTES, timeout_ms=5000, query_encoder=None, shared=False):
+        if type(shared) is not bool:
+            raise ValueError("Invalid read scope")
+        self.shared = shared
+        self.expected_role = "jobwatch_agent_readonly" if shared else ROLE
         self.config = config  # None resolves only JOBWATCH_CHAT_DATABASE_URL at call time.
         self.max_bytes = integer(max_bytes, 2048, MAX_BYTES)
         self.timeout_ms = integer(timeout_ms, 50, 5000)
@@ -93,7 +97,7 @@ class ReadTools:
                             rolsuper,rolcreaterole,rolcreatedb,rolreplication,rolbypassrls,rolconnlimit,
                             (SELECT count(*) FROM pg_auth_members WHERE member=r.oid) AS memberships
                             FROM pg_roles r WHERE rolname=current_user''').fetchone()
-                        if (role['current'] != ROLE or role['login'] != ROLE or role['memberships']
+                        if (role['current'] != self.expected_role or role['login'] != self.expected_role or role['memberships']
                                 or any(role[k] for k in ('rolsuper','rolcreaterole','rolcreatedb','rolreplication','rolbypassrls'))
                                 or not 1 <= role['rolconnlimit'] <= 3):
                             raise ReadError('wrong_database_identity')
@@ -179,7 +183,8 @@ class ReadTools:
             for r in relations:
                 oid = r.pop('oid')
                 r['columns'] = conn.execute('''SELECT attname AS name,format_type(atttypid,atttypmod) AS type,
-                    attnotnull AS not_null,attgenerated AS generated,attidentity AS identity
+                    attnotnull AS not_null,attgenerated AS generated,attidentity AS identity,
+                    has_column_privilege(current_user,attrelid,attname,'SELECT') AS readable
                     FROM pg_attribute WHERE attrelid=%s AND attnum>0 AND NOT attisdropped ORDER BY attnum''', (oid,)).fetchall()
                 r['indexes'] = conn.execute('''SELECT pg_get_indexdef(indexrelid) AS definition
                     FROM pg_index WHERE indrelid=%s ORDER BY indexrelid''', (oid,)).fetchall()
@@ -239,7 +244,7 @@ class ReadTools:
         with self.session() as conn:
             self.working_set(conn)
             data = reports.snapshot(conn, days=7 if kind == 'weekly' else 1, since=since, limit=limit,
-                                    requirements=kind in ('weekly', 'requirements'))
+                                    requirements=kind in ('weekly', 'requirements'), shared=self.shared)
             if kind == 'calendar':
                 blob, warnings = reports.calendar_export(data)
                 return {'kind': kind, 'media_type': 'text/calendar', 'text': blob.decode(), 'warnings': warnings}

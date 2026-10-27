@@ -1,0 +1,18 @@
+{
+  "version": "0.0.18",
+  "source_commit": "274a5588414819f063d27100a4fb1096aae3830f",
+  "flavor": "runtime",
+  "cloudflared": false,
+  "linux": {
+    "amd64": {
+      "archive_sha256": "458acc9d45ab532e6818f39bcfeea32374a511f39277c9df2a1847eaabd7f7cb",
+      "executable_sha256": "249b7d51ec95eb140de8cbb988bac3538594b828cb9e8118fa158adda7aaad87",
+      "url": "https://github.com/openai/tunnel-client/releases/download/v0.0.18/tunnel-client-runtime-v0.0.18-linux-amd64.zip"
+    },
+    "arm64": {
+      "archive_sha256": "2df84c0c01e8061ab65c3d0578839848b52d5e4be577699d174e10725b81166b",
+      "executable_sha256": "324ecff2e2f0dc5ff3d3bf13cec086510c12f4972a78d93d8cb40f2f484a2266",
+      "url": "https://github.com/openai/tunnel-client/releases/download/v0.0.18/tunnel-client-runtime-v0.0.18-linux-arm64.zip"
+    }
+  }
+}

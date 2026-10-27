@@ -107,6 +107,9 @@ def recover(archive, manifest_path, output):
         for prerequisite in ('vector_extension.sql','embedding_access.sql'):
             run(['docker','exec','-i',name,'psql','-X','-U','postgres','-d',DATABASE,
                  '-v','ON_ERROR_STOP=1','-f','-'],input=(ROOT/'sql/postgresql'/prerequisite).read_bytes())
+        if manifest.get('security_requirements'):
+            with connect(config('postgres')) as admin:
+                backup.prepare_recovery_roles(admin, manifest)
         provisioned = time.monotonic()
 
         def utility(args, *, input=None):

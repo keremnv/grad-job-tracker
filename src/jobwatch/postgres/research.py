@@ -209,7 +209,7 @@ def search(conn, query, *, method='bm25', history=False, include_not_seen=False,
     return result
 
 
-def deadlines(conn,now):
+def deadlines(conn,now,*,shared=False):
     """Separate independently checked, official research and feed-only claims; never infer dates."""
     timestamp(now)
     records=[]
@@ -234,7 +234,7 @@ def deadlines(conn,now):
                 'wording':d.get('wording'),'value':d.get('value'),'checked_at':d.get('observed_at'),'checked_by':None,
                 'provenance':'feed_observation','status':r['status'],'action_state':r['action_state'],
                 'structured':d.get('source_field')=='application_deadline','ambiguous':r['ambiguous_posting_url']})
-    for r in conn.execute("SELECT * FROM jobwatch.leads WHERE deadline_wording IS NOT NULL ORDER BY lead_key"):
+    for r in conn.execute("SELECT * FROM jobwatch."+("agent_leads" if shared else "leads")+" WHERE deadline_wording IS NOT NULL ORDER BY lead_key"):
         original=json.loads(r['details'].get('legacy_json','{}'))
         d=original.get('deadline') or {}
         candidates=aliases.get(url(r['url']),[]) if r['kind']=='vacancy' else []
