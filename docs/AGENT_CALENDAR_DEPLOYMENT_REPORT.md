@@ -1,6 +1,6 @@
 # Agent/calendar live preflight — 27 October 2026
 
-**BLOCKED before AWS/host/database mutation.** Owner GO for `54f1d99` and its
+**SNS blocker resolved; host deployment not yet started.** Owner GO for `54f1d99` and its
 real-data sharing matrix is recorded. A single newly identified existing SNS-policy
 amendment is outside the approved 14-addition plan and needs approval. No second
 sharing/architecture decision is requested.
@@ -56,12 +56,30 @@ The correction does not add a billable resource. The original marginal usage
 estimate is unchanged; actual notification/CloudFront usage and OpenAI terms still
 need their documented checks. No new cost was accepted in this preflight.
 
+## SNS amendment applied — 27 October 2026, 10:26 UTC
+
+The owner approved the calendar-only statement. Immediately before the change the
+live policy was re-read and matched the preflight snapshot exactly. One
+`SetTopicAttributes` call wrote the privately rendered policy (SHA-256
+`792cb570…`); read-back shows `AllowReviewedCloudWatchAlarms` unchanged plus
+`AllowReviewedCalendarAlarm`, and the confirmed email subscription intact.
+
+Reconciliation used a read-only, unlocked (`-lock=false`) refresh-only root plan
+with the exact private inputs of the backup activation. It contained **no
+infrastructure actions**. Compared with the previously classified refresh, the only
+new drift is the approved policy, on `aws_sns_topic_policy.backup_alerts` and the
+identical `policy` projection of `aws_sns_topic.backup_alerts`; the nine previously
+classified entries are unchanged. As in the backup activation, the refresh-only
+plan was **not applied**: `backup_alerts.tf` now declares the live policy, and every
+plan refreshes first, so no state write is needed. The known EC2 user-data
+replacement remains blocked and unapplied.
+
 ## Execution and handover status
 
 | Integration | Status |
 | --- | --- |
 | Existing production collector/backups | **LIVE**, unchanged |
-| Proton publication | **BLOCKED** on the SNS amendment and native/deployment qualification; no subscription URL generated or data published |
+| Proton publication | **PENDING** host deployment (steps 1–9) and native qualification; SNS amendment applied; no subscription URL generated or data published |
 | ChatGPT Research | Code/artifact **READY**; account billing/permissions, native qualification, two tunnel IDs and runtime keys still pending |
 | ChatGPT Owner Actions | **BLOCKED** from production activation until actual synthetic ChatGPT individual-confirmation/rejection succeeds; no real owner write authorized or attempted |
 
