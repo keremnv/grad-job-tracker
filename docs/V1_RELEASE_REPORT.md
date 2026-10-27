@@ -1,5 +1,7 @@
 # Graduate Job Watch V1.0.0
 
+> **Historical snapshot:** This report captures the 27 October V1 database release *before* the separately deployed ChatGPT and calendar integrations. For their subsequent operational status and authority boundaries, see [the 27 October integration release](INTEGRATION_RELEASE.md). Do not read the original integration-pending statements below as current status.
+
 **Released 27 October 2026.** PostgreSQL on the existing AWS host is authoritative;
 the Git collector is retired. [Start here](USER_GUIDE.md) for daily use, or use
 [the handover](AWS_PRODUCTION_HANDOVER.md) for access, schedules and recovery.
