@@ -1,6 +1,6 @@
 # Agent/calendar live preflight — 27 October 2026
 
-**AWS/host deployment complete; Proton feeds LIVE; ChatGPT pending owner account steps.** Owner GO for `54f1d99` and its
+**Deployed: Proton feeds, ChatGPT Research and Owner Actions LIVE.** Owner GO for `54f1d99` and its
 real-data sharing matrix is recorded. A single newly identified existing SNS-policy
 amendment is outside the approved 14-addition plan and needs approval. No second
 sharing/architecture decision is requested.
@@ -100,7 +100,14 @@ file would be unreadable. No tunnel, runtime key or production owner write exist
 | --- | --- |
 | Existing production collector/backups | **LIVE**, unchanged schedules |
 | Proton publication | **LIVE** on AWS (hourly); owner subscription in Proton pending |
-| ChatGPT Research | **READY**; needs owner Platform billing/permission check, read tunnel ID and runtime key |
-| ChatGPT Owner Actions | **BLOCKED** until the synthetic ChatGPT confirm/deny test passes through the owner tunnel (local disposable fixture prepared) |
+| ChatGPT Research | **LIVE**: host tunnel connected; five read tools listed and each passed a harmless native probe |
+| ChatGPT Owner Actions | **LIVE**: synthetic gate passed through the owner tunnel (ChatGPT approval box → one audited write; Cancel → none), then switched to the host. Two tools listed; only an invalid-recipe prepare probe was run; no production write |
+
+Tunnel profiles moved to `/etc/jobwatch-tunnel` (`3a7ee0c`): `/etc/jobwatch` is
+`jobwatch-db`-only. A mis-entered laptop credential briefly put the synthetic owner
+server on the Research tunnel, causing mixed tool discovery; it was stopped and
+shredded, and no production write was possible. Both original host keys were later
+invalidated in Platform and replaced by the owner. The two tunnels currently share
+one runtime key, so revoking it disconnects both.
 
 Private identifiers, receipts, capability URLs and connection commands remain outside Git.
