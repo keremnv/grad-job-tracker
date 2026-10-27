@@ -1,6 +1,6 @@
 # Graduate Job Watch
 
-Graduate Job Watch is a **small, self-hosted research and application-tracking system with a private ChatGPT interface**. It collects graduate vacancies from Greenhouse, Lever and Ashby into PostgreSQL, preserves the source evidence and change history, and supports research, decisions and follow-ups without treating an automated screening result as fact.
+Graduate Job Watch is a **small, self-hosted research and application-tracking system with a private ChatGPT interface**. It collects job postings from monitored Greenhouse, Lever and Ashby feeds into PostgreSQL to support graduate-role research, preserving source evidence and change history without treating an automated screening result as fact.
 
 **Built with:** Python, PostgreSQL 17, SQL, two MCP services, AWS EC2, Terraform and systemd. ChatGPT provides an optional conversational interface; direct SQL and command-line workflows work independently. There is **no public web app**, and the system does not submit job applications.
 
@@ -15,7 +15,7 @@ Graduate Job Watch is a **small, self-hosted research and application-tracking s
 3. **Record a decision:** request an application bookmark or triage update. The separate Owner Actions MCP service prepares a specific change for review; ChatGPT requests user confirmation before commit. Database restrictions, expected-state checks and audit protect the write independently of model instructions.
 4. **Follow up:** view recorded application actions and dated deadlines in private calendar feeds.
 
-The [worked synthetic example](#a-synthetic-research-to-follow-up-workflow) below shows the interfaces and data flow, **not yet a one-command seeded live demo**. The actual components are exercised by [read-tool tests](tests/postgres/test_read_tools.py) and [owner/calendar tests](tests/postgres/test_owner_calendar.py). No screenshots or AI outputs here are fabricated.
+The [worked synthetic example](#a-synthetic-research-to-follow-up-workflow) below shows the interfaces and data flow, **not yet a one-command seeded live demo**. The actual components are exercised by [read-tool tests](tests/postgres/test_read_tools.py), [agent integration tests](tests/postgres/test_agent_integrations.py) and [owner/calendar tests](tests/postgres/test_owner_calendar.py). No screenshots or AI outputs here are fabricated.
 
 ## Architecture at a glance
 
@@ -162,7 +162,7 @@ Subscription refresh is asynchronous, not guaranteed deadline alerting.
 | **Agent/calendar integration qualification, 27 October:** 264 offline and 158 PostgreSQL tests on the documented environment | Later integration feature and disposable database qualification, including restricted write flows. [Qualification report](docs/AGENT_CALENDAR_INTEGRATION_REPORT.md). |
 | **Actual scheduled AWS operation, 27 October** | First unattended collection published nine feeds with 620 positive observations; the midnight backup was verified in S3. This demonstrates initial operation, not sustained uptime or scale. |
 | **Independent-target restoration** | Actual S3 archives were restored into fresh, isolated PostgreSQL targets and reconciled for data, permissions and sequences. It is not a third-party audit or a fixed recovery-time guarantee. |
-| **Private ChatGPT/Proton integration closeout, 27 October** | Research tools and confirmed owner-action path were checked; owner reported calendar subscription and alert delivery. The live personal integrations are not a public demo. [Integration report](docs/INTEGRATION_RELEASE.md). |
+| **Private ChatGPT/Proton integration closeout, 27 October** | Research tools passed native production probes. ChatGPT approval/cancel behaviour was tested against a disposable synthetic database; the production Owner Actions service received only an invalid-recipe prepare probe, and no production owner write was performed at closeout. The owner confirmed calendar subscription and alert delivery. The live personal integrations are not a public demo. [Integration report](docs/INTEGRATION_RELEASE.md). |
 
 GitHub Actions currently runs the **base offline suite on Python 3.12** plus data validation; it does **not** reproduce the full PostgreSQL, model-enabled or multi-interpreter qualification. Some regression fixtures are reduced captured **public** ATS responses, supplemented with synthetic inputs; no applicant records should be used for demonstration. [Fixture provenance](tests/fixtures/README.md).
 
