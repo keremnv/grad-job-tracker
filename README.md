@@ -19,7 +19,7 @@ The [worked synthetic example](#a-synthetic-research-to-follow-up-workflow) belo
 
 ## Architecture at a glance
 
-\`\`\`mermaid
+```mermaid
 flowchart LR
     ATS["Greenhouse · Lever · Ashby<br/>Public ATS feeds"] --> COL["Python collector<br/>validate · normalise · publish"]
     COL --> PG[("PostgreSQL 17<br/>evidence · versions · owner state")]
@@ -29,13 +29,13 @@ flowchart LR
     OWNER <-->|"Private tunnel; client approval"| CHAT
     PG --> ICS["Private minimal ICS publisher"] --> CAL["Proton Calendar"]
     PG --> BK["Versioned S3 backups<br/>monitored and restore-tested"]
-\`\`\`
+```
 
 The two MCP servers use **different PostgreSQL roles and authority**: Research permits bounded reads; Owner Actions executes only reviewed application/triage/lead/follow-up recipes, not arbitrary SQL. Approval occurs in the ChatGPT client, while the server enforces the prepared values and current-state checks; a prepared token alone is not evidence of human approval. Access is private, not a public API. [Detailed agent authority](docs/AGENT_OWNER_TOOLS.md).
 
 Collection, PostgreSQL, private integration services and scheduled operations run on AWS. Terraform protects infrastructure state and persistent storage; systemd schedules collection, backups, health checks and calendar publication. Model inference for optional vector retrieval is **not running on the production host**. [Infrastructure documentation](infra/aws/README.md).
 
-**Scope:** nine monitored ATS feeds, not the entire graduate job market. A listing marked \`not_seen\` is not necessarily closed; appearing in a feed is not a verified open application form. Decisions about personal suitability are not inferred from collection.
+**Scope:** nine monitored ATS feeds, not the entire graduate job market. A listing marked `not_seen` is not necessarily closed; appearing in a feed is not a verified open application form. Decisions about personal suitability are not inferred from collection.
 
 ## Engineering decisions
 
