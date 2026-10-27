@@ -32,11 +32,15 @@ def inside(mask):
     with tarfile.open(archive,'w:gz') as stream:
         for name,body in files.items():
             info=tarfile.TarInfo(name);info.size=len(body);stream.addfile(info,io.BytesIO(body))
-    digest=sha256(archive.read_bytes()).hexdigest();commands=[]
+    digest=sha256(archive.read_bytes()).hexdigest();commands=[];enabled=set()
     def run(args,**kwargs):
         commands.append(args)
         if args[0]=='systemctl':
             assert args[1] in ('is-active','is-enabled','daemon-reload')
+            if args[1]=='is-enabled':
+                # Real systemctl exits 0 for a static unit; only the state text means enabled.
+                state='enabled' if args[2] in enabled else 'static' if args[2]=='jobwatch-calendar.service' else 'disabled'
+                return SimpleNamespace(returncode=int(state=='disabled'),stdout=state+'\n')
             return SimpleNamespace(returncode=int(args[1].startswith('is-')))
         if args[:3]==['python3.12','-m','venv']:
             dest=Path(args[3]);venv.EnvBuilder(with_pip=False,symlinks=True).create(dest)
@@ -66,6 +70,11 @@ def inside(mask):
                 assert os.waitpid(child,0)[1]==0
         assert sum(a[:3]==['python3.12','-m','venv'] for a in commands)==1
         assert Path(sys.executable).stat().st_mode==interpreter_mode
+        enabled.add('jobwatch-calendar.timer')
+        try:installer.install(archive,digest,'a'*40,installation_root=root,run_command=run)
+        except ValueError:pass
+        else:raise AssertionError('Enabled integration timer accepted')
+        enabled.clear()
         try:installer.install(archive,'0'*64,'a'*40,installation_root=root,run_command=run)
         except ValueError:pass
         else:raise AssertionError('Corrupt artifact accepted')

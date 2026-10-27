@@ -16,12 +16,15 @@ from deploy_release import verify,make_code_readable
 UNITS=('jobwatch-agent-read.service','jobwatch-agent-owner.service','jobwatch-calendar.service',
        'jobwatch-calendar.timer','jobwatch-calendar.path','jobwatch-tunnel@.service')
 RUNNING_UNITS=(*UNITS[:-1],'jobwatch-tunnel@read.service','jobwatch-tunnel@owner.service')
+# is-enabled also exits 0 for "static" (e.g. the timer/path-triggered calendar service).
+ENABLED_STATES={'enabled','enabled-runtime','linked','linked-runtime','alias','indirect','generated','transient'}
 
 
 def install(archive,sha256,commit,*,installation_root=Path('/'),run_command=subprocess.run):
     if os.geteuid()!=0 or platform.machine()!='aarch64':raise ValueError('Root on the approved ARM64 host is required')
     for unit in RUNNING_UNITS:
-        if run_command(['systemctl','is-active','--quiet',unit]).returncode==0 or run_command(['systemctl','is-enabled','--quiet',unit],capture_output=True).returncode==0:
+        state=run_command(['systemctl','is-enabled',unit],capture_output=True,text=True).stdout.strip()
+        if run_command(['systemctl','is-active','--quiet',unit]).returncode==0 or state in ENABLED_STATES:
             raise ValueError('Explicitly pause/disable integration units first')
     manifest=verify(archive,sha256,commit)
     if manifest.get('model_inference') is not False:raise ValueError('Only model-free runtime is allowed')
