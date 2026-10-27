@@ -35,7 +35,7 @@ observation files remain exactly C, not a second authority.
 
 | Area | Implemented / qualified | Remaining boundary |
 |---|---|---|
-| Storage/collection | PG17.11, vector0.8.7, migrations0001–0004, immutable evidence/history, narrow audit; nine genuine sources validated/activated, controlled publication passed, daily systemd collection enabled | Monitor actual scheduled execution and source failures; bounded feed coverage, not market completeness |
+| Storage/collection | PG17.11, vector0.8.7, migrations0001–0004, immutable evidence/history, narrow audit; nine genuine sources validated/activated, controlled publication passed, daily systemd collection enabled | [First unattended run verified](V1_RELEASE_REPORT.md); monitor subsequent source failures; bounded feed coverage, not market completeness |
 | Migration/recovery | Final durable Git imported/reconciled; baseline and post-collection real-data S3 archives independently restored with exact data/security/sequences | Operate 00:00/12:00 UTC backups, health/email and restore practice; frequency is not a strict RPO, AWS-only risks accepted |
 | Research/retrieval | All-verdict SQL/views, BM25/FTS and actual owner-role reports/search; local EmbeddingGemma2 exact vector/hybrid implementation and tests | Production embeddings currently zero; inference/indexing on suitable local hardware, not the 2 GiB host |
 | Agent authority | Existing audited owner SQL through authenticated SSM/peer, separately scoped collector/migrator | Optional SQL-only remote credentials require their own access setup; no mandatory API or write MCP |

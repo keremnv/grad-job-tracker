@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "grad-job-watch"
-version = "0.1.0"
+version = "1.0.0"
 description = "Conservative monitoring of public UK early-career software and AI job postings"
 requires-python = ">=3.11"
 dependencies = []

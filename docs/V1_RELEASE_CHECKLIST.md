@@ -5,6 +5,12 @@ now authoritative. This is the compact current ledger; dated preparation reports
 remain historical. See [production handover](AWS_PRODUCTION_HANDOVER.md) for actual
 recovery evidence, SQL access and operating instructions.
 
+**V1 release closeout, 27 October:** [actual unattended operation](V1_RELEASE_REPORT.md)
+verified midnight S3 completion and 06:17–06:18 UTC publication by all nine sources.
+No errors or new material events; owner state unchanged, alarms OK. The following
+ledger retains the cutover checks; ordinary scheduled operation is now observed.
+[Daily user guide](USER_GUIDE.md).
+
 ## One release checklist and approval ledger
 
 | Gate | Status | Actual evidence / remaining boundary |

@@ -13,6 +13,12 @@ failure but not independent of the AWS project/Region. The owner accepts this
 trade-off. Private decisions made since the last usable snapshot may be lost.
 No fixed restoration-time guarantee or automatic all-writer fencing is promised.
 
+**27 October verification:** the ordinary midnight timer triggered the actual
+service at 00:00:13 UTC and it completed at 00:00:23. Exact completed S3 versions,
+AES256/SHA-256/manifest linkage and fresh receipt verified; alarms OK. See
+[the release report](V1_RELEASE_REPORT.md). Statements below about the then-future
+midnight run describe the 26 October cutover checkpoint.
+
 ## Operation and retention
 
 [Production handover, 26 October](AWS_PRODUCTION_HANDOVER.md): PostgreSQL is now

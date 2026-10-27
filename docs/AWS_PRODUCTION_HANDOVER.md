@@ -10,6 +10,20 @@ replacement definition has no schedule, data writer or write permission.
 Both histories were integrated normally into main, preserving the exact frozen
 observation tree. No ongoing file/database synchronisation exists.
 
+## Unattended operation verified — 27 October 2026
+
+The real midnight backup ran **00:00:13–00:00:23 UTC**; exact S3 archive/manifest
+versions, AES256/SHA-256 linkage and fresh receipt passed. The real daily collector
+ran **06:17:54–06:18:24 UTC**: all nine sources published 620 positives, no errors,
+no redundant material events and no false positive-only absence. Both timer trigger
+records match their service starts. Owner state/audit and the 636-posting corpus
+are unchanged. Logs were delivered, health fresh and all four alarms OK.
+
+See [the V1 release report](V1_RELEASE_REPORT.md) for the dated source table,
+validation/limitations and [the short user guide](USER_GUIDE.md) to start using it.
+The 26 October observations below are retained as cutover evidence, not current
+claims that scheduled operation is still unobserved.
+
 ## Data and authority
 
 Frozen data commit **C**: `9bbcb0149d41250cc2e56b2cbb25779bd5fafc16`.

@@ -8,8 +8,9 @@ projection plus small transport revision metadata, never another owner ledger.
 ## Local use and manual fallback
 
 Install the `postgres` extra and use a read-capable, owner-approved SQL connection
-as described in [PostgreSQL development](POSTGRESQL_DEVELOPMENT.md). Use only a
-disposable database until deployment is separately authorised.
+as described in [PostgreSQL development](POSTGRESQL_DEVELOPMENT.md). The
+[user guide](USER_GUIDE.md) describes the existing authenticated owner SQL connection for private manual use. Test changes on disposable data; external
+HTTPS publication/Proton subscription still requires separate approval.
 
 ```sh
 # New PRIVATE output directory only; explicit initialization is required once.

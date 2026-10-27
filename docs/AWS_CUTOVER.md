@@ -48,7 +48,8 @@ alarms, confirmed SNS recipient and real delivery. Backup/health timers are alre
 enabled under their separate approval. Before the controlled scan, collection was disabled. The accepted
 installed-service test proves one actual temporary-timer invocation, S3 completion,
 fresh monitoring and independent restore; ordinary midnight execution remains
-unobserved and is no longer a prerequisite. No external-copy job or automatic writer fencing is required. Record
+unobserved at that earlier checkpoint and was no longer a prerequisite. It has
+now passed in the [27 October release verification](V1_RELEASE_REPORT.md). No external-copy job or automatic writer fencing is required. Record
 actual restore results, never a promised 12-hour maximum loss bound.
 
 [26 October real endpoint checks](ATS_SOURCE_VALIDATION_REPORT.md), authorised only
