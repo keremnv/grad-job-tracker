@@ -17,7 +17,8 @@ verification evidence, public lead fields, programme cycles, application stages
 and follow-up text/dates, triage decisions/revisit dates, and an audit **summary**
 (time, actor claim, authenticated database login, table, operation). Treat application
 follow-up text as private information shared with the connected ChatGPT account.
-The narrower roles are optional provisioning; the old broad synthetic
+Raw verification import details are also excluded; projected source wording and
+verification provenance remain available. The narrower roles are optional provisioning; the old broad synthetic
 `jobwatch_chat_readonly` grant file is **not** the production connection.
 
 SQL is composable, parameter-bound and bounded to the existing read-tool limits

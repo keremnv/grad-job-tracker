@@ -220,7 +220,7 @@ def deadlines(conn,now,*,shared=False):
     for r in postings:
         if (u:=url(r['posting_url'])) is not None:
             aliases[u].append(r['posting_key'])
-    for v in conn.execute("SELECT DISTINCT ON(posting_key,wording,value,url) * FROM jobwatch.verifications WHERE kind='deadline' "
+    for v in conn.execute("SELECT DISTINCT ON(posting_key,wording,value,url) posting_key,wording,value,url,checked_at,checked_by FROM jobwatch.verifications WHERE kind='deadline' "
         'ORDER BY posting_key,wording,value,url,checked_at DESC,recorded_at DESC,id DESC'):
         r=by_key[v['posting_key']]
         records.append({'identity':v['posting_key'],'posting_key':v['posting_key'],'company':r['company'],'title':r['title'],

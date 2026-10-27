@@ -6,9 +6,12 @@
 BEGIN;
 GRANT USAGE ON SCHEMA jobwatch TO jobwatch_agent_readonly,jobwatch_agent_owner,jobwatch_calendar_reader;
 GRANT SELECT ON jobwatch.sources,jobwatch.collection_runs,jobwatch.postings,
-  jobwatch.posting_versions,jobwatch.posting_events,jobwatch.verifications,
+  jobwatch.posting_versions,jobwatch.posting_events,
   jobwatch.schema_migrations,jobwatch.embedding_chunks,jobwatch.research_postings,
   jobwatch.source_health,jobwatch.opportunity_workflow,jobwatch.operational_postings
+  TO jobwatch_agent_readonly,jobwatch_agent_owner,jobwatch_calendar_reader;
+GRANT SELECT (id,posting_key,kind,checked_at,recorded_at,actor,checked_by,url,method,
+  status,wording,value,version_id,description_sha256) ON jobwatch.verifications
   TO jobwatch_agent_readonly,jobwatch_agent_owner,jobwatch_calendar_reader;
 GRANT SELECT (id,slug,name,careers_url,watch_status,watch_checked_at) ON jobwatch.employers
   TO jobwatch_agent_readonly,jobwatch_agent_owner,jobwatch_calendar_reader;

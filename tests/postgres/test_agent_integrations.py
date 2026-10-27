@@ -54,6 +54,7 @@ class AgentIntegrationTests(DatabaseTest):
             actor(c);c.execute("INSERT INTO jobwatch.applications(job_key,company,role,url,notes,cv_version) VALUES ('manual:one','Synthetic','Role','https://example.org/manual','PRIVATE_NOTE','PRIVATE_CV')")
         for sql in ('SELECT notes FROM jobwatch.applications','SELECT cv_version FROM jobwatch.applications',
                 'SELECT * FROM jobwatch.owner_audit','SELECT details FROM jobwatch.employers',
+                'SELECT legacy_details FROM jobwatch.verifications',
                 'SELECT details FROM jobwatch.leads','SELECT note FROM jobwatch.triage'):
             r=self.read.call('sql_query',{'sql':sql,'limit':5});self.assertFalse(r['ok'],sql)
         for tool,args in [('sql_schema',{'table':'postings'}),('sql_query',{'sql':'WITH all_roles AS (SELECT p.posting_key,p.verdict,e.name FROM jobwatch.postings p JOIN jobwatch.sources s ON s.id=p.source_id JOIN jobwatch.employers e ON e.id=s.employer_id) SELECT * FROM all_roles','limit':5}),
