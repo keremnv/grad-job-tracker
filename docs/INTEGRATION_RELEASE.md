@@ -33,15 +33,24 @@ credential-entry helper (`infra/aws/integrations/jobwatch-tunnel-credential`). T
   approval box produced exactly one audited write, and Cancel produced none. No
   production write was made during deployment or closeout.
 
-## Not confirmed by the agent (owner-side)
+## Owner-side checks
 
-- Delivery of the calendar-health and operation-failure ALARM/OK emails.
-- The Proton subscriptions themselves and an observed refresh (normally 4–16 hours).
+Confirmed by the owner on 27 October:
+
+- The calendar-health and operation-failure ALARM/OK emails were delivered, which proves
+  the alert path end to end.
+- The Proton deadlines subscription works: events appear with the minimal summary,
+  date marker and evidence description.
+
+Still unconfirmed:
+
 - That the OpenAI Platform shows no tunnel charge. This was assumed from the owner's
   instruction to proceed and the earlier synthetic milestone.
 - Removal of superseded ChatGPT apps and of any unused runtime keys.
 - Actual AWS charges. The estimate is about US$0.42–0.43/month plus usage, and
   CloudFront allowance eligibility is not verified.
+- The deadlines capability URL was shared in an agent conversation on 27 October.
+  Rotating its hash is recommended (owner decision); the actions URL was not exposed.
 
 ## Known limitations
 
