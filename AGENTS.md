@@ -72,5 +72,6 @@ restore to a separate target and reconcile. After authoritative PostgreSQL write
 never restart stale Git as rollback. Preserve valid later observations/decisions.
 
 Calendar snapshots remain privacy-minimised, with stable UIDs and honest dates.
-HTTPS/Proton publication and real-data ChatGPT MCP sharing require their own
-security decisions. Neither grants write authority or permission to expose records.
+HTTPS/Proton publication and real-data ChatGPT MCP sharing are live within the
+approved scope in `docs/AGENT_CALENDAR_APPROVAL.md`; widening it needs a new
+decision. Neither grants write authority or permission to expose records.

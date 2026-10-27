@@ -48,6 +48,11 @@ class AWSBackupTests(unittest.TestCase):
                 archive=Path(d)/'synthetic.dump'
                 with connect(config) as conn:
                     migrate(conn)
+                    sql_root=Path(__file__).resolve().parents[2]/'sql/postgresql'
+                    if not conn.execute("SELECT 1 FROM pg_roles WHERE rolname='jobwatch_agent_readonly'").fetchone():
+                        admin((sql_root/'agent_roles.sql').read_text())
+                    admin(f'GRANT CONNECT ON DATABASE {name} TO jobwatch_agent_readonly,jobwatch_agent_owner,jobwatch_calendar_reader;')
+                    admin((sql_root/'agent_access.sql').read_text())
                     with conn.transaction():
                         actor(conn,'test:synthetic-vector-recovery')
                         e=conn.execute("INSERT INTO jobwatch.employers(slug,name) VALUES ('synthetic','Synthetic') RETURNING id").fetchone()['id']
@@ -81,6 +86,8 @@ class AWSBackupTests(unittest.TestCase):
                 self.assertFalse(result['ec2_database_accessed'])
                 self.assertEqual(result['network'],'none')
                 self.assertGreater(result['fingerprint']['tables']['embedding_chunks']['count'],0)
+                self.assertIn('agent_audit_summary',result['views'])
+                self.assertTrue(result['roles']['jobwatch_agent_readonly']['reads_and_denials'])
         finally:
             os.umask(old_umask)
             subprocess.run(['docker','exec',container,'dropdb','-U','postgres',name],check=True)

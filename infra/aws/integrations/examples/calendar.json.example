@@ -1,0 +1,6 @@
+{
+  "region": "eu-north-1",
+  "bucket": "REPLACE_WITH_FEED_ONLY_BUCKET",
+  "output": "/var/lib/jobwatch-calendar/snapshots",
+  "deadline_policy": "/etc/jobwatch/calendar-deadlines.sql"
+}

@@ -1,0 +1,29 @@
+[Unit]
+Description=Private outbound OpenAI tunnel (%i, independently revocable)
+After=network-online.target jobwatch-agent-%i.service
+Requires=jobwatch-agent-%i.service
+[Service]
+User=jobwatch-tunnel-%i
+SupplementaryGroups=jobwatch-agent-%i
+RuntimeDirectory=jobwatch-tunnel-%i
+RuntimeDirectoryMode=0700
+EnvironmentFile=/etc/jobwatch/tunnel-%i.env
+UnsetEnvironment=OPENAI_API_KEY OPENAI_ADMIN_KEY AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_PROFILE JOBWATCH_DATABASE_URL JOBWATCH_CHAT_DATABASE_URL JOBWATCH_AGENT_OWNER_DATABASE_URL JOBWATCH_MIGRATION_DATABASE_URL
+# /etc/jobwatch is jobwatch-db only; tunnels must never join that group.
+ExecStart=/opt/jobwatch-tunnel/bin/tunnel-client run --profile-file /etc/jobwatch-tunnel/%i.yaml
+Restart=on-failure
+RestartSec=15s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectProc=invisible
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+IPAddressDeny=169.254.169.254/32 fd00:ec2::254/128
+MemoryMax=128M
+CPUQuota=15%
+UMask=0077
+[Install]
+WantedBy=multi-user.target

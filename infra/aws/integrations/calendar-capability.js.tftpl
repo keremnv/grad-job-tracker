@@ -1,0 +1,15 @@
+// Only SHA-256 digests are deployed/stateful; raw capability URLs stay owner-held.
+var crypto = require('crypto');
+var allowed = ${jsonencode(capability_hashes)};
+function handler(event) {
+    var request = event.request;
+    var match = /^\/([A-Za-z0-9_-]{43})\/(deadlines|actions|combined)\.ics$/.exec(request.uri);
+    if ((request.method !== 'GET' && request.method !== 'HEAD') || !match ||
+        Object.keys(request.querystring || {}).length || !allowed[match[2]] ||
+        crypto.createHash('sha256').update(match[1]).digest('hex') !== allowed[match[2]]) {
+        return {statusCode: 404, statusDescription: 'Not Found',
+            headers: {'cache-control': {value: 'no-store'}, 'content-type': {value: 'text/plain'}}};
+    }
+    request.uri = '/' + match[2] + '.ics';
+    return request;
+}

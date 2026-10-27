@@ -1,0 +1,7 @@
+[Unit]
+Description=Refresh derived calendars after committed owner MCP changes
+[Path]
+PathChanged=/var/lib/jobwatch-agent-owner/calendar.refresh
+Unit=jobwatch-calendar.service
+[Install]
+WantedBy=multi-user.target

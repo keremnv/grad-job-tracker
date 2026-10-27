@@ -107,6 +107,9 @@ def recover(archive, manifest_path, output):
         for prerequisite in ('vector_extension.sql','embedding_access.sql'):
             run(['docker','exec','-i',name,'psql','-X','-U','postgres','-d',DATABASE,
                  '-v','ON_ERROR_STOP=1','-f','-'],input=(ROOT/'sql/postgresql'/prerequisite).read_bytes())
+        if manifest.get('security_requirements'):
+            with connect(config('postgres')) as admin:
+                backup.prepare_recovery_roles(admin, manifest)
         provisioned = time.monotonic()
 
         def utility(args, *, input=None):
@@ -158,6 +161,20 @@ def recover(archive, manifest_path, output):
                     else:
                         raise AssertionError('Restricted SQL action accepted')
                 roles[role] = {'reads_and_denials': True}
+        if 'agent_audit_summary' in views:
+            for role in ('jobwatch_agent_readonly','jobwatch_agent_owner','jobwatch_calendar_reader'):
+                with connect(config(role)) as conn:
+                    assert conn.execute('SELECT count(*) AS n FROM jobwatch.applications').fetchone()['n']==1
+                    assert conn.execute('SELECT count(*) AS n FROM jobwatch.agent_audit_summary').fetchone()['n']==4
+                    assert len(research.search(conn,'Python')['items'])==2
+                    for query in ('SELECT notes FROM jobwatch.applications','SELECT old_row FROM jobwatch.owner_audit',
+                                  "UPDATE jobwatch.posting_versions SET title='forbidden'"):
+                        try:
+                            with conn.transaction():
+                                conn.execute('SET TRANSACTION READ WRITE');conn.execute(query)
+                        except psycopg.errors.InsufficientPrivilege:pass
+                        else:raise AssertionError('Restored integration role exceeded its authority')
+                    roles[role]={'reads_and_denials':True}
         finished = time.monotonic()
         result = {'schema': 'jobwatch.offhost-recovery/1', 'archive_sha256': manifest['archive_sha256'],
                   'archive_bytes': archive.stat().st_size, 'restore': restored, 'fingerprint': actual,

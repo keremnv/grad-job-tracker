@@ -63,7 +63,14 @@ run "safe_initial_plan" {
       aws_cloudwatch_metric_alarm.backup_health.treat_missing_data == "breaching" &&
       length(aws_cloudwatch_metric_alarm.backup_health.alarm_actions) == 1 &&
       jsondecode(aws_sns_topic_policy.backup_alerts.policy).Statement[0].Principal.Service == "cloudwatch.amazonaws.com" &&
-      length(jsondecode(aws_sns_topic_policy.backup_alerts.policy).Statement[0].Condition.ArnEquals["aws:SourceArn"]) == 4
+      length(jsondecode(aws_sns_topic_policy.backup_alerts.policy).Statement[0].Condition.ArnEquals["aws:SourceArn"]) == 4 &&
+      length(jsondecode(aws_sns_topic_policy.backup_alerts.policy).Statement) == 2 &&
+      jsondecode(aws_sns_topic_policy.backup_alerts.policy).Statement[1].Sid == "AllowReviewedCalendarAlarm" &&
+      jsondecode(aws_sns_topic_policy.backup_alerts.policy).Statement[1].Principal.Service == "cloudwatch.amazonaws.com" &&
+      jsondecode(aws_sns_topic_policy.backup_alerts.policy).Statement[1].Action == "sns:Publish" &&
+      jsondecode(aws_sns_topic_policy.backup_alerts.policy).Statement[1].Resource == "arn:aws:sns:eu-north-1:000000000000:fixture-alerts" &&
+      jsondecode(aws_sns_topic_policy.backup_alerts.policy).Statement[1].Condition.StringEquals["aws:SourceAccount"] == "000000000000" &&
+      jsondecode(aws_sns_topic_policy.backup_alerts.policy).Statement[1].Condition.ArnEquals["aws:SourceArn"] == "arn:aws:cloudwatch:eu-north-1:000000000000:alarm:grad-jobwatch-calendar-health"
     )
     error_message = "Backup alerts need missing-heartbeat handling and a scoped CloudWatch-only publisher."
   }

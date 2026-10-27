@@ -1,0 +1,10 @@
+# Review and back up original HBA/ident bytes first. Add only these existing-host
+# local identities, validate pg_hba_file_rules, reload, never restart/bootstrap.
+# pg_ident.conf: MAP-NAME OS-USER DATABASE-USER
+jobwatch-agent jobwatch-agent-read jobwatch_agent_readonly
+jobwatch-agent jobwatch-agent-owner jobwatch_agent_owner
+jobwatch-agent jobwatch-calendar jobwatch_calendar_reader
+# pg_hba.conf (named database, exact users, Unix peer only):
+# local jobwatch jobwatch_agent_readonly peer map=jobwatch-agent
+# local jobwatch jobwatch_agent_owner peer map=jobwatch-agent
+# local jobwatch jobwatch_calendar_reader peer map=jobwatch-agent

@@ -23,6 +23,18 @@ resource "aws_sns_topic_policy" "backup_alerts" {
           aws_cloudwatch_metric_alarm.backup_health.arn
         ] }
       }
+      }, {
+      # Prepared integration correction: separately approve this existing-policy
+      # update. Never apply the protected infrastructure root for this maintenance.
+      Sid       = "AllowReviewedCalendarAlarm"
+      Effect    = "Allow"
+      Principal = { Service = "cloudwatch.amazonaws.com" }
+      Action    = "sns:Publish"
+      Resource  = aws_sns_topic.backup_alerts.arn
+      Condition = {
+        StringEquals = { "aws:SourceAccount" = var.expected_project_id }
+        ArnEquals    = { "aws:SourceArn" = "arn:aws:cloudwatch:${var.region}:${var.expected_project_id}:alarm:grad-jobwatch-calendar-health" }
+      }
     }]
   })
 }

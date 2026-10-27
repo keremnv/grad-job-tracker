@@ -209,7 +209,7 @@ def search(conn, query, *, method='bm25', history=False, include_not_seen=False,
     return result
 
 
-def deadlines(conn,now):
+def deadlines(conn,now,*,shared=False):
     """Separate independently checked, official research and feed-only claims; never infer dates."""
     timestamp(now)
     records=[]
@@ -220,7 +220,7 @@ def deadlines(conn,now):
     for r in postings:
         if (u:=url(r['posting_url'])) is not None:
             aliases[u].append(r['posting_key'])
-    for v in conn.execute("SELECT DISTINCT ON(posting_key,wording,value,url) * FROM jobwatch.verifications WHERE kind='deadline' "
+    for v in conn.execute("SELECT DISTINCT ON(posting_key,wording,value,url) posting_key,wording,value,url,checked_at,checked_by FROM jobwatch.verifications WHERE kind='deadline' "
         'ORDER BY posting_key,wording,value,url,checked_at DESC,recorded_at DESC,id DESC'):
         r=by_key[v['posting_key']]
         records.append({'identity':v['posting_key'],'posting_key':v['posting_key'],'company':r['company'],'title':r['title'],
@@ -234,7 +234,7 @@ def deadlines(conn,now):
                 'wording':d.get('wording'),'value':d.get('value'),'checked_at':d.get('observed_at'),'checked_by':None,
                 'provenance':'feed_observation','status':r['status'],'action_state':r['action_state'],
                 'structured':d.get('source_field')=='application_deadline','ambiguous':r['ambiguous_posting_url']})
-    for r in conn.execute("SELECT * FROM jobwatch.leads WHERE deadline_wording IS NOT NULL ORDER BY lead_key"):
+    for r in conn.execute("SELECT * FROM jobwatch."+("agent_leads" if shared else "leads")+" WHERE deadline_wording IS NOT NULL ORDER BY lead_key"):
         original=json.loads(r['details'].get('legacy_json','{}'))
         d=original.get('deadline') or {}
         candidates=aliases.get(url(r['url']),[]) if r['kind']=='vacancy' else []
@@ -242,7 +242,7 @@ def deadlines(conn,now):
         # Original file-era fallback is the exact vacancy URL, not the imported lead key.
         identity=linked or (url(r['url']) if r['kind']=='vacancy' else r['lead_key'])
         records.append({'identity':identity,'posting_key':r['posting_key'],'company':r['company'],'title':r['title'],
-            'posting_url':url(r['url']),'url':url(d.get('url') or r['url']),'wording':r['deadline_wording'],
+            'posting_url':url(r['url']),'url':url(d.get('url') or r['details'].get('deadline_source_url') or r['url']),'wording':r['deadline_wording'],
             'value':str(r['deadline_date']) if r['deadline_date'] else None,'checked_at':r['checked_at'],
             'checked_by':r['checked_by'],'provenance':'checked_official_lead' if r['official'] else 'unverified_lead',
             'status':r['state'],'action_state':None,'structured':r['official'],'ambiguous':len(candidates)>1,

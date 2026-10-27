@@ -1,0 +1,24 @@
+[Unit]
+Description=Minimal SQL-derived calendar snapshots and private S3 publication
+Requires=jobwatch-postgresql.service
+After=jobwatch-postgresql.service network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+[Service]
+Type=oneshot
+User=jobwatch-calendar
+Group=jobwatch-db
+Environment="JOBWATCH_DATABASE_URL=host=/run/jobwatch-postgresql dbname=jobwatch user=jobwatch_calendar_reader"
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/jobwatch-agent-runtime/bin/python /opt/jobwatch/current/infra/aws/scripts/calendar_publish.py
+TimeoutStartSec=4min
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectProc=invisible
+StateDirectory=jobwatch-calendar
+StateDirectoryMode=0700
+UMask=0077
+MemoryMax=192M
+CPUQuota=25%

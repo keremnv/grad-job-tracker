@@ -1,5 +1,12 @@
 # Agent connectivity qualification (Stage 4F)
 
+**27 October integration update:** the [new tool contract](AGENT_OWNER_TOOLS.md)
+narrows production research scope and adds a separate confirmed owner connection.
+Its [Unix-socket deployment](../infra/aws/integrations/README.md) is live on the
+host ([integration release](INTEGRATION_RELEASE.md)). The broader Stage 4C/4F `jobwatch_chat_readonly` identity described
+below remains a **synthetic qualification identity**, not the proposed real-data
+connection. See the [sharing approval packet](AGENT_CALENDAR_APPROVAL.md).
+
 **Current production boundary, 26 October 2026:** PostgreSQL is now authoritative
 on AWS; [the handover](AWS_PRODUCTION_HANDOVER.md) records the qualified release,
 vector/migrations, recovery and owner SQL access. The synthetic MCP results below
@@ -13,7 +20,7 @@ Ordinary psql/psycopg SQL
 remains primary and independent of MCP. No mandatory query sequence or research
 policy is introduced. [Implementation scope](AGENT_CONNECTIVITY_PLAN.md).
 
-## Recommended first connection
+## Historical Stage 4F local connection
 
 Run the read MCP process on an existing trusted operator/development machine.
 After separate hosted-access approval, use the existing authenticated SSM
