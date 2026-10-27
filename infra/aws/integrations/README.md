@@ -14,6 +14,10 @@ Exposing the host directly would add an inbound web listener, certificate/hostna
 maintenance and database-host attack surface. Reusing the backup bucket would
 unnecessarily mix downloadable feeds and recovery archives. The small derived-data
 bucket avoids that risk; no new VM, domain, NAT, load balancer or inference server.
+Direct presigned S3 URLs expire with their authorization and would require replacing
+the Proton subscription URL. Anonymous S3 object access would require relaxing
+public-access protections. CloudFront keeps the origin private while providing a
+stable, separately revocable capability path.
 
 The module proposes **14 managed resources**: bucket, versioning, encryption,
 ownership, public-access block, lifecycle, bucket policy; CloudFront OAC, function,
