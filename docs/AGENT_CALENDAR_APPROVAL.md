@@ -1,13 +1,13 @@
 # One approval packet: private agents and subscribed calendars
 
-**Status, 27 October 2026: owner GO received for commit `54f1d99` and the sharing
-matrix below. Deployment paused before mutation for one missing SNS permission.**
+**Status, 27 October 2026: approved and deployed** (GO for `54f1d99`, plus the separately
+approved SNS amendment); see the [integration release](INTEGRATION_RELEASE.md).
 The [live preflight report](AGENT_CALENDAR_DEPLOYMENT_REPORT.md) records the exact
 calendar-only policy amendment requiring additional approval; the original GO
 permitted 14 additions without unexpected existing-resource changes.
 Core PostgreSQL V1 is already production. This packet concerns optional integration
 of real records with personal ChatGPT and Proton, not a new database cutover.
-No real feed, new SQL login, tunnel or AWS integration resource has been activated.
+The text below is the approval record as granted.
 
 ## Information shared
 
@@ -103,6 +103,5 @@ different SQL/OS identities; only matching tunnel users can reach each Unix sock
 
 The owner explicitly accepted this sharing matrix and bounded deployment in the
 GO naming `54f1d99`; that acceptance does not grant unknown charges or authorize
-unconfirmed owner writes. Real publication and production ChatGPT access remain
-stopped pending the newly identified SNS amendment and the relevant qualification
-and personal-account gates. Do not request the same sharing approval again.
+unconfirmed owner writes. Those gates have since passed and both integrations are live.
+Do not request the same sharing approval again.

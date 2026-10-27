@@ -3,7 +3,8 @@
 Implemented: a local PostgreSQL-to-ICS snapshot producer and synthetic integration
 tests. The [last-mile integration](AGENT_CALENDAR_INTEGRATION_REPORT.md) now prepares
 hourly/owner-triggered publication and revocable HTTPS feeds locally.
-**Not deployed:** real HTTPS feeds, publication scheduling or a live Proton subscription.
+**Deployed 27 October 2026:** hourly publication to private CloudFront capability URLs
+([integration release](INTEGRATION_RELEASE.md)); the Proton subscription is owner-managed.
 PostgreSQL remains authoritative; ICS is a disposable
 projection plus small transport revision metadata, never another owner ledger.
 

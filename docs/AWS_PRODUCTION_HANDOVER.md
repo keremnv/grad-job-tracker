@@ -157,6 +157,7 @@ No Terraform apply: the known protected-instance user-data replacement proposal
 is still blocked. Preserve EBS/bucket/state guards; code maintenance uses the
 reviewed artifact installer. No new infrastructure was created for cutover.
 
-Real-data ChatGPT/MCP access and Proton HTTPS subscriptions remain separately
-approved follow-ons. No production read login, public endpoint, tunnel or calendar
-sharing is implied by this handover. Repository visibility remains private.
+Since 27 October, real-data ChatGPT apps (private tunnels, peer-only SQL roles) and
+Proton HTTPS feeds (CloudFront capability URLs) are live under their own approval;
+see the [integration release](INTEGRATION_RELEASE.md). There is still no public
+database endpoint. Repository visibility remains private.

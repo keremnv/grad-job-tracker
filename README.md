@@ -46,17 +46,16 @@ flowchart LR
     OWNER["AVAILABLE · SSM / owner SQL<br/>applications · triage · leads"] --> PG
     PG --> RESEARCH["LIVE · SQL · BM25 · FTS"]
     PG -. "optional derived retrieval" .-> VECTOR["IMPLEMENTED · vector/hybrid<br/>local inference · no production vectors"]
-    RESEARCH -. "synthetic online qualified" .-> MCP["OPTIONAL · read-only MCP<br/>real-data access not deployed"]
+    RESEARCH --> MCP["LIVE · private ChatGPT apps<br/>Research + confirmed Owner Actions"]
     PG --> BACKUP["LIVE · private versioned S3<br/>verified dumps · monitored alerts"]
-    PG --> ICS["IMPLEMENTED · private ICS<br/>deadlines and actions"]
-    ICS -. "HTTPS approval pending" .-> PROTON["PENDING · Proton<br/>subscription"]
+    PG --> ICS["LIVE · hourly private ICS<br/>deadlines and actions"]
+    ICS --> PROTON["LIVE · CloudFront capability URLs<br/>Proton subscription by owner"]
 
     classDef live fill:#e8f5e9,stroke:#287a42,color:#122619
     classDef qualified fill:#edf4ff,stroke:#3868a8,color:#172b49
     classDef pending fill:#f5f5f5,stroke:#666,color:#222,stroke-dasharray:5 4
-    class PG,OWNER,RESEARCH,PUBLISH,BACKUP live
-    class FILES,ICS,VECTOR qualified
-    class MCP,PROTON pending
+    class PG,OWNER,RESEARCH,PUBLISH,BACKUP,MCP,ICS,PROTON live
+    class FILES,VECTOR qualified
 ```
 
 Coverage is bounded to **nine monitored ATS feeds**, alongside a wider employer
@@ -181,7 +180,7 @@ jobwatch-pg-ops calendar status --output-dir .local-reports/calendar-demo
 Subsequent refreshes omit `--initialize`. `current/actions.ics` contains the dated
 action, excluding notes, CV labels and free-form action text. Stable identities,
 revision timestamps and atomic replacement prevent churn or partial publication.
-Manual export is available; HTTPS/Proton subscriptions remain pending.
+Manual export remains available; hourly private HTTPS feeds are live for Proton.
 Subscription refresh is asynchronous, not guaranteed deadline alerting.
 
 ## Evidence and validation
@@ -209,8 +208,8 @@ Independent restores prove recoverability of the tested archives, not a fixed RT
 Backups run at 00:00/12:00 UTC with fifteen-minute health checks and previously
 delivered failure/stale/missing-heartbeat email tests. This AWS-only policy has
 no strict twelve-hour maximum-loss guarantee or independent cloud custody.
-Production embeddings, ChatGPT real-data access and Proton subscriptions are
-not active; their implementations and synthetic tests do not imply deployment.
+Production embeddings are not active. ChatGPT real-data access and Proton feeds
+are live; see the [integration release](docs/INTEGRATION_RELEASE.md).
 
 ## Status and roadmap
 
@@ -220,7 +219,8 @@ not active; their implementations and synthetic tests do not imply deployment.
 | **PostgreSQL development** | Migrations 0001–0004, collection/history, importer, retrieval, owner SQL, calendar snapshots and read-only MCP locally qualified. |
 | **Last qualified AWS deployment** | 26 October 2026: ARM64 `t4g.small`, PostgreSQL 17.11, pgvector 0.8.7 and migrations 0001–0004; native retrieval/recovery qualified. [Release `e3807a0`, including Riverlane fix, installed and natively tested](docs/AWS_RIVERLANE_MAINTENANCE_REPORT.md). [Installed-service/timer/S3/independent restore passed](docs/AWS_BACKUP_ACTIVATION_REPORT.md#installed-service-qualification--26-october-2001-utc); backup/health timers enabled, alarms OK and notification delivery previously confirmed. Real imported and post-collection archives independently restored with exact rows/security/sequences. |
 | **Production operation** | First unattended run: nine feeds, 620 positives; 636 retained postings including 579 exclusions as of 27 October. History and owner state preserved. Collection daily at 06:15 UTC + up to five minutes; backups at 00:00/12:00 UTC; health every fifteen minutes. |
-| **Optional follow-ons** | Production vector population/inference, authenticated ChatGPT real-data access and revocable Proton HTTPS subscriptions. Core SQL research and owner workflows do not depend on these. |
+| **Integrations** | Live 27 October: private Proton feeds (hourly, revocable) and two ChatGPT apps over private tunnels; every owner write needs ChatGPT approval. [Integration release](docs/INTEGRATION_RELEASE.md). |
+| **Optional follow-ons** | Production vector population/inference. Core SQL research and owner workflows do not depend on the integrations. |
 
 The owner accepted the known unavailable historical evidence and the unpublished
 26 October runner snapshot. Retained records are reconciled against the exact frozen
@@ -267,8 +267,9 @@ hosted database, migrates production or starts collection automatically.
 | [Operational research](docs/POSTGRESQL_OPERATIONS.md) | SQL views, search, reports, health and source activation |
 | [Retrieval](docs/POSTGRESQL_RETRIEVAL.md) | Model/profile provenance, indexing, exact cosine and hybrid SQL |
 | [Owner SQL workflows](docs/POSTGRESQL_OWNER_WORKFLOWS.md) | Authorised writes, audit, concurrency guards and read-back |
-| [Agent connectivity](docs/AGENT_CONNECTIVITY.md) | Five-tool contract, synthetic online qualification and pending production access |
-| [Optional agent owner tools](docs/AGENT_OWNER_TOOLS.md) | Existing SQL recipes over a separate confirmed-write connection; [sharing approval pending](docs/AGENT_CALENDAR_APPROVAL.md) |
+| [Integration release](docs/INTEGRATION_RELEASE.md) | Deployed identifiers, closeout health and owner-side checks |
+| [Agent connectivity](docs/AGENT_CONNECTIVITY.md) | Five-tool contract and online qualification history |
+| [Optional agent owner tools](docs/AGENT_OWNER_TOOLS.md) | Existing SQL recipes over a separate confirmed-write connection ([approved scope](docs/AGENT_CALENDAR_APPROVAL.md)) |
 | [Proton calendar path](docs/PROTON_CALENDAR.md) | Minimal feeds, stable identities, privacy and subscription limits |
 | [AWS-only backup policy](docs/AWS_BACKUP_POLICY.md) | Twice-daily schedule, retention, missing-run alerts, costs and restore procedure |
 | [AWS infrastructure](infra/aws/README.md) | Terraform protections, SSM, deployment and backup/restore procedures |

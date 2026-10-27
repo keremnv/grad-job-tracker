@@ -2,8 +2,8 @@
 
 **27 October integration update:** the [new tool contract](AGENT_OWNER_TOOLS.md)
 narrows production research scope and adds a separate confirmed owner connection.
-Its [Unix-socket deployment](../infra/aws/integrations/README.md) is locally tested,
-not activated. The broader Stage 4C/4F `jobwatch_chat_readonly` identity described
+Its [Unix-socket deployment](../infra/aws/integrations/README.md) is live on the
+host ([integration release](INTEGRATION_RELEASE.md)). The broader Stage 4C/4F `jobwatch_chat_readonly` identity described
 below remains a **synthetic qualification identity**, not the proposed real-data
 connection. See the [sharing approval packet](AGENT_CALENDAR_APPROVAL.md).
 

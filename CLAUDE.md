@@ -11,7 +11,8 @@ Use the SQL cookbooks and explicit `jobwatch-pg-ops` read conveniences from
 AGENTS.md. The legacy `jobwatch.cli` JSON/CSV path is a frozen import/rehearsal
 facility, not the production interface. Never write it or sync it with PostgreSQL.
 
-MCP is optional. Production ChatGPT access and Proton hosting require separate
-approval; do not expose real owner records through the earlier synthetic tunnel.
+MCP is optional. Production ChatGPT access and Proton hosting are live within the
+approved scope; widening it requires separate approval. Never expose real owner
+records through the earlier synthetic tunnel.
 Read `docs/DEVELOPMENT.md` only for owner-requested development, and use verified
 disposable PostgreSQL targets for tests.

@@ -1,9 +1,8 @@
 # Optional private agent and calendar integration
 
-**Prepared and locally tested only. Not installed, published or connected.**
-Owner GO for `54f1d99` has been received. Live preflight found that the existing
-SNS policy does not permit the new calendar alarm; see the
-[paused-deployment report](../../../docs/AGENT_CALENDAR_DEPLOYMENT_REPORT.md).
+**Deployed 27 October 2026** ([integration release](../../../docs/INTEGRATION_RELEASE.md),
+[deployment report](../../../docs/AGENT_CALENDAR_DEPLOYMENT_REPORT.md)). Enter or rotate tunnel
+credentials with the root-only `jobwatch-tunnel-credential` helper in this directory.
 The existing SQL-first production collector, backups, timers, EBS, state and
 private V1 release remain unchanged. This directory is a separate Terraform root
 so the known older EC2 user-data replacement proposal is never applied incidentally.
