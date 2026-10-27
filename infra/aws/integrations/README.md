@@ -1,6 +1,9 @@
 # Optional private agent and calendar integration
 
 **Prepared and locally tested only. Not installed, published or connected.**
+Owner GO for `54f1d99` has been received. Live preflight found that the existing
+SNS policy does not permit the new calendar alarm; see the
+[paused-deployment report](../../../docs/AGENT_CALENDAR_DEPLOYMENT_REPORT.md).
 The existing SQL-first production collector, backups, timers, EBS, state and
 private V1 release remain unchanged. This directory is a separate Terraform root
 so the known older EC2 user-data replacement proposal is never applied incidentally.
@@ -107,6 +110,18 @@ changes SQL/authentication or starts/enables anything.
    create/read/delete permissions; never deny deletion of an active lock object.
    `state-access-policy.json.template` is the restricted operator addition, not a
    policy to attach to runtime users. No force-unlock or state deletion.
+   Before creating the new alarm, inspect **live** SNS `GetTopicAttributes.Policy`:
+   `AlarmActions` alone does not grant publish permission. The existing topic's
+   CloudWatch source-ARN allowlist covers only four existing alarms. The proposed
+   separate `AllowReviewedCalendarAlarm` statement needs explicit approval as an
+   existing-policy update, outside the original 14-addition plan. Render it locally
+   with `render_calendar_alert_policy.py`; it must preserve all original statements,
+   restrict the exact calendar alarm, project, Region and topic, and never upload
+   automatically. Keep ownership in `infra/aws/backup_alerts.tf`; do not duplicate
+   the SNS policy in this integration state. After approved `SetTopicAttributes`,
+   reconcile using an exact-input, reviewed **refresh-only** root plan with no
+   infrastructure actions or unexplained state changes. Never apply the root's
+   normal plan, remove protection, use `state rm`, or hide the known EC2 replacement.
 7. Create owner-private capability custody (0700 directory, 0600 file) outside Git
    with `calendar_capabilities.py --help`. Default separate deadline/action tokens;
    combined is optional. Export **hashes only** to private Terraform variables.
