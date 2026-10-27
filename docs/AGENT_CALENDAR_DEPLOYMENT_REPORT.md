@@ -1,6 +1,6 @@
 # Agent/calendar live preflight — 27 October 2026
 
-**SNS blocker resolved; host deployment not yet started.** Owner GO for `54f1d99` and its
+**AWS/host deployment complete; Proton feeds LIVE; ChatGPT pending owner account steps.** Owner GO for `54f1d99` and its
 real-data sharing matrix is recorded. A single newly identified existing SNS-policy
 amendment is outside the approved 14-addition plan and needs approval. No second
 sharing/architecture decision is requested.
@@ -74,23 +74,33 @@ plan was **not applied**: `backup_alerts.tf` now declares the live policy, and e
 plan refreshes first, so no state write is needed. The known EC2 user-data
 replacement remains blocked and unapplied.
 
+## Deployment executed — 27 October 2026, 12:00–12:25 UTC
+
+| Step | Result |
+| --- | --- |
+| Pre-maintenance backup | Scheduled 12:00 run succeeded; exact archive/manifest versions, AES256 and SHA-256 receipts verified in S3. |
+| App release `41f640b` | Installed and re-run by the trusted host installer; collection, backup and health timers paused **9.7 s** and restored; all table counts unchanged; four identities import natively (ARM64, Python 3.12.3, psycopg 3.2.13); PostgreSQL 17.11/pgvector 0.8.7; backup health passed afterwards. |
+| Agent runtime | Installed once and verified (43 members, root-owned, model-free). The installed guard wrongly refused a repeat because `systemctl is-enabled` exits 0 for the static calendar service; fixed with a regression test in `b9cfb82` (host copy updates with the next release). |
+| Identities/SQL/auth | Five non-login OS identities; three password-less, membership-free roles and two sanitized views; three exact peer lines inserted after the existing local rules, both files validated by PostgreSQL before `pg_reload_conf()` (no restart). Original auth files backed up root-only on the host. |
+| Permission matrix | New roles read research views only; denied notes, CV, triage note (read/calendar), lead details and audit images; default read-only. Owner role: only granted application/triage/lead columns, no notes, delete, postings, sources or audit writes. Existing collector/owner/migrator logins unchanged; wrong OS user/role and tunnel-to-database denied. |
+| Native MCP | Both servers answered MCP `initialize` over their Unix sockets; read/owner tunnels reach only their own socket; collector reaches neither. About 40 MiB per server; ~1.25 GiB still available. Both stopped and disabled afterwards. |
+| State protection | `DenyIntegrationStateDeletionIncludingVersions` appended to the state bucket policy; four originals preserved byte-for-byte. |
+| Terraform | Saved reviewed plan applied: **14 added, 0 changed, 0 destroyed**. No name collisions beforehand. Final plan: no changes. |
+| CloudFront | Synthetic feeds first: valid GET/HEAD 200; missing/wrong/cross-feed/query/unissued tokens, private manifest and traversal 404; POST and plain HTTP 403; anonymous S3 403. A temporary test capability was revoked (function-only update) and rejected with a warm cache within ~30 s; its token was destroyed. |
+| First publication | One explicit `--initialize` as the calendar identity, then an ordinary scheduled run; hourly timer and owner refresh path enabled. Real feeds replaced synthetic ones (deadlines 3 events, actions 0). Event properties are standard ICS only; descriptions hold fixed guidance and public source provenance, no owner text. |
+| Alarms | The new alarm entered ALARM at creation (missing data is breaching). A harness quoting error in the first initialization attempt (an unquoted transient-unit DSN, not the shipped unit) logged one unhealthy/nonzero calendar run, so calendar-health and operation-failure alarms fired; both are expected to recover after healthy runs. Owner to confirm delivered ALARM/OK emails. |
+
+Calendar config files are root-owned `0644` (bucket name and the Git-tracked deadline
+policy only) because the unit runs with `Group=jobwatch-db`; a `0640` calendar-group
+file would be unreadable. No tunnel, runtime key or production owner write exists yet.
+
 ## Execution and handover status
 
 | Integration | Status |
 | --- | --- |
-| Existing production collector/backups | **LIVE**, unchanged |
-| Proton publication | **PENDING** host deployment (steps 1–9) and native qualification; SNS amendment applied; no subscription URL generated or data published |
-| ChatGPT Research | Code/artifact **READY**; account billing/permissions, native qualification, two tunnel IDs and runtime keys still pending |
-| ChatGPT Owner Actions | **BLOCKED** from production activation until actual synthetic ChatGPT individual-confirmation/rejection succeeds; no real owner write authorized or attempted |
+| Existing production collector/backups | **LIVE**, unchanged schedules |
+| Proton publication | **LIVE** on AWS (hourly); owner subscription in Proton pending |
+| ChatGPT Research | **READY**; needs owner Platform billing/permission check, read tunnel ID and runtime key |
+| ChatGPT Owner Actions | **BLOCKED** until the synthetic ChatGPT confirm/deny test passes through the owner tunnel (local disposable fixture prepared) |
 
-No tunnel, API key, SQL identity, HTTPS endpoint, timer, credential or infrastructure
-resource was created/changed. No backup/health timer pause, fresh backup, SQL migration,
-real calendar projection or native installation was attempted. Only the AWS CLI
-session was renewed and read-only discovery/SSM inspection performed. Private
-identifiers, receipts, owner hashes and the proposed policy remain outside Git.
-
-**Additional approval needed:** the one exact calendar-only SNS statement and
-non-destructive reconciliation under existing Terraform ownership, then continuation
-of the already-approved 14-addition deployment. Preserve all other approvals and
-restrictions. The personal connection handover follows actual deployment; do not
-invent URLs/tunnel IDs or claim Proton/ChatGPT is connected meanwhile.
+Private identifiers, receipts, capability URLs and connection commands remain outside Git.
