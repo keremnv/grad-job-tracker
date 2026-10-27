@@ -1,0 +1,28 @@
+name: Synthetic portfolio demo
+
+on:
+  pull_request:
+    paths:
+      - 'tests/postgres/test_agent_integrations.py'
+      - 'scripts/test_postgres.sh'
+      - '.github/workflows/portfolio-demo.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install test dependencies
+        run: python -m pip install -e '.[postgres,chat-mcp]'
+      - name: Validate shell syntax
+        run: bash -n scripts/test_postgres.sh
+      - name: Exercise verified disposable PostgreSQL and MCP interfaces
+        run: PYTHON=python bash scripts/test_postgres.sh --demo
