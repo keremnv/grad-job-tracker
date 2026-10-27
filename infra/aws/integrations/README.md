@@ -151,8 +151,10 @@ changes SQL/authentication or starts/enables anything.
     needed. No model API/admin/AWS/database credentials in the tunnel service.
     Enter keys privately into separate root-only `tunnel-read.env`/`tunnel-owner.env`
     files, never arguments or YAML. YAML uses `env:CONTROL_PLANE_API_KEY` only;
-    make each root-owned profile 0640 with its corresponding tunnel OS group so
-    the process can read it. The systemd manager reads the 0600 environment file.
+    put each root-owned profile at `/etc/jobwatch-tunnel/{read,owner}.yaml` (directory
+    0755, file 0640 with its corresponding tunnel OS group). `/etc/jobwatch` is
+    `jobwatch-db`-only and tunnels must never join that group. The systemd manager
+    reads the root-only 0600 environment file in `/etc/jobwatch`.
     Separate keys permit revocation but are **not** per-tunnel database ACLs:
     actual isolation also relies on personal workspace association and Unix/SQL
     identity. Inspect available Platform scope behavior rather than assuming it.
