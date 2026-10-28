@@ -3,8 +3,13 @@ name: Synthetic portfolio demo
 on:
   pull_request:
     paths:
-      - 'tests/postgres/test_agent_integrations.py'
+      - 'src/jobwatch/**'
+      - 'sql/postgresql/**'
+      - 'tests/postgres/**'
+      - 'tests/fixtures/**'
       - 'scripts/test_postgres.sh'
+      - 'pyproject.toml'
+      - 'requirements/**'
       - '.github/workflows/portfolio-demo.yml'
   workflow_dispatch:
 
