@@ -1,69 +1,41 @@
 # Graduate Job Watch
 
-Graduate Job Watch turns public recruitment feeds into a source-grounded record
-of opportunities: what was observed, what changed and what remains uncertain.
-Built for researching UK 2027 graduate roles in software, systems and applied AI,
-it connects evidence-backed search with application triage and dated follow-ups.
+Graduate Job Watch is a **small, self-hosted research and application-tracking system with a private ChatGPT interface**. It collects job postings from monitored Greenhouse, Lever and Ashby feeds into PostgreSQL to support graduate-role research, preserving source evidence and change history without treating an automated screening result as fact.
 
-**V1 · production, 27 October 2026:** running on AWS PostgreSQL. The first
-unattended daily collection published all nine feeds; the midnight S3 backup
-completed and was verified. Real-data recovery has been independently tested.
-The Git writer is retired. [Start using it](docs/USER_GUIDE.md) ·
-[Production verification](docs/V1_RELEASE_REPORT.md).
+**Built with:** Python, PostgreSQL 17, SQL, two MCP services, AWS EC2, Terraform and systemd. ChatGPT provides an optional conversational interface; direct SQL and command-line workflows work independently. There is **no public web app**, and the system does not submit job applications.
 
-[Architecture](#how-it-works) · [Engineering decisions](#engineering-decisions) ·
-[Example workflow](#a-synthetic-research-to-follow-up-workflow) ·
-[Validation](#evidence-and-validation) · [Daily use](docs/USER_GUIDE.md) · [Quickstart](#quickstart)
+**Operational snapshot — 27 October 2026:** nine monitored ATS feeds and scheduled collection on AWS; read-only ChatGPT research and separately permissioned owner actions; private calendar subscriptions; scheduled S3 backups, monitoring and restoration tests. This is a personal-scale system, not evidence of commercial scale or long-term uptime. [Dated production evidence](docs/V1_RELEASE_REPORT.md) · [Subsequent integration release](docs/INTEGRATION_RELEASE.md) · [Daily user guide](docs/USER_GUIDE.md).
 
-## At a glance
+[Workflow](#what-a-user-can-do) · [Architecture](#architecture-at-a-glance) · [Engineering decisions](#engineering-decisions) · [Synthetic example](#a-synthetic-research-to-follow-up-workflow) · [Validation](#evidence-and-validation) · [Development](#quickstart)
 
-- **Reliable collection:** Greenhouse, Lever and Ashby ingestion with identity
-  validation, source health and failure-safe retention.
-- **Evidence and history:** stable posting keys, retained exclusions and immutable
-  PostgreSQL versions distinguish new information from interpretation.
-- **Composable research:** ordinary SQL, Python BM25, PostgreSQL full-text search
-  and exact pgvector similarity, with optional hybrid ranking.
-- **Scoped agent access:** five read-only MCP tools; separate, audited owner SQL.
-  A real ChatGPT SQL call through a private tunnel passed against synthetic data.
-- **Useful owner workflow:** applications, triage, evidenced leads, programme cycles
-  and minimal deadline/action calendars share the same records.
-- **Operational engineering:** Terraform, ARM64 EC2, protected encrypted storage,
-  Systems Manager access, versioned S3 backups and tested independent restoration.
+## What a user can do
 
-## How it works
+1. **Research opportunities:** ask ChatGPT about vacancies or query PostgreSQL directly; search across records, including screened-out and historical evidence, with source freshness visible.
+2. **Inspect evidence:** retrieve an exact posting, its preserved parsed provider representation, its revisions and the distinction between observed facts and inferred status.
+3. **Record a decision:** request an application bookmark or triage update. The separate Owner Actions MCP service prepares a specific change for review; ChatGPT requests user confirmation before commit. Database restrictions, expected-state checks and audit protect the write independently of model instructions.
+4. **Follow up:** view recorded application actions and dated deadlines in private calendar feeds.
 
-PostgreSQL holds the imported and reconciled corpus on the existing AWS host.
-Source publication runs daily through the restricted collector identity.
-Frozen Git history is preserved as provenance; the dashed import edge is a completed
-one-time migration, not ongoing synchronisation.
+The [worked synthetic example](#a-synthetic-research-to-follow-up-workflow) below shows the interfaces and data flow, **not yet a one-command seeded live demo**. The actual components are exercised by [read-tool tests](tests/postgres/test_read_tools.py), [agent integration tests](tests/postgres/test_agent_integrations.py) and [owner/calendar tests](tests/postgres/test_owner_calendar.py). No screenshots or AI outputs here are fabricated.
+
+## Architecture at a glance
 
 ```mermaid
 flowchart LR
-    ATS["Public ATS APIs<br/>Greenhouse · Lever · Ashby"]
-    ATS --> PUBLISH["LIVE · daily systemd collector<br/>validated source publication"]
-    PUBLISH --> PG[("LIVE · PostgreSQL 17<br/>AWS EC2 · encrypted EBS")]
-    FILES[("FROZEN · Git history<br/>legacy import source C")] -. "one-time import completed" .-> PG
-    OWNER["AVAILABLE · SSM / owner SQL<br/>applications · triage · leads"] --> PG
-    PG --> RESEARCH["LIVE · SQL · BM25 · FTS"]
-    PG -. "optional derived retrieval" .-> VECTOR["IMPLEMENTED · vector/hybrid<br/>local inference · no production vectors"]
-    RESEARCH --> MCP["LIVE · private ChatGPT apps<br/>Research + confirmed Owner Actions"]
-    PG --> BACKUP["LIVE · private versioned S3<br/>verified dumps · monitored alerts"]
-    PG --> ICS["LIVE · hourly private ICS<br/>deadlines and actions"]
-    ICS --> PROTON["LIVE · CloudFront capability URLs<br/>Proton subscription by owner"]
-
-    classDef live fill:#e8f5e9,stroke:#287a42,color:#122619
-    classDef qualified fill:#edf4ff,stroke:#3868a8,color:#172b49
-    classDef pending fill:#f5f5f5,stroke:#666,color:#222,stroke-dasharray:5 4
-    class PG,OWNER,RESEARCH,PUBLISH,BACKUP,MCP,ICS,PROTON live
-    class FILES,VECTOR qualified
+    ATS["Greenhouse · Lever · Ashby<br/>Public ATS feeds"] --> COL["Python collector<br/>validate · normalise · publish"]
+    COL --> PG[("PostgreSQL 17<br/>evidence · versions · owner state")]
+    PG --> READ["Research MCP<br/>five read-only tools"]
+    PG <-->|"Guarded, audited owner transactions"| OWNER["Owner Actions MCP<br/>prepare · commit"]
+    READ <-->|"Private tunnel"| CHAT["ChatGPT"]
+    OWNER <-->|"Private tunnel; client approval"| CHAT
+    PG --> ICS["Private minimal ICS publisher"] --> CAL["Proton Calendar"]
+    PG --> BK["Versioned S3 backups<br/>monitored and restore-tested"]
 ```
 
-Coverage is bounded to **nine monitored ATS feeds**, alongside a wider employer
-watchlist: Ashby (hyperexponential, incident.io, Tracebit), Greenhouse (Cambridge
-Consultants, Monzo, Marshall Wace technology graduates, Riverlane) and Lever
-(Palantir, Scott Logic). This is not market-wide coverage. Reports expose freshness
-and failures; the attention queue does not define the research corpus.
-[Source identities and validation](docs/ATS_SOURCE_VALIDATION_REPORT.md).
+The two MCP servers use **different PostgreSQL roles and authority**: Research permits bounded reads; Owner Actions executes only reviewed application/triage/lead/follow-up recipes, not arbitrary SQL. Approval occurs in the ChatGPT client, while the server enforces the prepared values and current-state checks; a prepared token alone is not evidence of human approval. Access is private, not a public API. [Detailed agent authority](docs/AGENT_OWNER_TOOLS.md).
+
+Collection, PostgreSQL, private integration services and scheduled operations run on AWS. Terraform protects infrastructure state and persistent storage; systemd schedules collection, backups, health checks and calendar publication. Model inference for optional vector retrieval is **not running on the production host**. [Infrastructure documentation](infra/aws/README.md).
+
+**Scope:** nine monitored ATS feeds, not the entire graduate job market. A listing marked `not_seen` is not necessarily closed; appearing in a feed is not a verified open application form. Decisions about personal suitability are not inferred from collection.
 
 ## Engineering decisions
 
@@ -90,7 +62,7 @@ History timestamps describe collector observations, not asserted employer edit t
 **Use ordinary SQL with scoped authority.** Agents construct joins and aggregates
 through psql/psycopg. Collector, owner, migrator, embedding worker and chat-read
 roles have separate grants. Owner audit records the claimed actor and actual
-database login, and rolls back with the transaction. MCP remains read-only.
+database login, and rolls back with the transaction. The Research MCP is read-only. The separate Owner Actions MCP executes narrowly scoped, audited write recipes after the client presents a confirmation; the server binds the intended values and checks current state, but cannot independently prove the user approved.
 
 **Treat retrieval as derived data.** BM25 preserves distinctions such as `C++`,
 `C#` and `C` that English FTS tokenisation collapses. Semantic retrieval uses pinned,
@@ -113,10 +85,7 @@ can cause greater loss. No external backup worker/provider is required.
 
 ## A synthetic research-to-follow-up workflow
 
-Illustrative snippets for a **fresh disposable sandbox** containing synthetic
-posting `greenhouse:test:1` and no application for it—not a live agent transcript.
-See [sandbox setup](docs/POSTGRESQL_DEVELOPMENT.md) and the
-[tested owner/calendar workflow](tests/postgres/test_owner_calendar.py).
+**Illustrative interface example, not yet a runnable seeded demo.** The snippets below assume a disposable database containing synthetic posting `greenhouse:test:1`, with no existing application for that key. The [development sandbox instructions](docs/POSTGRESQL_DEVELOPMENT.md) create a blank database but do **not** seed this example automatically. Read and owner/calendar behaviour is independently exercised by [PostgreSQL integration tests](tests/postgres/); use their verified, disposable test harness to reproduce the individual contracts. A short, separately seeded demonstration remains a documentation follow-up, not an existing product feature.
 
 **1. Research broadly and inspect freshness.** In a read-capable SQL session:
 
@@ -185,16 +154,17 @@ Subscription refresh is asynchronous, not guaranteed deadline alerting.
 
 ## Evidence and validation
 
-Release checks and production inspection, **27 October 2026**. The tests use
-synthetic fixtures; actual unattended execution is recorded separately:
+**Dated executions, not a claim that the GitHub CI runs the full matrix.**
 
 | Evidence | What it establishes |
 |---|---|
-| **258 offline tests** on each Python 3.11/3.12/3.13 | Provider/screening regressions, Riverlane URL spoofing/identity checks, file durability, privacy, calendar revisions, connection boundaries and backup-age/packaging checks. |
-| **147 PostgreSQL tests**, including cached real-model inference | Actual migrations, constraints, grants, concurrent publication/rescreening, fail-closed publication, importer reconciliation, vector/hybrid queries, owner/audit workflows and local MCP interoperability. |
-| **Hosted and independent recovery** | Synthetic qualification plus real imported/post-collection S3 archives restored off-host into fresh PostgreSQL 17 targets, comparing data, audit, grants and sequences. Reboot/EBS persistence was also tested. |
-| **First unattended operation** | 27 October: midnight backup completed with exact S3 versions/checksums and manifest linkage; 06:17–06:18 UTC collection published all nine sources, 620 positive observations, no errors or unnecessary material events. Four alarms OK. |
-| **Online ChatGPT synthetic connectivity** | An actual `sql_query` call traversed a private OpenAI tunnel to the restricted disposable database. Only this tool was exercised online; the remaining tools have local interoperability tests. |
+| **V1 release, 27 October:** 258 offline tests per Python 3.11/3.12/3.13, plus 147 PostgreSQL tests | Release-qualified collector, evidence, permissions, migration, retrieval, audit, calendar and recovery contracts. [V1 report](docs/V1_RELEASE_REPORT.md). |
+| **Agent/calendar integration qualification, 27 October:** 264 offline and 158 PostgreSQL tests on the documented environment | Later integration feature and disposable database qualification, including restricted write flows. [Qualification report](docs/AGENT_CALENDAR_INTEGRATION_REPORT.md). |
+| **Actual scheduled AWS operation, 27 October** | First unattended collection published nine feeds with 620 positive observations; the midnight backup was verified in S3. This demonstrates initial operation, not sustained uptime or scale. |
+| **Independent-target restoration** | Actual S3 archives were restored into fresh, isolated PostgreSQL targets and reconciled for data, permissions and sequences. It is not a third-party audit or a fixed recovery-time guarantee. |
+| **Private ChatGPT/Proton integration closeout, 27 October** | Research tools passed native production probes. ChatGPT approval/cancel behaviour was tested against a disposable synthetic database; the production Owner Actions service received only an invalid-recipe prepare probe, and no production owner write was performed at closeout. The owner confirmed calendar subscription and alert delivery. The live personal integrations are not a public demo. [Integration report](docs/INTEGRATION_RELEASE.md). |
+
+GitHub Actions currently runs the **base offline suite on Python 3.12** plus data validation; it does **not** reproduce the full PostgreSQL, model-enabled or multi-interpreter qualification. Some regression fixtures are reduced captured **public** ATS responses, supplemented with synthetic inputs; no applicant records should be used for demonstration. [Fixture provenance](tests/fixtures/README.md).
 
 [Connectivity test results](docs/AGENT_CONNECTIVITY_REPORT.md) ·
 [Hosted qualification](docs/AWS_HOSTED_QUALIFICATION_REPORT.md) ·
@@ -216,8 +186,8 @@ are live; see the [integration release](docs/INTEGRATION_RELEASE.md).
 | Area | Status verified 27 October 2026 |
 |---|---|
 | **Authoritative store** | AWS PostgreSQL, imported from frozen `9bbcb01` with complete reconciliation and independent real-data S3 restoration. Git observation files remain archived provenance; the old workflow is disabled and retired. |
-| **PostgreSQL development** | Migrations 0001–0004, collection/history, importer, retrieval, owner SQL, calendar snapshots and read-only MCP locally qualified. |
-| **Last qualified AWS deployment** | 26 October 2026: ARM64 `t4g.small`, PostgreSQL 17.11, pgvector 0.8.7 and migrations 0001–0004; native retrieval/recovery qualified. [Release `e3807a0`, including Riverlane fix, installed and natively tested](docs/AWS_RIVERLANE_MAINTENANCE_REPORT.md). [Installed-service/timer/S3/independent restore passed](docs/AWS_BACKUP_ACTIVATION_REPORT.md#installed-service-qualification--26-october-2001-utc); backup/health timers enabled, alarms OK and notification delivery previously confirmed. Real imported and post-collection archives independently restored with exact rows/security/sequences. |
+| **PostgreSQL development** | Migrations 0001–0004, collection/history, importer, retrieval and local MCP qualification. The Research MCP is read-only; Owner Actions has separately constrained writes. |
+| **Database deployment baseline** | The 26 October V1 database installation was qualified as `e3807a0` with PostgreSQL 17.11 / pgvector 0.8.7 and tested restoration. The **later** ChatGPT/calendar integration release deployed code `41f640b` on 27 October with documented host-only adjustments. See the [integration release](docs/INTEGRATION_RELEASE.md) for exact scope and remaining limitations. |
 | **Production operation** | First unattended run: nine feeds, 620 positives; 636 retained postings including 579 exclusions as of 27 October. History and owner state preserved. Collection daily at 06:15 UTC + up to five minutes; backups at 00:00/12:00 UTC; health every fifteen minutes. |
 | **Integrations** | Live 27 October: private Proton feeds (hourly, revocable) and two ChatGPT apps over private tunnels; every owner write needs ChatGPT approval. [Integration release](docs/INTEGRATION_RELEASE.md). |
 | **Optional follow-ons** | Production vector population/inference. Core SQL research and owner workflows do not depend on the integrations. |
