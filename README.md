@@ -15,7 +15,7 @@ Graduate Job Watch is a **small, self-hosted research and application-tracking s
 3. **Record a decision:** request an application bookmark or triage update. The separate Owner Actions MCP service prepares a specific change for review; ChatGPT requests user confirmation before commit. Database restrictions, expected-state checks and audit protect the write independently of model instructions.
 4. **Follow up:** view recorded application actions and dated deadlines in private calendar feeds.
 
-The [worked synthetic example](#a-synthetic-research-to-follow-up-workflow) below shows the interfaces and data flow, **not yet a one-command seeded live demo**. The actual components are exercised by [read-tool tests](tests/postgres/test_read_tools.py), [agent integration tests](tests/postgres/test_agent_integrations.py) and [owner/calendar tests](tests/postgres/test_owner_calendar.py). No screenshots or AI outputs here are fabricated.
+**[Run the reproducible synthetic MCP demonstration](docs/PORTFOLIO_DEMO.md)** to explore research, a simulated owner action, stale-change refusal and a calendar event in a disposable database. The [illustrative SQL example](#a-synthetic-research-to-follow-up-workflow) below shows another interface. The actual components are exercised by [read-tool tests](tests/postgres/test_read_tools.py), [agent integration tests](tests/postgres/test_agent_integrations.py) and [owner/calendar tests](tests/postgres/test_owner_calendar.py). No screenshots or AI outputs here are fabricated.
 
 ## Architecture at a glance
 
@@ -85,7 +85,7 @@ can cause greater loss. No external backup worker/provider is required.
 
 ## A synthetic research-to-follow-up workflow
 
-**Illustrative interface example, not yet a runnable seeded demo.** The snippets below assume a disposable database containing synthetic posting `greenhouse:test:1`, with no existing application for that key. The [development sandbox instructions](docs/POSTGRESQL_DEVELOPMENT.md) create a blank database but do **not** seed this example automatically. Read and owner/calendar behaviour is independently exercised by [PostgreSQL integration tests](tests/postgres/); use their verified, disposable test harness to reproduce the individual contracts. A short, separately seeded demonstration remains a documentation follow-up, not an existing product feature.
+**Illustrative interface example, not yet a runnable seeded demo.** The snippets below assume a disposable database containing synthetic posting `greenhouse:test:1`, with no existing application for that key. The [development sandbox instructions](docs/POSTGRESQL_DEVELOPMENT.md) create a blank database but do **not** seed this example automatically. Read and owner/calendar behaviour is independently exercised by [PostgreSQL integration tests](tests/postgres/); use their verified, disposable test harness to reproduce the individual contracts. For the runnable seeded MCP walkthrough, see the [synthetic demonstration](docs/PORTFOLIO_DEMO.md).
 
 **1. Research broadly and inspect freshness.** In a read-capable SQL session:
 
