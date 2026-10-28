@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 # Creates its own empty database, never consumes a user-supplied database URL.
 set -euo pipefail
+demo=false
+if [[ $# -eq 1 && $1 == --demo ]]; then
+  demo=true
+  shift
+fi
 if [[ $# -ne 0 && ( $# -ne 4 || $1 != --rehearse-import ) ]]; then
-  printf '%s\n' 'Usage: scripts/test_postgres.sh [--rehearse-import REPO COMMIT NEW_REPORT_DIRECTORY]' >&2
+  printf '%s\n' 'Usage: scripts/test_postgres.sh [--demo | --rehearse-import REPO COMMIT NEW_REPORT_DIRECTORY]' >&2
   exit 2
 fi
 repo=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -37,7 +42,13 @@ docker exec -i "$name" psql -X -U postgres -d jobwatch_foundation_test -v ON_ERR
 unset JOBWATCH_DATABASE_URL JOBWATCH_MIGRATION_DATABASE_URL JOBWATCH_EMBEDDING_DATABASE_URL JOBWATCH_CHAT_DATABASE_URL PGHOST PGHOSTADDR PGPORT PGDATABASE PGUSER PGSERVICE PGSERVICEFILE PGPASSWORD PGPASSFILE PGOPTIONS
 export JOBWATCH_PG_TEST_CONTAINER="$name" JOBWATCH_PG_TEST_TOKEN="$token"
 export PYTHONPATH="$repo/src${PYTHONPATH:+:$PYTHONPATH}"
-"$python" -m unittest discover -s "$repo/tests/postgres" -v
+if "$demo"; then
+  "$python" -c 'import mcp' || { printf '%s\n' 'Install MCP: pip install -e ".[postgres,chat-mcp]"' >&2; exit 2; }
+  PYTHONPATH="$repo/tests/postgres:$PYTHONPATH" "$python" -m unittest -v \
+    test_agent_integrations.AgentIntegrationTests.test_portfolio_walkthrough
+else
+  "$python" -m unittest discover -s "$repo/tests/postgres" -v
+fi
 if [[ $# -eq 4 ]]; then
   "$python" "$repo/tests/postgres/rehearsal.py" "$2" "$3" "$4"
 fi
