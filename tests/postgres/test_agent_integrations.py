@@ -394,6 +394,48 @@ class AgentIntegrationTests(DatabaseTest):
         return next(c['claim_id'] for c in self.posting_claims() if c['provenance']=='feed_observation' and c['value']==value
             and c['checked_at']==observed_at)
 
+    def test_deadline_cross_feature_link_correction_conflict_and_calendar_continuity(self):
+        self.deadline_lead()
+        self.commit(self.change('correct_lead_deadline',**self.correction()))
+        _,state=calendar_feed.build(self.deadline_data())
+        uid=next(iter(state['events']))
+        self.commit(self.change('link_lead',lead_key='vacancy:deadline-test',posting_key=self.key))
+        linked,new_state=calendar_feed.build(self.deadline_data(),state)
+        self.assertEqual(set(new_state['events']),{uid})
+        self.assertIn(b'20261120',linked['deadlines.ics'])
+        self.assertEqual(self.scalar('SELECT deadline_source_url FROM jobwatch.leads'),'https://example.org/new-source')
+        original=self.commit(self.change('verify_posting_deadline',**{**self.posting_check(),'value':'2026-11-20'}))
+        self.commit(self.change('verify_posting_deadline',**{**self.posting_check(),'value':'2026-11-22',
+            'supersedes':['verification:'+original['row']['id']]}))
+        # Posting supersession preserves the linked lead claim: conflict removes the event.
+        omitted,omitted_state=calendar_feed.build(self.deadline_data(),new_state)
+        self.assertNotIn(b'BEGIN:VEVENT',omitted['deadlines.ics'])
+        self.assertFalse(omitted_state['events'][uid]['active'])
+        self.commit(self.change('correct_lead_deadline',**{**self.correction(),'deadline_date':'2026-11-22'}))
+        restored,state2=calendar_feed.build(self.deadline_data(),omitted_state)
+        self.assertIn(b'20261122',restored['deadlines.ics'])
+        self.assertEqual(set(state2['events']),{uid})
+        self.assertTrue(state2['events'][uid]['active'])
+        self.assertGreater(state2['events'][uid]['sequence'],new_state['events'][uid]['sequence'])
+        # Superseding one posting check leaves a later, unrelated check active.
+        active=next(c['claim_id'] for c in self.posting_claims() if not c['superseded_by'])
+        later=self.commit(self.change('verify_posting_deadline',**{**self.posting_check(),'value':'2026-11-24'}))
+        self.commit(self.change('verify_posting_deadline',**{**self.posting_check(),'value':'2026-11-26','supersedes':[active]}))
+        claims=self.posting_claims()
+        self.assertFalse(next(c['superseded_by'] for c in claims if c['claim_id']=='verification:'+later['row']['id']))
+        self.assertNotIn(b'BEGIN:VEVENT',calendar_feed.build(self.deadline_data(),state2)[0]['deadlines.ics'])
+
+    def test_deadline_native_and_legacy_provenance_agree_for_full_and_shared_reads(self):
+        self.deadline_lead()
+        with self.target.connect('jobwatch_owner') as c,c.transaction():
+            actor(c)
+            c.execute("UPDATE jobwatch.leads SET details=details || %s::jsonb",
+                (json.dumps({'deadline':{'url':'https://example.org/native-source'}}),))
+        shared=self.deadline_data()
+        with self.target.connect('jobwatch_owner') as c:full=reports.calendar_data(c)
+        self.assertEqual(full['deadlines'],shared['deadlines'])
+        self.assertEqual(full['deadlines'][0]['url'],'https://example.org/native-source')
+
     def test_posting_deadline_new_check_audit_receipt_and_retries(self):
         p=self.change('verify_posting_deadline',**self.posting_check())
         self.assertEqual(self.scalar('SELECT count(*) FROM jobwatch.verifications'),0)

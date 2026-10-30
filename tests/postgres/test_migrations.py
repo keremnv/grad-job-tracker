@@ -92,6 +92,52 @@ class MigrationTests(unittest.TestCase):
             self.assertEqual(claims[0]['claim_id'],'verification:'+str(old['id']))
             self.assertEqual(claims[0]['superseded_by'],[])
 
+    def test_deadline_upgrade_with_existing_agent_roles_applies_only_narrow_deltas(self):
+        root=Path(__file__).resolve().parents[2]
+        container=os.environ['JOBWATCH_PG_TEST_CONTAINER']
+        def admin(sql):
+            p=subprocess.run(['docker','exec','-i',container,'psql','-X','-U','postgres',
+                '-d','jobwatch_foundation_test','-v','ON_ERROR_STOP=1','-f','-'],
+                input=sql,text=True,capture_output=True)
+            self.assertEqual(p.returncode,0,p.stderr)
+        with self.target.connect() as c:
+            migrate(c,load_migrations()[:4])
+            if not c.execute("SELECT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='jobwatch_agent_owner') AS present").fetchone()['present']:
+                admin((root/'sql/postgresql/agent_roles.sql').read_text())
+            original=(root/'sql/postgresql/agent_access.sql').read_text().replace(
+                ',deadline_source_url,deadline_official,deadline_checked_at,deadline_checked_by','')
+            admin(original)
+            def privileges():
+                return {(r['role'],r['table_name'],r['column_name'],r['privilege_type']) for r in c.execute("""
+                    SELECT r.role,c.table_name,c.column_name,p.privilege_type
+                    FROM (VALUES ('jobwatch_agent_owner'),('jobwatch_agent_readonly'),('jobwatch_calendar_reader')) r(role)
+                    CROSS JOIN information_schema.columns c
+                    CROSS JOIN (VALUES ('SELECT'),('INSERT'),('UPDATE'),('REFERENCES')) p(privilege_type)
+                    WHERE c.table_schema='jobwatch' AND c.table_name IN ('leads','verifications','postings','posting_versions')
+                    AND has_column_privilege(r.role,'jobwatch.'||c.table_name,c.column_name,p.privilege_type)
+                """)}
+            before=privileges()
+            self.assertEqual(migrate(c),[m.filename for m in load_migrations()[4:]])
+            for name in ('lead_deadline_access.sql','posting_deadline_access.sql'):
+                admin((root/'sql/postgresql'/name).read_text())
+            added=privileges()-before
+            expected=set()
+            for role in ('jobwatch_agent_owner','jobwatch_agent_readonly','jobwatch_calendar_reader'):
+                expected.update((role,'leads',col,'SELECT') for col in
+                    ('deadline_source_url','deadline_official','deadline_checked_at','deadline_checked_by'))
+                expected.update((role,'verifications',col,'SELECT') for col in ('deadline_supersedes','deadline_reason'))
+            expected.update(('jobwatch_agent_owner','leads',col,'UPDATE') for col in
+                ('deadline_date','deadline_wording','deadline_source_url','deadline_official','deadline_checked_at','deadline_checked_by'))
+            expected.update(('jobwatch_agent_owner','verifications',col,'INSERT') for col in
+                ('id','posting_key','kind','checked_at','checked_by','url','wording','value','deadline_supersedes','deadline_reason'))
+            self.assertEqual(added,expected)
+            self.assertTrue(before<=privileges())
+            self.assertEqual(migrate(c),[])
+            # Reapplying only the delta files is idempotent and preserves the exact matrix.
+            for name in ('lead_deadline_access.sql','posting_deadline_access.sql'):
+                admin((root/'sql/postgresql'/name).read_text())
+            self.assertEqual(privileges()-before,expected)
+
     def test_changed_migration_refused(self):
         original = load_migrations()
         changed = original[0].sql + '\n-- a changed applied file\n'

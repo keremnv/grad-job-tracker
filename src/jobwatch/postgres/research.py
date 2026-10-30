@@ -238,7 +238,7 @@ def deadlines(conn,now,*,shared=False):
         # Original file-era fallback is the exact vacancy URL, not the imported lead key.
         identity=linked or (url(r['url']) if r['kind']=='vacancy' else r['lead_key'])
         records.append({'identity':identity,'posting_key':r['posting_key'],'company':r['company'],'title':r['title'],
-            'posting_url':url(r['url']),'url':url(r['deadline_source_url'] or d.get('url') or r['details'].get('deadline_source_url') or r['details'].get('deadline',{}).get('url') or r['url']),'wording':r['deadline_wording'],
+            'posting_url':url(r['url']),'url':url(r['deadline_source_url'] or r['details'].get('deadline',{}).get('url') or d.get('url') or r['details'].get('deadline_source_url') or r['url']),'wording':r['deadline_wording'],
             'value':str(r['deadline_date']) if r['deadline_date'] else None,'checked_at':r['deadline_checked_at'] or r['checked_at'],
             'checked_by':r['deadline_checked_by'] or r['checked_by'],'provenance':'checked_official_lead' if official else 'unverified_lead',
             'status':r['state'],'action_state':None,'structured':official,'ambiguous':len(candidates)>1,
