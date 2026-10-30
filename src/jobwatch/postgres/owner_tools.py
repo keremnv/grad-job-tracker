@@ -25,7 +25,7 @@ from .read_tools import wire
 
 ROLE = 'jobwatch_agent_owner'
 RECIPES = ('create_application','link_application','update_stage','set_followup',
-           'set_triage','record_lead','link_lead','correct_lead_deadline')
+           'set_triage','record_lead','link_lead','correct_lead_deadline','verify_posting_deadline')
 STAGES = ('bookmarked','preparing','applied','assessment','interview','offer','rejected','withdrawn')
 
 
@@ -63,6 +63,8 @@ def execute_recipe(conn, name, values):
     for query in queries[:-1]:
         cursor=conn.execute(query, values)
         if name=='correct_lead_deadline' and query.startswith('UPDATE ') and cursor.rowcount!=1:
+            raise OwnerError('stale_state')
+        if name=='verify_posting_deadline' and query.startswith('INSERT ') and cursor.rowcount not in (0,1):
             raise OwnerError('stale_state')
     if not conn.execute(queries[-1], values).fetchone()['ok']:
         raise OwnerError('stale_state')
@@ -136,9 +138,15 @@ class OwnerTools:
         # All SQL remains the cookbook. This layer fills expected state and hides
         # private triage notes; it does not introduce an alternative state machine.
         needed = set(re.findall(r'%\(([a-z_]+)\)s', '\n'.join(statements(recipe))))-{'actor'}
-        permitted = needed-{'note'} | ({'posting_key'} if recipe=='create_application' else set())
+        permitted = needed-{'note'}-({'verification_id'} if recipe=='verify_posting_deadline' else set()) | ({'posting_key'} if recipe=='create_application' else set())
         if set(values)-permitted:
             raise OwnerError('invalid_arguments')
+        if recipe=='verify_posting_deadline':
+            claims=values.get('supersedes')
+            if (not isinstance(claims,list) or len(claims)>100
+                    or any(not isinstance(x,str) for x in claims) or len(set(claims))!=len(claims)):
+                raise OwnerError('invalid_arguments')
+            values={**values,'supersedes':json.dumps(claims)}
         if any(not isinstance(v,(str,bool,int)) or len(str(v))>12000 for v in values.values()):
             raise OwnerError('invalid_arguments')
         params={k:str(v).lower() if type(v) is bool else str(v) for k,v in values.items()}
@@ -175,6 +183,23 @@ class OwnerTools:
                 params.update(note=(r['note'] or '') if r else '',expected_note=(r['note'] or '') if r else '',
                     expected_decision=r['decision'] if r else 'absent',expected_reason=(r['reason_code'] or '') if r else '',
                     expected_revisit_on=str(r['revisit_on'] or '') if r else '')
+            elif recipe=='verify_posting_deadline':
+                state=conn.execute('SELECT to_jsonb(s) AS state FROM jobwatch.posting_deadline_state s WHERE posting_key=%s',
+                    (params.get('posting_key'),)).fetchone()
+                if state is None:raise OwnerError('not_found')
+                selected=json.loads(params['supersedes'])
+                active={c['claim_id'] for c in state['state']['claims'] if not c['superseded_by']}
+                if not set(selected)<=active:raise OwnerError('invalid_supersession')
+                checked=datetime.fromisoformat(params.get('checked_at','').replace('Z','+00:00'))
+                date.fromisoformat(params.get('value',''))
+                safe_url(params.get('url',''))
+                if (checked.tzinfo is None or checked>datetime.now(timezone.utc)
+                        or not params.get('wording','').strip() or not params.get('reason','').strip()):
+                    raise OwnerError('invalid_evidence')
+                params['verification_id']=str(uuid4())
+                params['expected_state']=json.dumps(state['state'],sort_keys=True)
+                target=dict(conn.execute('SELECT posting_key,company,title,posting_url FROM jobwatch.research_postings WHERE posting_key=%s',
+                    (params['posting_key'],)).fetchone())
             elif recipe=='correct_lead_deadline':
                 r=conn.execute('SELECT to_jsonb(l) AS state FROM jobwatch.agent_leads l WHERE lead_key=%s',
                     (params.get('lead_key'),)).fetchone()
@@ -234,16 +259,17 @@ class OwnerTools:
                 params={**r['params'],'actor':r['actor']}
                 execute_recipe(conn,r['recipe'],params)
                 for recipe,values in r['extra']:execute_recipe(conn,recipe,{**values,'actor':r['actor']})
-                table,key,columns=(('triage','posting_key','posting_key,decision,revisit_on,decided_at,recorded_by') if r['recipe']=='set_triage' else
+                table,key,columns=(('verifications','id','id,posting_key,kind,checked_at,checked_by,url,wording,value,deadline_supersedes,deadline_reason,actor,recorded_at') if r['recipe']=='verify_posting_deadline' else
+                    ('triage','posting_key','posting_key,decision,revisit_on,decided_at,recorded_by') if r['recipe']=='set_triage' else
                     ('leads','lead_key','lead_key,deadline_date,deadline_wording,deadline_source_url,deadline_official,deadline_checked_at,deadline_checked_by') if r['recipe']=='correct_lead_deadline' else
                     ('leads','lead_key','lead_key,kind,posting_key,cycle_year,state,checked_at') if r['recipe'] in ('record_lead','link_lead') else
                     ('applications','job_key','job_key,posting_key,company,role,stage,date_applied,next_action,next_action_date'))
-                result=conn.execute('SELECT '+columns+' FROM jobwatch.'+table+' WHERE '+key+'=%s',(params[key],)).fetchone()
+                result=conn.execute('SELECT '+columns+' FROM jobwatch.'+table+' WHERE '+key+'=%s',(params['verification_id'] if r['recipe']=='verify_posting_deadline' else params[key],)).fetchone()
                 if result is None:raise OwnerError('read_back_failed')
                 receipt={'committed':True,'actor':r['actor'],'db_login':ROLE,'row':wire(result),'replayed':False}
             # Read back after COMMIT, too. Failure is unconfirmed, not permission to overwrite.
             with self.session() as conn:
-                after=conn.execute('SELECT '+columns+' FROM jobwatch.'+table+' WHERE '+key+'=%s',(params[key],)).fetchone()
+                after=conn.execute('SELECT '+columns+' FROM jobwatch.'+table+' WHERE '+key+'=%s',(params['verification_id'] if r['recipe']=='verify_posting_deadline' else params[key],)).fetchone()
                 if wire(after)!=receipt['row']:raise OwnerError('read_back_changed')
         except Exception:
             with self.lock:r['status']='unconfirmed'

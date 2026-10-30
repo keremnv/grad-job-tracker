@@ -25,7 +25,12 @@ def server(core=None, *, port=8766):
             structuredContent=result,isError=not result['ok'])
     @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True,destructiveHint=False,openWorldHint=False),
         description='Prepare one existing SQL recipe: create_application, link_application, update_stage, '
-        'set_followup, set_triage, record_lead, link_lead or correct_lead_deadline. '
+        'set_followup, set_triage, record_lead, link_lead, correct_lead_deadline or verify_posting_deadline. '
+        'For verify_posting_deadline supply posting_key, value (YYYY-MM-DD), wording (observed quote), '
+        'url (checked official source), checked_at (actual time with timezone), reason (verification/correction basis), '
+        'and supersedes (array of exact active claim_id strings from posting_deadline_claims; [] adds evidence '
+        'without replacing claims). Inspect all claims and explain each replacement to the user. '
+        'Only named claims are superseded; later or unrelated conflicts remain active. '
         'For correct_lead_deadline supply lead_key, deadline_date (YYYY-MM-DD), deadline_wording '
         '(observed quote), deadline_source_url, deadline_official (boolean), deadline_checked_at '
         '(actual timezone-aware check time). This corrects only that lead; other conflicting claims '

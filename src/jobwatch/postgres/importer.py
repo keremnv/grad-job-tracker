@@ -69,6 +69,9 @@ def logical_snapshot(conn, *, derived=False):
                      'leads':('checked_at','deadline_checked_at'), 'triage':('decided_at',)}.get(table,()):
             if row.get(name) is not None:
                 row[name] = stamp(row[name])
+        if table == 'verifications':
+            row.setdefault('deadline_supersedes',None)
+            row.setdefault('deadline_reason',None)
         if table == 'leads':
             for name in ('deadline_source_url','deadline_official','deadline_checked_at','deadline_checked_by'):
                 row.setdefault(name,None)
@@ -105,6 +108,9 @@ def logical_snapshot(conn, *, derived=False):
 
 def expected_rows(plan):
     expected = {t:[dict(r) for r in plan.rows[t]] for t in TABLES}
+    for r in expected['verifications']:
+        r.setdefault('deadline_supersedes',None)
+        r.setdefault('deadline_reason',None)
     for r in expected['leads']:
         for name in ('deadline_source_url','deadline_official','deadline_checked_at','deadline_checked_by'):
             r.setdefault(name,None)

@@ -40,7 +40,8 @@ connection cannot elevate to the existing owner/collector/migrator identities.
 
 Supported recipes are the existing `create_application`, `link_application`,
 `update_stage`, `set_followup`, `set_triage`, `record_lead`, `link_lead`, and
-`correct_lead_deadline` (requires migration 0005 and the grant delta below).
+`correct_lead_deadline` (migration 0005), and `verify_posting_deadline` (migration 0006).
+Each extension requires its own narrow grant delta.
 Creating an application from a resolved posting derives its company/title/URL
 and links it atomically. Manual application keys survive later linkage.
 Clear a completed/cancelled follow-up with empty `action` and `action_date`.
@@ -124,3 +125,15 @@ This recipe corrects only the lead claim. A conflicting collected posting or
 independent verification remains unresolved and can still cause calendar omission.
 Tracked-posting verification and general claim supersession are follow-up work.
 Migration and deployment requirements: [lead correction rollout](LEAD_DEADLINE_CORRECTION.md).
+
+## Verify a tracked posting deadline
+
+Use `verify_posting_deadline` to append an independently checked deadline. Read
+`jobwatch.posting_deadline_claims` first. Supply `posting_key`, `value` (YYYY-MM-DD),
+`wording`, `url`, `checked_at`, `reason`, and `supersedes` (an array of active
+`claim_id` strings, or `[]`). Show the complete prepared review and obtain exact
+confirmation. Only named claims are superseded. Later observations and unrelated
+conflicts remain active; a changed evidence set makes a prepared review stale.
+Original verifications and feed versions are preserved. Claim IDs and supersession
+are visible in research; new insert images and authenticated login/actor are in the
+existing private audit. See [behavior, limits and rollout](POSTING_DEADLINE_VERIFICATION.md).

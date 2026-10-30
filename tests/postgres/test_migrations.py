@@ -62,7 +62,7 @@ class MigrationTests(unittest.TestCase):
             conn.execute('GRANT SELECT ON jobwatch.agent_leads TO jobwatch_owner')
             old=conn.execute('SELECT * FROM jobwatch.leads').fetchone()
             audit=conn.execute('SELECT * FROM jobwatch.owner_audit').fetchall()
-            self.assertEqual(migrate(conn),[plan[4].filename])
+            self.assertEqual(migrate(conn),[m.filename for m in plan[4:]])
             after=conn.execute('SELECT * FROM jobwatch.leads').fetchone()
             self.assertEqual({k:after[k] for k in old},old)
             self.assertTrue(all(after[k] is None for k in ('deadline_source_url','deadline_official',
@@ -70,6 +70,27 @@ class MigrationTests(unittest.TestCase):
             self.assertEqual(conn.execute('SELECT * FROM jobwatch.owner_audit').fetchall(),audit)
             self.assertTrue(conn.execute("SELECT has_table_privilege('jobwatch_owner','jobwatch.agent_leads','SELECT') AS ok").fetchone()['ok'])
             self.assertIn('deadline_checked_by',conn.execute('SELECT * FROM jobwatch.agent_leads').fetchone())
+
+    def test_posting_deadline_upgrade_keeps_legacy_verification_evidence(self):
+        from support import actor,source,run,posting
+        plan=load_migrations()
+        with self.target.connect() as c:
+            migrate(c,plan[:5])
+            with c.transaction():
+                actor(c);sid=source(c);attempt=run(c,sid);key,_=posting(c,sid,attempt['id'])
+                c.execute("INSERT INTO jobwatch.verifications(posting_key,kind,checked_at,checked_by,url,wording,value) VALUES (%s,'deadline',now(),'owner','https://example.org/official','Apply by 12 November','2026-11-12')",(key,))
+            old=c.execute('SELECT * FROM jobwatch.verifications').fetchone()
+            audit=c.execute('SELECT * FROM jobwatch.owner_audit').fetchall()
+            self.assertEqual(migrate(c),[plan[5].filename])
+            after=c.execute('SELECT * FROM jobwatch.verifications').fetchone()
+            self.assertEqual({k:after[k] for k in old},old)
+            self.assertIsNone(after['deadline_supersedes'])
+            self.assertIsNone(after['deadline_reason'])
+            self.assertEqual(c.execute('SELECT * FROM jobwatch.owner_audit').fetchall(),audit)
+            claims=c.execute('SELECT * FROM jobwatch.posting_deadline_claims').fetchall()
+            self.assertEqual(len(claims),1)
+            self.assertEqual(claims[0]['claim_id'],'verification:'+str(old['id']))
+            self.assertEqual(claims[0]['superseded_by'],[])
 
     def test_changed_migration_refused(self):
         original = load_migrations()

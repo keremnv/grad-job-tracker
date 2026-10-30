@@ -114,3 +114,14 @@ the row and compares this sanitized snapshot before updating the deadline fields
 Use a unique actor per intended correction for its postcondition and audit receipt.
 Read back the six deadline fields after COMMIT. Existing audit history retains the
 prior values, source and original lead context. See [rollout requirements](LEAD_DEADLINE_CORRECTION.md).
+
+## Posting deadline verification (migration 0006; deployment pending)
+
+`verify_posting_deadline` appends a verification and explicit supersession edges.
+For direct SQL, read `SELECT to_jsonb(s) FROM jobwatch.posting_deadline_state s
+WHERE posting_key=…` as `expected_state`; allocate a stable `verification_id` UUID
+and unique actor before the first attempt. Supply a JSON array of exact claim IDs
+as `supersedes`, with a reason for the independently checked date. The recipe
+serializes checks, compares evidence state, preserves original rows, and supports
+fixed-ID retries. Read back the UUID and evidence after COMMIT; keep the existing
+private audit policy. Details: [posting verification](POSTING_DEADLINE_VERIFICATION.md).

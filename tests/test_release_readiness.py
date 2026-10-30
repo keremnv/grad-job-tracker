@@ -114,7 +114,7 @@ class ReleasePreparationTests(unittest.TestCase):
                      'sql/postgresql/embedding_access.sql', 'sql/postgresql/chat_readonly.sql',
                      'sql/postgresql/owner_workflows.sql','sql/postgresql/agent_roles.sql',
                      'sql/postgresql/agent_access.sql','sql/postgresql/calendar_deadlines.sql',
-                     'sql/postgresql/lead_deadline_access.sql',
+                     'sql/postgresql/lead_deadline_access.sql','sql/postgresql/posting_deadline_access.sql',
                      'infra/aws/integrations/systemd/jobwatch-agent-read.service']
             for name in [*files, 'data/applications.csv', 'config/employers.json', '.env', 'reports/latest.md']:
                 p = repo/name;p.parent.mkdir(parents=True, exist_ok=True);p.write_text('synthetic canary\n')

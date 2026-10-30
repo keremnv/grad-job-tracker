@@ -26,7 +26,7 @@ class AgentIntegrationTests(DatabaseTest):
     def setUpClass(cls):
         super().setUpClass()
         container=os.environ['JOBWATCH_PG_TEST_CONTAINER']
-        for filename in ('agent_roles.sql','agent_access.sql','lead_deadline_access.sql'):
+        for filename in ('agent_roles.sql','agent_access.sql','lead_deadline_access.sql','posting_deadline_access.sql'):
             p=subprocess.run(['docker','exec','-i',container,'psql','-X','-U','postgres',
                 '-d','jobwatch_foundation_test','-v','ON_ERROR_STOP=1','-f','-'],
                 input=(ROOT/'sql/postgresql'/filename).read_text(),text=True,capture_output=True)
@@ -131,6 +131,8 @@ class AgentIntegrationTests(DatabaseTest):
         with self.target.connect('jobwatch_calendar_reader') as c:
             all_data=reports.calendar_data(c,shared=True)
             selected=reports.calendar_data(c,shared=True,deadline_selection_sql="SELECT posting_key AS evidence_key FROM jobwatch.postings WHERE false")
+        # Compare selection behavior at one publication time, even across a UTC second boundary.
+        selected['generated_at']=all_data['generated_at']
         all_files,_=calendar_feed.build(all_data);limited,_=calendar_feed.build(selected)
         self.assertIn(b'BEGIN:VEVENT',all_files['deadlines.ics'])
         self.assertIn(b'BEGIN:VEVENT',all_files['actions.ics'])
@@ -270,6 +272,193 @@ class AgentIntegrationTests(DatabaseTest):
                 with self.assertRaises(psycopg.Error),c.transaction():
                     c.execute('SET TRANSACTION READ WRITE');actor(c)
                     c.execute('UPDATE jobwatch.leads SET '+column+'='+value)
+
+    def posting_check(self,**changes):
+        return dict(posting_key=self.key,value='2026-11-12',wording='Applications close 12 November 2026',
+            url='https://example.org/official-deadline',
+            checked_at=(datetime.now(timezone.utc)-timedelta(seconds=1)).isoformat(),
+            supersedes=[],reason='Independently checked the official vacancy page',**changes)
+
+    def posting_claims(self):
+        with self.target.connect('jobwatch_agent_readonly') as c:
+            return c.execute('SELECT * FROM jobwatch.posting_deadline_claims WHERE posting_key=%s ORDER BY claim_id',
+                (self.key,)).fetchall()
+
+    def feed_claim(self,value='2026-11-10',observed_at='2026-10-23T12:00:00Z',*,new_version=False):
+        from support import version,run
+        with self.target.connect() as c,c.transaction():
+            actor(c)
+            if new_version:
+                attempt=run(c,self.source)
+                vid=version(c,self.key,self.source,attempt['id'],
+                    evidence={'id':'1','description':'Build Python services','deadline':value,'observed_at':observed_at},
+                    title='Deadline fixture '+str(attempt['id']))
+                c.execute('UPDATE jobwatch.postings SET current_version_id=%s WHERE posting_key=%s',(vid,self.key))
+            else:vid=self.vid
+            evidence=[dict(value=value,wording='Apply by '+value,url='https://example.org/feed-deadline',
+                observed_at=observed_at,source_field='application_deadline')]
+            c.execute('UPDATE jobwatch.posting_versions SET deadlines=%s::jsonb WHERE id=%s',(json.dumps(evidence),vid))
+        return next(c['claim_id'] for c in self.posting_claims() if c['provenance']=='feed_observation' and c['value']==value
+            and c['checked_at']==observed_at)
+
+    def test_posting_deadline_new_check_audit_receipt_and_retries(self):
+        p=self.change('verify_posting_deadline',**self.posting_check())
+        self.assertEqual(self.scalar('SELECT count(*) FROM jobwatch.verifications'),0)
+        receipt=self.commit(p)
+        self.assertTrue(self.commit(p)['replayed'])
+        self.assertEqual(receipt['row']['value'],'2026-11-12')
+        self.assertEqual(receipt['row']['deadline_supersedes'],[])
+        self.assertEqual(receipt['row']['checked_by'],'agent_on_owner_instruction')
+        self.assertEqual(receipt['row']['actor'],receipt['actor'])
+        with self.target.connect() as c:
+            audit=c.execute("SELECT * FROM jobwatch.owner_audit WHERE table_name='verifications'").fetchall()
+        self.assertEqual(len(audit),1)
+        self.assertIsNone(audit[0]['old_row'])
+        self.assertEqual(audit[0]['new_row']['id'],receipt['row']['id'])
+        self.assertEqual(audit[0]['db_login'],'jobwatch_agent_owner')
+        self.assertEqual(audit[0]['actor'],receipt['actor'])
+        # Fixed-ID cookbook retry after reconnect is also idempotent, despite changed state.
+        from jobwatch.postgres.owner_tools import execute_recipe
+        with self.owner.session(write=True) as c:
+            actor(c,receipt['actor'])
+            execute_recipe(c,'verify_posting_deadline',{**p['review']['values'],'actor':receipt['actor']})
+        self.assertEqual(self.scalar('SELECT count(*) FROM jobwatch.verifications'),1)
+        self.assertEqual(self.scalar("SELECT count(*) FROM jobwatch.owner_audit WHERE table_name='verifications'"),1)
+        self.assertIn(b'20261112',calendar_feed.build(self.deadline_data())[0]['deadlines.ics'])
+
+    def test_posting_deadline_explicit_feed_correction_stable_calendar_and_history(self):
+        old=self.feed_claim()
+        original=self.scalar('SELECT deadlines FROM jobwatch.posting_versions WHERE id=%s',(self.vid,))
+        files,manifest=calendar_feed.build(self.deadline_data())
+        values={**self.posting_check(),'supersedes':[old],'reason':'Official page explicitly extends the feed date'}
+        receipt=self.commit(self.change('verify_posting_deadline',**values))
+        data=self.deadline_data()
+        inactive=next(c for c in data['deadlines'] if c.get('claim_id')==old)
+        self.assertFalse(inactive['active'])
+        self.assertEqual(inactive['value'],'2026-11-10')
+        self.assertEqual(inactive['superseded_by'],['verification:'+receipt['row']['id']])
+        self.assertFalse(any(c['date_conflict'] for c in data['deadlines']))
+        updated,state=calendar_feed.build(data,manifest)
+        self.assertEqual(set(manifest['events']),set(state['events']))
+        uid=next(iter(manifest['events']))
+        self.assertEqual(state['events'][uid]['sequence'],manifest['events'][uid]['sequence']+1)
+        self.assertIn(b'20261112',updated['deadlines.ics'])
+        self.assertNotEqual(files['deadlines.ics'],updated['deadlines.ics'])
+        self.assertEqual(self.scalar('SELECT deadlines FROM jobwatch.posting_versions WHERE id=%s',(self.vid,)),original)
+        # A subsequent contradictory observation has a new identity and remains active.
+        later=self.feed_claim('2026-11-10','2026-10-24T12:00:00Z',new_version=True)
+        self.assertNotEqual(later,old)
+        data=self.deadline_data()
+        self.assertTrue(next(c for c in data['deadlines'] if c.get('claim_id')==later)['active'])
+        self.assertFalse(next(c for c in data['deadlines'] if c.get('claim_id')==old)['active'])
+        omitted,omitted_state=calendar_feed.build(data,state)
+        self.assertNotIn(b'BEGIN:VEVENT',omitted['deadlines.ics'])
+        # Explicitly resolving that later claim restores the same UID with a later revision.
+        self.commit(self.change('verify_posting_deadline',**{**self.posting_check(),'supersedes':[later]}))
+        restored,state2=calendar_feed.build(self.deadline_data(),omitted_state)
+        self.assertIn(b'BEGIN:VEVENT',restored['deadlines.ics'])
+        self.assertIn(uid,state2['events'])
+        self.assertGreater(state2['events'][uid]['sequence'],state['events'][uid]['sequence'])
+
+    def test_posting_deadline_unrelated_sources_and_chain_supersession(self):
+        feed=self.feed_claim()
+        a=self.commit(self.change('verify_posting_deadline',**self.posting_check()))
+        aid='verification:'+a['row']['id']
+        self.assertNotIn(b'BEGIN:VEVENT',calendar_feed.build(self.deadline_data())[0]['deadlines.ics'])
+        # Replacing only the check does not resolve the unrelated feed claim.
+        b=self.commit(self.change('verify_posting_deadline',**{**self.posting_check(),
+            'value':'2026-11-14','supersedes':[aid]}))
+        self.assertNotIn(b'BEGIN:VEVENT',calendar_feed.build(self.deadline_data())[0]['deadlines.ics'])
+        bid='verification:'+b['row']['id']
+        self.commit(self.change('verify_posting_deadline',**{**self.posting_check(),
+            'value':'2026-11-16','supersedes':[feed,bid]}))
+        claims=self.posting_claims()
+        self.assertEqual(sum(not c['superseded_by'] for c in claims),1)
+        self.assertEqual(len(claims),4)
+        self.assertIn(b'20261116',calendar_feed.build(self.deadline_data())[0]['deadlines.ics'])
+        # Even a duplicate date/source/quote is a separate independently observed check.
+        self.commit(self.change('verify_posting_deadline',**{**self.posting_check(),'value':'2026-11-14','url':'https://example.org/another-source'}))
+        self.assertNotIn(b'BEGIN:VEVENT',calendar_feed.build(self.deadline_data())[0]['deadlines.ics'])
+
+    def test_posting_deadline_copied_feed_observation_keeps_claim_identity(self):
+        old=self.feed_claim()
+        copied=self.feed_claim(new_version=True)
+        self.assertEqual(old,copied)
+        self.assertEqual(len(self.posting_claims()),1)
+        self.commit(self.change('verify_posting_deadline',**{**self.posting_check(),'supersedes':[old]}))
+        self.feed_claim(new_version=True)
+        claims=self.posting_claims()
+        self.assertEqual(len(claims),2)
+        self.assertTrue(next(c for c in claims if c['claim_id']==old)['superseded_by'])
+        self.assertIn(b'BEGIN:VEVENT',calendar_feed.build(self.deadline_data())[0]['deadlines.ics'])
+
+    def test_posting_deadline_stale_checks_and_new_feed_refuse_write(self):
+        a=self.change('verify_posting_deadline',**self.posting_check())
+        b=self.change('verify_posting_deadline',**self.posting_check())
+        self.commit(a)
+        result=self.owner.call('commit_owner_change',{'change_id':b['change_id'],'review':b['review']})
+        self.assertEqual(result['error']['code'],'stale_state')
+        p=self.change('verify_posting_deadline',**self.posting_check())
+        self.feed_claim(new_version=True)
+        result=self.owner.call('commit_owner_change',{'change_id':p['change_id'],'review':p['review']})
+        self.assertEqual(result['error']['code'],'stale_state')
+        self.assertEqual(self.scalar('SELECT count(*) FROM jobwatch.verifications'),1)
+        self.assertEqual(self.scalar("SELECT count(*) FROM jobwatch.owner_audit WHERE table_name='verifications'"),1)
+
+    def test_posting_deadline_concurrent_corrections_have_one_winner(self):
+        from concurrent.futures import ThreadPoolExecutor
+        claim=self.feed_claim()
+        prepared=[self.change('verify_posting_deadline',**{**self.posting_check(),'value':value,
+            'supersedes':[claim]}) for value in ('2026-11-12','2026-11-14')]
+        def write(p):
+            return self.owner.call('commit_owner_change',{'change_id':p['change_id'],'review':p['review']})
+        with ThreadPoolExecutor(2) as pool:results=list(pool.map(write,prepared))
+        self.assertEqual(sum(r['ok'] for r in results),1,results)
+        self.assertEqual(next(r['error']['code'] for r in results if not r['ok']),'stale_state')
+        self.assertEqual(self.scalar('SELECT count(*) FROM jobwatch.verifications'),1)
+        self.assertEqual(sum(not c['superseded_by'] for c in self.posting_claims()),1)
+
+    def test_posting_deadline_invalid_targets_inputs_and_database_permissions(self):
+        import psycopg
+        for patch in ({'supersedes':['verification:missing']},{'supersedes':['x','x']},
+                {'supersedes':'[]'},{'url':'javascript:bad'},{'reason':''},{'value':'unknown'},
+                {'checked_at':(datetime.now(timezone.utc)+timedelta(days=1)).isoformat()}):
+            r=self.owner.call('prepare_owner_change',{'recipe':'verify_posting_deadline','values':{**self.posting_check(),**patch}})
+            self.assertFalse(r['ok'],r)
+        p=self.change('verify_posting_deadline',**self.posting_check())
+        bad=deepcopy(p['review']);bad['values']['supersedes']='["unapproved"]'
+        self.assertEqual(self.owner.call('commit_owner_change',{'change_id':p['change_id'],'review':bad})['error']['code'],'review_mismatch')
+        for role in ('jobwatch_agent_readonly','jobwatch_calendar_reader','jobwatch_collector'):
+            with self.target.connect(role) as c:
+                with self.assertRaises(psycopg.Error),c.transaction():
+                    c.execute('SET TRANSACTION READ WRITE');actor(c)
+                    c.execute("INSERT INTO jobwatch.verifications(posting_key,kind,checked_at,checked_by,url,wording,value) VALUES (%s,'deadline',now(),'owner','https://example.org','Quote','2026-11-12')",(self.key,))
+        for sql in ("UPDATE jobwatch.verifications SET value='2026-11-20'",'DELETE FROM jobwatch.verifications',
+                "UPDATE jobwatch.posting_versions SET deadlines='[]'", "UPDATE jobwatch.postings SET verdict='priority'",
+                "INSERT INTO jobwatch.verifications(posting_key,kind,checked_at,checked_by,url,wording,value,deadline_supersedes,deadline_reason) VALUES (%s,'deadline',now(),'agent_on_owner_instruction','https://example.org','Quote','2026-11-12',jsonb_build_array('feed:missing'),'Reason')"):
+            with self.target.connect('jobwatch_agent_owner') as c:
+                with self.assertRaises(psycopg.Error),c.transaction():
+                    c.execute('SET TRANSACTION READ WRITE');actor(c)
+                    c.execute(sql,(self.key,) if '%s' in sql else None)
+        self.assertEqual(self.scalar('SELECT count(*) FROM jobwatch.verifications'),0)
+
+    def test_posting_deadline_unconfirmed_commit_requires_research_before_retry(self):
+        from contextlib import contextmanager
+        from unittest.mock import patch
+        from jobwatch.postgres.owner_tools import OwnerError
+        p=self.change('verify_posting_deadline',**self.posting_check())
+        real=self.owner.session
+        @contextmanager
+        def interrupted(*,write=False):
+            if not write:raise OwnerError('read_back_failed')
+            with real(write=write) as c:yield c
+        with patch.object(self.owner,'session',interrupted):
+            r=self.owner.call('commit_owner_change',{'change_id':p['change_id'],'review':p['review']})
+        self.assertFalse(r['ok'])
+        retry=self.owner.call('commit_owner_change',{'change_id':p['change_id'],'review':p['review']})
+        self.assertEqual(retry['error']['code'],'write_unconfirmed')
+        self.assertEqual(self.scalar('SELECT count(*) FROM jobwatch.verifications'),1)
+        self.assertEqual(self.posting_claims()[0]['claim_id'],'verification:'+p['review']['values']['verification_id'])
 
     def test_official_mcp_clients_composed_research_and_confirmed_owner_change(self):
         from mcp import ClientSession,StdioServerParameters

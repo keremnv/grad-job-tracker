@@ -19,7 +19,7 @@ PATHS = ('src', 'pyproject.toml', 'infra/aws/scripts', 'infra/aws/systemd',
          'sql/postgresql/bootstrap.sql', 'sql/postgresql/owner_workflows.sql', 'sql/postgresql/vector_extension.sql',
          'sql/postgresql/embedding_access.sql', 'sql/postgresql/chat_readonly.sql',
          'sql/postgresql/agent_roles.sql','sql/postgresql/agent_access.sql',
-         'sql/postgresql/lead_deadline_access.sql',
+         'sql/postgresql/lead_deadline_access.sql','sql/postgresql/posting_deadline_access.sql',
          'sql/postgresql/calendar_deadlines.sql','infra/aws/integrations')
 
 

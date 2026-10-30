@@ -75,3 +75,8 @@ private-field preservation, audit actor/login and old/new images, confirmed repl
 tampered reviews, changed legacy source, competing prepared changes, invalid/future
 checks, non-official evidence omission, role denials, calendar UID/SEQUENCE, and
 migration over an existing provisioned view without changing evidence or audit.
+
+
+The subsequent [posting verification extension](POSTING_DEADLINE_VERIFICATION.md)
+adds migration 0006 and its separate grant delta. The lead recipe remains available;
+posting supersession never silently overrides a linked lead's evidence.

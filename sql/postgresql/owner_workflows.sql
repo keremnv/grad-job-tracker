@@ -192,3 +192,35 @@ DO $$ BEGIN RAISE EXCEPTION 'Owner write not confirmed: reread expected state'; 
 SELECT lead_key,deadline_date,deadline_wording,deadline_source_url,deadline_official,
   deadline_checked_at,deadline_checked_by FROM jobwatch.leads WHERE lead_key=:'lead_key';
 -- END correct_lead_deadline
+
+-- BEGIN verify_posting_deadline
+\set ON_ERROR_STOP on
+BEGIN;
+SET LOCAL jobwatch.actor = :'actor';
+-- Do not lock/update collector rows. A fresh statement snapshot after this lock
+-- observes other checks committed while we waited. Collector changes after the
+-- guarded insert remain distinct evidence and are never swept into supersession.
+SELECT pg_advisory_xact_lock(hashtextextended('jobwatch.deadline:'||:'posting_key',0));
+INSERT INTO jobwatch.verifications(id,posting_key,kind,checked_at,checked_by,url,wording,value,
+  deadline_supersedes,deadline_reason)
+SELECT :'verification_id'::uuid,:'posting_key','deadline',:'checked_at'::timestamptz,
+  'agent_on_owner_instruction',:'url',:'wording',:'value',:'supersedes'::jsonb,:'reason'
+WHERE :'checked_at'::timestamptz <= clock_timestamp()
+  AND NOT EXISTS (SELECT 1 FROM jobwatch.verifications WHERE id=:'verification_id'::uuid)
+  AND EXISTS (SELECT 1 FROM jobwatch.posting_deadline_state s WHERE s.posting_key=:'posting_key'
+    AND to_jsonb(s)=:'expected_state'::jsonb)
+ON CONFLICT(id) DO NOTHING
+RETURNING id;
+SELECT count(*)=1 AS ok FROM jobwatch.verifications WHERE id=:'verification_id'::uuid
+  AND (posting_key,kind,checked_at,checked_by,url,wording,value,deadline_supersedes,deadline_reason,actor)
+    IS NOT DISTINCT FROM (:'posting_key','deadline',:'checked_at'::timestamptz,
+      'agent_on_owner_instruction',:'url',:'wording',:'value',:'supersedes'::jsonb,:'reason',:'actor') \gset
+\if :ok
+COMMIT;
+\else
+ROLLBACK;
+DO $$ BEGIN RAISE EXCEPTION 'Owner write not confirmed: reread expected state'; END $$;
+\endif
+SELECT id,posting_key,kind,checked_at,checked_by,url,wording,value,deadline_supersedes,
+  deadline_reason,actor,recorded_at FROM jobwatch.verifications WHERE id=:'verification_id'::uuid;
+-- END verify_posting_deadline
