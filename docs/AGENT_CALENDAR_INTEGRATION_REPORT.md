@@ -1,5 +1,7 @@
 # Agent/calendar integration qualification — 27 October 2026
 
+> **Historical qualification, before deployment:** The “not deployed” statement below describes this qualification stage, not the current system. The subsequent [27 October integration release](INTEGRATION_RELEASE.md) documents deployment and operational checks. This report is retained unchanged as evidence of the predeployment tests.
+
 Implemented on `feat/agent-calendar-integrations`, based on production main
 `9d24af422858c714964d0951ddd6ba5074191ac6`. Code/artifact revision:
 `41f640ba463c6bfb58eef9d63de34b27163dafd2`. Subsequent documentation commits

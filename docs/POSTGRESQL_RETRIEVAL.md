@@ -1,5 +1,7 @@
 # Local pgvector retrieval
 
+> **Local-development scope:** Some statements below describe the original offline retrieval stage. The production database was subsequently activated; PostgreSQL retrieval and private ChatGPT integration status are recorded in the [current README](../README.md) and [integration release](INTEGRATION_RELEASE.md). Vector retrieval remains unpopulated in production, and model inference does not run on the database host.
+
 This is an explicit development path. It does not change the file-backed runtime,
 AWS, collection, screening or immutable evidence. PostgreSQL hosting and model
 execution are independent; the 2 GiB EC2 host is not qualified for this model.

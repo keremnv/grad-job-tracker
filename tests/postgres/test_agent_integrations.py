@@ -1,5 +1,6 @@
 """Least-privilege research and actual cookbook owner writes; no production target."""
 import asyncio
+import importlib.util
 import sys
 from copy import deepcopy
 from dataclasses import replace
@@ -48,6 +49,98 @@ class AgentIntegrationTests(DatabaseTest):
         r=self.owner.call('commit_owner_change',{'change_id':p['change_id'],'review':p['review']})
         self.assertTrue(r['ok'],r)
         return r['data']
+
+
+    @unittest.skipUnless(importlib.util.find_spec('mcp') is not None,
+                         'Install the optional chat-mcp dependencies for the synthetic walkthrough')
+    def test_portfolio_walkthrough(self):
+        """One disposable source -> real MCP SDK -> authorised owner -> private ICS trace.
+
+        A local synthetic client invokes the write tool, not the ChatGPT approval UI.
+        The selected PostgreSQL target is verified by DatabaseTest; no real ATS or AWS.
+        """
+        from mcp import ClientSession, StdioServerParameters
+        from mcp.client.stdio import stdio_client
+
+        revisit = (datetime.now(timezone.utc) + timedelta(days=5)).date().isoformat()
+        read_env = {'PATH': os.defpath, 'PYTHONPATH': str(ROOT/'src'),
+                    'PYTHONDONTWRITEBYTECODE': '1',
+                    'JOBWATCH_CHAT_DATABASE_URL': self.target.config('jobwatch_agent_readonly').dsn}
+        owner_env = {'PATH': os.defpath, 'PYTHONPATH': str(ROOT/'src'),
+                     'PYTHONDONTWRITEBYTECODE': '1',
+                     'JOBWATCH_AGENT_OWNER_DATABASE_URL': self.target.config('jobwatch_agent_owner').dsn}
+
+        async def exercise():
+            rparams = StdioServerParameters(command=sys.executable,
+                args=['-m', 'jobwatch.postgres.read_mcp', '--shared'], env=read_env)
+            wparams = StdioServerParameters(command=sys.executable,
+                args=['-m', 'jobwatch.postgres.owner_mcp'], env=owner_env)
+            with open(os.devnull, 'w') as errors:
+                async with stdio_client(rparams, errlog=errors) as (rr, rt), ClientSession(rr, rt) as research:
+                    await research.initialize()
+                    listing = await research.call_tool('sql_query', {
+                        'sql': 'SELECT posting_key,title,verdict FROM jobwatch.research_postings ORDER BY posting_key',
+                        'limit': 5})
+                    self.assertTrue(listing.structuredContent['ok'], listing.structuredContent)
+                    rows = listing.structuredContent['data']['rows']
+                    self.assertEqual(len(rows), 1)
+                    self.assertEqual(rows[0][0], self.key)
+                    self.assertEqual(rows[0][1], 'Graduate Software Engineer')
+                    print('DEMO 1/5  Research MCP: one synthetic job found; verdict = ' + rows[0][2])
+
+                    evidence = await research.call_tool('inspect_evidence', {
+                        'posting_key': self.key, 'events_limit': 5})
+                    self.assertTrue(evidence.structuredContent['ok'], evidence.structuredContent)
+                    data = evidence.structuredContent['data']
+                    self.assertEqual(data['posting_key'], self.key)
+                    self.assertEqual(data['untrusted_evidence']['data']['description'],
+                                     'Build Python services')
+                    self.assertEqual(data['untrusted_evidence']['trust'], 'untrusted_source_data')
+                    print('DEMO 2/5  Evidence MCP: exact parsed source and provenance inspected')
+
+                    async with stdio_client(wparams, errlog=errors) as (wr, wt), ClientSession(wr, wt) as owner:
+                        await owner.initialize()
+                        later = await owner.call_tool('prepare_owner_change', {
+                            'recipe': 'set_triage',
+                            'values': {'posting_key': self.key, 'decision': 'later',
+                                       'reason': 'role_fit', 'revisit_on': revisit}})
+                        self.assertTrue(later.structuredContent['ok'], later.structuredContent)
+                        approved = later.structuredContent['data']
+                        self.assertEqual(approved['review']['values']['decision'], 'later')
+                        self.assertEqual(approved['review']['values']['revisit_on'], revisit)
+
+                        stale = await owner.call_tool('prepare_owner_change', {
+                            'recipe': 'set_triage',
+                            'values': {'posting_key': self.key, 'decision': 'interested',
+                                       'reason': 'role_fit', 'revisit_on': ''}})
+                        self.assertTrue(stale.structuredContent['ok'], stale.structuredContent)
+                        outdated = stale.structuredContent['data']
+
+                        # Simulated confirmation in a disposable fixture. Real ChatGPT
+                        # confirmation is a separate, client-side security requirement.
+                        committed = await owner.call_tool('commit_owner_change', {
+                            'change_id': approved['change_id'], 'review': approved['review']})
+                        self.assertTrue(committed.structuredContent['ok'], committed.structuredContent)
+                        self.assertEqual(committed.structuredContent['data']['db_login'], 'jobwatch_agent_owner')
+                        print('DEMO 3/5  Owner MCP: prepared review committed by synthetic client; audited')
+
+                        rejected = await owner.call_tool('commit_owner_change', {
+                            'change_id': outdated['change_id'], 'review': outdated['review']})
+                        self.assertFalse(rejected.structuredContent['ok'])
+                        self.assertEqual(rejected.structuredContent['error']['code'], 'stale_state')
+                        print('DEMO 4/5  Owner MCP: competing stale review refused (stale_state)')
+
+        asyncio.run(exercise())
+        with self.target.connect('jobwatch_calendar_reader') as conn:
+            snapshot = reports.calendar_data(conn, shared=True)
+        files, manifest = calendar_feed.build(snapshot)
+        self.assertEqual(manifest['files']['actions.ics']['events'], 1)
+        self.assertIn(b'BEGIN:VEVENT', files['actions.ics'])
+        self.assertIn(b'Revisit: Test', files['actions.ics'])
+        self.assertEqual(self.scalar("SELECT count(*) FROM jobwatch.owner_audit "
+                         "WHERE table_name='triage' AND db_login='jobwatch_agent_owner'"), 1)
+        self.assertEqual(str(self.scalar("SELECT revisit_on FROM jobwatch.triage")), revisit)
+        print('DEMO 5/5  Calendar: one minimal synthetic revisit event generated for ' + revisit)
 
     def test_shared_complex_sql_reports_and_private_column_denials(self):
         with self.target.connect('jobwatch_owner') as c,c.transaction():
