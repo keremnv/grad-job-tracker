@@ -26,7 +26,7 @@ class AgentIntegrationTests(DatabaseTest):
     def setUpClass(cls):
         super().setUpClass()
         container=os.environ['JOBWATCH_PG_TEST_CONTAINER']
-        for filename in ('agent_roles.sql','agent_access.sql'):
+        for filename in ('agent_roles.sql','agent_access.sql','lead_deadline_access.sql'):
             p=subprocess.run(['docker','exec','-i',container,'psql','-X','-U','postgres',
                 '-d','jobwatch_foundation_test','-v','ON_ERROR_STOP=1','-f','-'],
                 input=(ROOT/'sql/postgresql'/filename).read_text(),text=True,capture_output=True)
@@ -165,6 +165,111 @@ class AgentIntegrationTests(DatabaseTest):
         self.assertEqual(self.scalar('SELECT count(*) FROM jobwatch.postings'),1)
         bad={**values,'checked_at':(now+timedelta(days=1)).isoformat()}
         self.assertFalse(self.owner.call('prepare_owner_change',{'recipe':'record_lead','values':bad})['ok'])
+
+    def deadline_lead(self):
+        self.commit(self.change('record_lead',lead_key='vacancy:deadline-test',kind='vacancy',
+            company='Synthetic',title='Deadline role',state='listed',official=True,
+            source_note='PRIVATE_SOURCE',url='https://example.org/manual-deadline',
+            wording='Original observation',deadline_date='2026-11-10',
+            deadline_wording='Apply by 10 November',
+            checked_at=(datetime.now(timezone.utc)-timedelta(minutes=2)).isoformat()))
+        with self.target.connect('jobwatch_owner') as c,c.transaction():
+            actor(c)
+            c.execute("UPDATE jobwatch.leads SET details=%s::jsonb WHERE lead_key='vacancy:deadline-test'",
+                (json.dumps({'legacy_json':json.dumps({'deadline':{'url':'https://example.org/old-source'},
+                    'note':'PRIVATE_LEGACY'})}),))
+
+    def correction(self,**overrides):
+        return dict(lead_key='vacancy:deadline-test',deadline_date='2026-11-20',
+            deadline_wording='Applications close 20 November 2026',
+            deadline_source_url='https://example.org/new-source',deadline_official=True,
+            deadline_checked_at=(datetime.now(timezone.utc)-timedelta(seconds=1)).isoformat(),**overrides)
+
+    def deadline_data(self):
+        with self.target.connect('jobwatch_calendar_reader') as c:
+            return reports.calendar_data(c,shared=True)
+
+    def test_correct_lead_deadline_provenance_audit_replay_and_calendar_revision(self):
+        self.deadline_lead()
+        before=self.deadline_data()
+        claim=next(d for d in before['deadlines'] if d.get('lead_key')=='vacancy:deadline-test')
+        self.assertEqual(claim['url'],'https://example.org/old-source')
+        files,manifest=calendar_feed.build(before)
+        values=self.correction()
+        p=self.change('correct_lead_deadline',**values)
+        self.assertNotIn('PRIVATE_',json.dumps(p))
+        audit_before=self.scalar('SELECT count(*) FROM jobwatch.owner_audit')
+        receipt=self.commit(p)
+        self.assertTrue(receipt['calendar_refresh_queued'])
+        self.assertEqual(receipt['row']['deadline_source_url'],values['deadline_source_url'])
+        self.assertTrue(self.commit(p)['replayed'])
+        self.assertEqual(self.scalar('SELECT count(*) FROM jobwatch.owner_audit'),audit_before+1)
+        with self.target.connect() as c:
+            audit=c.execute("SELECT * FROM jobwatch.owner_audit WHERE table_name='leads' ORDER BY id DESC LIMIT 1").fetchone()
+        self.assertEqual(audit['db_login'],'jobwatch_agent_owner')
+        self.assertEqual(audit['actor'],receipt['actor'])
+        self.assertEqual(audit['old_row']['deadline_date'],'2026-11-10')
+        self.assertEqual(audit['new_row']['deadline_date'],'2026-11-20')
+        for field in ('details','source_note','checked_at','checked_by','official','url','wording','state'):
+            self.assertEqual(audit['old_row'][field],audit['new_row'][field],field)
+        after=self.deadline_data()
+        claim=next(d for d in after['deadlines'] if d.get('lead_key')=='vacancy:deadline-test')
+        self.assertEqual(claim['url'],values['deadline_source_url'])
+        self.assertEqual(claim['checked_by'],receipt['actor'])
+        self.assertEqual(claim['checked_at'].isoformat(),receipt['row']['deadline_checked_at'])
+        updated,new_manifest=calendar_feed.build(after,manifest)
+        self.assertEqual(set(manifest['events']),set(new_manifest['events']))
+        uid=next(iter(manifest['events']))
+        self.assertEqual(new_manifest['events'][uid]['sequence'],manifest['events'][uid]['sequence']+1)
+        self.assertIn(b'20261120',updated['deadlines.ics'])
+        self.assertNotIn(b'PRIVATE_',updated['deadlines.ics'])
+        self.assertNotEqual(files['deadlines.ics'],updated['deadlines.ics'])
+        # Full owner projection and sanitized shared projection agree on corrected provenance.
+        with self.target.connect('jobwatch_owner') as c:full=reports.calendar_data(c)
+        self.assertEqual(full['deadlines'],after['deadlines'])
+
+    def test_correct_lead_deadline_stale_tampered_invalid_and_unofficial(self):
+        self.deadline_lead()
+        p=self.change('correct_lead_deadline',**self.correction())
+        changed=deepcopy(p['review']);changed['values']['deadline_date']='2026-11-30'
+        result=self.owner.call('commit_owner_change',{'change_id':p['change_id'],'review':changed})
+        self.assertEqual(result['error']['code'],'review_mismatch')
+        # Even a change confined to the legacy deadline source makes the review stale.
+        with self.target.connect('jobwatch_owner') as c,c.transaction():
+            actor(c);c.execute("UPDATE jobwatch.leads SET details='{}' WHERE lead_key='vacancy:deadline-test'")
+        count=self.scalar('SELECT count(*) FROM jobwatch.owner_audit')
+        result=self.owner.call('commit_owner_change',{'change_id':p['change_id'],'review':p['review']})
+        self.assertEqual(result['error']['code'],'stale_state')
+        self.assertEqual(self.scalar('SELECT count(*) FROM jobwatch.owner_audit'),count)
+        for patch in ({'deadline_wording':''},{'deadline_source_url':'javascript:bad'},
+                {'deadline_checked_at':(datetime.now(timezone.utc)+timedelta(days=1)).isoformat()},
+                {'deadline_checked_at':'2026-10-01T12:00:00'},{'deadline_date':'invented'}):
+            values={**self.correction(),**patch}
+            self.assertFalse(self.owner.call('prepare_owner_change',{'recipe':'correct_lead_deadline','values':values})['ok'])
+        values={**self.correction(),'deadline_official':False}
+        self.commit(self.change('correct_lead_deadline',**values))
+        self.assertNotIn(b'BEGIN:VEVENT',calendar_feed.build(self.deadline_data())[0]['deadlines.ics'])
+
+    def test_correct_lead_deadline_competing_preparations_and_permissions(self):
+        import psycopg
+        self.deadline_lead()
+        a=self.change('correct_lead_deadline',**self.correction())
+        b=self.change('correct_lead_deadline',**{**self.correction(),'deadline_date':'2026-11-21'})
+        self.commit(a)
+        result=self.owner.call('commit_owner_change',{'change_id':b['change_id'],'review':b['review']})
+        self.assertEqual(result['error']['code'],'stale_state')
+        for role in ('jobwatch_agent_readonly','jobwatch_calendar_reader','jobwatch_collector'):
+            with self.target.connect(role) as c:
+                with self.assertRaises(psycopg.Error),c.transaction():
+                    c.execute('SET TRANSACTION READ WRITE')
+                    actor(c)
+                    c.execute("UPDATE jobwatch.leads SET deadline_date='2026-11-25'")
+        for column,value in (('checked_by',"'owner'"),('url',"'https://example.org/other'"),
+                ('official','false'),('details',"'{}'::jsonb")):
+            with self.target.connect('jobwatch_agent_owner') as c:
+                with self.assertRaises(psycopg.Error),c.transaction():
+                    c.execute('SET TRANSACTION READ WRITE');actor(c)
+                    c.execute('UPDATE jobwatch.leads SET '+column+'='+value)
 
     def test_official_mcp_clients_composed_research_and_confirmed_owner_change(self):
         from mcp import ClientSession,StdioServerParameters

@@ -4,7 +4,7 @@
 -- ON_ERROR_STOP and disconnect roll back failed transactions. Exit 3 = stale/mismatched
 -- state: reread; do not blindly overwrite. Psycopg clients use bound parameters and
 -- check RETURNING/rowcount/postconditions in the same ordinary transaction.
--- No source observation, evidence, screening, infrastructure or MCP write authority.
+-- No collector evidence, screening, infrastructure or generic SQL write authority.
 
 -- BEGIN create_application
 \set ON_ERROR_STOP on
@@ -162,3 +162,33 @@ DO $$ BEGIN RAISE EXCEPTION 'Owner write not confirmed: reread expected state'; 
 \endif
 SELECT lead_key,kind,cycle_year,state,checked_at FROM jobwatch.leads WHERE lead_key=:'lead_key';
 -- END record_lead
+
+-- BEGIN correct_lead_deadline
+\set ON_ERROR_STOP on
+BEGIN;
+SET LOCAL jobwatch.actor = :'actor';
+-- Lock before comparing the public snapshot, including legacy source fallback.
+-- The next statement takes a fresh snapshot after a competing writer commits.
+SELECT lead_key FROM jobwatch.leads WHERE lead_key=:'lead_key' FOR UPDATE;
+UPDATE jobwatch.leads SET deadline_date=:'deadline_date'::date,
+  deadline_wording=:'deadline_wording',deadline_source_url=:'deadline_source_url',
+  deadline_official=:'deadline_official'::boolean,
+  deadline_checked_at=:'deadline_checked_at'::timestamptz,deadline_checked_by=:'actor'
+WHERE lead_key=:'lead_key'
+  AND :'deadline_checked_at'::timestamptz <= clock_timestamp()
+  AND EXISTS (SELECT 1 FROM jobwatch.agent_leads l WHERE l.lead_key=:'lead_key'
+    AND to_jsonb(l)=:'expected_state'::jsonb)
+RETURNING lead_key;
+SELECT count(*)=1 AS ok FROM jobwatch.leads WHERE lead_key=:'lead_key'
+  AND (deadline_date,deadline_wording,deadline_source_url,deadline_official,deadline_checked_at,deadline_checked_by)
+    IS NOT DISTINCT FROM (:'deadline_date'::date,:'deadline_wording',:'deadline_source_url',
+      :'deadline_official'::boolean,:'deadline_checked_at'::timestamptz,:'actor') \gset
+\if :ok
+COMMIT;
+\else
+ROLLBACK;
+DO $$ BEGIN RAISE EXCEPTION 'Owner write not confirmed: reread expected state'; END $$;
+\endif
+SELECT lead_key,deadline_date,deadline_wording,deadline_source_url,deadline_official,
+  deadline_checked_at,deadline_checked_by FROM jobwatch.leads WHERE lead_key=:'lead_key';
+-- END correct_lead_deadline

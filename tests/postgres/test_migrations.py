@@ -45,6 +45,32 @@ class MigrationTests(unittest.TestCase):
                              (1, plan[0].filename, plan[0].checksum))
             self.assertEqual(conn.execute("SELECT pg_get_userbyid(nspowner) AS owner FROM pg_namespace WHERE nspname='jobwatch'").fetchone()['owner'], 'jobwatch_migrator')
 
+    def test_lead_deadline_upgrade_preserves_existing_view_grants_and_evidence(self):
+        plan=load_migrations()
+        with self.target.connect() as conn:
+            migrate(conn,plan[:4])
+            conn.execute("SELECT set_config('jobwatch.actor','test:upgrade',false)")
+            conn.execute("""INSERT INTO jobwatch.leads(lead_key,kind,company,title,state,url,official,
+                source_note,deadline_date,deadline_wording,checked_at,checked_by)
+                VALUES ('vacancy:upgrade','vacancy','Test','Role','listed','https://example.org/old',
+                true,'Private source','2026-11-10','Apply by 10 November',now(),'owner')""")
+            # Simulate the already-provisioned production view without the four new columns.
+            access=(Path(__file__).resolve().parents[2]/'sql/postgresql/agent_access.sql').read_text()
+            view=access.split('CREATE VIEW jobwatch.agent_leads AS',1)[1].split('CREATE VIEW jobwatch.agent_audit_summary',1)[0]
+            view=view.replace(',deadline_source_url,deadline_official,deadline_checked_at,deadline_checked_by','')
+            conn.execute('CREATE VIEW jobwatch.agent_leads AS'+view)
+            conn.execute('GRANT SELECT ON jobwatch.agent_leads TO jobwatch_owner')
+            old=conn.execute('SELECT * FROM jobwatch.leads').fetchone()
+            audit=conn.execute('SELECT * FROM jobwatch.owner_audit').fetchall()
+            self.assertEqual(migrate(conn),[plan[4].filename])
+            after=conn.execute('SELECT * FROM jobwatch.leads').fetchone()
+            self.assertEqual({k:after[k] for k in old},old)
+            self.assertTrue(all(after[k] is None for k in ('deadline_source_url','deadline_official',
+                'deadline_checked_at','deadline_checked_by')))
+            self.assertEqual(conn.execute('SELECT * FROM jobwatch.owner_audit').fetchall(),audit)
+            self.assertTrue(conn.execute("SELECT has_table_privilege('jobwatch_owner','jobwatch.agent_leads','SELECT') AS ok").fetchone()['ok'])
+            self.assertIn('deadline_checked_by',conn.execute('SELECT * FROM jobwatch.agent_leads').fetchone())
+
     def test_changed_migration_refused(self):
         original = load_migrations()
         changed = original[0].sql + '\n-- a changed applied file\n'

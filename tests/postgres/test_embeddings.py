@@ -165,7 +165,7 @@ class EmbeddingTests(DatabaseTest):
                 subprocess.run(['docker','exec','-i',container,'psql','-X','-U','postgres','-d',name,'-v','ON_ERROR_STOP=1','-f','-'],
                                input=(Path(__file__).resolve().parents[2]/'sql/postgresql/vector_extension.sql').read_bytes(),
                                capture_output=True,check=True)
-                self.assertEqual(migrate(conn),['0004_embeddings.sql'])
+                self.assertEqual(migrate(conn),[m.filename for m in load_migrations()[3:]])
                 self.assertEqual(migrate(conn),[])
                 after={t:conn.execute('SELECT to_jsonb(t) AS data FROM jobwatch.'+t+' t ORDER BY to_jsonb(t)::text').fetchall() for t in tables}
                 self.assertEqual(before,after)

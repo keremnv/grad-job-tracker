@@ -6,7 +6,7 @@ state, but is NOT proof that a human clicked approve. Never claim otherwise.
 """
 from contextlib import contextmanager
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from hashlib import sha256
 import json
 import os
@@ -18,12 +18,14 @@ import threading
 import time
 from uuid import uuid4
 
+from jobwatch.calendar import safe_url
+
 from .connection import DatabaseConfig, connect
 from .read_tools import wire
 
 ROLE = 'jobwatch_agent_owner'
 RECIPES = ('create_application','link_application','update_stage','set_followup',
-           'set_triage','record_lead','link_lead')
+           'set_triage','record_lead','link_lead','correct_lead_deadline')
 STAGES = ('bookmarked','preparing','applied','assessment','interview','offer','rejected','withdrawn')
 
 
@@ -48,7 +50,7 @@ def statements(name):
     body = body.replace("SET LOCAL jobwatch.actor = :'actor';\n", '')
     prefix, check = body.split('SELECT count(*)=1 AS ok ',1)
     check = 'SELECT count(*)=1 AS ok '+check.split('\\gset',1)[0].strip()
-    # This deliberately supports only the seven reviewed, flat cookbook recipes.
+    # This deliberately supports only the reviewed, flat cookbook recipes.
     # Fail closed if the cookbook introduces control flow or unsupported quoting.
     sql = [x.strip() for x in prefix.split(';') if x.strip()]+[check]
     if any('\\' in q or '$$' in q for q in sql):
@@ -59,7 +61,9 @@ def statements(name):
 def execute_recipe(conn, name, values):
     queries = statements(name)
     for query in queries[:-1]:
-        conn.execute(query, values)
+        cursor=conn.execute(query, values)
+        if name=='correct_lead_deadline' and query.startswith('UPDATE ') and cursor.rowcount!=1:
+            raise OwnerError('stale_state')
     if not conn.execute(queries[-1], values).fetchone()['ok']:
         raise OwnerError('stale_state')
 
@@ -171,6 +175,19 @@ class OwnerTools:
                 params.update(note=(r['note'] or '') if r else '',expected_note=(r['note'] or '') if r else '',
                     expected_decision=r['decision'] if r else 'absent',expected_reason=(r['reason_code'] or '') if r else '',
                     expected_revisit_on=str(r['revisit_on'] or '') if r else '')
+            elif recipe=='correct_lead_deadline':
+                r=conn.execute('SELECT to_jsonb(l) AS state FROM jobwatch.agent_leads l WHERE lead_key=%s',
+                    (params.get('lead_key'),)).fetchone()
+                if r is None:raise OwnerError('not_found')
+                params['expected_state']=json.dumps(r['state'],sort_keys=True)
+                target={k:r['state'][k] for k in ('lead_key','company','title','kind','cycle_year','cycle_wording')}
+                checked=datetime.fromisoformat(params.get('deadline_checked_at','').replace('Z','+00:00'))
+                date.fromisoformat(params.get('deadline_date',''))
+                safe_url(params.get('deadline_source_url',''))
+                if (checked.tzinfo is None or checked>datetime.now(timezone.utc)
+                        or not params.get('deadline_wording','').strip()
+                        or params.get('deadline_official') not in ('true','false')):
+                    raise OwnerError('invalid_evidence')
             elif recipe=='link_lead':
                 r=conn.execute('SELECT lead_key,posting_key,company,title FROM jobwatch.leads WHERE lead_key=%s',(params.get('lead_key'),)).fetchone()
                 if r is None:raise OwnerError('not_found')
@@ -218,6 +235,7 @@ class OwnerTools:
                 execute_recipe(conn,r['recipe'],params)
                 for recipe,values in r['extra']:execute_recipe(conn,recipe,{**values,'actor':r['actor']})
                 table,key,columns=(('triage','posting_key','posting_key,decision,revisit_on,decided_at,recorded_by') if r['recipe']=='set_triage' else
+                    ('leads','lead_key','lead_key,deadline_date,deadline_wording,deadline_source_url,deadline_official,deadline_checked_at,deadline_checked_by') if r['recipe']=='correct_lead_deadline' else
                     ('leads','lead_key','lead_key,kind,posting_key,cycle_year,state,checked_at') if r['recipe'] in ('record_lead','link_lead') else
                     ('applications','job_key','job_key,posting_key,company,role,stage,date_applied,next_action,next_action_date'))
                 result=conn.execute('SELECT '+columns+' FROM jobwatch.'+table+' WHERE '+key+'=%s',(params[key],)).fetchone()

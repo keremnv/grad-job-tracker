@@ -237,15 +237,16 @@ def deadlines(conn,now,*,shared=False):
     for r in conn.execute("SELECT * FROM jobwatch."+("agent_leads" if shared else "leads")+" WHERE deadline_wording IS NOT NULL ORDER BY lead_key"):
         original=json.loads(r['details'].get('legacy_json','{}'))
         d=original.get('deadline') or {}
+        official=r['deadline_official'] if r['deadline_official'] is not None else r['official']
         candidates=aliases.get(url(r['url']),[]) if r['kind']=='vacancy' else []
         linked=r['posting_key'] or (candidates[0] if len(candidates)==1 else None)
         # Original file-era fallback is the exact vacancy URL, not the imported lead key.
         identity=linked or (url(r['url']) if r['kind']=='vacancy' else r['lead_key'])
         records.append({'identity':identity,'posting_key':r['posting_key'],'company':r['company'],'title':r['title'],
-            'posting_url':url(r['url']),'url':url(d.get('url') or r['details'].get('deadline_source_url') or r['url']),'wording':r['deadline_wording'],
-            'value':str(r['deadline_date']) if r['deadline_date'] else None,'checked_at':r['checked_at'],
-            'checked_by':r['checked_by'],'provenance':'checked_official_lead' if r['official'] else 'unverified_lead',
-            'status':r['state'],'action_state':None,'structured':r['official'],'ambiguous':len(candidates)>1,
+            'posting_url':url(r['url']),'url':url(r['deadline_source_url'] or d.get('url') or r['details'].get('deadline_source_url') or r['details'].get('deadline',{}).get('url') or r['url']),'wording':r['deadline_wording'],
+            'value':str(r['deadline_date']) if r['deadline_date'] else None,'checked_at':r['deadline_checked_at'] or r['checked_at'],
+            'checked_by':r['deadline_checked_by'] or r['checked_by'],'provenance':'checked_official_lead' if official else 'unverified_lead',
+            'status':r['state'],'action_state':None,'structured':official,'ambiguous':len(candidates)>1,
             'kind':r['kind'],'lead_key':r['lead_key'],'cycle_year':r['cycle_year'],'cycle_wording':r['cycle_wording'],
             'calendar_aliases':['lead:'+r['lead_key']]+(['posting:'+linked] if linked else [])})
     for d in records:

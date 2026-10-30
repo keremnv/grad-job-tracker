@@ -3,7 +3,8 @@
 PostgreSQL owns decisions, applications, pending follow-ups and evidenced leads.
 These workflows are implemented/tested and available on authoritative production
 PostgreSQL through [authenticated owner SQL](AWS_PRODUCTION_HANDOVER.md#sql-first-operation).
-There is no new role, migration, CRUD service or write MCP tool.
+The original Stage 4E recipes require no new role, migration or CRUD service.
+The additive lead deadline correction below requires migration 0005 and its grant delta.
 
 Use `jobwatch_owner` through psql or psycopg, with existing securely supplied
 runtime configuration. Never use collector, migration or infrastructure credentials
@@ -101,3 +102,15 @@ not been designed or deployed by this stage.
 
 See [subscription snapshots](PROTON_CALENDAR.md) for the calendar projection and
 the separate hosting/Proton approvals still required.
+
+## Lead deadline correction (additive extension; deployment pending)
+
+After migration 0005 and `lead_deadline_access.sql`, `correct_lead_deadline` is
+available through the same cookbook and Owner Actions connection. Supply the six
+new values documented in [the tool guide](AGENT_OWNER_TOOLS.md#correct-an-existing-leads-deadline).
+For direct SQL, read `SELECT to_jsonb(l) FROM jobwatch.agent_leads l WHERE lead_key=…`
+as `expected_state` before constructing the reviewed transaction. The recipe locks
+the row and compares this sanitized snapshot before updating the deadline fields.
+Use a unique actor per intended correction for its postcondition and audit receipt.
+Read back the six deadline fields after COMMIT. Existing audit history retains the
+prior values, source and original lead context. See [rollout requirements](LEAD_DEADLINE_CORRECTION.md).

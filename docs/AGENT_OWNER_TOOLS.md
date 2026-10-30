@@ -39,7 +39,8 @@ connection cannot elevate to the existing owner/collector/migrator identities.
    regeneration; hourly regeneration also handles ordinary SQL owner writes.
 
 Supported recipes are the existing `create_application`, `link_application`,
-`update_stage`, `set_followup`, `set_triage`, `record_lead`, and `link_lead`.
+`update_stage`, `set_followup`, `set_triage`, `record_lead`, `link_lead`, and
+`correct_lead_deadline` (requires migration 0005 and the grant delta below).
 Creating an application from a resolved posting derives its company/title/URL
 and links it atomically. Manual application keys survive later linkage.
 Clear a completed/cancelled follow-up with empty `action` and `action_date`.
@@ -96,3 +97,30 @@ arrangement; AWS/SSM, Unix permissions and authenticated personal Secure MCP Tun
 access are distinct boundaries. Never expose these servers as public unauthenticated
 HTTP. See the [deployment procedure](../infra/aws/integrations/README.md) and
 [single approval packet](AGENT_CALENDAR_APPROVAL.md).
+
+## Correct an existing lead's deadline
+
+`correct_lead_deadline` takes `lead_key`, `deadline_date` (YYYY-MM-DD),
+`deadline_wording` (the observed quote), `deadline_source_url`, `deadline_official`
+(boolean), and `deadline_checked_at` (the actual check time with timezone).
+Resolve the existing lead and programme cycle first. Show the full prepared review
+and obtain confirmation for this exact correction before committing.
+
+The four nullable deadline provenance columns keep this check separate from the
+lead's original observation. The original URL, official flag, checked time, cycle,
+state, wording and private details stay intact. A non-official deadline check is
+retained as evidence but produces no calendar event. Existing rows with NULL
+provenance keep the legacy source URL and observation fallback. The existing audit
+contains old/new deadline values and provenance; its images remain private.
+
+Preparation snapshots the sanitized public lead row, including the legacy deadline
+source. Commit locks the lead, checks that snapshot, updates only the six deadline
+columns and reads them back in the transaction and after COMMIT. Any changed public
+state requires a new review. Replays of a confirmed token return its receipt.
+The existing refresh hint and hourly publisher regenerate the subscribed calendar;
+stable lead aliases retain the UID and changed dates advance SEQUENCE.
+
+This recipe corrects only the lead claim. A conflicting collected posting or
+independent verification remains unresolved and can still cause calendar omission.
+Tracked-posting verification and general claim supersession are follow-up work.
+Migration and deployment requirements: [lead correction rollout](LEAD_DEADLINE_CORRECTION.md).

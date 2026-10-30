@@ -25,7 +25,11 @@ def server(core=None, *, port=8766):
             structuredContent=result,isError=not result['ok'])
     @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True,destructiveHint=False,openWorldHint=False),
         description='Prepare one existing SQL recipe: create_application, link_application, update_stage, '
-        'set_followup, set_triage, record_lead or link_lead. Supply meaningful values/record keys resolved by '
+        'set_followup, set_triage, record_lead, link_lead or correct_lead_deadline. '
+        'For correct_lead_deadline supply lead_key, deadline_date (YYYY-MM-DD), deadline_wording '
+        '(observed quote), deadline_source_url, deadline_official (boolean), deadline_checked_at '
+        '(actual timezone-aware check time). This corrects only that lead; other conflicting claims '
+        'remain unresolved. Supply meaningful values/record keys resolved by '
         'research, not SQL. Expected state is read automatically. No database write. Show review to user.')
     async def prepare_owner_change(recipe:StrictStr,values:dict)->CallToolResult:
         return await invoke('prepare_owner_change',{'recipe':recipe,'values':values})
