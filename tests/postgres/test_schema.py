@@ -21,7 +21,8 @@ class SchemaTests(DatabaseTest):
             tables = {r['tablename'] for r in conn.execute("SELECT tablename FROM pg_tables WHERE schemaname='jobwatch'")}
             self.assertEqual(tables, set(DOMAIN_TABLES) | {'schema_migrations','embedding_chunks'})
             views = {r['viewname'] for r in conn.execute("SELECT viewname FROM pg_views WHERE schemaname='jobwatch'")}
-            self.assertEqual(views, {'source_health', 'research_postings', 'opportunity_workflow', 'operational_postings'})
+            self.assertEqual(views, {'source_health', 'research_postings', 'opportunity_workflow', 'operational_postings',
+                                     'posting_deadline_claims','posting_deadline_state'})
             matches = conn.execute("SELECT posting_key,ts_rank_cd(search_tsv,websearch_to_tsquery('english','Python systems')) AS rank "
                 "FROM jobwatch.research_postings WHERE search_tsv @@ websearch_to_tsquery('english','Python systems')").fetchall()
             self.assertEqual(matches[0]['posting_key'], key)

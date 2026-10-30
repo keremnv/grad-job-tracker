@@ -1,4 +1,5 @@
--- OPTIONAL, SEPARATELY APPROVED ADMIN PROVISIONING after migrations 0001–0004.
+-- OPTIONAL, SEPARATELY APPROVED ADMIN PROVISIONING after migrations 0001–0005.
+-- Then apply lead_deadline_access.sql for the narrowly scoped deadline recipe grants.
 -- Provision agent_roles.sql first. No automatic deployment or grant reset. Run once with psql
 -- as role administrator + schema grant administrator. Existing names fail atomically.
 -- The broad Stage 4C jobwatch_chat_readonly role remains unchanged/test-only.
@@ -35,7 +36,7 @@ SELECT lead_key,kind,company,title,programme_key,cycle_year,cycle_wording,state,
     'window',coalesce(details->>'window',(details->>'legacy_json')::jsonb->>'window'),
     'deadline_source_url',coalesce(details#>>'{deadline,url}',((details->>'legacy_json')::jsonb)#>>'{deadline,url}'),
     'uncertainty',coalesce(details->>'uncertainty',(details->>'legacy_json')::jsonb->>'uncertainty')))
-    AS details
+    AS details,deadline_source_url,deadline_official,deadline_checked_at,deadline_checked_by
 FROM jobwatch.leads;
 CREATE VIEW jobwatch.agent_audit_summary AS
 SELECT id,at,db_login,actor,table_name,op FROM jobwatch.owner_audit;

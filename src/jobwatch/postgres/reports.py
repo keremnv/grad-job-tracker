@@ -30,7 +30,7 @@ def calendar_data(conn,*,shared=False,deadline_selection_sql=None):
     """A calendar-only read snapshot; no reports/search/model loading or owner notes."""
     with conn.transaction():
         conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
-        for table in ('postings','leads','applications','verifications'):
+        for table in ('postings','leads','applications','verifications','posting_deadline_claims'):
             if conn.execute('SELECT count(*) AS n FROM (SELECT 1 FROM jobwatch.'+table+' LIMIT 10001) q').fetchone()['n']>10000:
                 raise ValueError('Calendar working set too large; inspect scope before publishing')
         now=iso(conn.execute('SELECT current_timestamp AS at').fetchone()['at'])
@@ -143,6 +143,8 @@ def markdown(data,*,weekly=False,requirements_only=False):
             'Independent checks, official research and feed observations are labelled individually. Unknown dates remain unknown; conflicting dates require recheck.']
         for d in data['deadlines'][:data['limit']]:
             lines.append(f"- {text(d['company'])} — {link(d['title'],d['posting_url'] or '')}: {text(d['provenance'])}, checked/observed {text(d['checked_at'] or 'unknown')}; value {text(d['value'] or 'unknown')}; {text(d['urgency'])}; conflict {d['date_conflict']}. Wording: {text(plain(d['wording'] or ''))}. {link('Source',d['url'] or '')}")
+            if d.get('claim_id'):
+                lines.append(f"  Claim {text(d['claim_id'])}; active {d['active']}; superseded by {text(', '.join(d['superseded_by']) or 'none')}.")
             lines.append(f"  Recorded state {text(d['status'])}; owner action state {text(d['action_state'] or 'not linked')}; observer {text(d['checked_by'] or 'unrecorded')}. Eligibility and current form status remain unverified by this date claim.")
         if not data['deadlines']:
             lines.append('No deadline evidence recorded. Dates and form status are unknown.')
@@ -184,7 +186,7 @@ def calendar_events(data, *, minimal=False):
     """Shared domain projection for manual export and subscription snapshots."""
     grouped=defaultdict(list);warnings=[]
     for d in primitive(data['deadlines']):
-        if not d['value']:
+        if not d.get('active',True) or not d['value']:
             continue
         if d['provenance']=='unverified_lead' or (d['provenance']=='feed_observation' and not d['structured']):
             continue

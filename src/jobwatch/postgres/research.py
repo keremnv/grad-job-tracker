@@ -220,32 +220,28 @@ def deadlines(conn,now,*,shared=False):
     for r in postings:
         if (u:=url(r['posting_url'])) is not None:
             aliases[u].append(r['posting_key'])
-    for v in conn.execute("SELECT DISTINCT ON(posting_key,wording,value,url) posting_key,wording,value,url,checked_at,checked_by FROM jobwatch.verifications WHERE kind='deadline' "
-        'ORDER BY posting_key,wording,value,url,checked_at DESC,recorded_at DESC,id DESC'):
-        r=by_key[v['posting_key']]
-        records.append({'identity':v['posting_key'],'posting_key':v['posting_key'],'company':r['company'],'title':r['title'],
-            'posting_url':url(r['posting_url']),'url':url(v['url']),'wording':v['wording'],'value':v['value'],
-            'checked_at':v['checked_at'],'checked_by':v['checked_by'],'provenance':'independent_verification',
-            'status':r['status'],'action_state':r['action_state'],'structured':True,'ambiguous':r['ambiguous_posting_url']})
-    for r in postings:
-        for d in r['deadlines']:
-            records.append({'identity':r['posting_key'],'posting_key':r['posting_key'],'company':r['company'],'title':r['title'],
-                'posting_url':url(r['posting_url']),'url':url(d.get('url') or r['posting_url']),
-                'wording':d.get('wording'),'value':d.get('value'),'checked_at':d.get('observed_at'),'checked_by':None,
-                'provenance':'feed_observation','status':r['status'],'action_state':r['action_state'],
-                'structured':d.get('source_field')=='application_deadline','ambiguous':r['ambiguous_posting_url']})
+    for c in conn.execute('SELECT * FROM jobwatch.posting_deadline_claims ORDER BY posting_key,claim_id'):
+        r=by_key[c['posting_key']]
+        records.append({'identity':c['posting_key'],'posting_key':c['posting_key'],
+            'company':r['company'],'title':r['title'],'posting_url':url(r['posting_url']),
+            'url':url(c['url']),'wording':c['wording'],'value':c['value'],
+            'checked_at':c['checked_at'],'checked_by':c['checked_by'],'provenance':c['provenance'],
+            'status':r['status'],'action_state':r['action_state'],'structured':c['structured'],
+            'ambiguous':r['ambiguous_posting_url'],'claim_id':c['claim_id'],
+            'active':not c['superseded_by'],'superseded_by':c['superseded_by']})
     for r in conn.execute("SELECT * FROM jobwatch."+("agent_leads" if shared else "leads")+" WHERE deadline_wording IS NOT NULL ORDER BY lead_key"):
         original=json.loads(r['details'].get('legacy_json','{}'))
         d=original.get('deadline') or {}
+        official=r['deadline_official'] if r['deadline_official'] is not None else r['official']
         candidates=aliases.get(url(r['url']),[]) if r['kind']=='vacancy' else []
         linked=r['posting_key'] or (candidates[0] if len(candidates)==1 else None)
         # Original file-era fallback is the exact vacancy URL, not the imported lead key.
         identity=linked or (url(r['url']) if r['kind']=='vacancy' else r['lead_key'])
         records.append({'identity':identity,'posting_key':r['posting_key'],'company':r['company'],'title':r['title'],
-            'posting_url':url(r['url']),'url':url(d.get('url') or r['details'].get('deadline_source_url') or r['url']),'wording':r['deadline_wording'],
-            'value':str(r['deadline_date']) if r['deadline_date'] else None,'checked_at':r['checked_at'],
-            'checked_by':r['checked_by'],'provenance':'checked_official_lead' if r['official'] else 'unverified_lead',
-            'status':r['state'],'action_state':None,'structured':r['official'],'ambiguous':len(candidates)>1,
+            'posting_url':url(r['url']),'url':url(r['deadline_source_url'] or r['details'].get('deadline',{}).get('url') or d.get('url') or r['details'].get('deadline_source_url') or r['url']),'wording':r['deadline_wording'],
+            'value':str(r['deadline_date']) if r['deadline_date'] else None,'checked_at':r['deadline_checked_at'] or r['checked_at'],
+            'checked_by':r['deadline_checked_by'] or r['checked_by'],'provenance':'checked_official_lead' if official else 'unverified_lead',
+            'status':r['state'],'action_state':None,'structured':official,'ambiguous':len(candidates)>1,
             'kind':r['kind'],'lead_key':r['lead_key'],'cycle_year':r['cycle_year'],'cycle_wording':r['cycle_wording'],
             'calendar_aliases':['lead:'+r['lead_key']]+(['posting:'+linked] if linked else [])})
     for d in records:
@@ -253,14 +249,14 @@ def deadlines(conn,now,*,shared=False):
         d.setdefault('calendar_aliases',['posting:'+d['posting_key']] if d['posting_key'] else [])
     values=defaultdict(set)
     for d in records:
-        if d['value']:
+        if d.get('active',True) and d['value']:
             try:
                 values[d['identity']].add(event_date(d['value'])[2])
             except (ValueError,TypeError,OverflowError):
                 pass  # An unparseable value is unknown, not proof of a date conflict.
     for d in records:
         d['date_conflict']=len(values[d['identity']])>1
-        d['urgency']=('manual review: source timezone unknown' if str(d['value']).endswith('-00:00')
+        d['urgency']=('superseded evidence' if not d.get('active',True) else 'manual review: source timezone unknown' if str(d['value']).endswith('-00:00')
                       else deadline_window(d,now))
         d['untrusted_source_wording']=True
     return records
