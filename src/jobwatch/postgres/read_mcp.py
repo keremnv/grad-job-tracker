@@ -2,6 +2,7 @@
 import argparse
 import asyncio
 import json
+from pathlib import Path
 from typing import Any
 
 from pydantic import StrictBool, StrictInt, StrictStr
@@ -13,13 +14,13 @@ def disabled_query_inference(_):
     raise ReadError('query_inference_disabled')
 
 
-def server(core=None, *, port=8765, query_inference='disabled', shared=False):
+def server(core=None, *, port=8765, query_inference='disabled', shared=False, calendar_policy=None, calendar_status=None):
     from mcp.server.fastmcp import FastMCP
     from mcp.types import CallToolResult, TextContent, ToolAnnotations
 
     if query_inference not in ('disabled', 'local'):
         raise ValueError('Invalid query inference mode')
-    core = core or ReadTools(shared=shared)
+    core = core or ReadTools(shared=shared, calendar_policy=calendar_policy, calendar_status=calendar_status)
     if query_inference == 'disabled':
         core.query_encoder = disabled_query_inference
     mcp = FastMCP('Graduate Job Watch read tools', host='127.0.0.1', port=port,
@@ -64,10 +65,16 @@ def server(core=None, *, port=8765, query_inference='disabled', shared=False):
         return await invoke('inspect_evidence', dict(posting_key=posting_key, version_id=version_id,
                                                     events_limit=events_limit))
 
-    @mcp.tool(annotations=hints)
-    async def run_report(kind: StrictStr, since: StrictStr | None = None, limit: StrictInt = 50) -> CallToolResult:
-        """Existing daily/weekly/requirements Markdown or calendar ICS; no files or workflow writes."""
-        return await invoke('run_report', dict(kind=kind, since=since, limit=limit))
+    @mcp.tool(annotations=hints, description='Daily/weekly/requirements Markdown or legacy calendar ICS export; no files '
+              'or workflow writes. kind=calendar_selection diagnoses the published deadlines projection instead: '
+              'selection is up to 25 of {key} or {company,title}, with optional candidate deadline (YYYY-MM-DD); omit it '
+              'to list recorded approvals. Each item reports resolution, evidence, status (qualifies, missing, '
+              'insufficient, conflicting, excluded, not_selected, outside_window) and whether it is in the projection '
+              'and last published feed, plus publisher run times. Candidate deadlines are compared, never '
+              'trusted. Publication is not proof Proton fetched the feed.')
+    async def run_report(kind: StrictStr, since: StrictStr | None = None, limit: StrictInt = 50,
+                         selection: list[dict[str, StrictStr]] | None = None) -> CallToolResult:
+        return await invoke('run_report', dict(kind=kind, since=since, limit=limit, selection=selection))
 
     return mcp
 
@@ -80,10 +87,13 @@ def main():
     parser.add_argument('--port', type=int, default=8765)
     parser.add_argument('--query-inference', choices=('disabled', 'local'), default='disabled',
                         help='Default disabled: never load a model. Local explicitly opts into the pinned CPU runtime.')
+    parser.add_argument('--calendar-policy', type=Path, help='Deployed deadline policy, for calendar_selection diagnostics')
+    parser.add_argument('--calendar-status', type=Path, help='Publisher status file, for calendar_selection diagnostics')
     args = parser.parse_args()
     if not 1 <= args.port <= 65535:
         parser.error('Port must be 1..65535')
-    mcp=server(port=args.port, query_inference=args.query_inference, shared=args.shared)
+    mcp=server(port=args.port, query_inference=args.query_inference, shared=args.shared,
+               calendar_policy=args.calendar_policy, calendar_status=args.calendar_status)
     if args.unix_socket:
         if args.transport!='streamable-http':parser.error('Unix socket requires streamable-http')
         from .unix_mcp import run

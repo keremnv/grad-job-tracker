@@ -81,7 +81,7 @@ class MigrationTests(unittest.TestCase):
                 c.execute("INSERT INTO jobwatch.verifications(posting_key,kind,checked_at,checked_by,url,wording,value) VALUES (%s,'deadline',now(),'owner','https://example.org/official','Apply by 12 November','2026-11-12')",(key,))
             old=c.execute('SELECT * FROM jobwatch.verifications').fetchone()
             audit=c.execute('SELECT * FROM jobwatch.owner_audit').fetchall()
-            self.assertEqual(migrate(c),[plan[5].filename])
+            self.assertEqual(migrate(c),[m.filename for m in plan[5:]])
             after=c.execute('SELECT * FROM jobwatch.verifications').fetchone()
             self.assertEqual({k:after[k] for k in old},old)
             self.assertIsNone(after['deadline_supersedes'])

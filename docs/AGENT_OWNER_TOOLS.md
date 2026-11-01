@@ -99,6 +99,12 @@ access are distinct boundaries. Never expose these servers as public unauthentic
 HTTP. See the [deployment procedure](../infra/aws/integrations/README.md) and
 [single approval packet](AGENT_CALENDAR_APPROVAL.md).
 
+## Select calendar deadlines
+
+`select_calendar_deadlines` adds or removes up to 25 deadlines in one review, reusing the
+evidence recipes above. See [reviewed calendar selection](CALENDAR_SELECTION.md), including
+its grant delta and rollout.
+
 ## Correct an existing lead's deadline
 
 `correct_lead_deadline` takes `lead_key`, `deadline_date` (YYYY-MM-DD),

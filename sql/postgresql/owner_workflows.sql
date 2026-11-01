@@ -224,3 +224,31 @@ DO $$ BEGIN RAISE EXCEPTION 'Owner write not confirmed: reread expected state'; 
 SELECT id,posting_key,kind,checked_at,checked_by,url,wording,value,deadline_supersedes,
   deadline_reason,actor,recorded_at FROM jobwatch.verifications WHERE id=:'verification_id'::uuid;
 -- END verify_posting_deadline
+
+-- BEGIN set_calendar_selection
+\set ON_ERROR_STOP on
+BEGIN;
+SET LOCAL jobwatch.actor = :'actor';
+-- Supply exactly one of posting_key/lead_key. mode: include or exclude. expected_mode:
+-- absent, include or exclude, from your read. Excluding a key removes its whole calendar
+-- identity (linked lead and posting). No dates, evidence or other events are changed.
+SELECT pg_advisory_xact_lock(hashtextextended('jobwatch.calendar-selection',0));
+INSERT INTO jobwatch.calendar_selections(posting_key,lead_key,mode,approved_deadline,recorded_by)
+SELECT nullif(:'posting_key',''),nullif(:'lead_key',''),:'mode',nullif(:'approved_deadline',''),:'actor'
+WHERE :'expected_mode'='absent'
+ON CONFLICT(evidence_key) DO NOTHING;
+UPDATE jobwatch.calendar_selections SET mode=:'mode',approved_deadline=nullif(:'approved_deadline',''),
+  decided_at=clock_timestamp(),recorded_by=:'actor'
+WHERE evidence_key=coalesce(nullif(:'posting_key',''),nullif(:'lead_key',''))
+  AND mode=:'expected_mode' AND :'mode'<>:'expected_mode';
+SELECT count(*)=1 AS ok FROM jobwatch.calendar_selections
+WHERE evidence_key=coalesce(nullif(:'posting_key',''),nullif(:'lead_key','')) AND mode=:'mode' \gset
+\if :ok
+COMMIT;
+\else
+ROLLBACK;
+DO $$ BEGIN RAISE EXCEPTION 'Owner write not confirmed: reread expected state'; END $$;
+\endif
+SELECT evidence_key,mode,approved_deadline,decided_at,recorded_by FROM jobwatch.calendar_selections
+WHERE evidence_key=coalesce(nullif(:'posting_key',''),nullif(:'lead_key',''));
+-- END set_calendar_selection

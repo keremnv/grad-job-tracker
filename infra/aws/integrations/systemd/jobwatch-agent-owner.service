@@ -11,7 +11,7 @@ RuntimeDirectoryMode=0750
 Environment="JOBWATCH_AGENT_OWNER_DATABASE_URL=host=/run/jobwatch-postgresql dbname=jobwatch user=jobwatch_agent_owner"
 Environment=PYTHONDONTWRITEBYTECODE=1
 UnsetEnvironment=JOBWATCH_DATABASE_URL JOBWATCH_MIGRATION_DATABASE_URL JOBWATCH_EMBEDDING_DATABASE_URL JOBWATCH_CHAT_DATABASE_URL CONTROL_PLANE_API_KEY OPENAI_API_KEY OPENAI_ADMIN_KEY AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_PROFILE
-ExecStart=/opt/jobwatch-agent-runtime/bin/jobwatch-owner-mcp --transport streamable-http --unix-socket /run/jobwatch-agent-owner/mcp.sock --refresh-hint /var/lib/jobwatch-agent-owner/calendar.refresh
+ExecStart=/opt/jobwatch-agent-runtime/bin/jobwatch-owner-mcp --transport streamable-http --unix-socket /run/jobwatch-agent-owner/mcp.sock --refresh-hint /var/lib/jobwatch-agent-owner/calendar.refresh --calendar-policy /etc/jobwatch/calendar-deadlines.sql
 Restart=on-failure
 RestartSec=15s
 NoNewPrivileges=true

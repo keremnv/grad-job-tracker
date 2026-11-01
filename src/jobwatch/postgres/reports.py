@@ -15,6 +15,9 @@ from .importer import primitive
 from . import research
 
 
+UNCERTAIN_CLAIM='uncertain_identity_date_or_provenance'
+
+
 def calendar_applications(conn):
     return conn.execute('SELECT job_key,company,role,url,stage,date_applied,next_action,next_action_date '
                         'FROM jobwatch.applications ORDER BY stage,company,role,job_key').fetchall()
@@ -26,6 +29,42 @@ def calendar_revisits(conn):
                         "WHERE decision='later' AND revisit_on IS NOT NULL AND application_job_key IS NULL ORDER BY posting_key").fetchall()
 
 
+def policy_keys(conn,sql):
+    """Evidence keys selected by the file policy; None means no policy (all evidence)."""
+    if sql is None:
+        return None
+    # A policy selects retained evidence keys; it cannot supply dates or new facts.
+    if not isinstance(sql,str) or not 1<=len(sql.encode())<=16384:
+        raise ValueError('Invalid deadline selection SQL')
+    rows=conn.execute('SELECT evidence_key FROM ('+sql.strip().removesuffix(';')+') selection LIMIT 10001',prepare=True).fetchall()
+    if len(rows)>10000:raise ValueError('Calendar selection too large')
+    return {r['evidence_key'] for r in rows}
+
+
+def selection_rows(conn):
+    rows=conn.execute('SELECT evidence_key,posting_key,lead_key,mode,approved_deadline,decided_at '
+                      'FROM jobwatch.calendar_selections ORDER BY evidence_key LIMIT 10001').fetchall()
+    if len(rows)>10000:raise ValueError('Calendar selection too large')
+    return rows
+
+
+def select_deadlines(deadlines,policy,rows):
+    """Policy claims, plus approved identities, minus excluded identities.
+
+    Approvals act on the whole calendar identity, so a contradicting linked claim
+    still omits the event and a removed lead cannot reappear through its posting.
+    Without approval rows this is exactly the policy's claim-level selection.
+    """
+    modes={r['evidence_key']:r['mode'] for r in rows}
+    identities={'include':set(),'exclude':set()}
+    for d in deadlines:
+        for key in (d.get('posting_key'),d.get('lead_key'),d['identity']):
+            if key in modes:identities[modes[key]].add(d['identity'])
+    return [d for d in deadlines if d['identity'] not in identities['exclude']
+            and (policy is None or d.get('posting_key') in policy or d.get('lead_key') in policy
+                 or d['identity'] in identities['include'])]
+
+
 def calendar_data(conn,*,shared=False,deadline_selection_sql=None):
     """A calendar-only read snapshot; no reports/search/model loading or owner notes."""
     with conn.transaction():
@@ -35,14 +74,7 @@ def calendar_data(conn,*,shared=False,deadline_selection_sql=None):
                 raise ValueError('Calendar working set too large; inspect scope before publishing')
         now=iso(conn.execute('SELECT current_timestamp AS at').fetchone()['at'])
         deadlines=research.deadlines(conn,now,shared=shared)
-        if deadline_selection_sql is not None:
-            # A policy selects retained evidence keys; it cannot supply dates or new facts.
-            if not isinstance(deadline_selection_sql,str) or not 1<=len(deadline_selection_sql.encode())<=16384:
-                raise ValueError('Invalid deadline selection SQL')
-            rows=conn.execute('SELECT evidence_key FROM ('+deadline_selection_sql.strip().removesuffix(';')+') selection LIMIT 10001',prepare=True).fetchall()
-            if len(rows)>10000:raise ValueError('Calendar selection too large')
-            selected={r['evidence_key'] for r in rows}
-            deadlines=[d for d in deadlines if d.get('posting_key') in selected or d.get('lead_key') in selected]
+        deadlines=select_deadlines(deadlines,policy_keys(conn,deadline_selection_sql),selection_rows(conn))
         return {'generated_at':now,'deadlines':deadlines,
                 'applications':calendar_applications(conn),'revisits':calendar_revisits(conn)}
 
@@ -182,25 +214,33 @@ def markdown(data,*,weekly=False,requirements_only=False):
     return '\n'.join(lines)
 
 
+def deadline_claim(d,generated_at):
+    """(event date, None) for a publishable claim, else (None, fixed reason code)."""
+    if not d.get('active',True):return None,'superseded'
+    if not d['value']:return None,'no_recorded_date'
+    if d['provenance']=='unverified_lead':return None,'unverified_lead'
+    if d['provenance']=='feed_observation' and not d['structured']:return None,'unstructured_feed_text'
+    if d.get('kind')=='programme' and d['status'] not in ('open','announced_window'):return None,'programme_cycle_not_open'
+    try:
+        if d['ambiguous'] or not d['url'] or not d['posting_url'] or not d['checked_at']:
+            raise ValueError('Uncertain identity/provenance')
+        d['url']=calendar.safe_url(d['url']);d['posting_url']=calendar.safe_url(d['posting_url'])
+        if timestamp(d['checked_at'])>timestamp(generated_at) or calendar.ROLLING.search(d['wording'] or ''):
+            raise ValueError('Conflicting/future observation')
+        return calendar.event_date(d['value']),None
+    except (ValueError,TypeError,OverflowError):
+        return None,UNCERTAIN_CLAIM
+
+
 def calendar_events(data, *, minimal=False):
     """Shared domain projection for manual export and subscription snapshots."""
     grouped=defaultdict(list);warnings=[]
     for d in primitive(data['deadlines']):
-        if not d.get('active',True) or not d['value']:
+        when,reason=deadline_claim(d,data['generated_at'])
+        if reason==UNCERTAIN_CLAIM:
+            warnings.append('Deadline omitted: ambiguous identity/date/timezone/provenance.')
+        if reason:
             continue
-        if d['provenance']=='unverified_lead' or (d['provenance']=='feed_observation' and not d['structured']):
-            continue
-        if d.get('kind')=='programme' and d['status'] not in ('open','announced_window'):
-            continue
-        try:
-            if d['ambiguous'] or not d['url'] or not d['posting_url'] or not d['checked_at']:
-                raise ValueError('Uncertain identity/provenance')
-            d['url']=calendar.safe_url(d['url']);d['posting_url']=calendar.safe_url(d['posting_url'])
-            if timestamp(d['checked_at'])>timestamp(data['generated_at']) or calendar.ROLLING.search(d['wording'] or ''):
-                raise ValueError('Conflicting/future observation')
-            when=calendar.event_date(d['value'])
-        except (ValueError,TypeError,OverflowError):
-            warnings.append('Deadline omitted: ambiguous identity/date/timezone/provenance.');continue
         grouped[d['identity']].append((when,d))
     events=[]
     for identity,claims in sorted(grouped.items()):

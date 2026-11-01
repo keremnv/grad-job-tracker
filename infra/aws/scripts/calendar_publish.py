@@ -8,6 +8,7 @@ metadata, not as an application ledger. Never upload reports, backups or notes.
 import argparse
 import base64
 from dataclasses import replace
+from datetime import datetime,timezone
 from hashlib import sha256
 import json
 import os
@@ -19,6 +20,9 @@ import tempfile
 from jobwatch.postgres import reports,calendar_feed
 from jobwatch.postgres.connection import connect,DatabaseConfig
 from run_operation import publish as operational_log
+
+
+STATUS_PATH='/run/jobwatch-calendar-status/status.json'
 
 
 def put(path,key,config,*,run_command=subprocess.run):
@@ -115,12 +119,24 @@ def regenerate(data,root,config,*,initialize=False,run_command=subprocess.run):
     return publish_snapshot(root,config,run_command=run_command)
 
 
+def record_status(config,root,status,*,now=None):
+    """Research diagnostics only: a failure here must never affect publication."""
+    try:
+        path=Path((config or {}).get('status',STATUS_PATH))
+        manifest=calendar_feed.current_snapshot(root)[1] if status['exit_code']==0 else None
+        at=now or datetime.now(timezone.utc).isoformat()
+        calendar_feed.write_status(path,calendar_feed.publication_status(calendar_feed.read_status(path),now=at,manifest=manifest))
+    except Exception:
+        pass
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--config',type=Path,default=Path('/etc/jobwatch/calendar.json'))
     p.add_argument('--initialize',action='store_true',help='Explicit first publication only; never use for recovery')
     a=p.parse_args();os.umask(0o077)
     status={'operation':'calendar','exit_code':2,'healthy':0}
+    config=root=None
     try:
         config=json.loads(a.config.read_text());root=Path(config['output'])
         calendar_feed.private_directory(root.parent)
@@ -135,6 +151,7 @@ def main():
     except Exception:
         # No raw SQL, values, object keys, URLs or credential-bearing diagnostics.
         pass
+    record_status(config,root,status)
     try:
         log_config=json.loads(Path('/etc/jobwatch/aws.json').read_text())
         operational_log(status,log_config)

@@ -52,6 +52,10 @@ Still unconfirmed:
 - The deadlines capability URL was shared in an agent conversation on 27 October.
   Rotating its hash is recommended (owner decision); the actions URL was not exposed.
 
+## Later extensions
+
+[Reviewed calendar selection](CALENDAR_SELECTION.md) is implemented in the repository and needs its own approved rollout.
+
 ## Known limitations
 
 - Both tunnels currently share one runtime key, so revoking it disconnects both.
