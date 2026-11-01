@@ -136,11 +136,11 @@ test "$(readlink -f /opt/jobwatch/current)" = /opt/jobwatch/releases/8630f8b80f0
 if systemctl list-units --failed --plain --no-legend | grep jobwatch; then echo 'Stop: failed unit'; exit 1; fi
 BUCKET=$(python3.12 -c "import json;print(json.load(open('/etc/jobwatch/aws.json'))['bucket'])")
 WORK=/var/tmp/jobwatch-calendar-$COMMIT; install -d -m 700 "$WORK"
-for name in application agent; do
-  [ "$name" = application ] && V=$APP_VERSION || V=$AGENT_VERSION
-  aws s3api get-object --region eu-north-1 --bucket "$BUCKET" --version-id "$V" \
-    --key "artifacts/calendar-selection/$COMMIT/$name.tgz" "$WORK/$name.tgz" >/dev/null
-done
+# The instance role has no s3:GetObjectVersion, so check the version returned rather than requesting it.
+got=$(aws s3api get-object --region eu-north-1 --bucket "$BUCKET" --key "artifacts/calendar-selection/$COMMIT/application.tgz" "$WORK/application.tgz" --query VersionId --output text)
+test "$got" = "$APP_VERSION"
+got=$(aws s3api get-object --region eu-north-1 --bucket "$BUCKET" --key "artifacts/calendar-selection/$COMMIT/agent.tgz" "$WORK/agent.tgz" --query VersionId --output text)
+test "$got" = "$AGENT_VERSION"
 tar -xOf "$WORK/application.tgz" infra/aws/scripts/calendar_selection_check.py > "$WORK/check.py"
 systemctl start jobwatch-backup.service; systemctl start jobwatch-backup-health.service
 systemctl show jobwatch-backup.service jobwatch-backup-health.service --property=Id,Result
