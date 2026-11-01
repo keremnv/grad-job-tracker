@@ -266,6 +266,14 @@ class OwnerTools:
 
     # --- Reviewed calendar batch: existing evidence recipes plus selection rows, atomically.
 
+    @contextmanager
+    def calendar_session(self, **kwargs):
+        # These short projection queries repeat within the 15-second transaction budget.
+        # ARM64 JIT compilation costs more than their execution; keep the existing limits.
+        with self.session(**kwargs) as conn:
+            conn.execute('SET LOCAL jit=off')
+            yield conn
+
     def policy_text(self):
         try:
             return self.calendar_policy.read_text() if self.calendar_policy else None
@@ -418,7 +426,7 @@ class OwnerTools:
                     or any(not isinstance(e,dict) or set(e)!={'recipe','values'} or e['recipe'] not in EVIDENCE_RECIPES for e in raw.get('evidence',[]))):
                 raise OwnerError('invalid_arguments')
         if len({r['key'] for r in items})!=len(items):raise OwnerError('invalid_arguments')
-        with self.session(write=True,rollback=True) as conn:
+        with self.calendar_session(write=True,rollback=True) as conn:
             conn.execute("SELECT set_config('jobwatch.actor',%s,true)",(actor,))
             conn.execute(SELECTION_LOCK)
             for raw in items:
@@ -470,7 +478,7 @@ class OwnerTools:
     def commit_calendar(self, r):
         """Repeat the reviewed plan for real; any drift from the review rolls everything back."""
         policy=self.policy_text()
-        with self.session(write=True) as conn:
+        with self.calendar_session(write=True) as conn:
             conn.execute("SELECT set_config('jobwatch.actor',%s,true)",(r['actor'],))
             conn.execute(SELECTION_LOCK)
             results,newly,before,_=self.apply_calendar(conn,r['plan'],r['blocked'],r['actor'],policy)
@@ -484,7 +492,7 @@ class OwnerTools:
                     for k in results for view in (calendar_selection.describe(state,state['identity'][k]),)]
             items=wire(committed(state))
         # An independent read after COMMIT. Failure is unconfirmed, not permission to retry.
-        with self.session() as conn:
+        with self.calendar_session() as conn:
             if wire(committed(calendar_selection.evaluate(conn,policy)))!=items:raise OwnerError('read_back_changed')
         return {'committed':True,'actor':r['actor'],'db_login':ROLE,'items':items,'replayed':False,
             'publication':'Database state only. Check run_report kind=calendar_selection for the published feed; Proton refreshes separately.'}

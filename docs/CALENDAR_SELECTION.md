@@ -243,8 +243,11 @@ UI labels vary by account.
 - Pending reviews are in memory. An uncertain commit needs a fresh read before retrying.
 - The token binds the change. It does not prove a human approved; ChatGPT's confirmation does that.
 - Company/title resolution and duplicate warnings are heuristics and never authorise a write.
-- A batch evaluates the whole deadline set several times. The heaviest read takes about 120 ms on
-  the production host. A 25-item batch at production row counts, under the Owner service's timeouts,
+- A batch evaluates the whole deadline set several times. On x86, a 25-item batch at production
+  row counts, under the Owner service's timeouts,
   `MemoryMax=192M` and an 8% CPU quota on x86, took 7.7 s to prepare and 6.0 s to commit, with a
-  43 MiB peak. Timing on the ARM64 host itself is unmeasured until rollout. A response over the
+  43 MiB peak. On ARM64, repeated PostgreSQL JIT compilation exceeded the existing 15-second
+  transaction limit even for one missing item. Calendar Owner Actions now disable JIT only within
+  their prepare, commit and read-back transactions, retaining every timeout and resource limit.
+  The non-writing missing-item probe passed in 4.1 s at the host's 25% CPU quota. A response over the
   131,072-byte bound fails closed; split that batch.
