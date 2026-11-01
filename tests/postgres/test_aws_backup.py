@@ -92,6 +92,43 @@ class AWSBackupTests(unittest.TestCase):
             os.umask(old_umask)
             subprocess.run(['docker','exec',container,'dropdb','-U','postgres',name],check=True)
 
+    def test_calendar_selection_rows_restore_exactly_with_their_audit(self):
+        from psycopg.conninfo import make_conninfo
+        target=Target.verified()
+        container=os.environ['JOBWATCH_PG_TEST_CONTAINER']
+        names=['jobwatch_backup_'+uuid4().hex for _ in range(2)]
+        def utility(db):
+            def execute(args,*,input=None):
+                prefix=['docker','exec','-i','-e','PGUSER=jobwatch_migrator','-e','PGDATABASE='+db,container]
+                result=subprocess.run(prefix+args,input=input,capture_output=True)
+                if result.returncode:raise database_backup.BackupError('Disposable utility failed: '+args[0])
+                return result.stdout
+            return execute
+        def config(db):
+            original=target.config()
+            return replace(original,dsn=make_conninfo(original.dsn,dbname=db),idle_transaction_timeout_ms=120000)
+        for db in names:
+            subprocess.run(['docker','exec',container,'createdb','-U','postgres','-O','jobwatch_migrator',db],check=True)
+        try:
+            with TemporaryDirectory() as d:
+                archive=Path(d)/'database.dump'
+                with connect(config(names[0])) as source:
+                    migrate(source)
+                    with source.transaction():
+                        source.execute("SELECT set_config('jobwatch.actor','agent:synthetic',true)")
+                        source.execute("INSERT INTO jobwatch.leads(lead_key,kind,company,title,state,url,official,source_note,checked_at,checked_by) VALUES ('vacancy:a','vacancy','Synthetic','Role','listed','https://example.org/a',true,'n',now(),'agent:synthetic')")
+                        source.execute("INSERT INTO jobwatch.calendar_selections(lead_key,mode,recorded_by) VALUES ('vacancy:a','exclude','agent:synthetic')")
+                    manifest=database_backup.backup(source,archive,execute=utility(names[0]))
+                    self.assertEqual(manifest['fingerprint']['tables']['calendar_selections']['count'],1)
+                with connect(config(names[1])) as restored:
+                    # restore() itself refuses any difference in rows, schema, grants or sequences.
+                    self.assertTrue(database_backup.restore(restored,archive,manifest,execute=utility(names[1]))['exact_rows_schema_and_sequences'])
+                    self.assertEqual(restored.execute('SELECT mode FROM jobwatch.calendar_selections').fetchone()['mode'],'exclude')
+                    self.assertEqual(restored.execute("SELECT count(*) AS n FROM jobwatch.owner_audit WHERE table_name='calendar_selections'").fetchone()['n'],1)
+        finally:
+            for db in names:
+                subprocess.run(['docker','exec',container,'dropdb','-U','postgres','--if-exists',db],check=False)
+
     def test_snapshot_dump_exact_restore_private_owner_data_and_nonempty_refusal(self):
         from psycopg.conninfo import make_conninfo
         target=Target.verified()

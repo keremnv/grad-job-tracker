@@ -25,7 +25,15 @@ def server(core=None, *, port=8766):
             structuredContent=result,isError=not result['ok'])
     @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True,destructiveHint=False,openWorldHint=False),
         description='Prepare one existing SQL recipe: create_application, link_application, update_stage, '
-        'set_followup, set_triage, record_lead, link_lead, correct_lead_deadline or verify_posting_deadline. '
+        'set_followup, set_triage, record_lead, link_lead, correct_lead_deadline, verify_posting_deadline or '
+        'select_calendar_deadlines. '
+        'For select_calendar_deadlines supply items: up to 25 of {key, action: include|remove, evidence?: '
+        '[{recipe: record_lead|link_lead|correct_lead_deadline|verify_posting_deadline, values}], '
+        'confirmed_distinct?: true}. Resolve keys and read evidence with run_report kind=calendar_selection first. '
+        'Evidence entries must describe real observations. Selection is additive: listing 12 deadlines adds those 12 and '
+        'never limits the calendar to them, so events not listed stay. Removal needs action=remove for each item from an '
+        'explicit user request. Show every row of review and details: changes, unchanged, blocked and feed_effect. '
+        'Dates always come from evidence. '
         'For verify_posting_deadline supply posting_key, value (YYYY-MM-DD), wording (observed quote), '
         'url (checked official source), checked_at (actual time with timezone), reason (verification/correction basis), '
         'and supersedes (array of exact active claim_id strings from posting_deadline_claims; [] adds evidence '
@@ -53,10 +61,11 @@ def main():
     p.add_argument('--unix-socket',type=Path)
     p.add_argument('--port',type=int,default=8766)
     p.add_argument('--refresh-hint',type=Path)
+    p.add_argument('--calendar-policy',type=Path,help='Deployed deadline policy, for select_calendar_deadlines')
     a=p.parse_args()
     if not 1<=a.port<=65535:p.error('Invalid port')
     callback=(lambda:refresh_hint(a.refresh_hint)) if a.refresh_hint else None
-    mcp=server(OwnerTools(on_commit=callback),port=a.port)
+    mcp=server(OwnerTools(on_commit=callback,calendar_policy=a.calendar_policy),port=a.port)
     if a.unix_socket:
         if a.transport!='streamable-http':p.error('Unix socket requires streamable-http')
         from .unix_mcp import run

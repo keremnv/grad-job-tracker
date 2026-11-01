@@ -53,7 +53,7 @@ def security_snapshot(conn):
 def fingerprint(conn):
     check_migrations(conn)
     tables = {}
-    for table in (*TABLES, 'owner_audit', 'schema_migrations', 'embedding_chunks'):
+    for table in (*TABLES, 'owner_audit', 'schema_migrations', 'embedding_chunks', 'calendar_selections'):
         rows = [primitive(r) for r in conn.execute('SELECT * FROM jobwatch.'+table)]
         # Exact row values, including audit IDs/clocks, generated search columns and import clocks.
         tables[table] = {'count': len(rows), 'sha256': digest(sorted(rows, key=digest))}

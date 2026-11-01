@@ -209,6 +209,14 @@ def search(conn, query, *, method='bm25', history=False, include_not_seen=False,
     return result
 
 
+def lead_identity(lead,aliases):
+    """One calendar identity rule for leads: explicit link, unique exact URL, then own key."""
+    candidates=aliases.get(url(lead['url']),[]) if lead['kind']=='vacancy' else []
+    linked=lead['posting_key'] or (candidates[0] if len(candidates)==1 else None)
+    # Original file-era fallback is the exact vacancy URL, not the imported lead key.
+    return linked or (url(lead['url']) if lead['kind']=='vacancy' else lead['lead_key']),linked,candidates
+
+
 def deadlines(conn,now,*,shared=False):
     """Separate independently checked, official research and feed-only claims; never infer dates."""
     timestamp(now)
@@ -233,10 +241,7 @@ def deadlines(conn,now,*,shared=False):
         original=json.loads(r['details'].get('legacy_json','{}'))
         d=original.get('deadline') or {}
         official=r['deadline_official'] if r['deadline_official'] is not None else r['official']
-        candidates=aliases.get(url(r['url']),[]) if r['kind']=='vacancy' else []
-        linked=r['posting_key'] or (candidates[0] if len(candidates)==1 else None)
-        # Original file-era fallback is the exact vacancy URL, not the imported lead key.
-        identity=linked or (url(r['url']) if r['kind']=='vacancy' else r['lead_key'])
+        identity,linked,candidates=lead_identity(r,aliases)
         records.append({'identity':identity,'posting_key':r['posting_key'],'company':r['company'],'title':r['title'],
             'posting_url':url(r['url']),'url':url(r['deadline_source_url'] or r['details'].get('deadline',{}).get('url') or d.get('url') or r['details'].get('deadline_source_url') or r['url']),'wording':r['deadline_wording'],
             'value':str(r['deadline_date']) if r['deadline_date'] else None,'checked_at':r['deadline_checked_at'] or r['checked_at'],

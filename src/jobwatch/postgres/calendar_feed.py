@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 import shutil
 import stat
+import tempfile
 from uuid import uuid4
 from zoneinfo import ZoneInfo
 
@@ -25,6 +26,8 @@ GENERATION = re.compile(r'snapshot-[0-9a-f]{32}')
 MAX_BYTES = 900_000  # Below Proton's documented 1 MB subscription bound.
 MAX_STATE = 20_000
 MAX_MANIFEST = 32*1024*1024
+STATUS_SCHEMA = 'jobwatch.calendar-status/1'
+MAX_STATUS = 8*1024*1024
 
 
 class FeedError(ValueError):
@@ -231,6 +234,49 @@ def publication_lock(root):
         yield
     finally:
         os.close(fd)
+
+
+def publication_status(previous, *, now, manifest=None):
+    """Diagnostics for Research: outcome, counts and hashed aliases; no text, URLs or keys.
+
+    manifest=None records a failed attempt and keeps the last success."""
+    status = dict(previous or {})
+    status.update(schema=STATUS_SCHEMA, last_attempt_at=now, last_attempt_ok=manifest is not None)
+    if manifest is not None:
+        published = {}
+        for row in manifest['events'].values():
+            if row['feed']=='deadlines' and row['active'] and not row.get('superseded_by'):
+                published.update({alias: row['sequence'] for alias in row['aliases']})
+        status.update(last_success_at=now, snapshot_generated_at=manifest['generated_at'],
+            events={f: manifest['files'][f+'.ics']['events'] for f in FEEDS},
+            warnings=len(manifest['warnings']), published_deadlines=published)
+    return status
+
+
+def read_status(path):
+    """The status file, or None when absent/unusable; it is never publication authority."""
+    try:
+        fd = os.open(path, os.O_RDONLY|os.O_NOFOLLOW)
+        with os.fdopen(fd, 'rb') as stream:
+            raw = stream.read(MAX_STATUS+1)
+        value = json.loads(raw) if len(raw) <= MAX_STATUS else None
+    except (OSError, ValueError):
+        return None
+    return value if isinstance(value, dict) and value.get('schema')==STATUS_SCHEMA else None
+
+
+def write_status(path, status):
+    """Atomic group-readable diagnostics, 0640 inside a 0750 service runtime directory."""
+    path = Path(path)
+    fd, temporary = tempfile.mkstemp(prefix='.status-', dir=path.parent)
+    try:
+        with os.fdopen(fd, 'w') as stream:
+            os.fchmod(stream.fileno(), 0o640)
+            stream.write(encoded(status).decode())
+            stream.flush();os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):os.unlink(temporary)
 
 
 def publish(data, output, *, initialize=False, **options):

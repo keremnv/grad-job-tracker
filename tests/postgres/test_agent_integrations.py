@@ -27,7 +27,7 @@ class AgentIntegrationTests(DatabaseTest):
     def setUpClass(cls):
         super().setUpClass()
         container=os.environ['JOBWATCH_PG_TEST_CONTAINER']
-        for filename in ('agent_roles.sql','agent_access.sql','lead_deadline_access.sql','posting_deadline_access.sql'):
+        for filename in ('agent_roles.sql','agent_access.sql','lead_deadline_access.sql','posting_deadline_access.sql','calendar_selection_access.sql'):
             p=subprocess.run(['docker','exec','-i',container,'psql','-X','-U','postgres',
                 '-d','jobwatch_foundation_test','-v','ON_ERROR_STOP=1','-f','-'],
                 input=(ROOT/'sql/postgresql'/filename).read_text(),text=True,capture_output=True)

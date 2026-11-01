@@ -41,6 +41,8 @@ the file-backed exporter is unchanged. Those compatibility exports can include
 free-form action/wording text and cannot preserve a subscriber's previous
 lead-to-posting UID mapping. Use the new minimal snapshots for external calendars.
 
+Approved additions and removals: [reviewed calendar selection](CALENDAR_SELECTION.md).
+
 ## Projection and privacy contract
 
 | Feed | Included | Omitted / meaning |

@@ -71,6 +71,32 @@ class MigrationTests(unittest.TestCase):
             self.assertTrue(conn.execute("SELECT has_table_privilege('jobwatch_owner','jobwatch.agent_leads','SELECT') AS ok").fetchone()['ok'])
             self.assertIn('deadline_checked_by',conn.execute('SELECT * FROM jobwatch.agent_leads').fetchone())
 
+    def test_calendar_selection_upgrade_and_documented_rollback(self):
+        from support import actor,source,run,posting
+        from jobwatch.postgres.importer import check_migrations
+        plan=load_migrations()
+        with self.target.connect() as c:
+            migrate(c,plan[:6])
+            with c.transaction():
+                actor(c);sid=source(c);attempt=run(c,sid);key,_=posting(c,sid,attempt['id'])
+            def state():
+                return ({t:c.execute('SELECT count(*) AS n FROM jobwatch.'+t).fetchone()['n'] for t in ('postings','owner_audit')},
+                    c.execute("SELECT string_agg(table_name,',' ORDER BY table_name) AS t FROM information_schema.tables WHERE table_schema='jobwatch'").fetchone()['t'])
+            before=state()
+            self.assertEqual(migrate(c),[plan[6].filename])
+            check_migrations(c)
+            self.assertEqual(state()[0],before[0])
+            self.assertEqual(c.execute('SELECT count(*) AS n FROM jobwatch.calendar_selections').fetchone()['n'],0)
+            # Rollback before any owner writes, exactly as docs/CALENDAR_SELECTION.md states, as the migrator.
+            with c.transaction():
+                c.execute('DROP TABLE jobwatch.calendar_selections')
+                c.execute('DELETE FROM jobwatch.schema_migrations WHERE version=7')
+            self.assertEqual(state(),before)
+            self.assertEqual([r['version'] for r in c.execute('SELECT version FROM jobwatch.schema_migrations ORDER BY version')],[1,2,3,4,5,6])
+            # Rolling forward again is the same single migration.
+            self.assertEqual(migrate(c),[plan[6].filename])
+            check_migrations(c)
+
     def test_posting_deadline_upgrade_keeps_legacy_verification_evidence(self):
         from support import actor,source,run,posting
         plan=load_migrations()
@@ -81,7 +107,7 @@ class MigrationTests(unittest.TestCase):
                 c.execute("INSERT INTO jobwatch.verifications(posting_key,kind,checked_at,checked_by,url,wording,value) VALUES (%s,'deadline',now(),'owner','https://example.org/official','Apply by 12 November','2026-11-12')",(key,))
             old=c.execute('SELECT * FROM jobwatch.verifications').fetchone()
             audit=c.execute('SELECT * FROM jobwatch.owner_audit').fetchall()
-            self.assertEqual(migrate(c),[plan[5].filename])
+            self.assertEqual(migrate(c),[m.filename for m in plan[5:]])
             after=c.execute('SELECT * FROM jobwatch.verifications').fetchone()
             self.assertEqual({k:after[k] for k in old},old)
             self.assertIsNone(after['deadline_supersedes'])

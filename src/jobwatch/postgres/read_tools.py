@@ -12,7 +12,7 @@ import threading
 from uuid import UUID, uuid4
 
 from .connection import DatabaseConfig, DatabaseError, connect
-from . import research, reports
+from . import calendar_feed, calendar_selection, research, reports
 from . import embeddings
 
 ROLE = 'jobwatch_chat_readonly'
@@ -56,7 +56,8 @@ def wire(value):
 
 
 class ReadTools:
-    def __init__(self, config=None, *, max_bytes=MAX_BYTES, timeout_ms=5000, query_encoder=None, shared=False):
+    def __init__(self, config=None, *, max_bytes=MAX_BYTES, timeout_ms=5000, query_encoder=None, shared=False,
+                 calendar_policy=None, calendar_status=None):
         if type(shared) is not bool:
             raise ValueError("Invalid read scope")
         self.shared = shared
@@ -66,6 +67,8 @@ class ReadTools:
         self.timeout_ms = integer(timeout_ms, 50, 5000)
         self.slots = threading.BoundedSemaphore(3)
         self.query_encoder = query_encoder
+        self.calendar_policy = calendar_policy
+        self.calendar_status = calendar_status
 
     @contextmanager
     def session(self):
@@ -237,8 +240,27 @@ class ReadTools:
             if conn.execute('SELECT count(*) AS n FROM (SELECT 1 FROM jobwatch.'+table+' LIMIT 10001) q').fetchone()['n'] > 10000:
                 raise ReadError('working_set_too_large')
 
-    def run_report(self, kind, since=None, limit=50):
+    def calendar_selection_report(self, selection):
+        if selection is not None and (not isinstance(selection, list) or not 1 <= len(selection) <= calendar_selection.MAX_ITEMS
+                or any(not isinstance(i, dict) or not i or set(i)-{'key', 'company', 'title', 'deadline'}
+                       or any(not isinstance(v, str) or len(v) > 512 for v in i.values())
+                       or not (i.get('key') or (i.get('company') and i.get('title'))) for i in selection)):
+            raise ReadError('invalid_arguments')
+        try:
+            policy = self.calendar_policy.read_text() if self.calendar_policy else None
+        except OSError:
+            raise ReadError('calendar_policy_unavailable') from None
+        status = calendar_feed.read_status(self.calendar_status) if self.calendar_status else None
+        with self.session() as conn:
+            self.working_set(conn)
+            return calendar_selection.report(conn, selection, policy, status, shared=self.shared)
+
+    def run_report(self, kind, since=None, limit=50, selection=None):
         integer(limit, 1, MAX_ROWS)
+        if kind == 'calendar_selection':
+            return self.calendar_selection_report(selection)
+        if selection is not None:
+            raise ReadError('invalid_arguments')
         if kind not in ('daily', 'weekly', 'requirements', 'calendar') or (since is not None and not isinstance(since, str)):
             raise ReadError('invalid_arguments')
         with self.session() as conn:
