@@ -31,6 +31,7 @@ def evaluate(conn, policy_sql, *, shared=True, past_days=30, future_days=366):
     events, _ = reports.calendar_events({'generated_at': now, 'deadlines': deepcopy(kept),
                                          'applications': [], 'revisits': []}, minimal=True)
     today = timestamp(now).astimezone(ZoneInfo('Europe/London')).date()
+    window = (today-timedelta(days=past_days), today+timedelta(days=future_days))
     postings = conn.execute('SELECT posting_key,company,title,posting_url,status FROM jobwatch.operational_postings ORDER BY posting_key').fetchall()
     aliases = defaultdict(list)
     for p in postings:
@@ -52,10 +53,10 @@ def evaluate(conn, policy_sql, *, shared=True, past_days=30, future_days=366):
     claims = defaultdict(list)
     for d in records:
         claims[d['identity']].append(d)
-    return {'now': now, 'window': (today-timedelta(days=past_days), today+timedelta(days=future_days)),
+    return {'now': now, 'window': window,
             'policy': policy, 'rows': {r['evidence_key']: r for r in rows}, 'kept': {id(d) for d in kept},
             'claims': claims, 'identity': identity, 'entities': entities, 'members': members,
-            'events': {e['uid'] for e in events['deadlines']}}
+            'events': {e['uid'] for e in events['deadlines'] if in_window(window, e['date'])}}
 
 
 def evidence_view(d):
@@ -64,12 +65,12 @@ def evidence_view(d):
             'wording': (d['wording'] or '')[:300], 'wording_is_untrusted': True}
 
 
-def in_window(state, when):
+def in_window(window, when):
     """The publisher's own Europe/London day rule for its rolling window."""
     value = when[2][5:]
     day = (datetime.strptime(value, '%Y%m%dT%H%M%SZ').replace(tzinfo=timezone.utc).astimezone(ZoneInfo('Europe/London')).date()
            if when[2].startswith('time:') else datetime.fromisoformat(value).date())
-    return state['window'][0] <= day <= state['window'][1]
+    return window[0] <= day <= window[1]
 
 
 def describe(state, identity):
@@ -102,7 +103,7 @@ def describe(state, identity):
         status = 'conflicting'
     elif not usable:
         status = 'insufficient'
-    elif not in_window(state, best[0]):
+    elif not in_window(state['window'], best[0]):
         status = 'outside_window'
     else:
         status = 'qualifies'
@@ -185,6 +186,14 @@ def similar_identities(state, identity):
         if squash(e['company']) == company and t and (t <= title or title <= t):
             found.append(sorted(members))
     return found
+
+
+def feed_effect(before, after, identities):
+    """What a batch does to the whole feed. Selection is additive: only listed identities may change."""
+    listed = {calendar.uid('deadline', i) for i in identities}
+    return {'deadline_events_before': len(before['events']), 'deadline_events_after': len(after['events']),
+            'added': len(after['events']-before['events']), 'removed': len(before['events']-after['events']),
+            'unlisted_events_changed': len((before['events'] ^ after['events'])-listed)}
 
 
 def report(conn, selection, policy_sql, status, *, shared=True):
