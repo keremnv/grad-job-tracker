@@ -161,13 +161,20 @@ def _lexical_search(conn,query,*,method='bm25',history=False,include_not_seen=Fa
         'bm25':'python_bm25',
         'bm25_prefiltered':'postgresql_gin_prefiltered_bm25',
     }[method]
+    ranking_scope={
+        'fts':'full_corpus_indexed',
+        'fts_symbol':'full_corpus_indexed',
+        'bm25':'full_corpus',
+        'bm25_prefiltered':'candidate_pool_rerank',
+    }[method]
     token_note={
-        'fts':'English FTS collapses C++/C# to C; BM25/fts_symbol keep their distinct tokens.',
-        'fts_symbol':'Symbol-preserving simple FTS keeps C, C++, C#, F#, and .NET distinct without English stemming.',
-        'bm25':'English FTS collapses C++/C# to C; BM25 keeps their distinct tokens.',
-        'bm25_prefiltered':'Two-stage retrieval: PostgreSQL symbol-preserving GIN prefilter (C/C++/C#/F#/.NET distinct) followed by exact BM25 reranking over the bounded candidate pool.',
+        'fts':'English FTS stems prose over the full indexed corpus but collapses C++/C# to C; use fts_symbol or bm25_prefiltered for technical symbols.',
+        'fts_symbol':'Symbol-preserving simple FTS indexes the full corpus and keeps C, C++, C#, F#, and .NET distinct without English stemming.',
+        'bm25':'Full-corpus Python BM25 computes IDF over every eligible posting and keeps C++/C# distinct; may hit timeouts on large corpora.',
+        'bm25_prefiltered':'Candidate-set reranking (not full-corpus BM25): PostgreSQL symbol-preserving GIN prefilter selects up to prefilter_limit rows, then BM25 reranks only that candidate pool with local pool IDF.',
     }[method]
     return {'ranking':ranking_name,
+            'ranking_scope':ranking_scope,
             'scope':'all_versions' if history else 'current_including_not_seen' if include_not_seen else 'current_listed',
             'verdicts':'all','items':rows,**extra_meta,
             'context':'Status, verdict, last_seen_at and health describe the posting now; version fields describe the matched evidence.',

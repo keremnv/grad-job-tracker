@@ -76,6 +76,7 @@ class LexicalBm25Tests(unittest.TestCase):
         conn = RecordingConn(rows)
         result = research._lexical_search(conn, 'C++ graduate', method='bm25_prefiltered', limit=5)
         self.assertEqual(result['ranking'], 'postgresql_gin_prefiltered_bm25')
+        self.assertEqual(result['ranking_scope'], 'candidate_pool_rerank')
         self.assertEqual(result['candidate_pool_size'], 2)
         self.assertEqual(len(captured), 1)
         self.assertIn('search_sym_tsv', captured[0][0])
