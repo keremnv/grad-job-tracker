@@ -35,6 +35,18 @@ resource "aws_sns_topic_policy" "backup_alerts" {
         StringEquals = { "aws:SourceAccount" = var.expected_project_id }
         ArnEquals    = { "aws:SourceArn" = "arn:aws:cloudwatch:${var.region}:${var.expected_project_id}:alarm:grad-jobwatch-calendar-health" }
       }
+      }, {
+      # MCP-health amendment: same reviewed pattern as the calendar alarm.
+      # Applied live via SetTopicAttributes; never via a root apply.
+      Sid       = "AllowReviewedMcpAlarm"
+      Effect    = "Allow"
+      Principal = { Service = "cloudwatch.amazonaws.com" }
+      Action    = "sns:Publish"
+      Resource  = aws_sns_topic.backup_alerts.arn
+      Condition = {
+        StringEquals = { "aws:SourceAccount" = var.expected_project_id }
+        ArnEquals    = { "aws:SourceArn" = "arn:aws:cloudwatch:${var.region}:${var.expected_project_id}:alarm:grad-jobwatch-mcp-health" }
+      }
     }]
   })
 }

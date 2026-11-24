@@ -1,0 +1,19 @@
+[Unit]
+Description=Job Watch Research MCP availability health (native socket probe)
+After=network-online.target jobwatch-agent-read.service
+Wants=network-online.target
+[Service]
+Type=oneshot
+User=jobwatch-agent-read
+Group=jobwatch-agent-read
+SupplementaryGroups=jobwatch-db
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/jobwatch-agent-runtime/bin/python /opt/jobwatch/current/infra/aws/scripts/mcp_health.py
+TimeoutStartSec=2min
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+StateDirectory=jobwatch-mcp-health
+StateDirectoryMode=0700
+UMask=0077

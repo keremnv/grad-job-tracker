@@ -195,6 +195,33 @@ resource "aws_cloudwatch_metric_alarm" "calendar_health" {
   alarm_actions       = [var.alert_topic_arn]
   ok_actions          = [var.alert_topic_arn]
 }
+resource "aws_cloudwatch_log_metric_filter" "mcp_health" {
+  name           = "jobwatch-mcp-health"
+  log_group_name = "/grad-jobwatch/operations"
+  pattern        = "{ $.operation = \"mcp_health\" }"
+  metric_transformation {
+    name      = "McpHealthy"
+    namespace = "JobWatch"
+    value     = "$.mcp_healthy"
+    unit      = "Count"
+    # No default: missing heartbeats must alarm, never fabricate health.
+  }
+}
+resource "aws_cloudwatch_metric_alarm" "mcp_health" {
+  alarm_name                = "grad-jobwatch-mcp-health"
+  namespace                 = "JobWatch"
+  metric_name               = "McpHealthy"
+  statistic                 = "Minimum"
+  period                    = 900
+  evaluation_periods        = 3
+  datapoints_to_alarm       = 2
+  comparison_operator       = "LessThanThreshold"
+  threshold                 = 1
+  treat_missing_data        = "breaching"
+  alarm_actions             = [var.alert_topic_arn]
+  ok_actions                = [var.alert_topic_arn]
+  insufficient_data_actions = [var.alert_topic_arn]
+}
 output "calendar_domain" { value = aws_cloudfront_distribution.calendar.domain_name }
 output "calendar_bucket" {
   value     = aws_s3_bucket.calendar.id

@@ -17,8 +17,18 @@ def tokens(value: str) -> list[str]:
 
 class BM25:
     def __init__(self, documents: dict[str, str], k1=1.2, b=0.75):
+        self._init({key: Counter(tokens(body)) for key, body in documents.items()}, k1, b)
+
+    @classmethod
+    def from_counters(cls, counters: dict, k1=1.2, b=0.75):
+        """Index pre-tokenised documents without retaining their source text."""
+        index = cls.__new__(cls)
+        index._init(dict(counters), k1, b)
+        return index
+
+    def _init(self, docs, k1, b):
         self.k1, self.b = k1, b
-        self.docs = {key: Counter(tokens(body)) for key, body in documents.items()}
+        self.docs = docs
         self.length = {key: sum(c.values()) for key, c in self.docs.items()}
         self.avg = (sum(self.length.values()) / len(self.docs)) if self.docs else 0.0
         df = Counter(t for c in self.docs.values() for t in c)

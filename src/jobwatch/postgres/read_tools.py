@@ -66,6 +66,7 @@ class ReadTools:
         self.max_bytes = integer(max_bytes, 2048, MAX_BYTES)
         self.timeout_ms = integer(timeout_ms, 50, 5000)
         self.slots = threading.BoundedSemaphore(3)
+        self.bm25_lock = threading.Lock()
         self.query_encoder = query_encoder
         self.calendar_policy = calendar_policy
         self.calendar_status = calendar_status
@@ -204,6 +205,31 @@ class ReadTools:
         if method not in ('bm25', 'fts', 'vector', 'hybrid') or lexical_method not in ('bm25', 'fts'):
             raise ReadError('invalid_arguments')
         vector = (self.query_encoder or embeddings.query_embedding)(query) if method in ('vector', 'hybrid') else None
+        # BM25 materialises a token index for the whole eligible corpus; serialise
+        # it so concurrent requests cannot multiply that peak. Other methods are
+        # indexed in PostgreSQL and keep the normal concurrency slots.
+        guard = self.bm25_lock if method == 'bm25' or (method == 'hybrid' and lexical_method == 'bm25') else None
+        if guard is not None:
+            guard.acquire()
+        try:
+            return self._search_locked(query, method=method, history=history, include_not_seen=include_not_seen,
+                                       limit=limit, vector=vector, lexical_method=lexical_method)
+        finally:
+            if guard is not None:
+                self._release_retained_memory()
+                guard.release()
+
+    @staticmethod
+    def _release_retained_memory():
+        # Python/glibc arenas otherwise keep a BM25 corpus peak as resident
+        # memory, so repeated searches ratchet toward the cgroup limit.
+        try:
+            import ctypes
+            ctypes.CDLL(None).malloc_trim(0)
+        except Exception:
+            pass
+
+    def _search_locked(self, query, *, method, history, include_not_seen, limit, vector, lexical_method):
         with self.session() as conn:
             # BM25 needs the corpus, not only a prefiltered top-N candidate set.
             if method == 'bm25' or (method == 'hybrid' and lexical_method == 'bm25'):

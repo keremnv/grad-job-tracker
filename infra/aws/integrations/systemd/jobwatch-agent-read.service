@@ -24,7 +24,7 @@ LockPersonality=true
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
 IPAddressDeny=any
 IPAddressAllow=localhost
-MemoryMax=192M
+MemoryMax=256M
 CPUQuota=25%
 UMask=0077
 [Install]
