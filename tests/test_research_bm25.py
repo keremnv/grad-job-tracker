@@ -3,7 +3,7 @@ import unittest
 from uuid import uuid4
 
 from jobwatch.postgres import research
-from jobwatch.search import BM25, document
+from jobwatch.search import BM25, document, symbol_query_terms, symbol_search_text
 
 
 def row(title, description):
@@ -49,6 +49,43 @@ class LexicalBm25Tests(unittest.TestCase):
         for item in result['items']:
             self.assertNotIn('description_text', item)
             self.assertIn('software', item['untrusted_match']['text'].lower())
+
+    def test_symbol_search_text_and_query_terms_preserve_technical_tokens(self):
+        self.assertIn('sym_cpp', symbol_search_text('C++20 Systems Engineer'))
+        self.assertIn('sym_csharp', symbol_search_text('C#/.NET Developer'))
+        self.assertIn('sym_dotnet', symbol_search_text('C#/.NET Developer'))
+        self.assertIn('sym_fsharp', symbol_search_text('Functional F# Engineer'))
+        self.assertIn('sym_dotnet', symbol_search_text('ASP.NET Core'))
+        self.assertNotIn('sym_cpp', symbol_search_text('Embedded C Engineer'))
+        self.assertNotIn('sym_csharp', symbol_search_text('Embedded C Engineer'))
+        self.assertEqual(symbol_query_terms('C++ and C# graduate'), ['sym_cpp', 'sym_csharp', 'graduate'])
+        self.assertEqual(symbol_query_terms('???'), [])
+
+    def test_bm25_prefiltered_offline_uses_symbol_or_query_and_reranks(self):
+        captured = []
+        rows = [
+            row('C++ Graduate Engineer', 'Write modern C++ systems'),
+            row('C Embedded Engineer', 'Write bare metal C firmware'),
+        ]
+
+        class RecordingConn(FakeConn):
+            def execute(self, sql, params=None):
+                captured.append((sql, params))
+                return super().execute(sql, params)
+
+        conn = RecordingConn(rows)
+        result = research._lexical_search(conn, 'C++ graduate', method='bm25_prefiltered', limit=5)
+        self.assertEqual(result['ranking'], 'postgresql_gin_prefiltered_bm25')
+        self.assertEqual(result['candidate_pool_size'], 2)
+        self.assertEqual(len(captured), 1)
+        self.assertIn('search_sym_tsv', captured[0][0])
+        self.assertEqual(captured[0][1][2], 'sym_cpp | graduate')
+        self.assertEqual(result['items'][0]['title'], 'C++ Graduate Engineer')
+        # Punctuation-only query never issues an invalid tsquery.
+        conn2 = RecordingConn(rows)
+        empty = research._lexical_search(conn2, '???', method='bm25_prefiltered', limit=5)
+        self.assertEqual(empty['items'], [])
+        self.assertEqual(conn2.calls, 0)
 
 
 if __name__ == '__main__':

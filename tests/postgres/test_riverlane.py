@@ -110,3 +110,42 @@ class RiverlaneTests(DatabaseTest):
             self.assertEqual(conn.execute('SELECT count(*) AS n FROM jobwatch.postings').fetchone()['n'], 0)
             self.assertEqual(conn.execute('SELECT count(*) AS n FROM jobwatch.posting_events').fetchone()['n'], 0)
             self.assertEqual(conn.execute("SELECT count(*) AS n FROM jobwatch.collection_runs WHERE mode<>'validate'").fetchone()['n'], 0)
+
+    def test_verified_wave2_custom_greenhouse_hosts_persist_and_fail_closed(self):
+        boards = [
+            ('stripe', 'global', 8172510,
+             'https://stripe.com/jobs/search?gh_jid=8172510',
+             'https://stripe.com/jobs/search?gh_jid=8172510&tamper=1'),
+            ('janestreet', 'global', 8631912002,
+             'https://www.janestreet.com/join-jane-street/apply/8631912002?gh_jid=8631912002',
+             'https://www.janestreet.com/join-jane-street/apply/8631912002?gh_jid=9999999999'),
+            ('ocadogroup', 'eu', 4973939101,
+             'https://careers.ocadogroup.com/jobs/details?gh_jid=4973939101&gh_jid=4973939101',
+             'https://careers.ocadogroup.com/jobs/details?gh_jid=4973939101&gh_jid=4973939102'),
+        ]
+        for board, region, nid, good_url, bad_url in boards:
+            with self.subTest(board=board):
+                with self.target.connect() as conn, conn.transaction():
+                    actor(conn)
+                    sid = conn.execute(
+                        "INSERT INTO jobwatch.sources(provider,board,region,employer_id,status,validation_url,"
+                        "endpoint_checked_at,mapping_verified_at,mapping_verified_by,mapping_evidence) "
+                        "VALUES ('greenhouse',%s,%s,%s,'monitored','https://example.org',now(),now(),'test','synthetic') RETURNING id",
+                        (board, region, self.employer),
+                    ).fetchone()['id']
+                good_data = {'jobs': [{'id': nid, 'internal_job_id': 99, 'title': 'Graduate Software Engineer',
+                                       'absolute_url': good_url, 'location': {'name': 'London, UK'}, 'content': 'Synthetic'}],
+                             'meta': {'total': 1}}
+                self.client.collect_source(sid, get_json=lambda _, d=good_data: d)
+                self.assertEqual(
+                    self.scalar('SELECT posting_key FROM jobwatch.postings WHERE source_id=%s', (sid,)),
+                    f'greenhouse:{board}:{nid}',
+                )
+                bad_data = deepcopy(good_data)
+                bad_data['jobs'][0]['absolute_url'] = bad_url
+                with self.assertRaises(CollectionError):
+                    self.client.collect_source(sid, get_json=lambda _, d=bad_data: d)
+                self.assertEqual(
+                    self.scalar('SELECT v.posting_url FROM jobwatch.postings p JOIN jobwatch.posting_versions v ON v.id=p.current_version_id WHERE p.source_id=%s', (sid,)),
+                    good_url,
+                )

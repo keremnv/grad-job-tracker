@@ -95,7 +95,8 @@ def logical_snapshot(conn, *, derived=False):
         if table == 'verifications':
             row.pop('recorded_at')  # new import activity, checked_at is retained
         if table == 'posting_versions' and not derived:
-            row.pop('search_tsv')
+            row.pop('search_tsv', None)
+            row.pop('search_sym_tsv', None)
         return row
     result = {table: sorted((clean(table,r) for r in raw[table]),key=lambda r:str(r[KEYS[table]])) for table in TABLES}
     result['owner_audit'] = []

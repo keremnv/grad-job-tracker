@@ -168,6 +168,8 @@ class EmbeddingTests(DatabaseTest):
                 self.assertEqual(migrate(conn),[m.filename for m in load_migrations()[3:]])
                 self.assertEqual(migrate(conn),[])
                 after={t:conn.execute('SELECT to_jsonb(t) AS data FROM jobwatch.'+t+' t ORDER BY to_jsonb(t)::text').fetchall() for t in tables}
+                for row in after['posting_versions']:
+                    row['data'].pop('search_sym_tsv', None)
                 self.assertEqual(before,after)
                 self.assertEqual(conn.execute('SELECT count(*) AS n FROM jobwatch.embedding_chunks').fetchone()['n'],0)
         finally:subprocess.run(['docker','exec',container,'dropdb','-U','postgres',name],check=True)

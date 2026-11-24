@@ -142,7 +142,8 @@ class MigrationTests(unittest.TestCase):
                     AND has_column_privilege(r.role,'jobwatch.'||c.table_name,c.column_name,p.privilege_type)
                 """)}
             before=privileges()
-            self.assertEqual(migrate(c),[m.filename for m in load_migrations()[4:]])
+            plan=load_migrations()
+            self.assertEqual(migrate(c,plan[:6]),[m.filename for m in plan[4:6]])
             for name in ('lead_deadline_access.sql','posting_deadline_access.sql'):
                 admin((root/'sql/postgresql'/name).read_text())
             added=privileges()-before
@@ -157,11 +158,29 @@ class MigrationTests(unittest.TestCase):
                 ('id','posting_key','kind','checked_at','checked_by','url','wording','value','deadline_supersedes','deadline_reason'))
             self.assertEqual(added,expected)
             self.assertTrue(before<=privileges())
-            self.assertEqual(migrate(c),[])
+            self.assertEqual(migrate(c,plan[:6]),[])
             # Reapplying only the delta files is idempotent and preserves the exact matrix.
             for name in ('lead_deadline_access.sql','posting_deadline_access.sql'):
                 admin((root/'sql/postgresql'/name).read_text())
             self.assertEqual(privileges()-before,expected)
+
+    def test_scalable_retrieval_migration_sql_python_parity_and_indexes(self):
+        from jobwatch.search import symbol_search_text
+        with self.target.connect() as conn:
+            migrate(conn)
+            samples = [
+                'C++', 'C++20', 'C/C++', 'C++/Rust', 'C#', 'C#/.NET',
+                'ASP.NET Core', 'F# functional', 'Embedded C firmware',
+                'Python & AI Graduate', 'A+ rating', 'c++ and c# and .net',
+            ]
+            for text in samples:
+                with self.subTest(text=text):
+                    sql_val = conn.execute('SELECT jobwatch.symbol_search_text(%s) AS v', (text,)).fetchone()['v']
+                    self.assertEqual(sql_val, symbol_search_text(text))
+            indexes = {r['indexname'] for r in conn.execute(
+                "SELECT indexname FROM pg_indexes WHERE schemaname='jobwatch' AND tablename IN ('posting_versions','postings')"
+            )}
+            self.assertTrue({'versions_search_sym', 'versions_url_exact', 'postings_current_version_idx'} <= indexes)
 
     def test_changed_migration_refused(self):
         original = load_migrations()

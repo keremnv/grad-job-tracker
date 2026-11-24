@@ -9,6 +9,30 @@ from .filtering import plain
 
 TOKEN = re.compile(r"[a-z0-9]+(?:[+#][+#]?)?")
 STOP = frozenset('a an and are as at be by for from has in is it of on or our the to we will with you your'.split())
+_SYMBOL_REPLACEMENTS = (
+    (re.compile(r"(^|[^A-Za-z0-9_])c\+\+(?![A-Za-z_+])", re.IGNORECASE), r"\1sym_cpp "),
+    (re.compile(r"(^|[^A-Za-z0-9_])c#(?![A-Za-z0-9_#])", re.IGNORECASE), r"\1sym_csharp "),
+    (re.compile(r"(^|[^A-Za-z0-9_])f#(?![A-Za-z0-9_#])", re.IGNORECASE), r"\1sym_fsharp "),
+    (re.compile(r"(^|[^A-Za-z0-9_])asp\.net(?![A-Za-z0-9_])", re.IGNORECASE), r"\1asp sym_dotnet "),
+    (re.compile(r"(^|[^A-Za-z0-9_])\.net(?![A-Za-z0-9_])", re.IGNORECASE), r"\1sym_dotnet "),
+)
+_SIMPLE_LEXEME = re.compile(r"[a-z0-9_]+")
+
+
+def symbol_search_text(value: str) -> str:
+    """Deterministic symbol rewrite matching SQL jobwatch.symbol_search_text()."""
+    out = value or ""
+    for pattern, repl in _SYMBOL_REPLACEMENTS:
+        out = pattern.sub(repl, out)
+    return out
+
+
+def symbol_query_terms(query: str, *, max_terms: int = 32) -> list[str]:
+    """Safe simple-config lexemes for OR-joined GIN prefiltering."""
+    raw = _SIMPLE_LEXEME.findall(symbol_search_text(query).lower())
+    filtered = [t for t in raw if t not in STOP]
+    chosen = filtered or raw
+    return list(dict.fromkeys(chosen))[:max_terms]
 
 
 def tokens(value: str) -> list[str]:

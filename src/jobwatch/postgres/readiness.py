@@ -66,7 +66,7 @@ def inspect(conn,*,reconciliation=None,restore=None,phase='baseline'):
         imported=json.loads(archive[0]['archive']) if len(archive)==1 else None
         source_commit=imported.get('commit') if imported else None
         current=logical_snapshot(conn,derived=True)
-        basic={**current,'posting_versions':[{k:v for k,v in r.items() if k!='search_tsv'} for r in current['posting_versions']]}
+        basic={**current,'posting_versions':[{k:v for k,v in r.items() if k not in ('search_tsv','search_sym_tsv')} for r in current['posting_versions']]}
         logical=digest(basic)
         current_schema=digest(schema_snapshot(conn))
         good_reconciliation=bool(reconciliation and imported and reconciliation.get('source_commit')==source_commit

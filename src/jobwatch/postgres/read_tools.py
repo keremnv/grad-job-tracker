@@ -202,7 +202,7 @@ class ReadTools:
         integer(limit, 1, MAX_ROWS)
         if type(history) is not bool or type(include_not_seen) is not bool:
             raise ReadError('invalid_arguments')
-        if method not in ('bm25', 'fts', 'vector', 'hybrid') or lexical_method not in ('bm25', 'fts'):
+        if method not in ('bm25', 'fts', 'fts_symbol', 'bm25_prefiltered', 'vector', 'hybrid') or lexical_method not in ('bm25', 'fts', 'fts_symbol', 'bm25_prefiltered'):
             raise ReadError('invalid_arguments')
         vector = (self.query_encoder or embeddings.query_embedding)(query) if method in ('vector', 'hybrid') else None
         # BM25 materialises a token index for the whole eligible corpus; serialise

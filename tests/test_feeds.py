@@ -221,5 +221,81 @@ class WorkableAndSlugTests(unittest.TestCase):
                 collect_board({'company': 'Bad', 'provider': 'ashby', 'board': bad_slug}, lambda _: {'jobs': []})
 
 
+class CustomGreenhouseHostTests(unittest.TestCase):
+    def _resp(self, url, identifier=8172510):
+        return {
+            'jobs': [{
+                'id': identifier,
+                'internal_job_id': 99,
+                'title': 'Graduate Software Engineer',
+                'absolute_url': url,
+                'location': {'name': 'London, UK'},
+                'content': 'Synthetic role',
+            }],
+            'meta': {'total': 1},
+        }
+
+    def test_verified_custom_hosts_accept_canonical_and_hosted_urls(self):
+        cases = [
+            ({'company': 'Stripe', 'provider': 'greenhouse', 'board': 'stripe', 'region': 'global'},
+             8172510,
+             ['https://stripe.com/jobs/search?gh_jid=8172510',
+              'https://job-boards.greenhouse.io/stripe/jobs/8172510']),
+            ({'company': 'Jane Street', 'provider': 'greenhouse', 'board': 'janestreet', 'region': 'global'},
+             8631912002,
+             ['https://www.janestreet.com/join-jane-street/apply/8631912002?gh_jid=8631912002',
+              'https://www.janestreet.com/join-jane-street/apply/8631912002/?gh_jid=8631912002',
+              'https://boards.greenhouse.io/janestreet/jobs/8631912002']),
+            ({'company': 'Ocado Group', 'provider': 'greenhouse', 'board': 'ocadogroup', 'region': 'eu'},
+             4973939101,
+             ['https://careers.ocadogroup.com/jobs/details?gh_jid=4973939101&gh_jid=4973939101',
+              'https://careers.ocadogroup.com/jobs/details?gh_jid=4973939101',
+              'https://job-boards.eu.greenhouse.io/ocadogroup/jobs/4973939101']),
+        ]
+        for entry, native_id, urls in cases:
+            for url in urls:
+                with self.subTest(board=entry['board'], url=url):
+                    rows = collect_board(entry, lambda _, u=url, nid=native_id: self._resp(u, nid))
+                    self.assertEqual(len(rows), 1)
+                    self.assertEqual(rows[0].key, f"greenhouse:{entry['board']}:{native_id}")
+                    self.assertEqual(rows[0].url, url)
+
+    def test_custom_hosts_fail_closed_on_mismatches_spoofing_and_wrong_board_or_region(self):
+        bad_cases = [
+            # Stripe: wrong host, extra param, wrong region, mismatched ID, fragment
+            ({'company': 'Stripe', 'provider': 'greenhouse', 'board': 'stripe', 'region': 'eu'},
+             8172510, 'https://stripe.com/jobs/search?gh_jid=8172510'),
+            ({'company': 'Stripe', 'provider': 'greenhouse', 'board': 'monzo', 'region': 'global'},
+             8172510, 'https://stripe.com/jobs/search?gh_jid=8172510'),
+            ({'company': 'Stripe', 'provider': 'greenhouse', 'board': 'stripe', 'region': 'global'},
+             8172510, 'https://stripe.com/jobs/search?gh_jid=8172510&extra=1'),
+            ({'company': 'Stripe', 'provider': 'greenhouse', 'board': 'stripe', 'region': 'global'},
+             8172510, 'https://stripe.com.evil.example/jobs/search?gh_jid=8172510'),
+            ({'company': 'Stripe', 'provider': 'greenhouse', 'board': 'stripe', 'region': 'global'},
+             8172510, 'https://stripe.com/jobs/search?gh_jid=9999999'),
+            # Jane Street: path ID != query ID, extra param, wrong host, wrong region
+            ({'company': 'Jane Street', 'provider': 'greenhouse', 'board': 'janestreet', 'region': 'global'},
+             8631912002, 'https://www.janestreet.com/join-jane-street/apply/8631912002?gh_jid=8631912003'),
+            ({'company': 'Jane Street', 'provider': 'greenhouse', 'board': 'janestreet', 'region': 'global'},
+             8631912002, 'https://www.janestreet.com/join-jane-street/apply/8631912003?gh_jid=8631912002'),
+            ({'company': 'Jane Street', 'provider': 'greenhouse', 'board': 'janestreet', 'region': 'global'},
+             8631912002, 'https://www.janestreet.com/join-jane-street/apply/8631912002?gh_jid=8631912002&foo=1'),
+            ({'company': 'Jane Street', 'provider': 'greenhouse', 'board': 'janestreet', 'region': 'eu'},
+             8631912002, 'https://www.janestreet.com/join-jane-street/apply/8631912002?gh_jid=8631912002'),
+            # Ocado: mismatched duplicate ID, triple duplicate, wrong region, spoofed host
+            ({'company': 'Ocado Group', 'provider': 'greenhouse', 'board': 'ocadogroup', 'region': 'eu'},
+             4973939101, 'https://careers.ocadogroup.com/jobs/details?gh_jid=4973939101&gh_jid=4973939102'),
+            ({'company': 'Ocado Group', 'provider': 'greenhouse', 'board': 'ocadogroup', 'region': 'eu'},
+             4973939101, 'https://careers.ocadogroup.com/jobs/details?gh_jid=4973939101&gh_jid=4973939101&gh_jid=4973939101'),
+            ({'company': 'Ocado Group', 'provider': 'greenhouse', 'board': 'ocadogroup', 'region': 'global'},
+             4973939101, 'https://careers.ocadogroup.com/jobs/details?gh_jid=4973939101&gh_jid=4973939101'),
+            ({'company': 'Ocado Group', 'provider': 'greenhouse', 'board': 'ocadogroup', 'region': 'eu'},
+             4973939101, 'https://careers.ocadogroup.com.evil.example/jobs/details?gh_jid=4973939101'),
+        ]
+        for entry, native_id, url in bad_cases:
+            with self.subTest(board=entry['board'], url=url), self.assertRaises(ValueError):
+                collect_board(entry, lambda _, u=url, nid=native_id: self._resp(u, nid))
+
+
 if __name__ == '__main__':
     unittest.main()

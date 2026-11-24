@@ -124,7 +124,7 @@ class ReadToolsTests(unittest.TestCase):
         self.assertFalse(self.core.call('inspect_evidence',{'posting_key':'greenhouse:test:2','version_id':str(vid)})['ok'])
 
     def test_search_reports_private_records_and_audit(self):
-        for method in ('bm25','fts'):
+        for method in ('bm25','fts','fts_symbol','bm25_prefiltered'):
             result=self.call('search',query='wording',method=method,history=True,include_not_seen=True)
             self.assertEqual(result['verdicts'],'all');self.assertTrue(result['items'])
         for kind in ('daily','weekly','requirements','calendar'):
@@ -134,6 +134,40 @@ class ReadToolsTests(unittest.TestCase):
         self.assertTrue(self.call('sql_query',sql='SELECT notes FROM jobwatch.applications WHERE notes IS NOT NULL',limit=10)['rows'])
         self.assertTrue(self.call('sql_query',sql='SELECT actor,db_login,op FROM jobwatch.owner_audit ORDER BY id',limit=10)['rows'])
         self.assertTrue(self.call('sql_query',sql='SELECT category,kind,changes FROM jobwatch.posting_events ORDER BY id',limit=5)['rows'])
+
+    def test_symbol_preserving_fts_and_prefiltered_bm25_separate_c_cpp_csharp_dotnet(self):
+        with connect(self.config) as c:
+            base=c.execute("SELECT source_id,first_run_id FROM jobwatch.posting_versions ORDER BY id LIMIT 1").fetchone()
+            specs=[
+                ('greenhouse:test:sym-c','sym-c','Embedded C Graduate','Write bare metal C firmware'),
+                ('greenhouse:test:sym-cpp','sym-cpp','Systems C++ Graduate','Build low-latency C++20 engines'),
+                ('greenhouse:test:sym-cs','sym-cs','Backend C# Graduate','Build C# and .NET APIs'),
+            ]
+            for pkey,nid,title,desc in specs:
+                vid=uuid4();raw=encode_evidence({'title':title,'description':desc})
+                with c.transaction():
+                    c.execute("""INSERT INTO jobwatch.postings(posting_key,source_id,provider,board,native_id,status,
+                        first_seen_at,first_seen_basis,last_seen_at,current_version_id,verdict,family,codes,
+                        rules_version,screening_basis,screened_at)
+                        VALUES (%s,%s,'greenhouse','test',%s,'listed',now(),'observed',now(),%s,'priority','software',
+                        ARRAY['family.software'],'rules-v1','full',now())""",(pkey,base['source_id'],nid,vid))
+                    c.execute("""INSERT INTO jobwatch.posting_versions(id,posting_key,source_id,origin,evidence,
+                        observed_at,provenance,normalizer_version,normalized_sha256,company,title,posting_url,
+                        location_text,description_text)
+                        VALUES (%s,%s,%s,'git_history',%s,now(),'{"synthetic":true}','normalizer-v1',%s,
+                        'SymCorp',%s,%s,'London, UK',%s)""",
+                        (vid,pkey,base['source_id'],raw,sha256(desc.encode()).hexdigest(),title,
+                         f'https://job-boards.greenhouse.io/test/jobs/{nid}',desc))
+        for method in ('fts_symbol','bm25_prefiltered'):
+            with self.subTest(method=method):
+                cpp=self.call('search',query='C++',method=method)['items']
+                cs=self.call('search',query='C#',method=method)['items']
+                c_only=self.call('search',query='C',method=method)['items']
+                dotnet=self.call('search',query='.NET',method=method)['items']
+                self.assertEqual([i['posting_key'] for i in cpp],['greenhouse:test:sym-cpp'])
+                self.assertEqual([i['posting_key'] for i in cs],['greenhouse:test:sym-cs'])
+                self.assertEqual([i['posting_key'] for i in c_only],['greenhouse:test:sym-c'])
+                self.assertEqual([i['posting_key'] for i in dotnet],['greenhouse:test:sym-cs'])
 
     def test_all_mutations_and_multiple_statements_refused(self):
         queries=["DELETE FROM jobwatch.postings", "UPDATE jobwatch.applications SET stage='applied'",

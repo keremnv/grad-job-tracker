@@ -99,15 +99,35 @@ def _identity(value) -> str:
     return str(value)
 
 
+# Explicitly reviewed custom Greenhouse career-page URL patterns keyed by
+# (board, region). Each pattern must capture the exact native numeric posting ID
+# in group 1 and enforce exact backreference agreement whenever an employer's
+# embed repeats the ID. No URL decoding, extra parameters, or host fallbacks.
+CUSTOM_GREENHOUSE_URLS: dict[tuple[str, str], re.Pattern[str]] = {
+    ("riverlane", "eu"): re.compile(
+        r"https://www\.riverlane\.com/jobs\?gh_jid=([0-9]+)(?:#vacancies)?"
+    ),
+    ("stripe", "global"): re.compile(
+        r"https://stripe\.com/jobs/search\?gh_jid=([0-9]+)"
+    ),
+    ("janestreet", "global"): re.compile(
+        r"https://www\.janestreet\.com/join-jane-street/apply/([0-9]+)/?\?gh_jid=\1"
+    ),
+    ("ocadogroup", "eu"): re.compile(
+        r"https://careers\.ocadogroup\.com/jobs/details\?gh_jid=([0-9]+)(?:&gh_jid=\1)?"
+    ),
+}
+
+
 def _link(value, kind, board, region="global") -> tuple[str, str]:
     if not public_url(value):
         raise ValueError("invalid posting URL")
-    if (kind, board, region) == ("greenhouse", "riverlane", "eu"):
-        # This board uses its official careers page. Accept only the observed
-        # canonical query form; no decoding, extra parameters or custom-host fallback.
-        match = re.fullmatch(r"https://www\.riverlane\.com/jobs\?gh_jid=([0-9]+)(?:#vacancies)?", value)
-        if match:
-            return value, match[1]  # collect_board also checks this against the native ID.
+    if kind == "greenhouse":
+        custom = CUSTOM_GREENHOUSE_URLS.get((board, region))
+        if custom is not None:
+            match = custom.fullmatch(value)
+            if match:
+                return value, match[1]  # collect_board also checks this against the native ID.
     u = urlsplit(value)
     parts = u.path.strip("/").split("/")
     if kind == "greenhouse":
