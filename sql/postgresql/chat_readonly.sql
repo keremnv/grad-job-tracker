@@ -13,7 +13,8 @@ GRANT SELECT ON jobwatch.employers,jobwatch.sources,jobwatch.collection_runs,
   jobwatch.owner_audit,jobwatch.schema_migrations,jobwatch.embedding_chunks,
   jobwatch.research_postings,jobwatch.source_health,jobwatch.opportunity_workflow,
   jobwatch.operational_postings,jobwatch.posting_deadline_claims,jobwatch.posting_deadline_state,
-  jobwatch.calendar_selections,jobwatch.discovery_candidates,jobwatch.research_discovery_candidates TO jobwatch_chat_readonly;
+  jobwatch.calendar_selections,jobwatch.discovery_candidates,jobwatch.research_discovery_candidates,
+  jobwatch.discovered_boards,jobwatch.research_discovered_boards TO jobwatch_chat_readonly;
 GRANT EXECUTE ON FUNCTION jobwatch.url_identity(text,boolean) TO jobwatch_chat_readonly;
 ALTER ROLE jobwatch_chat_readonly SET search_path=jobwatch,pg_catalog;
 ALTER ROLE jobwatch_chat_readonly SET default_transaction_read_only=on;
