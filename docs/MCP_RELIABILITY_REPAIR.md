@@ -140,6 +140,27 @@ proving both the ALARM and OK notification paths for the new statement.
   release. The next release build from this repository state supersedes the
   delta; do not hand-edit the release directory again.
 
+## Closeout — packaged release supersedes the host delta (24 Nov 2026)
+
+Reviewed implementation committed as `f3d18cd` (this document included).
+Reproducible artifacts built from that commit — app SHA-256
+`8ed0f530…`, agent SHA-256 `3b1f6c5f…` — were installed through the existing
+guarded installers (collection/backup timers paused 19:44–19:47 UTC, then
+restored; integration units paused for the agent install). The host now runs
+`/opt/jobwatch/releases/f3d18cd…` and
+`/opt/jobwatch-agent/releases/f3d18cd…`; installed module SHA-256 values match
+the committed sources exactly, so the temporary site-packages delta is fully
+superseded. Transfer objects in the state bucket were deleted after install.
+Monitoring state was reconciled by importing the live metric filter and alarm
+into the integrations Terraform state; the only applied change added the
+default tags to the imported alarm (0 added/destroyed, final plan clean).
+The root SNS-policy declaration for `AllowReviewedMcpAlarm` matches live, as
+with the calendar amendment (no root apply). Post-deployment native probe,
+restricted-role `SELECT 1`, MCP-health run (`mcp_healthy:1`, 19:49 UTC), all
+six alarms OK and all pre-existing schedules were verified. Rollback evidence
+is preserved: `/root/jobwatch-repair-backup-20261124/`, both `926d951…`
+releases, and the S3 state versions.
+
 ## Explicit follow-up items
 
 1. **Historical BM25 timeout.** BM25 over all retained versions (2,107 at
