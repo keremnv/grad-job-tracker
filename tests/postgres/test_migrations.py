@@ -83,8 +83,7 @@ class MigrationTests(unittest.TestCase):
                 return ({t:c.execute('SELECT count(*) AS n FROM jobwatch.'+t).fetchone()['n'] for t in ('postings','owner_audit')},
                     c.execute("SELECT string_agg(table_name,',' ORDER BY table_name) AS t FROM information_schema.tables WHERE table_schema='jobwatch'").fetchone()['t'])
             before=state()
-            self.assertEqual(migrate(c),[plan[6].filename])
-            check_migrations(c)
+            self.assertEqual(migrate(c,plan[:7]),[plan[6].filename])
             self.assertEqual(state()[0],before[0])
             self.assertEqual(c.execute('SELECT count(*) AS n FROM jobwatch.calendar_selections').fetchone()['n'],0)
             # Rollback before any owner writes, exactly as docs/CALENDAR_SELECTION.md states, as the migrator.
@@ -93,8 +92,8 @@ class MigrationTests(unittest.TestCase):
                 c.execute('DELETE FROM jobwatch.schema_migrations WHERE version=7')
             self.assertEqual(state(),before)
             self.assertEqual([r['version'] for r in c.execute('SELECT version FROM jobwatch.schema_migrations ORDER BY version')],[1,2,3,4,5,6])
-            # Rolling forward again is the same single migration.
-            self.assertEqual(migrate(c),[plan[6].filename])
+            # Rolling forward again through 0007 + 0008 preserves existing data and passes check_migrations.
+            self.assertEqual(migrate(c),[m.filename for m in plan[6:]])
             check_migrations(c)
 
     def test_posting_deadline_upgrade_keeps_legacy_verification_evidence(self):

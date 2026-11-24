@@ -108,9 +108,23 @@ def snapshot(conn,*,days=1,since=None,limit=50,requirements=False,shared=False):
             row['uncertainty']=details.get('uncertainty') or original.get('uncertainty')
             row['url']=research.url(row['url'])
         for row in apps:row['url']=research.url(row['url'])
+        discovered=[]
+        if conn.execute("SELECT to_regclass('jobwatch.research_discovery_candidates') AS name").fetchone()['name']:
+            if conn.execute("SELECT has_table_privilege(current_user,'jobwatch.research_discovery_candidates','SELECT') AS ok").fetchone()['ok']:
+                discovered=conn.execute(
+                    "SELECT candidate_key,provider,board,native_id,company,title,posting_url,location_text,"
+                    "published_at,state,verdict,family,codes,first_discovered_at,last_discovered_at,"
+                    "observation_count,discovery_mechanisms,unknown_employer_board,linked_posting_key,promoted_lead_key "
+                    "FROM jobwatch.research_discovery_candidates "
+                    "WHERE verdict IN ('priority','review') AND state NOT IN ('dismissed','linked_posting') "
+                    "ORDER BY CASE verdict WHEN 'priority' THEN 0 ELSE 1 END, last_discovered_at DESC, candidate_key LIMIT %s",
+                    (limit,),
+                ).fetchall()
+                for row in discovered:
+                    row['posting_url']=research.url(row['posting_url'])
         data={'generated_at':now,'since':since,'corpus':counts,'source_health':research.health(conn),
             'attention_queue':attention,'attention_total':queue_total,'limit':limit,
-            'recent_observations':recent,
+            'recent_observations':recent,'discovered_candidates':discovered,
             'material_history':research.history(conn,since,limit=limit),
             'deadlines':research.deadlines(conn,now,shared=shared),'applications':apps,'leads':leads,'revisits':calendar_revisits(conn),
             'requirements':requirement_mentions(conn) if requirements else None}
@@ -200,6 +214,12 @@ def markdown(data,*,weekly=False,requirements_only=False):
         if len(data['leads'])>data['limit']:
             lines.append(f"Only {data['limit']} of {len(data['leads'])} leads shown; SQL retains every cycle.")
         lines.append('Previous-cycle programmes are historical research, not evidence of a current intake.')
+        if data.get('discovered_candidates'):
+            lines+=['','## Newly discovered external vacancies (outside monitored boards)','',
+                'Public automated observations; distinct from monitored-board evidence and owner-curated leads. Absence from discovery never proves closure.']
+            for c in data['discovered_candidates'][:data['limit']]:
+                origin='unknown employer board' if c['unknown_employer_board'] else 'known board'
+                lines.append(f"- {text(c['verdict'])} · {text(c['company'])} — {link(c['title'],research.url(c['posting_url']) or '')}; {text(c['location_text'] or 'location unknown')}; state {text(c['state'])} ({origin}); via {text(', '.join(c['discovery_mechanisms']))}; last seen {text(c['last_discovered_at'])}.")
     if data['requirements'] is not None:
         req=data['requirements']
         lines+=['','## Attributed requirement mentions','',f"Checked current descriptions: {req['sample_size']}; {text(req['scope'])}. {text(req['caveat'])}"]
