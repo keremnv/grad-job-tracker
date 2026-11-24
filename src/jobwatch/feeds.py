@@ -9,7 +9,7 @@ import time
 from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
-BOARD = re.compile(r"^[A-Za-z0-9_-]+$")
+BOARD = re.compile(r"^[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)*$")
 MAX_RESPONSE = 8 * 1024 * 1024
 
 
@@ -114,11 +114,22 @@ def _link(value, kind, board, region="global") -> tuple[str, str]:
         # EU-hosted boards are served by the same documented API but link to EU job-board hosts.
         hosts = {"boards.eu.greenhouse.io", "job-boards.eu.greenhouse.io"} if region == "eu" else {"boards.greenhouse.io", "job-boards.greenhouse.io"}
         valid = u.hostname in hosts and len(parts) == 3 and parts[:2] == [board, "jobs"]
+    elif kind == "workable":
+        if parts and parts[-1] == "apply":
+            parts = parts[:-1]
+        valid = (
+            u.hostname == "apply.workable.com"
+            and (
+                (len(parts) == 2 and parts[0] == "j")
+                or (len(parts) == 3 and parts[0].lower() == board.lower() and parts[1] == "j")
+            )
+        )
     else:
         host = ("jobs.eu.lever.co" if region == "eu" else "jobs.lever.co") if kind == "lever" else "jobs.ashbyhq.com"
         if parts[-1] in ("apply", "application"):
             parts = parts[:-1]
-        valid = u.hostname == host and len(parts) == 2 and parts[0] == board
+        board_match = parts[0].lower() == board.lower() if kind == "ashby" else parts[0] == board
+        valid = u.hostname == host and len(parts) == 2 and board_match
     if not valid:
         raise ValueError("posting URL does not match configured provider and board; review custom hosts explicitly")
     return value, _identity(parts[-1])
@@ -127,6 +138,72 @@ def _link(value, kind, board, region="global") -> tuple[str, str]:
 def _meta(*values) -> str:
     """Join optional string metadata; ignore anything that is not text."""
     return ", ".join(dict.fromkeys(v.strip() for v in values if isinstance(v, str) and v.strip()))
+
+
+def group_workable_widget_jobs(raw_jobs: list) -> list[dict]:
+    """Merge multi-location Workable widget items sharing one native shortcode.
+
+    Workable's public widget endpoint emits one array element per country/location
+    for multi-location postings (for example, UK + Ireland) with identical
+    shortcode, title, and URL. Grouping preserves every location entry while
+    enforcing one canonical posting per shortcode. Conflicting titles or URLs
+    under the same shortcode fail closed.
+    """
+    grouped: dict[str, list[dict]] = {}
+    order: list[str] = []
+    for item in raw_jobs:
+        j = _object(item, "Workable posting")
+        sc = _identity(j.get("shortcode"))
+        if sc not in grouped:
+            grouped[sc] = []
+            order.append(sc)
+        grouped[sc].append(j)
+
+    merged: list[dict] = []
+    for sc in order:
+        entries = grouped[sc]
+        if len(entries) == 1:
+            merged.append(entries[0])
+            continue
+        titles = {_text(e.get("title"), "title", True).strip() for e in entries}
+        urls = {_text(e.get("url") or e.get("shortlink"), "url", True).strip() for e in entries}
+        if len(titles) != 1 or len(urls) != 1:
+            raise ValueError("conflicting duplicate Workable shortcode")
+        base = dict(entries[0])
+        for ent in entries:
+            if isinstance(ent.get("country"), str) and ent["country"].strip().lower() in ("united kingdom", "uk", "gb"):
+                base = dict(ent)
+                break
+        all_locations: list[dict] = []
+        seen_locs: set[tuple[str, str, str, str]] = set()
+        for ent in entries:
+            locs = _list(ent.get("locations", []), "locations") if ent.get("locations") is not None else []
+            if locs:
+                for loc in locs:
+                    loc = _object(loc, "location")
+                    lk = (
+                        _text(loc.get("country"), "location country"),
+                        _text(loc.get("countryCode"), "location countryCode"),
+                        _text(loc.get("region"), "location region"),
+                        _text(loc.get("city"), "location city"),
+                    )
+                    if lk not in seen_locs:
+                        seen_locs.add(lk)
+                        all_locations.append(loc)
+            elif ent.get("country") or ent.get("city"):
+                loc = {
+                    "country": _text(ent.get("country"), "country"),
+                    "city": _text(ent.get("city"), "city"),
+                    "region": _text(ent.get("state"), "state"),
+                }
+                lk = (loc["country"], "", loc["region"], loc["city"])
+                if lk not in seen_locs:
+                    seen_locs.add(lk)
+                    all_locations.append(loc)
+        base["locations"] = all_locations
+        base["_widget_multi_location_entries"] = entries
+        merged.append(base)
+    return merged
 
 
 def collect_board(entry: dict, get_json=request_json, pause=time.sleep, stats: dict | None = None) -> list[Posting]:
@@ -174,6 +251,12 @@ def collect_board(entry: dict, get_json=request_json, pause=time.sleep, stats: d
                 break
         else:
             raise ValueError("Lever pagination exceeded 10,000 postings")
+    elif kind == "workable":
+        if region != "global":
+            raise ValueError("Workable region must be 'global'")
+        data = _object(get_json(f"https://apply.workable.com/api/v1/widget/accounts/{board}?details=true"), "Workable response")
+        raw_jobs = _list(data.get("jobs"), "Workable jobs")
+        jobs = group_workable_widget_jobs(raw_jobs)
     else:
         raise ValueError(f"unsupported provider: {kind!r}")
 
@@ -229,6 +312,44 @@ def collect_board(entry: dict, get_json=request_json, pause=time.sleep, stats: d
             published, salary = "", ""
             department, team = _meta(categories.get("department")), _meta(categories.get("team"))
             employment_type = _meta(categories.get("commitment"))
+        elif kind == "workable":
+            identifier = _identity(j.get("shortcode"))
+            link, link_id = _link(j.get("url") or j.get("shortlink"), kind, board, region)
+            title = _text(j.get("title"), "title", True)
+            locations = []
+            for key in ("city", "state", "country"):
+                val = _text(j.get(key), key)
+                if val:
+                    locations.append(val)
+            top_country = _text(j.get("country"), "country")
+            if top_country:
+                countries.append(top_country)
+            raw_locs = _list(j.get("locations", []), "locations") if j.get("locations") is not None else []
+            for loc in raw_locs:
+                loc = _object(loc, "location")
+                loc_parts = [_text(loc.get(k), f"location {k}") for k in ("city", "region", "country")]
+                joined = ", ".join(x for x in loc_parts if x)
+                if joined:
+                    locations.append(joined)
+                for ck in ("country", "countryCode"):
+                    cv = _text(loc.get(ck), f"location {ck}")
+                    if cv:
+                        countries.append(cv)
+            if j.get("telecommuting") is True:
+                locations.append("Remote")
+            elif j.get("telecommuting") not in (None, False):
+                raise ValueError("invalid telecommuting flag")
+            description = _text(j.get("description"), "description")
+            for key in ("published_on", "created_at"):
+                if j.get(key) is not None:
+                    val = _text(j[key], key)
+                    if val:
+                        dates[key] = val
+            published = dates.get("published_on", "")
+            salary = ""
+            department = _meta(j.get("department"))
+            team = _meta(j.get("function"))
+            employment_type = _meta(j.get("employment_type"))
         else:
             if "isListed" in j and type(j["isListed"]) is not bool:
                 raise ValueError("invalid isListed")

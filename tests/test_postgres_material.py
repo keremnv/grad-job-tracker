@@ -59,6 +59,42 @@ class MaterialTests(unittest.TestCase):
         new['categories']['allLocations'].reverse()
         self.assertEqual(set(compare('lever', old, new, 'v1', 'v1')[0]), {'salaryRange'})
 
+    def test_workable_material_comparison_and_multi_country_replay(self):
+        from jobwatch.postgres.collection import replay_native
+        before = {
+            'shortcode': '1C9CCEA6B4', 'title': 'Data Science & AI Graduate',
+            'url': 'https://apply.workable.com/j/1C9CCEA6B4',
+            'shortlink': 'https://apply.workable.com/j/1C9CCEA6B4',
+            'application_url': 'https://apply.workable.com/j/1C9CCEA6B4/apply',
+            'country': 'United Kingdom', 'telecommuting': True,
+            'locations': [
+                {'country': 'Ireland', 'countryCode': 'IE', 'city': '', 'region': None},
+                {'country': 'United Kingdom', 'countryCode': 'GB', 'city': '', 'region': None},
+            ],
+            'description': '<p>Build Python &amp; AI workflows.</p>',
+        }
+        formatting_only = {
+            **before,
+            'locations': list(reversed(before['locations'])),
+            'description': '<p class="x">Build Python &amp; AI workflows.</p><p>&nbsp;</p>',
+        }
+        self.assertEqual(compare('workable', before, formatting_only, 'v1', 'v1'), ({}, {}))
+        substantive = {**before, 'description': '<p>Build Rust distributed systems.</p>'}
+        changed, baseline = compare('workable', before, substantive, 'v1', 'v1')
+        self.assertEqual(set(changed), {'description'})
+        self.assertEqual(baseline, {})
+        # Multi-country grouped raw evidence replays cleanly into one canonical Posting.
+        grouped = feeds.collect_board(
+            {'provider': 'workable', 'board': 'stalis', 'company': 'Stalis'},
+            get_json=lambda _: {'jobs': [
+                {**before, 'country': 'Ireland', 'locations': [before['locations'][0]]},
+                {**before, 'country': 'United Kingdom', 'locations': [before['locations'][1]]},
+            ]},
+        )[0]
+        replayed = replay_native({'provider': 'workable', 'board': 'stalis', 'company': 'Stalis'}, grouped.raw)
+        self.assertEqual(replayed.key, 'workable:stalis:1C9CCEA6B4')
+        self.assertEqual(replayed.countries, grouped.countries)
+
     def test_v1_adapter_screening_and_deadline_parity(self):
         at = datetime(2026, 10, 23, 12, 0, tzinfo=timezone.utc)
         entries = [('greenhouse', 'monzo', 'Monzo'), ('lever', 'palantir', 'Palantir'), ('ashby', 'incident', 'incident.io')]

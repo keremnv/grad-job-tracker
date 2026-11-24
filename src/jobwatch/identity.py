@@ -18,7 +18,7 @@ from urllib.parse import urlsplit, urlunsplit
 
 from .feeds import public_url
 
-POSTING_KEY = re.compile(r'(?:greenhouse|lever|ashby):[a-z0-9_.-]+:[A-Za-z0-9_.-]+')
+POSTING_KEY = re.compile(r'(?:greenhouse|lever|ashby|workable):[a-z0-9_.-]+:[A-Za-z0-9_.-]+')
 
 
 def posting_key(provider: str, board: str, external_id: str) -> str:

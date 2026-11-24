@@ -136,5 +136,90 @@ class RiverlaneURLTests(unittest.TestCase):
             collect_board(self.entry, lambda _: data)
 
 
+class WorkableAndSlugTests(unittest.TestCase):
+    def test_workable_single_and_multi_country_shortcode_grouping(self):
+        payload = {
+            'name': 'Stalis',
+            'jobs': [
+                {
+                    'title': 'Data Science & AI Graduate',
+                    'shortcode': '1C9CCEA6B4',
+                    'employment_type': 'Full-time',
+                    'telecommuting': True,
+                    'department': None,
+                    'function': 'Data Science',
+                    'url': 'https://apply.workable.com/j/1C9CCEA6B4',
+                    'shortlink': 'https://apply.workable.com/j/1C9CCEA6B4',
+                    'application_url': 'https://apply.workable.com/j/1C9CCEA6B4/apply',
+                    'published_on': '2026-11-23',
+                    'created_at': '2026-11-18',
+                    'country': 'Ireland',
+                    'city': '',
+                    'state': '',
+                    'locations': [{'country': 'Ireland', 'countryCode': 'IE', 'city': '', 'region': None}],
+                    'description': '<p>Python &amp; AI graduate role.</p>',
+                },
+                {
+                    'title': 'Data Science & AI Graduate',
+                    'shortcode': '1C9CCEA6B4',
+                    'employment_type': 'Full-time',
+                    'telecommuting': True,
+                    'department': None,
+                    'function': 'Data Science',
+                    'url': 'https://apply.workable.com/j/1C9CCEA6B4',
+                    'shortlink': 'https://apply.workable.com/j/1C9CCEA6B4',
+                    'application_url': 'https://apply.workable.com/j/1C9CCEA6B4/apply',
+                    'published_on': '2026-11-23',
+                    'created_at': '2026-11-18',
+                    'country': 'United Kingdom',
+                    'city': '',
+                    'state': '',
+                    'locations': [{'country': 'United Kingdom', 'countryCode': 'GB', 'city': '', 'region': None}],
+                    'description': '<p>Python &amp; AI graduate role.</p>',
+                },
+            ],
+        }
+        stats = {}
+        rows = collect_board({'company': 'Stalis', 'provider': 'workable', 'board': 'stalis'}, lambda u: payload, stats=stats)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0].key, 'workable:stalis:1C9CCEA6B4')
+        self.assertEqual(rows[0].published_at, '2026-11-23')
+        self.assertEqual(rows[0].team, 'Data Science')
+        self.assertIn('United Kingdom', rows[0].countries)
+        self.assertIn('Ireland', rows[0].countries)
+        self.assertIn('Remote', rows[0].location)
+        self.assertEqual(len(rows[0].raw['_widget_multi_location_entries']), 2)
+        self.assertEqual(stats, {'skipped_non_vacancies': 0, 'source_records': 1})
+
+    def test_workable_conflicting_duplicate_shortcode_fails_closed(self):
+        payload = {
+            'name': 'BadCo',
+            'jobs': [
+                {'title': 'Role A', 'shortcode': 'ABC123', 'url': 'https://apply.workable.com/j/ABC123'},
+                {'title': 'Role B', 'shortcode': 'ABC123', 'url': 'https://apply.workable.com/j/ABC123'},
+            ],
+        }
+        with self.assertRaisesRegex(ValueError, 'conflicting duplicate Workable shortcode'):
+            collect_board({'company': 'BadCo', 'provider': 'workable', 'board': 'badco'}, lambda _: payload)
+
+    def test_workable_url_and_region_validation_fail_closed(self):
+        bad_url = {'jobs': [{'title': 'SWE', 'shortcode': 'ABC123', 'url': 'https://evil.example/j/ABC123'}]}
+        with self.assertRaises(ValueError):
+            collect_board({'company': 'Bad', 'provider': 'workable', 'board': 'bad'}, lambda _: bad_url)
+        with self.assertRaises(ValueError):
+            collect_board({'company': 'Bad', 'provider': 'workable', 'board': 'bad', 'region': 'eu'}, lambda _: {'jobs': []})
+
+    def test_ashby_dotted_and_mixed_case_board_slugs(self):
+        payload_snyk = {'jobs': [{'title': 'AI Engineer', 'jobUrl': 'https://jobs.ashbyhq.com/Snyk/uuid-1', 'location': 'London', 'isListed': True}]}
+        rows = collect_board({'company': 'Snyk', 'provider': 'ashby', 'board': 'snyk'}, lambda _: payload_snyk)
+        self.assertEqual(rows[0].key, 'ashby:snyk:uuid-1')
+        payload_iwoca = {'jobs': [{'title': 'Backend Engineer', 'jobUrl': 'https://jobs.ashbyhq.com/iwoca.co.uk/uuid-2', 'location': 'London', 'isListed': True}]}
+        rows2 = collect_board({'company': 'iwoca', 'provider': 'ashby', 'board': 'iwoca.co.uk'}, lambda _: payload_iwoca)
+        self.assertEqual(rows2[0].key, 'ashby:iwoca.co.uk:uuid-2')
+        for bad_slug in ('..', '.hidden', 'trailing.', 'a..b', 'a/b'):
+            with self.subTest(bad_slug=bad_slug), self.assertRaises(ValueError):
+                collect_board({'company': 'Bad', 'provider': 'ashby', 'board': bad_slug}, lambda _: {'jobs': []})
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -12,7 +12,12 @@ from jobwatch.timing import deadline_evidence
 from .evidence import encode_evidence
 from .material import COMPARISON_VERSION
 
-REQUESTS = {'greenhouse': 'greenhouse:list-content-v1', 'lever': 'lever:offset100-v1', 'ashby': 'ashby:compensation-v1'}
+REQUESTS = {
+    'greenhouse': 'greenhouse:list-content-v1',
+    'lever': 'lever:offset100-v1',
+    'ashby': 'ashby:compensation-v1',
+    'workable': 'workable:widget-details-v1',
+}
 NORMALIZER_VERSION = 'normalizer-v1'
 
 
@@ -136,7 +141,13 @@ def prepare(posting, at, processing):
 
 def replay_native(entry, raw):
     provider = entry['provider']
-    response = [raw] if provider == 'lever' else {'jobs': [raw], **({'meta': {'total': 1}} if provider == 'greenhouse' else {'apiVersion': '1'})}
+    if provider == 'lever':
+        response = [raw]
+    elif provider == 'workable':
+        entries = raw.get('_widget_multi_location_entries') if isinstance(raw, dict) else None
+        response = {'jobs': entries if isinstance(entries, list) and entries else [raw]}
+    else:
+        response = {'jobs': [raw], **({'meta': {'total': 1}} if provider == 'greenhouse' else {'apiVersion': '1'})}
     rows = feeds.collect_board(entry, get_json=lambda _: response, pause=lambda _: None)
     if len(rows) != 1:
         raise ValueError('Retained evidence is not a normalizable vacancy')
@@ -169,6 +180,8 @@ def fetch_records(entry, *, get_json=feeds.request_json, pause=time.sleep, clock
         absence_safe = len(responses) == 1 and no_paging and type(total) is int and total == stats['source_records']
     elif entry['provider'] == 'ashby':
         absence_safe = len(responses) == 1 and no_paging and response.get('apiVersion') == '1'
+    elif entry['provider'] == 'workable':
+        absence_safe = len(responses) == 1 and no_paging and isinstance(response.get('jobs'), list)
     else:
         absence_safe = len(responses) == 1 and len(response) < 100
     return postings, at, stats, len(responses), absence_safe

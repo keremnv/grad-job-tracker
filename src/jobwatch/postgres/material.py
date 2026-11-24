@@ -115,6 +115,13 @@ def material(provider, raw):
                 {**tier, 'components': as_set(tier['components'])} if isinstance(tier, dict) and 'components' in tier else tier
                 for tier in tiers] if isinstance(tiers, list) else tiers)
         take('compensation.summaryComponents', transform=as_set)
+    elif provider == 'workable':
+        for field in ('shortcode', 'title', 'url', 'shortlink', 'application_url',
+                      'department', 'function', 'employment_type', 'experience', 'education',
+                      'industry', 'telecommuting', 'country', 'city', 'state'):
+            take(field)
+        take('description', 'description', words)
+        take('locations', transform=as_set)
     else:
         raise ValueError('Unsupported material-comparison provider')
     return result

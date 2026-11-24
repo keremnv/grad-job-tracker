@@ -35,9 +35,9 @@ def load_config(path: Path):
         if e.get('watch_status', 'unverified') not in {'open', 'register_interest', 'opening_later', 'listed_in_feed', 'unverified'}:
             raise ValueError('unknown watch status')
         if e.get('enabled'):
-            if e.get('provider') not in {'greenhouse', 'lever', 'ashby'} or not BOARD.fullmatch(e.get('board', '')):
+            if e.get('provider') not in {'greenhouse', 'lever', 'ashby', 'workable'} or not BOARD.fullmatch(e.get('board', '')):
                 raise ValueError('enabled feed requires supported provider and board slug')
-            if e.get('region', 'global') not in ({'global', 'eu'} if e['provider'] != 'ashby' else {'global'}):
+            if e.get('region', 'global') not in ({'global', 'eu'} if e['provider'] in {'greenhouse', 'lever'} else {'global'}):
                 raise ValueError('feed region must be explicit global or eu (Greenhouse/Lever only)')
             if not public_url(e.get('validation_url', '')):
                 raise ValueError('enabled feed requires official validation URL')
