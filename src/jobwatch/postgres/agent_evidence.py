@@ -818,3 +818,190 @@ def corroborate_observation(
         "provenance": provenance,
         "evidence_details": details,
     }
+
+
+def corroborate_pending(
+    verifier_conn,
+    *,
+    limit: int = 10,
+    checked_by: str = "corroborator:isolated-v2",
+    fetcher=safe_fetch_public_https,
+    budget: CorroborationBudget | None = None,
+    now: datetime | None = None,
+) -> list[dict]:
+    """Corroborate up to `limit` uncorroborated observations under a shared network budget."""
+    if type(limit) is not int or not 1 <= limit <= 100:
+        raise ValueError("limit must be 1..100")
+    run_budget = budget or CorroborationBudget(max_requests=limit * 3, max_bytes=limit * MAX_CORROBORATION_FETCH_BYTES)
+    rows = verifier_conn.execute(
+        "SELECT o.observation_id "
+        "FROM jobwatch.agent_evidence_observations o "
+        "WHERE NOT EXISTS ("
+        "  SELECT 1 FROM jobwatch.agent_evidence_corroborations c "
+        "  WHERE c.observation_id = o.observation_id"
+        ") ORDER BY o.recorded_at ASC LIMIT %s",
+        (limit,),
+    ).fetchall()
+    results = []
+    for r in rows:
+        try:
+            results.append(corroborate_observation(
+                verifier_conn, str(r["observation_id"]),
+                checked_by=checked_by, fetcher=fetcher, budget=run_budget, now=now,
+            ))
+        except EvidenceValidationError as exc:
+            results.append({"observation_id": str(r["observation_id"]), "halted": str(exc)})
+            break
+    return results
+
+
+def admit_corroborated_vacancies(conn, *, processing=None) -> dict:
+    """Deterministically screen corroborated agent-submitted vacancies (`jobwatch_collector`).
+
+    Only promotes candidates whose latest `new_vacancy` observation has an independent,
+    vacancy-bound `claim_corroborated` record. Leaves uncorroborated agent candidates
+    marked `unscreened-agent-submission`. Never writes owner tables (`leads`, `applications`,
+    `triage`, `calendar_selections`, `verifications`).
+    """
+    from .collection import Processing
+
+    proc = processing or Processing()
+    admitted = []
+    with conn.transaction():
+        rows = conn.execute(
+            "SELECT dc.* "
+            "FROM jobwatch.discovery_candidates dc "
+            "WHERE dc.rules_version = 'unscreened-agent-submission' "
+            "  AND EXISTS ("
+            "    SELECT 1 FROM jobwatch.agent_evidence_observations o "
+            "    JOIN LATERAL ("
+            "      SELECT c.overall_state, c.target_binding_status "
+            "      FROM jobwatch.agent_evidence_corroborations c "
+            "      WHERE c.observation_id = o.observation_id "
+            "      ORDER BY c.checked_at DESC, c.recorded_at DESC LIMIT 1"
+            "    ) latest ON true "
+            "    WHERE o.kind = 'new_vacancy' "
+            "      AND o.candidate_key = dc.candidate_key "
+            "      AND latest.overall_state = 'claim_corroborated' "
+            "      AND latest.target_binding_status IN ('bound_exact_url', 'bound_host_and_identity')"
+            "  ) "
+            "ORDER BY dc.candidate_key FOR UPDATE OF dc"
+        ).fetchall()
+        for row in rows:
+            has_complete = row["evidence_completeness"] == "complete" and bool(row["description_text"])
+            desc = row["description_text"] or row["description_excerpt"] or None
+            res = proc.screen({
+                "title": row["title"],
+                "location": row["location_text"],
+                "country": row["country"],
+                "countries": list(row["countries"] or ()),
+                "department": row["department"],
+                "team": row["team"],
+                "employment_type": row["employment_type"],
+                "description": desc,
+            })
+            basis = "full" if has_complete else ("excerpt" if desc else "title_metadata_only")
+            conn.execute(
+                "UPDATE jobwatch.discovery_candidates "
+                "SET verdict=%s, family=%s, codes=%s, rules_version=%s, "
+                "    screening_input_sha256=%s, screening_basis=%s, screened_at=clock_timestamp() "
+                "WHERE candidate_key=%s",
+                (res["verdict"], res["family"], res["codes"], res["rules_version"],
+                 res["input_sha256"], basis, row["candidate_key"]),
+            )
+            admitted.append({
+                "candidate_key": row["candidate_key"],
+                "verdict": res["verdict"],
+                "family": res["family"],
+                "rules_version": res["rules_version"],
+                "screening_basis": basis,
+            })
+    return {"admitted_count": len(admitted), "admitted": admitted}
+
+
+def main(argv=None) -> int:
+    import argparse
+    import json
+    from .connection import DatabaseConfig, connect
+
+    parser = argparse.ArgumentParser(description="Local-only controlled agent evidence ingestion & isolated corroboration CLI")
+    sub = parser.add_subparsers(dest="cmd", required=True)
+
+    so = sub.add_parser("submit-observation")
+    so.add_argument("--kind", required=True, choices=sorted(ALLOWED_KINDS))
+    so.add_argument("--contributor", required=True)
+    so.add_argument("--claimed-actor", default="")
+    so.add_argument("--url", required=True)
+    so.add_argument("--summary", required=True)
+    so.add_argument("--wording", default="")
+    so.add_argument("--deadline-date", default=None)
+    so.add_argument("--posting-key", default=None)
+    so.add_argument("--candidate-key", default=None)
+    so.add_argument("--board-key", default=None)
+    so.add_argument("--source-id", type=int, default=None)
+    so.add_argument("--lead-key", default=None)
+    so.add_argument("--idempotency-key", default=None)
+    so.add_argument("--payload-json", default="{}")
+
+    sv = sub.add_parser("submit-vacancy")
+    sv.add_argument("--contributor", required=True)
+    sv.add_argument("--claimed-actor", default="")
+    sv.add_argument("--company", required=True)
+    sv.add_argument("--title", required=True)
+    sv.add_argument("--url", required=True)
+    sv.add_argument("--location", default="")
+    sv.add_argument("--country", default="")
+    sv.add_argument("--provider", default="other")
+    sv.add_argument("--board", default=None)
+    sv.add_argument("--native-id", default=None)
+    sv.add_argument("--completeness", default="complete", choices=sorted(ALLOWED_COMPLETENESS))
+    sv.add_argument("--retention-policy", default="complete_public_ats", choices=sorted(ALLOWED_RETENTION_POLICIES))
+    sv.add_argument("--description", default=None)
+    sv.add_argument("--excerpt", default="")
+    sv.add_argument("--idempotency-key", default=None)
+
+    co = sub.add_parser("corroborate")
+    co.add_argument("--observation-id", default=None)
+    co.add_argument("--limit", type=int, default=10)
+    co.add_argument("--checked-by", default="corroborator:isolated-v2")
+
+    sub.add_parser("admit-vacancies")
+
+    args = parser.parse_args(argv)
+    cfg = DatabaseConfig.from_env()
+    with connect(cfg) as conn:
+        if args.cmd == "submit-observation":
+            ing = AgentEvidenceIngestor(resolve_dns=False)
+            res = ing.record_observation(conn, ObservationSubmission(
+                kind=args.kind, logical_contributor=args.contributor, claimed_actor=args.claimed_actor,
+                observed_at=datetime.now(timezone.utc), source_url=args.url, claim_summary=args.summary,
+                observed_wording=args.wording, candidate_deadline_date=args.deadline_date,
+                posting_key=args.posting_key, candidate_key=args.candidate_key,
+                board_key=args.board_key, source_id=args.source_id, lead_key=args.lead_key,
+                payload=json.loads(args.payload_json), idempotency_key=args.idempotency_key,
+            ))
+        elif args.cmd == "submit-vacancy":
+            ing = AgentEvidenceIngestor(resolve_dns=False)
+            res = ing.record_new_vacancy(
+                conn, logical_contributor=args.contributor, claimed_actor=args.claimed_actor,
+                observed_at=datetime.now(timezone.utc), company=args.company, title=args.title,
+                posting_url=args.url, location_text=args.location, country=args.country,
+                countries=(args.country,) if args.country else (),
+                description_text=args.description, description_excerpt=args.excerpt,
+                evidence_completeness=args.completeness, evidence_retention_policy=args.retention_policy,
+                provider=args.provider, board=args.board, native_id=args.native_id,
+                idempotency_key=args.idempotency_key,
+            )
+        elif args.cmd == "corroborate":
+            if args.observation_id:
+                res = corroborate_observation(conn, args.observation_id, checked_by=args.checked_by)
+            else:
+                res = corroborate_pending(conn, limit=args.limit, checked_by=args.checked_by)
+        else:
+            res = admit_corroborated_vacancies(conn)
+    print(json.dumps(res, sort_keys=True, default=str))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

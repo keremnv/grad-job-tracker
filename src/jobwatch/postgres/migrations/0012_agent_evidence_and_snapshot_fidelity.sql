@@ -1,38 +1,96 @@
--- ISOLATED PROPOSAL (NOT DEPLOYED TO PRODUCTION).
--- Final trust-boundary hardened agent-contributed public evidence ingestion & corroboration.
+-- Stage B: Discovery snapshot retained-evidence identity fix, hardened agent evidence
+-- ingestion & append-only corroboration, and corroborated deadline evidence admission.
 --
--- Security and authority guarantees enforced INSIDE PostgreSQL (independent of Python wrappers):
--- 1. Trusted derivation inside SECURITY DEFINER SQL:
---    - `submission_sha256`, `payload_sha256`, `complete_description_sha256`, `excerpt_sha256`,
---      `evidence_sha256`, and `candidate_key` are ALWAYS computed inside SQL — never trusted
---      from caller parameters. Direct SQL callers cannot forge hashes to hide materially
---      different submissions or cause false deduplication.
---    - Caller-supplied screening verdicts, reason codes, and rules versions are NOT accepted:
---      new agent-submitted vacancies enter with neutral `rules_version='unscreened-agent-submission'`,
---      `verdict='review'`, `family='unscreened'`, `codes=ARRAY['evidence.agent_submitted_unscreened']`
---      until the trusted deterministic collector screener runs.
--- 2. Authenticated identity & scoped idempotency:
---    - `db_login := session_user` separated from `logical_contributor` and untrusted `claimed_actor`.
---    - Idempotency is scoped strictly to `(db_login, idempotency_key)` so distinct logins can
---      never collide with or probe each other's keys.
---    - Hourly/daily ingestion budgets are enforced transactionally per `db_login` under
---      `pg_advisory_xact_lock`.
--- 3. Candidate identity consistency & anti-contamination:
---    - Validates HTTPS URLs (including literal private/IMDS/loopback IP refusal), provider/board/
---      URL consistency, and existing `discovery_candidates` identity consistency.
---    - Existing candidates (especially collector-discovered ones) are NEVER mutated or given
---      uncorroborated snapshots by `submit_agent_vacancy`; conflicting identity claims fail loudly.
--- 4. PostgreSQL SECURITY DEFINER hardening:
---    - Every function sets `search_path = pg_catalog, jobwatch, pg_temp` (`pg_temp` LAST!) and
---      qualifies `pg_catalog.` calls, defeating `pg_temp` temporary-schema shadowing attacks.
---    - Owned by non-superuser `jobwatch_migrator`; `REVOKE ALL FROM PUBLIC`.
--- 5. Append-only 6-state corroboration with target-vacancy binding, completeness, and provenance:
---    - Unbound pages (`target_binding_status = 'unbound_target'`) are forbidden by SQL CHECK
---      from ever reaching `overall_state = 'claim_corroborated'`.
+-- Part 1 — Legacy snapshot collision fix (distinguishing source payload from retained evidence):
+--   Replaces `UNIQUE (candidate_key, evidence_sha256)` on `discovery_candidate_snapshots`
+--   with `UNIQUE NULLS NOT DISTINCT (candidate_key, evidence_sha256, evidence_completeness,
+--   evidence_retention_policy, complete_description_sha256, excerpt_sha256)`.
+--   An unchanged source payload observed with greater completeness appends cleanly as a
+--   new snapshot while preserving earlier truncated snapshots intact, and genuinely
+--   identical retained observations still deduplicate without content duplication.
+--
+-- Part 2 — Controlled SECURITY DEFINER agent public evidence ingestion & corroboration:
+--   - All hashes (`submission_sha256`, `payload_sha256`, `complete_description_sha256`,
+--     `excerpt_sha256`, `evidence_sha256`) and `candidate_key` derived inside SQL.
+--   - Caller-supplied screening verdicts/codes/rules versions are NOT accepted.
+--   - Idempotency scoped to `(db_login, idempotency_key)`; transactional budgets per `db_login`.
+--   - Anti-contamination: existing collector candidates are never mutated by agent submissions.
+--   - Every function owned by non-superuser `jobwatch_migrator`, `SET search_path = pg_catalog, jobwatch, pg_temp`,
+--     `pg_catalog.` qualified, `REVOKE ALL FROM PUBLIC`.
+--   - Append-only 6-state corroboration with target-vacancy binding (`target_binding_status`),
+--     explicit `evidence_completeness`, `evidence_excerpt`, and `provenance`.
+--
+-- Part 3 — Evidence admission into ordinary deadline research (distinct from personal decisions):
+--   Extends `posting_deadline_claims` with a distinct `'corroborated_agent_observation'`
+--   provenance strictly for `deadline_wording` observations whose latest corroboration is
+--   `claim_corroborated` AND bound to the target posting (`bound_exact_url` or
+--   `bound_host_and_identity`). Never includes uncorroborated observations, never silently
+--   supersedes existing claims, and never alters explicit `calendar_selections`.
 
 SET LOCAL search_path = pg_catalog, jobwatch, pg_temp;
 
--- Configurable per-authenticated-login rate limits (never keyed on untrusted contributor strings).
+-- =========================================================================
+-- PART 1: Snapshot retained-evidence identity uniqueness & legacy backfill
+-- =========================================================================
+
+ALTER TABLE jobwatch.discovery_candidate_snapshots
+  DROP CONSTRAINT IF EXISTS discovery_candidate_snapshots_candidate_key_evidence_sha256_key;
+
+ALTER TABLE jobwatch.discovery_candidate_snapshots
+  DROP CONSTRAINT IF EXISTS discovery_snapshots_retained_identity_key,
+  ADD CONSTRAINT discovery_snapshots_retained_identity_key
+    UNIQUE NULLS NOT DISTINCT (
+      candidate_key,
+      evidence_sha256,
+      evidence_completeness,
+      evidence_retention_policy,
+      complete_description_sha256,
+      excerpt_sha256
+    );
+
+-- Heal any existing candidates already upgraded to 'complete' whose current_snapshot_id
+-- still pointed to a legacy 'truncated' backfill snapshot (preserving the legacy row!).
+WITH upgraded AS (
+  INSERT INTO jobwatch.discovery_candidate_snapshots (
+    candidate_key, first_observed_at, last_observed_at, observation_count,
+    discovery_mechanism, source_url, evidence_completeness, evidence_retention_policy,
+    title, location_text, description_text, description_excerpt,
+    complete_description_sha256, excerpt_sha256, evidence_sha256, provenance
+  )
+  SELECT
+    dc.candidate_key,
+    dc.last_discovered_at,
+    dc.last_discovered_at,
+    1,
+    dc.discovery_mechanisms[pg_catalog.array_length(dc.discovery_mechanisms, 1)],
+    dc.posting_url,
+    dc.evidence_completeness,
+    dc.evidence_retention_policy,
+    dc.title,
+    dc.location_text,
+    dc.description_text,
+    dc.description_excerpt,
+    dc.complete_description_sha256,
+    dc.excerpt_sha256,
+    dc.evidence_sha256,
+    dc.provenance || pg_catalog.jsonb_build_object('upgraded_complete_snapshot_0012', true)
+  FROM jobwatch.discovery_candidates dc
+  JOIN jobwatch.discovery_candidate_snapshots cs
+    ON cs.candidate_key = dc.candidate_key AND cs.snapshot_id = dc.current_snapshot_id
+  WHERE dc.evidence_completeness = 'complete'
+    AND cs.evidence_completeness <> 'complete'
+  ON CONFLICT ON CONSTRAINT discovery_snapshots_retained_identity_key DO NOTHING
+  RETURNING candidate_key, snapshot_id
+)
+UPDATE jobwatch.discovery_candidates dc
+SET current_snapshot_id = u.snapshot_id
+FROM upgraded u
+WHERE dc.candidate_key = u.candidate_key;
+
+-- =========================================================================
+-- PART 2: Hardened agent-contributed public evidence ingestion & corroboration
+-- =========================================================================
+
 CREATE TABLE IF NOT EXISTS jobwatch.agent_evidence_budgets (
   db_login text PRIMARY KEY CHECK (pg_catalog.btrim(db_login) <> ''),
   hourly_limit integer NOT NULL DEFAULT 60 CHECK (hourly_limit BETWEEN 1 AND 10000),
@@ -40,7 +98,6 @@ CREATE TABLE IF NOT EXISTS jobwatch.agent_evidence_budgets (
   updated_at timestamptz NOT NULL DEFAULT pg_catalog.clock_timestamp()
 );
 
--- Helper: strict semantic YYYY-MM-DD calendar date parser (rejects 2026-02-30, 2026-13-01).
 CREATE OR REPLACE FUNCTION jobwatch.parse_strict_iso_date(p_value text) RETURNS date
 LANGUAGE plpgsql IMMUTABLE STRICT SET search_path = pg_catalog, jobwatch, pg_temp AS $$
 DECLARE
@@ -57,8 +114,6 @@ BEGIN
   RETURN pg_catalog.make_date(v_y, v_m, v_d);
 END $$;
 
--- Helper: SQL-layer public HTTPS URL validator (blocks non-HTTPS, credentials, non-443 ports,
--- localhost/.local/.internal, and literal RFC1918/loopback/link-local/IMDS/CGNAT/v4-mapped IPs).
 CREATE OR REPLACE FUNCTION jobwatch.validate_agent_https_url(p_url text) RETURNS text
 LANGUAGE plpgsql IMMUTABLE STRICT SET search_path = pg_catalog, jobwatch, pg_temp AS $$
 DECLARE
@@ -79,7 +134,6 @@ BEGIN
   IF pg_catalog.strpos(v_authority, '@') > 0 THEN
     RAISE EXCEPTION 'URL credentials are forbidden' USING ERRCODE = '22023';
   END IF;
-  -- Allow only default port or explicit :443.
   IF v_authority ~ '^\[.*\]:' THEN
     IF v_authority !~ '^\[.*\]:443$' THEN
       RAISE EXCEPTION 'Only HTTPS port 443 is allowed' USING ERRCODE = '22023';
@@ -102,7 +156,6 @@ BEGIN
     RAISE EXCEPTION 'Local or internal hostnames are forbidden' USING ERRCODE = '22023';
   END IF;
 
-  -- Block IPv6 literals for non-global ranges (loopback, ULA, link-local, v4-mapped, unspecified).
   IF pg_catalog.strpos(v_host, ':') > 0 THEN
     IF v_host ~ '^(::1?|0*:0*:0*:0*:0*:0*:0*:[01]|f[cd]|fe[89ab]|::ffff:)' THEN
       RAISE EXCEPTION 'Non-global IPv6 literal is forbidden' USING ERRCODE = '22023';
@@ -123,7 +176,6 @@ BEGIN
     RAISE EXCEPTION 'Hostname must be a public FQDN' USING ERRCODE = '22023';
   END IF;
 
-  -- Also verify compatibility with existing canonical url_identity().
   PERFORM jobwatch.url_identity(v_url, true);
   RETURN v_url;
 END $$;
@@ -175,8 +227,6 @@ CREATE INDEX IF NOT EXISTS agent_evidence_posting ON jobwatch.agent_evidence_obs
 CREATE INDEX IF NOT EXISTS agent_evidence_candidate ON jobwatch.agent_evidence_observations (candidate_key, recorded_at DESC) WHERE candidate_key IS NOT NULL;
 CREATE INDEX IF NOT EXISTS agent_evidence_login_rate ON jobwatch.agent_evidence_observations (db_login, recorded_at DESC);
 
--- Append-only corroboration history: preserves every independent check, its target-vacancy
--- binding, its explicit evidence completeness, and its provenance.
 CREATE TABLE IF NOT EXISTS jobwatch.agent_evidence_corroborations (
   corroboration_id uuid PRIMARY KEY DEFAULT pg_catalog.gen_random_uuid(),
   observation_id uuid NOT NULL REFERENCES jobwatch.agent_evidence_observations(observation_id),
@@ -240,7 +290,6 @@ CREATE TABLE IF NOT EXISTS jobwatch.agent_evidence_corroborations (
     pg_catalog.jsonb_typeof(evidence_details) = 'object'
     AND pg_catalog.octet_length(evidence_details::text) <= 8192
   ),
-  -- Enforce strict corroboration & vacancy-binding semantics at the database layer:
   CHECK (overall_state <> 'claim_corroborated' OR (retrieval_status = 'retrieved_200' AND claim_status = 'corroborated' AND target_binding_status <> 'unbound_target')),
   CHECK (overall_state <> 'wording_matched' OR (retrieval_status = 'retrieved_200' AND wording_status = 'matched')),
   CHECK (overall_state <> 'contradictory_evidence' OR (retrieval_status = 'retrieved_200' AND claim_status = 'contradicted')),
@@ -252,7 +301,6 @@ CREATE TABLE IF NOT EXISTS jobwatch.agent_evidence_corroborations (
 CREATE INDEX IF NOT EXISTS agent_corroborations_obs_time
   ON jobwatch.agent_evidence_corroborations (observation_id, checked_at DESC, recorded_at DESC);
 
--- Helper: transactional per-authenticated-db_login budget guard (serialized via advisory lock).
 CREATE OR REPLACE FUNCTION jobwatch.enforce_agent_evidence_budget(p_db_login text) RETURNS void
 LANGUAGE plpgsql SET search_path = pg_catalog, jobwatch, pg_temp AS $$
 DECLARE
@@ -282,9 +330,6 @@ BEGIN
   END IF;
 END $$;
 
--- Controlled SECURITY DEFINER ingestion boundary for observations.
--- Computes payload_sha256 and submission_sha256 strictly inside SQL; scopes idempotency
--- to (session_user, idempotency_key); validates URLs and dates inside SQL.
 CREATE OR REPLACE FUNCTION jobwatch.submit_agent_observation(
   p_idempotency_key text,
   p_kind text,
@@ -332,7 +377,6 @@ BEGIN
     v_date := jobwatch.parse_strict_iso_date(p_candidate_deadline_date);
   END IF;
 
-  -- Compute hashes strictly inside the trusted SQL boundary (never caller-supplied).
   v_payload_sha := pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_payload::text, 'UTF8')), 'hex');
   v_sub_sha := pg_catalog.encode(
     pg_catalog.sha256(
@@ -356,7 +400,6 @@ BEGIN
     'hex'
   );
 
-  -- Serialize idempotency check per (db_login, idempotency_key) so logins are isolated and retries never race.
   PERFORM pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended('jobwatch.evidence_idem:' || v_login || ':' || p_idempotency_key, 0));
   SELECT o.observation_id, o.submission_sha256, o.recorded_at INTO v_existing
   FROM jobwatch.agent_evidence_observations o
@@ -386,11 +429,6 @@ BEGIN
   RETURN QUERY SELECT v_oid, v_sub_sha, 'recorded'::text, 'submission_recorded'::text, v_rec;
 END $$;
 
--- Atomic SECURITY DEFINER ingestion boundary for newly discovered public vacancies.
--- - Derives `candidate_key` and ALL SHA-256 hashes strictly inside SQL.
--- - Enforces provider/board/native_id/URL consistency and forbids contaminating existing candidates.
--- - Never accepts caller-supplied screening verdicts/codes/rules_version (always marks unscreened).
--- - Independently enforces evidence completeness & retention policy invariants.
 CREATE OR REPLACE FUNCTION jobwatch.submit_agent_vacancy(
   p_idempotency_key text,
   p_logical_contributor text,
@@ -490,7 +528,6 @@ BEGIN
   v_host := pg_catalog.lower(pg_catalog.split_part(pg_catalog.split_part(pg_catalog.substr(v_url, 9), '/', 1), ':', 1));
   v_path_seg := pg_catalog.lower(pg_catalog.split_part(pg_catalog.substr(v_url, 9), '/', 2));
 
-  -- Enforce hosted ATS URL <-> provider/board consistency so callers cannot spoof mismatched ATS identities.
   IF v_host ~ '(^|\.)greenhouse\.io$' THEN
     IF p_provider <> 'greenhouse' THEN
       RAISE EXCEPTION 'URL host (%) disagrees with declared provider (%)', v_host, p_provider USING ERRCODE = '22023';
@@ -518,7 +555,6 @@ BEGIN
     END IF;
   END IF;
 
-  -- Independently enforce evidence completeness & retention policy invariants inside SQL.
   IF v_desc_text IS NOT NULL AND pg_catalog.char_length(v_desc_text) > 262144 THEN
     RAISE EXCEPTION 'description_text exceeds 262144-character safety cap' USING ERRCODE = '22023';
   END IF;
@@ -545,7 +581,6 @@ BEGIN
       v_excerpt := pg_catalog.left(pg_catalog.btrim(pg_catalog.regexp_replace(v_desc_text, '\s+', ' ', 'g')), 2500);
     END IF;
   ELSE
-    -- partial or truncated
     IF v_excerpt = '' AND v_desc_text IS NOT NULL AND pg_catalog.btrim(v_desc_text) <> '' THEN
       v_excerpt := pg_catalog.left(pg_catalog.btrim(pg_catalog.regexp_replace(v_desc_text, '\s+', ' ', 'g')), 2500);
     END IF;
@@ -561,7 +596,6 @@ BEGIN
     v_excerpt_sha := pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_excerpt, 'UTF8')), 'hex');
   END IF;
 
-  -- Deterministically derive candidate_key strictly inside SQL.
   IF v_board IS NOT NULL AND v_native_id IS NOT NULL THEN
     v_candidate_key := p_provider || ':' || pg_catalog.lower(v_board) || ':' || v_native_id;
   ELSE
@@ -572,7 +606,7 @@ BEGIN
 
   v_summary := pg_catalog.left(
     coalesce(nullif(pg_catalog.btrim(coalesce(p_claim_summary, '')), ''),
-                        'Agent-submitted public vacancy: ' || v_company || ' - ' || v_title),
+             'Agent-submitted public vacancy: ' || v_company || ' - ' || v_title),
     500
   );
 
@@ -631,7 +665,6 @@ BEGIN
     'hex'
   );
 
-  -- Scoped idempotency check per (db_login, idempotency_key).
   PERFORM pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended('jobwatch.evidence_idem:' || v_login || ':' || p_idempotency_key, 0));
   SELECT o.observation_id, o.submission_sha256, o.candidate_key, o.recorded_at INTO v_existing_obs
   FROM jobwatch.agent_evidence_observations o
@@ -648,7 +681,6 @@ BEGIN
 
   PERFORM jobwatch.enforce_agent_evidence_budget(v_login);
 
-  -- Anti-contamination check against ANY existing discovery_candidates row matching key, URL, or native identity.
   SELECT dc.candidate_key, dc.provider, dc.board, dc.native_id, dc.url_exact, dc.posting_url
   INTO v_existing_cand
   FROM jobwatch.discovery_candidates dc
@@ -658,7 +690,6 @@ BEGIN
   LIMIT 1;
 
   IF FOUND THEN
-    -- Reject any attempt to attach mismatched provider/board/URL onto an existing candidate identity!
     IF v_existing_cand.provider <> p_provider
        OR (v_existing_cand.url_exact <> v_url_exact AND NOT (
             v_board IS NOT NULL AND v_existing_cand.board IS NOT NULL
@@ -672,10 +703,8 @@ BEGIN
       RAISE EXCEPTION 'candidate_identity_conflict: submission conflicts with existing candidate %', v_existing_cand.candidate_key
         USING ERRCODE = '23505';
     END IF;
-    -- Existing candidate is consistent: NEVER overwrite or contaminate its candidate row or snapshots!
     v_candidate_key := v_existing_cand.candidate_key;
   ELSE
-    -- Create new candidate with strictly unscreened neutral markers (never caller-supplied verdict/codes/rules).
     INSERT INTO jobwatch.discovery_candidates(
       candidate_key, provider, board, native_id, company, title, posting_url,
       location_text, country, countries,
@@ -743,7 +772,54 @@ REVOKE ALL ON FUNCTION jobwatch.enforce_agent_evidence_budget(text) FROM PUBLIC;
 REVOKE ALL ON FUNCTION jobwatch.submit_agent_observation(text,text,text,text,timestamptz,text,text,text,text,text,text,text,bigint,text,jsonb) FROM PUBLIC;
 REVOKE ALL ON FUNCTION jobwatch.submit_agent_vacancy(text,text,text,timestamptz,text,text,text,text,text,text,text,text,text[],text,text,text,text,text,jsonb) FROM PUBLIC;
 
--- Inspectable research projection joining append-only corroboration history + conflict detection.
+-- =========================================================================
+-- PART 3: Corroborated deadline evidence admission & research views
+-- =========================================================================
+
+-- Extend `posting_deadline_claims` so independently corroborated, vacancy-bound agent
+-- deadline observations participate in normal deadline research & conflict detection
+-- WITHOUT requiring individual owner approval and WITHOUT silently superseding existing claims.
+CREATE OR REPLACE VIEW jobwatch.posting_deadline_claims AS
+WITH claims AS (
+  SELECT v.posting_key, 'verification:' || v.id::text AS claim_id,
+    'independent_verification'::text AS provenance, v.url, v.wording, v.value,
+    v.checked_at::text AS checked_at, v.checked_by, true AS structured
+  FROM jobwatch.verifications v WHERE v.kind = 'deadline'
+  UNION ALL
+  SELECT DISTINCT p.posting_key,
+    'feed:' || pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(p.posting_key || E'\n' || d::text || E'\n' || coalesce(d->>'url', pv.posting_url), 'UTF8')), 'hex'),
+    'feed_observation'::text AS provenance, coalesce(d->>'url', pv.posting_url), d->>'wording', d->>'value',
+    d->>'observed_at', NULL::text, d->>'source_field' = 'application_deadline'
+  FROM jobwatch.research_postings p JOIN jobwatch.posting_versions pv USING(posting_key)
+    CROSS JOIN LATERAL pg_catalog.jsonb_array_elements(pv.deadlines) d
+  UNION ALL
+  SELECT o.posting_key,
+    'corroborated_agent:' || latest.corroboration_id::text AS claim_id,
+    'corroborated_agent_observation'::text AS provenance,
+    coalesce(nullif(latest.final_url, ''), o.source_url) AS url,
+    o.observed_wording AS wording,
+    o.candidate_deadline_date::text AS value,
+    latest.checked_at::text AS checked_at,
+    latest.checked_by,
+    true AS structured
+  FROM jobwatch.agent_evidence_observations o
+  JOIN LATERAL (
+    SELECT c.* FROM jobwatch.agent_evidence_corroborations c
+    WHERE c.observation_id = o.observation_id
+    ORDER BY c.checked_at DESC, c.recorded_at DESC
+    LIMIT 1
+  ) latest ON true
+  WHERE o.kind = 'deadline_wording'
+    AND o.posting_key IS NOT NULL
+    AND o.candidate_deadline_date IS NOT NULL
+    AND latest.overall_state = 'claim_corroborated'
+    AND latest.target_binding_status IN ('bound_exact_url', 'bound_host_and_identity')
+)
+SELECT c.*, coalesce((SELECT pg_catalog.jsonb_agg('verification:' || v.id::text ORDER BY v.id)
+  FROM jobwatch.verifications v WHERE v.posting_key = c.posting_key AND v.kind = 'deadline'
+    AND v.deadline_supersedes ? c.claim_id), '[]'::jsonb) AS superseded_by
+FROM claims c;
+
 CREATE OR REPLACE VIEW jobwatch.research_agent_evidence AS
 SELECT
   o.observation_id,
@@ -821,3 +897,6 @@ GRANT INSERT ON jobwatch.agent_evidence_corroborations TO jobwatch_collector, jo
 GRANT INSERT, UPDATE ON jobwatch.agent_evidence_budgets TO jobwatch_owner;
 GRANT EXECUTE ON FUNCTION jobwatch.submit_agent_observation(text,text,text,text,timestamptz,text,text,text,text,text,text,text,bigint,text,jsonb) TO jobwatch_owner;
 GRANT EXECUTE ON FUNCTION jobwatch.submit_agent_vacancy(text,text,text,timestamptz,text,text,text,text,text,text,text,text,text[],text,text,text,text,text,jsonb) TO jobwatch_owner;
+
+COMMENT ON TABLE jobwatch.agent_evidence_observations IS 'Untrusted public evidence claims submitted through controlled SECURITY DEFINER boundaries. Distinct from corroborated evidence and personal owner decisions.';
+COMMENT ON TABLE jobwatch.agent_evidence_corroborations IS 'Append-only independent corroboration history with target-vacancy binding, completeness, and provenance.';

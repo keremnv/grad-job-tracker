@@ -110,10 +110,12 @@ class ReleasePreparationTests(unittest.TestCase):
             git('init', '-q')
             files = ['src/jobwatch/postgres/migrations/0004_embeddings.sql', 'pyproject.toml',
                      'infra/aws/scripts/deploy_release.py', 'infra/aws/systemd/jobwatch-backup.timer',
+                     'infra/aws/nftables/jobwatch-corroborator.nft',
                      'sql/postgresql/bootstrap.sql', 'sql/postgresql/vector_extension.sql',
                      'sql/postgresql/embedding_access.sql', 'sql/postgresql/chat_readonly.sql',
                      'sql/postgresql/owner_workflows.sql','sql/postgresql/agent_roles.sql',
-                     'sql/postgresql/agent_access.sql','sql/postgresql/calendar_deadlines.sql',
+                     'sql/postgresql/agent_access.sql','sql/postgresql/agent_evidence_roles.sql',
+                     'sql/postgresql/calendar_deadlines.sql',
                      'sql/postgresql/lead_deadline_access.sql','sql/postgresql/posting_deadline_access.sql',
                      'sql/postgresql/calendar_selection_access.sql','sql/postgresql/discovery_access.sql',
                      'sql/postgresql/directory_discovery_access.sql','sql/postgresql/discovery_fidelity_access.sql',

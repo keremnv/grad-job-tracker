@@ -15,10 +15,11 @@ import subprocess
 import tarfile
 import tempfile
 
-PATHS = ('src', 'pyproject.toml', 'infra/aws/scripts', 'infra/aws/systemd',
+PATHS = ('src', 'pyproject.toml', 'infra/aws/scripts', 'infra/aws/systemd', 'infra/aws/nftables',
          'sql/postgresql/bootstrap.sql', 'sql/postgresql/owner_workflows.sql', 'sql/postgresql/vector_extension.sql',
          'sql/postgresql/embedding_access.sql', 'sql/postgresql/chat_readonly.sql',
          'sql/postgresql/agent_roles.sql','sql/postgresql/agent_access.sql',
+         'sql/postgresql/agent_evidence_roles.sql',
          'sql/postgresql/lead_deadline_access.sql','sql/postgresql/posting_deadline_access.sql',
          'sql/postgresql/calendar_selection_access.sql','sql/postgresql/discovery_access.sql',
          'sql/postgresql/directory_discovery_access.sql','sql/postgresql/discovery_fidelity_access.sql',

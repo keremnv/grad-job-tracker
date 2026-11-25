@@ -190,13 +190,19 @@ class ReadTools:
                     attnotnull AS not_null,attgenerated AS generated,attidentity AS identity,
                     has_column_privilege(current_user,attrelid,attname,'SELECT') AS readable
                     FROM pg_attribute WHERE attrelid=%s AND attnum>0 AND NOT attisdropped ORDER BY attnum''', (oid,)).fetchall()
-                r['indexes'] = conn.execute('''SELECT pg_get_indexdef(indexrelid) AS definition
-                    FROM pg_index WHERE indrelid=%s ORDER BY indexrelid''', (oid,)).fetchall()
-                r['constraints'] = conn.execute('''SELECT conname AS name,contype AS type,pg_get_constraintdef(oid) AS definition
-                    FROM pg_constraint WHERE conrelid=%s ORDER BY conname''', (oid,)).fetchall()
-                if r['kind'] == 'v':
-                    r['definition'] = conn.execute('SELECT pg_get_viewdef(%s,true) AS sql', (oid,)).fetchone()['sql']
-            return {'schema': 'jobwatch', 'relations': relations}
+                if table is not None:
+                    r['indexes'] = conn.execute('''SELECT pg_get_indexdef(indexrelid) AS definition
+                        FROM pg_index WHERE indrelid=%s ORDER BY indexrelid''', (oid,)).fetchall()
+                    r['constraints'] = conn.execute('''SELECT conname AS name,contype AS type,pg_get_constraintdef(oid) AS definition
+                        FROM pg_constraint WHERE conrelid=%s ORDER BY conname''', (oid,)).fetchall()
+                    if r['kind'] == 'v':
+                        r['definition'] = conn.execute('SELECT pg_get_viewdef(%s,true) AS sql', (oid,)).fetchone()['sql']
+                elif r['kind'] == 'v':
+                    r['definition_omitted'] = True
+            result = {'schema': 'jobwatch', 'relations': relations}
+            if table is None:
+                result['note'] = 'Pass table=<name> for full indexes, constraints, and view SQL definitions.'
+            return result
 
     def search(self, query, method='bm25', history=False, include_not_seen=False, limit=20, lexical_method='bm25'):
         integer(limit, 1, MAX_ROWS)

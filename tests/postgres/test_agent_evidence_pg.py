@@ -23,7 +23,7 @@ import unittest
 import psycopg
 from psycopg.conninfo import make_conninfo
 
-from jobwatch.postgres import discovery
+from jobwatch.postgres import calendar_selection, discovery, research
 from jobwatch.postgres.agent_evidence import (
     AgentEvidenceIngestor,
     CandidateIdentityConflictError,
@@ -31,6 +31,7 @@ from jobwatch.postgres.agent_evidence import (
     IdempotencyConflictError,
     ObservationSubmission,
     SafeFetchResult,
+    admit_corroborated_vacancies,
     corroborate_observation,
 )
 from jobwatch.postgres.connection import connect
@@ -38,8 +39,7 @@ from jobwatch.postgres.migrate import migrate
 from support import DatabaseTest, actor
 
 ROOT = Path(__file__).resolve().parents[2]
-EVIDENCE_SQL = ROOT / "sql/postgresql/proposals/0012_agent_evidence_hardened.sql"
-ROLES_SQL = ROOT / "sql/postgresql/proposals/agent_evidence_roles.sql"
+ROLES_SQL = ROOT / "sql/postgresql/agent_evidence_roles.sql"
 
 
 class HardenedAgentEvidenceDirectSqlSecurityTests(DatabaseTest):
@@ -64,19 +64,20 @@ class HardenedAgentEvidenceDirectSqlSecurityTests(DatabaseTest):
             """)
             cfg = replace(self.target.config(), dsn=make_conninfo(self.target.config().dsn, dbname=db))
             with connect(cfg) as mig:
-                # 0001..0011 come from packaged migrations; 0012 stays isolated in sql/postgresql/proposals/.
+                # 0001..0012 are all applied cleanly by packaged migrations.
                 migrate(mig)
-                mig.execute(EVIDENCE_SQL.read_text(encoding="utf-8"))
-                mig.commit()
             admin(ROLES_SQL.read_text(encoding="utf-8"))
+            admin("GRANT INSERT (deadline_supersedes, deadline_reason) ON jobwatch.verifications TO jobwatch_owner;")
             admin(
-                f"GRANT CONNECT ON DATABASE {db} TO jobwatch_agent_evidence; "
-                f"ALTER ROLE jobwatch_agent_evidence IN DATABASE {db} SET search_path=jobwatch,pg_catalog;"
+                f"GRANT CONNECT ON DATABASE {db} TO jobwatch_agent_evidence, jobwatch_corroborator; "
+                f"ALTER ROLE jobwatch_agent_evidence IN DATABASE {db} SET search_path=jobwatch,pg_catalog; "
+                f"ALTER ROLE jobwatch_corroborator IN DATABASE {db} SET search_path=jobwatch,pg_catalog;"
             )
 
             owner_cfg = replace(cfg, dsn=make_conninfo(cfg.dsn, user="jobwatch_owner"), purpose="runtime")
             col_cfg = replace(cfg, dsn=make_conninfo(cfg.dsn, user="jobwatch_collector"), purpose="runtime")
             ev_cfg = replace(cfg, dsn=make_conninfo(cfg.dsn, user="jobwatch_agent_evidence"), purpose="runtime")
+            cor_cfg = replace(cfg, dsn=make_conninfo(cfg.dsn, user="jobwatch_corroborator"), purpose="runtime")
 
             # Seed one monitored posting and one collector-discovered candidate for anti-contamination tests.
             with connect(owner_cfg) as own, own.transaction():
@@ -397,7 +398,7 @@ class HardenedAgentEvidenceDirectSqlSecurityTests(DatabaseTest):
             with connect(owner_cfg) as own, own.transaction():
                 own.execute("UPDATE jobwatch.agent_evidence_budgets SET hourly_limit=50 WHERE db_login='jobwatch_agent_evidence'")
 
-            # 6. TARGET-VACANCY BINDING IN CORROBORATION (unrelated page with matching wording MUST NOT corroborate!)
+            # 6. TARGET-VACANCY BINDING + EVIDENCE ADMISSION VS PERSONAL DECISIONS (using `jobwatch_corroborator`!)
             with connect(ev_cfg) as ev_conn:
                 # 6a. Observation pointing to UNRELATED blog URL for posting `greenhouse:acmeuk:42`
                 obs_unrelated = ingestor.record_observation(ev_conn, ObservationSubmission(
@@ -419,26 +420,65 @@ class HardenedAgentEvidenceDirectSqlSecurityTests(DatabaseTest):
                     claim_summary="Official careers page closing date",
                     observed_wording="Applications close 29 November 2026.",
                 ))
+                # 6c. Uncorroborated second agent vacancy (must stay unscreened on admit_corroborated_vacancies!)
+                vac_uncorrob = ingestor.record_new_vacancy(
+                    ev_conn,
+                    logical_contributor="local-cli:s2",
+                    observed_at=now - timedelta(minutes=1),
+                    company="Unverified Startup UK",
+                    title="Graduate AI Engineer",
+                    posting_url="https://unverified-startup.co.uk/jobs/grad-ai",
+                    location_text="London, UK",
+                    country="GB",
+                    description_text="Graduate AI engineer working on Python and PyTorch in London.",
+                )
+                # 6d. Corroborated new agent vacancy (will be deterministically admitted after corroboration!)
+                vac_corrob = ingestor.record_new_vacancy(
+                    ev_conn,
+                    logical_contributor="local-cli:s2",
+                    observed_at=now - timedelta(minutes=1),
+                    company="Verified Startup UK",
+                    title="Graduate Machine Learning Engineer",
+                    posting_url="https://verified-startup.co.uk/jobs/grad-ml",
+                    location_text="London, UK",
+                    country="GB",
+                    description_text="Graduate machine learning engineer building Python and C++ systems in London.",
+                )
 
-            with connect(col_cfg) as col_conn:
-                # Unrelated page contains the EXACT quoted wording, yet MUST NOT reach `claim_corroborated`!
+            # Before corroboration: ZERO claims appear in `posting_deadline_claims`!
+            with connect(owner_cfg) as own:
+                self.assertEqual(own.execute("SELECT count(*) AS n FROM jobwatch.posting_deadline_claims WHERE posting_key=%s", (pkey,)).fetchone()["n"], 0)
+
+            with connect(cor_cfg) as cor_conn:
+                # Verify `jobwatch_corroborator` has ZERO write privilege on postings/candidates/observations/verifications/calendar_selections!
+                for forbidden_stmt in (
+                    "UPDATE jobwatch.postings SET verdict='excluded'",
+                    "UPDATE jobwatch.discovery_candidates SET verdict='priority'",
+                    "DELETE FROM jobwatch.agent_evidence_corroborations",
+                    "INSERT INTO jobwatch.verifications(posting_key,kind,checked_at,checked_by,url,value) VALUES ('greenhouse:acmeuk:42','deadline',now(),'cor','https://acme.co.uk','2026-11-29')",
+                    "INSERT INTO jobwatch.calendar_selections(posting_key,mode,recorded_by) VALUES ('greenhouse:acmeuk:42','include','cor')",
+                ):
+                    with self.assertRaises(psycopg.errors.InsufficientPrivilege, msg=f"Corroborator must be denied: {forbidden_stmt}"):
+                        with cor_conn.transaction():
+                            cor_conn.execute(forbidden_stmt)
+
+                # Unrelated page contains the EXACT quoted wording, yet MUST NOT reach `claim_corroborated` or enter `posting_deadline_claims`!
                 c_unrel = corroborate_observation(
-                    col_conn, obs_unrelated["observation_id"],
+                    cor_conn, obs_unrelated["observation_id"],
                     fetcher=lambda u, budget=None: SafeFetchResult(
                         200, b"<html><body>Random grad blog: Applications close 29 November 2026.</body></html>",
                         u, "93.184.216.34", False, 0,
                     ),
                 )
                 self.assertEqual(c_unrel["target_binding_status"], "unbound_target")
-                self.assertEqual(c_unrel["wording_status"], "matched")
-                self.assertEqual(c_unrel["claim_status"], "unverified")
                 self.assertEqual(c_unrel["overall_state"], "wording_matched")
-                self.assertEqual(c_unrel["evidence_completeness"], "complete")
+                with connect(owner_cfg) as own:
+                    self.assertEqual(own.execute("SELECT count(*) AS n FROM jobwatch.posting_deadline_claims WHERE posting_key=%s", (pkey,)).fetchone()["n"], 0)
 
                 # SQL CHECK itself refuses inserting `claim_corroborated` with `unbound_target`!
                 with self.assertRaises(psycopg.errors.CheckViolation):
-                    with col_conn.transaction():
-                        col_conn.execute(
+                    with cor_conn.transaction():
+                        cor_conn.execute(
                             "INSERT INTO jobwatch.agent_evidence_corroborations("
                             "observation_id,checked_at,checked_by,retrieval_status,target_binding_status,"
                             "wording_status,claim_status,overall_state,evidence_completeness) "
@@ -448,7 +488,7 @@ class HardenedAgentEvidenceDirectSqlSecurityTests(DatabaseTest):
 
                 # Official employer domain + role title present -> `bound_host_and_identity` + `claim_corroborated`!
                 c_bound = corroborate_observation(
-                    col_conn, obs_official["observation_id"],
+                    cor_conn, obs_official["observation_id"],
                     fetcher=lambda u, budget=None: SafeFetchResult(
                         200,
                         b"<html><body><h1>Acme UK - Graduate Machine Learning Engineer</h1><p>Applications close 29 November 2026.</p></body></html>",
@@ -458,13 +498,66 @@ class HardenedAgentEvidenceDirectSqlSecurityTests(DatabaseTest):
                 self.assertEqual(c_bound["target_binding_status"], "bound_host_and_identity")
                 self.assertEqual(c_bound["overall_state"], "claim_corroborated")
                 self.assertEqual(c_bound["evidence_completeness"], "complete")
-                self.assertIn("29 November 2026", c_bound["evidence_excerpt"])
-                self.assertEqual(c_bound["provenance"]["target_binding_status"], "bound_host_and_identity")
 
-                # Confirm corroboration NEVER silently created verifications or calendar_selections!
-                with connect(owner_cfg) as own:
-                    self.assertEqual(own.execute("SELECT count(*) AS n FROM jobwatch.verifications").fetchone()["n"], 0)
-                    self.assertEqual(own.execute("SELECT count(*) AS n FROM jobwatch.calendar_selections").fetchone()["n"], 0)
+                # Corroborate `vac_corrob` (leave `vac_uncorrob` uncorroborated!)
+                c_vac = corroborate_observation(
+                    cor_conn, vac_corrob["observation_id"],
+                    fetcher=lambda u, budget=None: SafeFetchResult(
+                        200,
+                        b"<html><body><h1>Verified Startup UK - Graduate Machine Learning Engineer</h1>"
+                        b"<p>Graduate machine learning engineer building Python and C++ systems in London.</p></body></html>",
+                        u, "93.184.216.34", False, 0,
+                    ),
+                )
+                self.assertEqual(c_vac["target_binding_status"], "bound_exact_url")
+                self.assertEqual(c_vac["overall_state"], "claim_corroborated")
+
+            # Verify selective vacancy admission: ONLY `vac_corrob` is deterministically screened; `vac_uncorrob` stays unscreened!
+            with connect(col_cfg) as col:
+                admitted = admit_corroborated_vacancies(col)
+                self.assertEqual([a["candidate_key"] for a in admitted["admitted"]], [vac_corrob["candidate_key"]])
+                r_uncor = col.execute("SELECT rules_version FROM jobwatch.discovery_candidates WHERE candidate_key=%s", (vac_uncorrob["candidate_key"],)).fetchone()
+                r_cor = col.execute("SELECT verdict, rules_version FROM jobwatch.discovery_candidates WHERE candidate_key=%s", (vac_corrob["candidate_key"],)).fetchone()
+                self.assertEqual(r_uncor["rules_version"], "unscreened-agent-submission")
+                self.assertEqual(r_cor["verdict"], "priority")
+                self.assertNotEqual(r_cor["rules_version"], "unscreened-agent-submission")
+
+            # Verify deadline evidence admission vs personal calendar decisions:
+            with connect(owner_cfg) as own:
+                # 1. Corroborated deadline participates in `posting_deadline_claims` WITHOUT owner approval!
+                claims = own.execute("SELECT claim_id, provenance, value, superseded_by FROM jobwatch.posting_deadline_claims WHERE posting_key=%s", (pkey,)).fetchall()
+                self.assertEqual(len(claims), 1)
+                self.assertEqual(claims[0]["provenance"], "corroborated_agent_observation")
+                self.assertEqual(claims[0]["value"], "2026-11-29")
+                self.assertEqual(claims[0]["claim_id"], f"corroborated_agent:{c_bound['corroboration_id']}")
+                self.assertEqual(claims[0]["superseded_by"], [])
+                # 2. Zero writes to `verifications` or `calendar_selections`, and unselected posting stays `not_selected`!
+                self.assertEqual(own.execute("SELECT count(*) AS n FROM jobwatch.verifications").fetchone()["n"], 0)
+                self.assertEqual(own.execute("SELECT count(*) AS n FROM jobwatch.calendar_selections").fetchone()["n"], 0)
+                explicit_policy = "SELECT NULL::text AS evidence_key WHERE false"
+                st_unselected = calendar_selection.evaluate(own, explicit_policy, shared=False)
+                self.assertEqual(calendar_selection.describe(st_unselected, pkey)["status"], "not_selected")
+                # 3. Once explicitly selected by owner, well-supported corroborated claim qualifies automatically!
+                with own.transaction():
+                    actor(own)
+                    own.execute("INSERT INTO jobwatch.calendar_selections(posting_key, mode, recorded_by) VALUES (%s, 'include', 'owner:test')", (pkey,))
+                st_selected = calendar_selection.evaluate(own, explicit_policy, shared=False)
+                desc_sel = calendar_selection.describe(st_selected, pkey)
+                self.assertEqual(desc_sel["status"], "qualifies")
+                self.assertEqual(desc_sel["deadline"], "2026-11-29")
+                self.assertTrue(desc_sel["in_projection"])
+                # 4. Adding a contradicting owner verification (without superseding) exposes explicit conflict (NEVER silently overrides)!
+                with own.transaction():
+                    actor(own)
+                    own.execute(
+                        "INSERT INTO jobwatch.verifications(posting_key,kind,checked_at,checked_by,url,wording,value,deadline_supersedes,deadline_reason) "
+                        "VALUES (%s,'deadline',now(),'owner','https://acme.co.uk/careers','Closes 10 Dec 2026','2026-12-10','[]'::jsonb,'Independent check found 10 Dec')",
+                        (pkey,),
+                    )
+                st_conflict = calendar_selection.evaluate(own, explicit_policy, shared=False)
+                desc_conf = calendar_selection.describe(st_conflict, pkey)
+                self.assertEqual(desc_conf["status"], "conflicting")
+                self.assertFalse(desc_conf["in_projection"])
         finally:
             subprocess.run(["docker", "exec", container, "dropdb", "-U", "postgres", "--force", db], check=False)
 

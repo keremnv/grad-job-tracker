@@ -1,0 +1,30 @@
+#!/usr/sbin/nft -f
+# Kernel-level per-UID egress isolation for `jobwatch-corroborator`.
+# Enforced independently of Python application SSRF checks:
+# - Permits ONLY local systemd-resolved stub DNS (127.0.0.53:53) + outbound public TCP 443.
+# - Rejects ALL other loopback (127.0.0.0/8, ::1), RFC1918, CGNAT, link-local, AWS IMDS
+#   (169.254.169.254), and non-HTTPS ports immediately at the kernel output hook.
+# - PostgreSQL access uses local Unix domain socket `/run/jobwatch-postgresql` (AF_UNIX).
+
+table inet jobwatch_corroborator_egress
+delete table inet jobwatch_corroborator_egress
+
+table inet jobwatch_corroborator_egress {
+  chain output {
+    type filter hook output priority 0; policy accept;
+    meta skuid != "jobwatch-corroborator" return
+
+    # Allow ONLY local systemd-resolved stub DNS so public FQDNs resolve cleanly.
+    ip daddr 127.0.0.53 udp dport 53 accept
+    ip daddr 127.0.0.53 tcp dport 53 accept
+
+    # Block ALL other loopback, RFC1918 private ranges, CGNAT, link-local & AWS IMDS.
+    ip daddr { 127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 100.64.0.0/10, 169.254.0.0/16, 224.0.0.0/4, 240.0.0.0/4 } reject with icmp type admin-prohibited
+    ip6 daddr { ::1/128, fc00::/7, fe80::/10, ff00::/8 } reject with icmpv6 type admin-prohibited
+
+    # Allow ONLY outbound HTTPS (TCP 443) to globally routable public IPs.
+    tcp dport 443 accept
+    ct state established,related accept
+    reject with icmpx type admin-prohibited
+  }
+}

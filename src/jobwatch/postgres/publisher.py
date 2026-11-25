@@ -313,6 +313,8 @@ class Collector:
                 count = conn.execute("SELECT count(*) AS n FROM jobwatch.postings WHERE source_id=%s AND status='listed'", (r.source_id,)).fetchone()['n']
                 if count != len(seen):
                     raise CollectionError('Published identity accounting mismatch', r.id)
+            from .discovery import link_candidates_for_source
+            link_candidates_for_source(conn, r.source_id, run_id=r.id, linked_at=at)
             self._finish(conn, r.id, 'published', observation=observation)
             conn.execute('UPDATE jobwatch.sources SET last_published_run_id=%s WHERE id=%s', (r.id, r.source_id))
             if r.metadata.get('advance_from') is not None:

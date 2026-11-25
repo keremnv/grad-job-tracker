@@ -222,7 +222,7 @@ def _upsert_snapshot(
         'title, location_text, description_text, description_excerpt, '
         'complete_description_sha256, excerpt_sha256, evidence_sha256, provenance'
         ') VALUES (%s,%s,%s,1,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) '
-        'ON CONFLICT (candidate_key, evidence_sha256) DO UPDATE SET '
+        'ON CONFLICT ON CONSTRAINT discovery_snapshots_retained_identity_key DO UPDATE SET '
         'last_observed_at = GREATEST(jobwatch.discovery_candidate_snapshots.last_observed_at, EXCLUDED.last_observed_at), '
         'observation_count = jobwatch.discovery_candidate_snapshots.observation_count + 1 '
         'RETURNING snapshot_id, (observation_count = 1) AS created',
@@ -485,6 +485,110 @@ def rescreen_candidates(conn, *, processing: Processing = Processing()) -> int:
                 )
                 updated += 1
     return updated
+
+
+def link_candidates_for_source(conn, source_id: int, *, run_id=None, linked_at: datetime | None = None) -> dict:
+    """Link discovery candidates to native postings immediately following source collection.
+
+    Links ONLY where identity is unambiguously established:
+      1. Exact native ATS identity `(provider, lower(board), native_id)` matching a collected
+         posting on `source_id`.
+      2. Unambiguous 1-to-1 exact normalized URL match (`url_exact`) for search-only candidates
+         (`board IS NULL`), refusing any URL shared by multiple postings.
+
+    Preserves owner-curated states (`promoted_lead`, `dismissed`) and appends linkage provenance.
+    """
+    from psycopg.types.json import Jsonb
+
+    at = linked_at or datetime.now(timezone.utc)
+    at_iso = iso(at)
+    src = conn.execute(
+        'SELECT id, provider, board FROM jobwatch.sources WHERE id=%s',
+        (source_id,),
+    ).fetchone()
+    if not src:
+        return {'linked_native': 0, 'linked_exact_url': 0, 'source_associated': 0}
+
+    linked_native = 0
+    linked_url = 0
+    run_str = str(run_id) if run_id is not None else None
+
+    # Pass 1: exact native ATS identity match (provider + lower(board) + native_id).
+    native_matches = conn.execute(
+        "SELECT dc.candidate_key, dc.state, dc.provenance, p.posting_key "
+        "FROM jobwatch.discovery_candidates dc "
+        "JOIN jobwatch.postings p ON p.source_id = %s "
+        "  AND p.provider = dc.provider "
+        "  AND lower(p.board) = lower(dc.board) "
+        "  AND p.native_id = dc.native_id "
+        "WHERE dc.linked_posting_key IS NULL "
+        "  AND dc.provider = %s AND lower(dc.board) = lower(%s) AND dc.native_id IS NOT NULL "
+        "ORDER BY dc.candidate_key FOR UPDATE OF dc",
+        (source_id, src['provider'], src['board']),
+    ).fetchall()
+    for row in native_matches:
+        prov = dict(row['provenance'] or {})
+        prov['linked_on_collection'] = {
+            'posting_key': row['posting_key'],
+            'source_id': source_id,
+            'run_id': run_str,
+            'linked_at': at_iso,
+            'match_basis': 'exact_native_identity',
+        }
+        new_state = row['state'] if row['state'] in ('promoted_lead', 'dismissed') else 'linked_posting'
+        conn.execute(
+            'UPDATE jobwatch.discovery_candidates '
+            'SET linked_posting_key=%s, source_id=%s, state=%s, provenance=%s '
+            'WHERE candidate_key=%s',
+            (row['posting_key'], source_id, new_state, Jsonb(safe(prov)), row['candidate_key']),
+        )
+        linked_native += 1
+
+    # Pass 2: unambiguous 1-to-1 exact normalized URL match for search-only candidates (board IS NULL).
+    url_matches = conn.execute(
+        "WITH unique_urls AS ("
+        "  SELECT pv.url_exact, min(p.posting_key) AS posting_key, min(p.source_id) AS source_id "
+        "  FROM jobwatch.postings p "
+        "  JOIN jobwatch.posting_versions pv ON pv.id = p.current_version_id "
+        "  GROUP BY pv.url_exact HAVING count(DISTINCT p.posting_key) = 1"
+        ") "
+        "SELECT dc.candidate_key, dc.state, dc.provenance, u.posting_key "
+        "FROM jobwatch.discovery_candidates dc "
+        "JOIN unique_urls u ON u.url_exact = dc.url_exact AND u.source_id = %s "
+        "WHERE dc.linked_posting_key IS NULL AND dc.board IS NULL "
+        "ORDER BY dc.candidate_key FOR UPDATE OF dc",
+        (source_id,),
+    ).fetchall()
+    for row in url_matches:
+        prov = dict(row['provenance'] or {})
+        prov['linked_on_collection'] = {
+            'posting_key': row['posting_key'],
+            'source_id': source_id,
+            'run_id': run_str,
+            'linked_at': at_iso,
+            'match_basis': 'unambiguous_exact_url',
+        }
+        new_state = row['state'] if row['state'] in ('promoted_lead', 'dismissed') else 'linked_posting'
+        conn.execute(
+            'UPDATE jobwatch.discovery_candidates '
+            'SET linked_posting_key=%s, source_id=%s, state=%s, provenance=%s '
+            'WHERE candidate_key=%s',
+            (row['posting_key'], source_id, new_state, Jsonb(safe(prov)), row['candidate_key']),
+        )
+        linked_url += 1
+
+    # Associate source_id on any remaining same-board candidates without fabricating posting links.
+    cur = conn.execute(
+        "UPDATE jobwatch.discovery_candidates "
+        "SET source_id = %s "
+        "WHERE source_id IS NULL AND provider = %s AND lower(board) = lower(%s)",
+        (source_id, src['provider'], src['board']),
+    )
+    return {
+        'linked_native': linked_native,
+        'linked_exact_url': linked_url,
+        'source_associated': cur.rowcount or 0,
+    }
 
 
 def promote_to_lead(

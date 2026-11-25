@@ -463,7 +463,7 @@ class WorkableAndDiscoveryLifecycleTests(DatabaseTest):
                     "('legacy:trunc:1','greenhouse','OldCo','Grad SWE','https://example.org/old/1','Truncated 2500-char excerpt',repeat('a',64),ARRAY['legacy'],'review','software',ARRAY[]::text[],'v1','excerpt'),"
                     "('legacy:empty:2','greenhouse','OldCo','Grad ML','https://example.org/old/2','   ',repeat('b',64),ARRAY['legacy'],'review','ml_ai',ARRAY[]::text[],'v1','title_metadata_only')"
                 )
-                self.assertEqual(migrate(conn), [plan[10].filename])
+                self.assertEqual(migrate(conn, plan[:11]), [plan[10].filename])
                 r1 = conn.execute("SELECT * FROM jobwatch.discovery_candidates WHERE candidate_key='legacy:trunc:1'").fetchone()
                 r2 = conn.execute("SELECT * FROM jobwatch.discovery_candidates WHERE candidate_key='legacy:empty:2'").fetchone()
                 self.assertEqual(r1['evidence_completeness'], 'truncated')
@@ -477,8 +477,147 @@ class WorkableAndDiscoveryLifecycleTests(DatabaseTest):
                 self.assertIsNotNone(r2['current_snapshot_id'])
                 snap1 = conn.execute("SELECT provenance FROM jobwatch.discovery_candidate_snapshots WHERE snapshot_id=%s", (r1['current_snapshot_id'],)).fetchone()
                 self.assertTrue(snap1['provenance']['legacy_pre_0011_snapshot'])
+
+                # Upgrade to 0012: re-observing the SAME source payload (identical evidence_sha256 = repeat('a', 64))
+                # with COMPLETE description preserves snapshot #1 ('truncated') AND appends snapshot #2 ('complete')!
+                self.assertEqual(migrate(conn), [plan[11].filename])
+                full_text = 'Complete recovered description text for OldCo Graduate SWE. ' * 80
+                v_complete = DiscoveredVacancy(
+                    candidate_key='legacy:trunc:1', provider='greenhouse', board=None, native_id=None,
+                    company='OldCo', title='Grad SWE', posting_url='https://example.org/old/1',
+                    location_text='London, UK', country='GB', countries=('GB',),
+                    department='', team='', employment_type='', workplace_type='',
+                    published_at='', source_dates={}, deadlines=[],
+                    description_full=full_text, description_excerpt=full_text[:2500],
+                    description_sha256=sha256(full_text.encode()).hexdigest(),
+                    evidence_sha256='a' * 64,  # IDENTICAL raw source evidence_sha256!
+                    mechanism='legacy', provenance={'reprobed_after_0012': True},
+                )
+                t1 = datetime(2026, 11, 25, 17, 0, tzinfo=timezone.utc)
+                t2 = t1 + timedelta(hours=2)
+                c1 = discovery.record_discoveries(conn, [v_complete], observed_at=t1)
+                self.assertEqual(c1['snapshots_created'], 1)
+                snaps = conn.execute(
+                    "SELECT evidence_completeness, observation_count FROM jobwatch.discovery_candidate_snapshots "
+                    "WHERE candidate_key='legacy:trunc:1' ORDER BY recorded_at ASC"
+                ).fetchall()
+                self.assertEqual([s['evidence_completeness'] for s in snaps], ['truncated', 'complete'])
+                ev = conn.execute(
+                    "SELECT effective_completeness, char_length(effective_description) AS dlen, snapshot_count "
+                    "FROM jobwatch.research_discovery_evidence WHERE candidate_key='legacy:trunc:1'"
+                ).fetchone()
+                self.assertEqual(ev['effective_completeness'], 'complete')
+                self.assertEqual(ev['dlen'], len(full_text))
+                self.assertEqual(ev['snapshot_count'], 2)
+
+                # Re-observing the EXACT same complete representation MUST deduplicate (still 2 snapshots, obs_count=2)!
+                c2 = discovery.record_discoveries(conn, [v_complete], observed_at=t2)
+                self.assertEqual(c2['snapshots_reobserved'], 1)
+                self.assertEqual(c2['snapshots_created'], 0)
+                snaps_after = conn.execute(
+                    "SELECT evidence_completeness, observation_count FROM jobwatch.discovery_candidate_snapshots "
+                    "WHERE candidate_key='legacy:trunc:1' ORDER BY recorded_at ASC"
+                ).fetchall()
+                self.assertEqual(len(snaps_after), 2)
+                self.assertEqual(snaps_after[1]['observation_count'], 2)
         finally:
             subprocess.run(['docker', 'exec', container, 'dropdb', '-U', 'postgres', '--force', db], check=False)
+
+    def test_post_activation_collection_immediately_links_discovery_candidates_without_ambiguous_guessing(self):
+        t0 = datetime(2026, 11, 25, 16, 0, tzinfo=timezone.utc)
+        # Seed 4 discovery candidates BEFORE the monitored board is ever collected:
+        # 1. Exact native ATS identity match (workable:stalis:1C9CCEA6B4)
+        # 2. Search-only candidate (board=None) with unique exact URL matching a collected posting
+        # 3. Search-only candidate with an AMBIGUOUS URL shared by two postings (MUST stay unlinked!)
+        # 4. Already owner-promoted candidate (`promoted_lead`) matching a collected posting (must keep promoted_lead state!)
+        v_native = _vacancy(
+            candidate_key='greenhouse:linkco:101', provider='greenhouse', board='linkco', native_id='101',
+            company='LinkCo', title='Data Science & AI Graduate',
+            posting_url='https://job-boards.greenhouse.io/linkco/jobs/101',
+        )
+        v_url_unique = _vacancy(
+            candidate_key='discovery:greenhouse:unique-url', provider='greenhouse', board=None, native_id=None,
+            company='LinkCo', title='Junior Platform Engineer',
+            posting_url='https://job-boards.greenhouse.io/linkco/jobs/202',
+        )
+        v_url_ambig = _vacancy(
+            candidate_key='discovery:greenhouse:ambig-url', provider='greenhouse', board=None, native_id=None,
+            company='LinkCo', title='Ambiguous Shared URL Role',
+            posting_url='https://job-boards.greenhouse.io/linkco/jobs/401',
+        )
+        v_promoted = _vacancy(
+            candidate_key='greenhouse:linkco:303', provider='greenhouse', board='linkco', native_id='303',
+            company='LinkCo', title='Graduate ML Engineer',
+            posting_url='https://job-boards.greenhouse.io/linkco/jobs/303',
+        )
+        with self.target.connect('jobwatch_collector') as conn:
+            discovery.record_discoveries(conn, [v_native, v_url_unique, v_url_ambig, v_promoted], observed_at=t0)
+        with self.target.connect('jobwatch_owner') as conn:
+            discovery.promote_to_lead(conn, 'greenhouse:linkco:303', actor='owner:test', official=True)
+
+        # Seed a separate posting on the fixture source sharing URL `/linkco/jobs/401` so that URL is ambiguous across 2 postings!
+        self.seed(native_id='ambig-other', url='https://job-boards.greenhouse.io/linkco/jobs/401')
+
+        # Register & activate monitored Greenhouse source `linkco`, then collect ONCE (no follow-up discovery probe!).
+        with self.target.connect('jobwatch_owner') as conn, conn.transaction():
+            actor(conn)
+            emp_id = conn.execute("INSERT INTO jobwatch.employers(slug,name) VALUES ('linkco','LinkCo') RETURNING id").fetchone()['id']
+            sid = conn.execute(
+                "INSERT INTO jobwatch.sources(provider,board,region,employer_id,status,validation_url,"
+                "endpoint_checked_at,mapping_verified_at,mapping_verified_by,mapping_evidence) "
+                "VALUES ('greenhouse','linkco','global',%s,'monitored','https://linkco.co.uk/careers/',"
+                "now(),now(),'test','official greenhouse') RETURNING id",
+                (emp_id,),
+            ).fetchone()['id']
+        gh_payload = {
+            'jobs': [
+                {'id': 101, 'internal_job_id': 1, 'title': 'Data Science & AI Graduate',
+                 'location': {'name': 'London, UK'}, 'absolute_url': 'https://job-boards.greenhouse.io/linkco/jobs/101',
+                 'content': '<p>Native full text for LinkCo DS.</p>'},
+                {'id': 202, 'internal_job_id': 2, 'title': 'Junior Platform Engineer',
+                 'location': {'name': 'London, UK'}, 'absolute_url': 'https://job-boards.greenhouse.io/linkco/jobs/202',
+                 'content': '<p>Native unique URL role.</p>'},
+                {'id': 401, 'internal_job_id': 3, 'title': 'Ambiguous Role A',
+                 'location': {'name': 'London, UK'}, 'absolute_url': 'https://job-boards.greenhouse.io/linkco/jobs/401',
+                 'content': '<p>Shared A.</p>'},
+                {'id': 303, 'internal_job_id': 5, 'title': 'Graduate ML Engineer',
+                 'location': {'name': 'London, UK'}, 'absolute_url': 'https://job-boards.greenhouse.io/linkco/jobs/303',
+                 'content': '<p>Native promoted role.</p>'},
+            ],
+        }
+        col = Collector(self.target.config('jobwatch_collector'), actor='collector:link-test')
+        r = col.register(sid)
+        self.assertEqual(col.publish(fetch(r, col.processing, get_json=lambda _: gh_payload)), 'published')
+
+        with self.target.connect('jobwatch_owner') as conn:
+            rows = {
+                row['candidate_key']: row
+                for row in conn.execute("SELECT candidate_key, state, source_id, linked_posting_key, provenance FROM jobwatch.discovery_candidates").fetchall()
+            }
+            ev_native = conn.execute(
+                "SELECT effective_evidence_source, effective_description FROM jobwatch.research_discovery_evidence "
+                "WHERE candidate_key='greenhouse:linkco:101'"
+            ).fetchone()
+
+        # 1. Native match linked immediately with provenance & resolves to native_posting_version!
+        self.assertEqual(rows['greenhouse:linkco:101']['linked_posting_key'], 'greenhouse:linkco:101')
+        self.assertEqual(rows['greenhouse:linkco:101']['state'], 'linked_posting')
+        self.assertEqual(rows['greenhouse:linkco:101']['provenance']['linked_on_collection']['match_basis'], 'exact_native_identity')
+        self.assertEqual(ev_native['effective_evidence_source'], 'native_posting_version')
+        self.assertIn('Native full text for LinkCo DS', ev_native['effective_description'])
+
+        # 2. Unique exact URL match linked immediately!
+        self.assertEqual(rows['discovery:greenhouse:unique-url']['linked_posting_key'], 'greenhouse:linkco:202')
+        self.assertEqual(rows['discovery:greenhouse:unique-url']['state'], 'linked_posting')
+        self.assertEqual(rows['discovery:greenhouse:unique-url']['provenance']['linked_on_collection']['match_basis'], 'unambiguous_exact_url')
+
+        # 3. Ambiguous shared URL MUST NOT auto-link!
+        self.assertIsNone(rows['discovery:greenhouse:ambig-url']['linked_posting_key'])
+        self.assertNotEqual(rows['discovery:greenhouse:ambig-url']['state'], 'linked_posting')
+
+        # 4. Owner-promoted candidate links `linked_posting_key` while preserving `state='promoted_lead'`!
+        self.assertEqual(rows['greenhouse:linkco:303']['linked_posting_key'], 'greenhouse:linkco:303')
+        self.assertEqual(rows['greenhouse:linkco:303']['state'], 'promoted_lead')
 
 
 if __name__ == '__main__':

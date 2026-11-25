@@ -19,7 +19,7 @@ from .importer import primitive
 
 MAX_ITEMS = 25
 PROTON = 'Publication status covers the feed objects only; it does not show whether Proton has fetched them.'
-RANK = {'independent_verification': 0, 'checked_official_lead': 1, 'feed_observation': 2, 'unverified_lead': 3}
+RANK = {'independent_verification': 0, 'checked_official_lead': 1, 'corroborated_agent_observation': 2, 'feed_observation': 3, 'unverified_lead': 4}
 
 
 def evaluate(conn, policy_sql, *, shared=True, past_days=30, future_days=366):

@@ -43,7 +43,7 @@ def security_snapshot(conn):
             WHERE setdatabase=(SELECT oid FROM pg_database WHERE datname=current_database())
                OR (setdatabase=0 AND pg_get_userbyid(setrole) LIKE 'jobwatch_%') ORDER BY 1,2""").fetchall(),
         'roles': conn.execute("""SELECT rolname,rolsuper,rolinherit,rolcreaterole,rolcreatedb,rolcanlogin,rolreplication,rolbypassrls,rolconnlimit
-            FROM pg_roles WHERE rolname IN ('jobwatch_owner','jobwatch_collector','jobwatch_migrator','jobwatch_embedding_writer','jobwatch_chat_readonly','jobwatch_agent_readonly','jobwatch_agent_owner','jobwatch_calendar_reader') ORDER BY rolname""").fetchall(),
+            FROM pg_roles WHERE rolname IN ('jobwatch_owner','jobwatch_collector','jobwatch_migrator','jobwatch_embedding_writer','jobwatch_chat_readonly','jobwatch_agent_readonly','jobwatch_agent_owner','jobwatch_calendar_reader','jobwatch_agent_evidence','jobwatch_corroborator') ORDER BY rolname""").fetchall(),
         'memberships': conn.execute("""SELECT pg_get_userbyid(roleid) AS role,pg_get_userbyid(member) AS member,admin_option
             FROM pg_auth_members WHERE pg_get_userbyid(roleid) LIKE 'jobwatch_%' OR pg_get_userbyid(member) LIKE 'jobwatch_%'
             ORDER BY 1,2""").fetchall(),
@@ -54,7 +54,8 @@ def _fingerprint_tables(conn, *, streaming=True):
     check_migrations(conn)
     tables = {}
     for table in (*TABLES, 'owner_audit', 'schema_migrations', 'embedding_chunks', 'calendar_selections',
-                  'discovery_candidates', 'discovered_boards', 'discovery_candidate_snapshots'):
+                  'discovery_candidates', 'discovered_boards', 'discovery_candidate_snapshots',
+                  'agent_evidence_budgets', 'agent_evidence_observations', 'agent_evidence_corroborations'):
         if streaming:
             row_hashes = []
             with conn.cursor(name=f'jobwatch_fp_{table}') as cur:
@@ -104,7 +105,7 @@ def prepare_recovery_roles(conn, manifest):
     fresh_restore_target(conn, manifest['extensions'])
     names = {'jobwatch_owner','jobwatch_collector','jobwatch_migrator',
              'jobwatch_embedding_writer','jobwatch_chat_readonly','jobwatch_agent_readonly',
-             'jobwatch_agent_owner','jobwatch_calendar_reader'}
+             'jobwatch_agent_owner','jobwatch_calendar_reader','jobwatch_agent_evidence','jobwatch_corroborator'}
     allowed_settings = {'search_path','default_transaction_read_only','statement_timeout',
         'lock_timeout','idle_in_transaction_session_timeout','transaction_timeout','work_mem'}
     if req['memberships']:
