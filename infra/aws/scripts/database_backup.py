@@ -50,16 +50,34 @@ def security_snapshot(conn):
     }
 
 
-def fingerprint(conn):
+def _fingerprint_tables(conn, *, streaming=True):
     check_migrations(conn)
     tables = {}
     for table in (*TABLES, 'owner_audit', 'schema_migrations', 'embedding_chunks', 'calendar_selections'):
-        rows = [primitive(r) for r in conn.execute('SELECT * FROM jobwatch.'+table)]
-        # Exact row values, including audit IDs/clocks, generated search columns and import clocks.
-        tables[table] = {'count': len(rows), 'sha256': digest(sorted(rows, key=digest))}
+        if streaming:
+            row_hashes = []
+            with conn.cursor(name=f'jobwatch_fp_{table}') as cur:
+                cur.itersize = 200
+                cur.execute('SELECT * FROM jobwatch.' + table)
+                for row in cur:
+                    row_hashes.append(digest(primitive(row)))
+            row_hashes.sort()
+            tables[table] = {'count': len(row_hashes), 'sha256': digest(row_hashes)}
+        else:
+            rows = [primitive(r) for r in conn.execute('SELECT * FROM jobwatch.' + table)]
+            # Exact row values, including audit IDs/clocks, generated search columns and import clocks.
+            tables[table] = {'count': len(rows), 'sha256': digest(sorted(rows, key=digest))}
     security = security_snapshot(conn)
-
     return {'tables': tables, 'schema_sha256': digest(schema_snapshot(conn)), 'security_sha256': digest(security)}
+
+
+def fingerprint(conn, *, streaming=True):
+    import psycopg
+    if streaming and conn.info.transaction_status == psycopg.pq.TransactionStatus.IDLE:
+        with conn.transaction():
+            conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
+            return _fingerprint_tables(conn, streaming=True)
+    return _fingerprint_tables(conn, streaming=streaming)
 
 
 def extension_requirements(conn):
@@ -148,9 +166,36 @@ def fresh_restore_target(conn, requirements):
 def archived_sequences(data, execute):
     # pg_restore emits escaped COPY data, not executed SQL. Only fixed pg_dump setval lines
     # are parsed; no source/owner text enters the receipt or a log.
-    sql = execute(['pg_restore', '--file=-', '--data-only', '--schema=jobwatch'], input=data).decode('utf-8')
     pattern = r"^SELECT pg_catalog\.setval\('jobwatch\.([a-z0-9_]+)', ([0-9]+), (true|false)\);$"
-    pairs = re.findall(pattern, sql, re.MULTILINE)
+    if execute is utility:
+        # Stream pg_restore from a private temporary file so multi-hundred-MB uncompressed SQL
+        # is never buffered in Python RAM on a 2 GiB host.
+        pairs = []
+        with tempfile.NamedTemporaryFile(prefix='jobwatch-seq-', suffix='.dump') as tmp:
+            os.fchmod(tmp.fileno(), 0o600)
+            tmp.write(data)
+            tmp.flush()
+            proc = subprocess.Popen(
+                ['pg_restore', '--file=-', '--data-only', '--schema=jobwatch', tmp.name],
+                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            )
+            try:
+                assert proc.stdout is not None
+                for raw_line in proc.stdout:
+                    if raw_line.startswith(b"SELECT pg_catalog.setval('jobwatch."):
+                        m = re.match(pattern, raw_line.decode('utf-8', errors='strict').rstrip('\r\n'))
+                        if m:
+                            pairs.append((m.group(1), m.group(2), m.group(3)))
+                rc = proc.wait(timeout=2400)
+            finally:
+                if proc.poll() is None:
+                    proc.kill()
+                    proc.wait()
+            if rc:
+                raise BackupError('PostgreSQL utility failed; private stderr omitted')
+    else:
+        sql = execute(['pg_restore', '--file=-', '--data-only', '--schema=jobwatch'], input=data).decode('utf-8')
+        pairs = re.findall(pattern, sql, re.MULTILINE)
     if len({p[0] for p in pairs}) != len(pairs):
         raise BackupError('Ambiguous archived sequence state')
     return {name: {'last_value': int(value), 'is_called': called == 'true'} for name, value, called in pairs}
@@ -178,7 +223,8 @@ def backup(conn, archive, *, execute=utility):
     expected = {r['sequencename'] for r in conn.execute("SELECT sequencename FROM pg_sequences WHERE schemaname='jobwatch'")}
     if set(sequence_state) != expected:
         raise BackupError('Archive sequence inventory mismatch')
-    manifest = {'schema': 'jobwatch.aws-backup/2', 'backup_started_at': backup_started_at,
+    manifest = {'schema': 'jobwatch.aws-backup/2', 'fingerprint_mode': 'streaming-row-sha256-v1',
+                'backup_started_at': backup_started_at,
                 'created_at': datetime.now(timezone.utc).isoformat(),
                 'archive_sha256': sha256(data).hexdigest(), 'archive_bytes': len(data),
                 'postgres_version': conn.info.server_version, 'fingerprint': before,
@@ -210,7 +256,7 @@ def restore(conn, archive, manifest, *, execute=utility):
     execute(['pg_restore', '--exit-on-error', '--single-transaction', '--dbname='+conn.info.dbname], input=data)
     with conn.transaction():
         conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
-        actual = fingerprint(conn)
+        actual = fingerprint(conn, streaming=(manifest.get('fingerprint_mode') == 'streaming-row-sha256-v1'))
         sequences = {r['sequencename']: dict(conn.execute('SELECT last_value,is_called FROM jobwatch.'+r['sequencename']).fetchone())
                      for r in conn.execute("SELECT sequencename FROM pg_sequences WHERE schemaname='jobwatch'")}
         if actual != manifest['fingerprint'] or sequences != manifest['sequences']:
