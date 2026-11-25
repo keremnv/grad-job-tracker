@@ -155,7 +155,7 @@ def select_probe_batch(
     if uk_quota > 0:
         uk_rows = conn.execute(
             "SELECT b.board_key, b.provider, b.board, b.region, b.company_hint, b.uk_hint, "
-            "b.probe_status, b.identity_status, b.directory_sources "
+            "b.probe_status, b.identity_status, b.directory_sources, b.last_etag "
             "FROM jobwatch.discovered_boards b WHERE b.uk_hint = true AND " + base_where + order_clause + " LIMIT %s",
             (list(providers), active_cutoff, inactive_cutoff, inactive_cutoff, uk_quota),
         ).fetchall()
@@ -167,7 +167,7 @@ def select_probe_batch(
     if remaining > 0:
         more = conn.execute(
             "SELECT b.board_key, b.provider, b.board, b.region, b.company_hint, b.uk_hint, "
-            "b.probe_status, b.identity_status, b.directory_sources "
+            "b.probe_status, b.identity_status, b.directory_sources, b.last_etag "
             "FROM jobwatch.discovered_boards b WHERE " + base_where + order_clause + " LIMIT %s",
             (list(providers), active_cutoff, inactive_cutoff, inactive_cutoff, remaining + len(seen)),
         ).fetchall()
@@ -241,7 +241,7 @@ def select_probe_batch_prioritized(
         for prov in providers:
             rows = conn.execute(
                 "SELECT b.board_key, b.provider, b.board, b.region, b.company_hint, b.uk_hint, "
-                "b.probe_status, b.identity_status, b.directory_sources, "
+                "b.probe_status, b.identity_status, b.directory_sources, b.last_etag, "
                 "(b.first_discovered_at >= %s) AS is_new_entry, "
                 "'exploration' AS selection_reason "
                 "FROM jobwatch.discovered_boards b "
@@ -269,7 +269,7 @@ def select_probe_batch_prioritized(
     if remaining > 0:
         targeted_rows = conn.execute(
             "SELECT b.board_key, b.provider, b.board, b.region, b.company_hint, b.uk_hint, "
-            "b.probe_status, b.identity_status, b.directory_sources, "
+            "b.probe_status, b.identity_status, b.directory_sources, b.last_etag, "
             "b.investigation_requested_at, b.investigation_requested_by "
             "FROM jobwatch.discovered_boards b "
             "WHERE b.provider = ANY(%s) "
@@ -305,7 +305,7 @@ def select_probe_batch_prioritized(
     if remaining > 0:
         prio_rows = conn.execute(
             "SELECT b.board_key, b.provider, b.board, b.region, b.company_hint, b.uk_hint, "
-            "b.probe_status, b.identity_status, b.directory_sources, "
+            "b.probe_status, b.identity_status, b.directory_sources, b.last_etag, "
             "CASE WHEN b.first_discovered_at >= %s THEN 30 ELSE 0 END AS s_new, "
             "CASE WHEN b.identity_status = 'verified_official_link' THEN 25 ELSE 0 END AS s_verified, "
             "(b.priority_vacancies * 20) AS s_priority_yield, "
@@ -344,6 +344,30 @@ def select_probe_batch_prioritized(
     return selected
 
 
+def _interleave_by_provider(batch: list[dict]) -> list[dict]:
+    """Rotate probes across providers so per-provider spacing (e.g. Lever 1s) overlaps naturally."""
+    buckets: dict[str, list[dict]] = {}
+    order: list[str] = []
+    for row in batch:
+        prov = row["provider"]
+        if prov not in buckets:
+            buckets[prov] = []
+            order.append(prov)
+        buckets[prov].append(row)
+    out: list[dict] = []
+    idx = 0
+    while len(out) < len(batch):
+        progressed = False
+        for prov in order:
+            if idx < len(buckets[prov]):
+                out.append(buckets[prov][idx])
+                progressed = True
+        if not progressed:
+            break
+        idx += 1
+    return out
+
+
 def record_board_probe(
     conn,
     probe: BoardProbeResult,
@@ -352,7 +376,7 @@ def record_board_probe(
     observed_at: datetime | None = None,
     processing: Processing = Processing(),
 ) -> dict:
-    """Persist board-level probe metrics, identity check, and UK candidate vacancies."""
+    """Persist board-level probe metrics, ETag cache, identity check, and UK candidate vacancies."""
     at = observed_at or datetime.now(timezone.utc)
     iso(at)
     with conn.transaction():
@@ -361,11 +385,27 @@ def record_board_probe(
             (probe.provider, probe.board),
         ).fetchone()
         source_id = src["id"] if src else None
+        if probe.not_modified:
+            # HTTP 304 Not Modified: keep existing probe_status, vacancy counts, and ETag intact.
+            conn.execute(
+                "UPDATE jobwatch.discovered_boards SET "
+                "last_probed_at=%s, last_304_at=%s, probe_count=probe_count+1, "
+                "http_status=304, source_id=coalesce(%s, source_id) "
+                "WHERE board_key=%s",
+                (at, at, source_id, probe.board_key),
+            )
+            return {
+                "board_key": probe.board_key,
+                "probe_status": "unchanged_304",
+                "candidates": {"inserted": 0, "updated": 0, "linked": 0, "verified": 0},
+            }
+
         id_status = identity.status if identity else None
         id_at = at if (identity and identity.status != "not_checked") else None
         id_ev = safe(identity.evidence) if identity else None
         official_web = safe(identity.official_website) if (identity and identity.official_website) else safe(probe.hosted_website)
         careers_url = safe(identity.careers_url) if (identity and identity.careers_url) else ""
+        etag_val = safe(probe.etag or "")[:256]
 
         conn.execute(
             "UPDATE jobwatch.discovered_boards SET "
@@ -373,6 +413,7 @@ def record_board_probe(
             "official_website=coalesce(nullif(%s,''), official_website), "
             "careers_url=coalesce(nullif(%s,''), careers_url), "
             "last_probed_at=%s, probe_count=probe_count+1, probe_status=%s, http_status=%s, "
+            "last_etag=coalesce(nullif(%s,''), last_etag), "
             "total_vacancies=%s, uk_vacancies=%s, priority_vacancies=%s, review_vacancies=%s, "
             "custom_host_urls=%s, "
             "identity_status=coalesce(%s, identity_status), "
@@ -382,7 +423,7 @@ def record_board_probe(
             "WHERE board_key=%s",
             (
                 probe.region, safe(probe.company_name), official_web, careers_url,
-                at, probe.probe_status, probe.http_status,
+                at, probe.probe_status, probe.http_status, etag_val,
                 probe.total_vacancies, probe.uk_vacancies, probe.priority_vacancies, probe.review_vacancies,
                 probe.custom_host_urls,
                 id_status, id_at, id_ev, source_id, probe.board_key,
@@ -447,6 +488,11 @@ def run_discovery_cycle(
     verify_identity_limit: int = 8,
     uk_hint_quota: int | None = None,
     delay_s: float = 0.5,
+    auto_steady_state: bool = False,
+    steady_state_unprobed_threshold: int = 500,
+    steady_state_unprobed_pct: float = 0.05,
+    steady_state_max_boards: int = 20,
+    steady_state_exploration_ratio: float = 0.40,
     get_bytes=default_http_get,
     pause=time.sleep,
     now: datetime | None = None,
@@ -462,11 +508,19 @@ def run_discovery_cycle(
         "started_at": iso(at),
         "providers": list(providers),
         "scheduler": scheduler,
+        "discovery_phase": "backfill",
+        "effective_max_boards": max_boards,
         "exploration_ratio": exploration_ratio if scheduler == "prioritized" else None,
+        "total_directory_boards": 0,
+        "unprobed_remaining": 0,
+        "locked_by_concurrent_run": False,
         "selection_reasons": {},
         "provider_probes": {},
         "directories": {},
         "boards_probed": 0,
+        "unique_boards_newly_probed": 0,
+        "unique_employers_with_uk_relevant": 0,
+        "conditional_304_hits": 0,
         "status_counts": {},
         "candidates_inserted": 0,
         "candidates_updated": 0,
@@ -479,121 +533,188 @@ def run_discovery_cycle(
         "elapsed_s": 0.0,
     }
 
-    if refresh_directories:
-        for provider in providers:
-            if summary["requests_made"] >= max_requests:
-                summary["halted_reason"] = "max_requests_reached"
-                break
-            url = (directory_urls or {}).get(provider)
-            try:
-                ref = fetch_directory(provider, url=url, get_bytes=get_bytes, now=at)
-            except DiscoveryRateLimitError:
-                summary["halted_reason"] = "rate_limited_429"
-                break
-            summary["requests_made"] += 1
-            summary["bytes_read"] += ref.bytes_read
-            sync_counts = sync_directory_boards(
-                conn,
-                ref.boards,
-                directory_source=ref.directory_source,
-                provenance={"url": ref.directory_url, "sha256": ref.sha256, "bytes": ref.bytes_read, "fetched_at": ref.fetched_at},
-                observed_at=at,
-            )
-            summary["directories"][provider] = {**sync_counts, "sha256": ref.sha256, "skipped_invalid": ref.skipped_invalid}
+    lock_acquired = False
+    if probe_boards:
+        lock_acquired = bool(
+            conn.execute(
+                "SELECT pg_try_advisory_lock(hashtextextended('jobwatch.discover-probe', 0)) AS ok"
+            ).fetchone()["ok"]
+        )
+        if not lock_acquired:
+            summary["locked_by_concurrent_run"] = True
+            summary["halted_reason"] = "locked_by_concurrent_run"
+            summary["elapsed_s"] = round(time.monotonic() - t0, 2)
+            return summary
 
-    if probe_boards and not summary["halted_reason"]:
-        if board_keys:
-            wanted = [k.strip().lower() for k in board_keys if k and k.strip()]
-            batch = [
-                {**dict(r), "selection_reason": "explicit_target"}
-                for r in conn.execute(
-                    "SELECT b.board_key, b.provider, b.board, b.region, b.company_hint, b.uk_hint, "
-                    "b.probe_status, b.identity_status, b.directory_sources "
-                    "FROM jobwatch.discovered_boards b "
-                    "WHERE lower(b.board_key) = ANY(%s) "
-                    "ORDER BY b.board_key LIMIT %s",
-                    (wanted, max_boards),
-                ).fetchall()
-            ]
-        elif scheduler == "prioritized":
-            batch = select_probe_batch_prioritized(
-                conn, limit=max_boards, providers=providers, exploration_ratio=exploration_ratio, now=at,
-            )
-        else:
-            batch = select_probe_batch(conn, limit=max_boards, providers=providers, uk_hint_quota=uk_hint_quota, now=at)
-        id_checks_done = 0
-        last_provider_ts: dict[str, float] = {}
-        for idx, row in enumerate(batch):
-            if summary["requests_made"] >= max_requests:
-                summary["halted_reason"] = "max_requests_reached"
-                break
-            if summary["bytes_read"] >= max_bytes:
-                summary["halted_reason"] = "max_bytes_reached"
-                break
-            prov_name = row["provider"]
-            min_gap = max(delay_s, PROVIDER_MIN_DELAY_S.get(prov_name, 0.0)) if delay_s > 0 else 0.0
-            if min_gap > 0:
-                if prov_name in last_provider_ts:
-                    wait_s = min_gap - (time.monotonic() - last_provider_ts[prov_name])
-                    if wait_s > 0:
-                        pause(wait_s)
-                elif idx > 0 and delay_s > 0:
-                    pause(delay_s)
-            last_provider_ts[prov_name] = time.monotonic()
-            reason = row.get("selection_reason") or "fifo"
-            summary["selection_reasons"][reason] = summary["selection_reasons"].get(reason, 0) + 1
-            summary["provider_probes"][row["provider"]] = summary["provider_probes"].get(row["provider"], 0) + 1
-            dir_src = (row["directory_sources"] or ["ats_directory"])[0]
-            try:
-                probe = probe_ats_board(
-                    row["provider"],
-                    row["board"],
-                    company_hint=row["company_hint"],
-                    directory_source=dir_src,
-                    get_bytes=get_bytes,
-                    now=at,
-                )
-            except DiscoveryRateLimitError:
-                summary["halted_reason"] = "rate_limited_429"
-                break
-            summary["requests_made"] += probe.requests_made
-            summary["bytes_read"] += probe.bytes_read
-            summary["boards_probed"] += 1
-            summary["status_counts"][probe.probe_status] = summary["status_counts"].get(probe.probe_status, 0) + 1
-            summary["priority_vacancies"] += probe.priority_vacancies
-            summary["review_vacancies"] += probe.review_vacancies
-
-            identity = None
-            if (
-                probe.probe_status == "active_uk_relevant"
-                and row["identity_status"] == "not_checked"
-                and id_checks_done < verify_identity_limit
-                and summary["requests_made"] + 2 <= max_requests
-            ):
-                if delay_s > 0:
-                    pause(delay_s)
+    try:
+        if refresh_directories:
+            for provider in providers:
+                if summary["requests_made"] >= max_requests:
+                    summary["halted_reason"] = "max_requests_reached"
+                    break
+                url = (directory_urls or {}).get(provider)
                 try:
-                    identity = verify_board_identity(
-                        probe.provider,
-                        probe.board,
-                        region=probe.region,
-                        hosted_website=probe.hosted_website,
-                        sample_posting_id=probe.sample_posting_id,
+                    ref = fetch_directory(provider, url=url, get_bytes=get_bytes, now=at)
+                except DiscoveryRateLimitError:
+                    summary["halted_reason"] = "rate_limited_429"
+                    break
+                summary["requests_made"] += 1
+                summary["bytes_read"] += ref.bytes_read
+                sync_counts = sync_directory_boards(
+                    conn,
+                    ref.boards,
+                    directory_source=ref.directory_source,
+                    provenance={"url": ref.directory_url, "sha256": ref.sha256, "bytes": ref.bytes_read, "fetched_at": ref.fetched_at},
+                    observed_at=at,
+                )
+                summary["directories"][provider] = {**sync_counts, "sha256": ref.sha256, "skipped_invalid": ref.skipped_invalid}
+
+        if probe_boards and not summary["halted_reason"]:
+            backlog = conn.execute(
+                "SELECT count(*)::int AS total, "
+                "count(*) FILTER (WHERE last_probed_at IS NULL)::int AS unprobed "
+                "FROM jobwatch.discovered_boards "
+                "WHERE provider = ANY(%s) AND source_id IS NULL",
+                (list(providers),),
+            ).fetchone()
+            total_boards = int(backlog["total"] or 0)
+            unprobed_boards = int(backlog["unprobed"] or 0)
+            summary["total_directory_boards"] = total_boards
+            summary["unprobed_remaining"] = unprobed_boards
+
+            effective_max_boards = max_boards
+            effective_exploration_ratio = exploration_ratio
+            if (
+                auto_steady_state
+                and not board_keys
+                and total_boards > 0
+                and unprobed_boards < steady_state_unprobed_threshold
+                and (unprobed_boards / total_boards) < steady_state_unprobed_pct
+            ):
+                summary["discovery_phase"] = "steady_state"
+                effective_max_boards = min(max_boards, steady_state_max_boards)
+                effective_exploration_ratio = steady_state_exploration_ratio
+            else:
+                summary["discovery_phase"] = "backfill"
+            summary["effective_max_boards"] = effective_max_boards
+            if scheduler == "prioritized":
+                summary["exploration_ratio"] = effective_exploration_ratio
+
+            if board_keys:
+                wanted = [k.strip().lower() for k in board_keys if k and k.strip()]
+                batch = [
+                    {**dict(r), "selection_reason": "explicit_target"}
+                    for r in conn.execute(
+                        "SELECT b.board_key, b.provider, b.board, b.region, b.company_hint, b.uk_hint, "
+                        "b.probe_status, b.identity_status, b.directory_sources, b.last_etag "
+                        "FROM jobwatch.discovered_boards b "
+                        "WHERE lower(b.board_key) = ANY(%s) "
+                        "ORDER BY b.board_key LIMIT %s",
+                        (wanted, effective_max_boards),
+                    ).fetchall()
+                ]
+            elif scheduler == "prioritized":
+                batch = select_probe_batch_prioritized(
+                    conn, limit=effective_max_boards, providers=providers,
+                    exploration_ratio=effective_exploration_ratio, now=at,
+                )
+            else:
+                batch = select_probe_batch(
+                    conn, limit=effective_max_boards, providers=providers,
+                    uk_hint_quota=uk_hint_quota, now=at,
+                )
+            batch = _interleave_by_provider(batch)
+            id_checks_done = 0
+            last_provider_ts: dict[str, float] = {}
+            uk_relevant_boards: set[str] = set()
+            for idx, row in enumerate(batch):
+                if summary["requests_made"] >= max_requests:
+                    summary["halted_reason"] = "max_requests_reached"
+                    break
+                if summary["bytes_read"] >= max_bytes:
+                    summary["halted_reason"] = "max_bytes_reached"
+                    break
+                prov_name = row["provider"]
+                min_gap = max(delay_s, PROVIDER_MIN_DELAY_S.get(prov_name, 0.0)) if delay_s > 0 else 0.0
+                if min_gap > 0:
+                    if prov_name in last_provider_ts:
+                        wait_s = min_gap - (time.monotonic() - last_provider_ts[prov_name])
+                        if wait_s > 0:
+                            pause(wait_s)
+                    elif idx > 0 and delay_s > 0:
+                        pause(delay_s)
+                last_provider_ts[prov_name] = time.monotonic()
+                reason = row.get("selection_reason") or "fifo"
+                summary["selection_reasons"][reason] = summary["selection_reasons"].get(reason, 0) + 1
+                summary["provider_probes"][row["provider"]] = summary["provider_probes"].get(row["provider"], 0) + 1
+                dir_src = (row["directory_sources"] or ["ats_directory"])[0]
+                try:
+                    probe = probe_ats_board(
+                        row["provider"],
+                        row["board"],
+                        company_hint=row["company_hint"],
+                        directory_source=dir_src,
+                        cached_etag=row.get("last_etag") or "",
                         get_bytes=get_bytes,
                         now=at,
                     )
                 except DiscoveryRateLimitError:
                     summary["halted_reason"] = "rate_limited_429"
-                    record_board_probe(conn, probe, observed_at=at, processing=processing)
                     break
-                id_checks_done += 1
-                summary["requests_made"] += identity.requests_made
-                summary["bytes_read"] += identity.bytes_read
-                summary["identity_checks"][identity.status] = summary["identity_checks"].get(identity.status, 0) + 1
+                summary["requests_made"] += probe.requests_made
+                summary["bytes_read"] += probe.bytes_read
+                summary["boards_probed"] += 1
+                if row.get("probe_status") == "unprobed":
+                    summary["unique_boards_newly_probed"] += 1
+                if probe.not_modified:
+                    summary["conditional_304_hits"] += 1
+                if probe.probe_status == "active_uk_relevant":
+                    uk_relevant_boards.add(probe.board_key)
+                summary["status_counts"][probe.probe_status] = summary["status_counts"].get(probe.probe_status, 0) + 1
+                summary["priority_vacancies"] += probe.priority_vacancies
+                summary["review_vacancies"] += probe.review_vacancies
 
-            rec = record_board_probe(conn, probe, identity=identity, observed_at=at, processing=processing)
-            summary["candidates_inserted"] += rec["candidates"]["inserted"]
-            summary["candidates_updated"] += rec["candidates"]["updated"]
+                identity = None
+                if (
+                    not probe.not_modified
+                    and probe.probe_status == "active_uk_relevant"
+                    and row["identity_status"] == "not_checked"
+                    and id_checks_done < verify_identity_limit
+                    and summary["requests_made"] + 2 <= max_requests
+                ):
+                    if delay_s > 0:
+                        pause(delay_s)
+                    try:
+                        identity = verify_board_identity(
+                            probe.provider,
+                            probe.board,
+                            region=probe.region,
+                            hosted_website=probe.hosted_website,
+                            sample_posting_id=probe.sample_posting_id,
+                            get_bytes=get_bytes,
+                            now=at,
+                        )
+                    except DiscoveryRateLimitError:
+                        summary["halted_reason"] = "rate_limited_429"
+                        record_board_probe(conn, probe, observed_at=at, processing=processing)
+                        break
+                    id_checks_done += 1
+                    summary["requests_made"] += identity.requests_made
+                    summary["bytes_read"] += identity.bytes_read
+                    summary["identity_checks"][identity.status] = summary["identity_checks"].get(identity.status, 0) + 1
+
+                rec = record_board_probe(conn, probe, identity=identity, observed_at=at, processing=processing)
+                summary["candidates_inserted"] += rec["candidates"]["inserted"]
+                summary["candidates_updated"] += rec["candidates"]["updated"]
+
+            summary["unique_employers_with_uk_relevant"] = len(uk_relevant_boards)
+            summary["unprobed_remaining"] = max(0, unprobed_boards - summary["unique_boards_newly_probed"])
+    finally:
+        if lock_acquired:
+            try:
+                conn.execute("SELECT pg_advisory_unlock(hashtextextended('jobwatch.discover-probe', 0))")
+            except Exception:
+                pass
 
     summary["elapsed_s"] = round(time.monotonic() - t0, 2)
     return summary
@@ -609,6 +730,10 @@ def main(argv=None):
     parser.add_argument("--max-bytes", type=int, default=32 * 1024 * 1024)
     parser.add_argument("--verify-limit", type=int, default=8)
     parser.add_argument("--delay", type=float, default=0.5)
+    parser.add_argument("--auto-steady-state", action="store_true",
+                        help="Automatically reduce budget to steady-state once unprobed backlog < 500 and < 5%%")
+    parser.add_argument("--steady-state-max-boards", type=int, default=20)
+    parser.add_argument("--steady-state-exploration-ratio", type=float, default=0.40)
     parser.add_argument("--no-refresh", action="store_true")
     parser.add_argument("--refresh-only", action="store_true")
     parser.add_argument("--board-keys", default="", help="Comma-separated discovered_boards board_keys for controlled targeted probing")
@@ -632,6 +757,9 @@ def main(argv=None):
             max_bytes=args.max_bytes,
             verify_identity_limit=args.verify_limit,
             delay_s=args.delay,
+            auto_steady_state=args.auto_steady_state,
+            steady_state_max_boards=args.steady_state_max_boards,
+            steady_state_exploration_ratio=args.steady_state_exploration_ratio,
         )
     print(json.dumps(result, sort_keys=True))
     return 0

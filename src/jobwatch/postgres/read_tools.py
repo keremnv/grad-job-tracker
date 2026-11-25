@@ -204,13 +204,16 @@ class ReadTools:
                 result['note'] = 'Pass table=<name> for full indexes, constraints, and view SQL definitions.'
             return result
 
-    def search(self, query, method='bm25', history=False, include_not_seen=False, limit=20, lexical_method='bm25'):
+    def search(self, query, method='bm25', history=False, include_not_seen=False, limit=20, lexical_method='bm25',
+               scope='postings'):
         integer(limit, 1, MAX_ROWS)
         if type(history) is not bool or type(include_not_seen) is not bool:
             raise ReadError('invalid_arguments')
-        if method not in ('bm25', 'fts', 'fts_symbol', 'bm25_prefiltered', 'vector', 'hybrid') or lexical_method not in ('bm25', 'fts', 'fts_symbol', 'bm25_prefiltered'):
+        if (method not in ('bm25', 'fts', 'fts_symbol', 'bm25_prefiltered', 'vector', 'hybrid')
+                or lexical_method not in ('bm25', 'fts', 'fts_symbol', 'bm25_prefiltered')
+                or scope not in ('postings', 'discovery', 'all')):
             raise ReadError('invalid_arguments')
-        vector = (self.query_encoder or embeddings.query_embedding)(query) if method in ('vector', 'hybrid') else None
+        vector = (self.query_encoder or embeddings.query_embedding)(query) if (method in ('vector', 'hybrid') and scope != 'discovery') else None
         # BM25 materialises a token index for the whole eligible corpus; serialise
         # it so concurrent requests cannot multiply that peak. Other methods are
         # indexed in PostgreSQL and keep the normal concurrency slots.
@@ -219,7 +222,7 @@ class ReadTools:
             guard.acquire()
         try:
             return self._search_locked(query, method=method, history=history, include_not_seen=include_not_seen,
-                                       limit=limit, vector=vector, lexical_method=lexical_method)
+                                       limit=limit, vector=vector, lexical_method=lexical_method, scope=scope)
         finally:
             if guard is not None:
                 self._release_retained_memory()
@@ -235,19 +238,24 @@ class ReadTools:
         except Exception:
             pass
 
-    def _search_locked(self, query, *, method, history, include_not_seen, limit, vector, lexical_method):
+    def _search_locked(self, query, *, method, history, include_not_seen, limit, vector, lexical_method, scope='postings'):
         with self.session() as conn:
             # BM25 needs the corpus, not only a prefiltered top-N candidate set.
             if method == 'bm25' or (method == 'hybrid' and lexical_method == 'bm25'):
-                count = conn.execute('''SELECT count(*) AS n FROM (
-                    SELECT 1 FROM jobwatch.posting_versions v JOIN jobwatch.postings p USING(posting_key)
-                    WHERE (%s OR v.id=p.current_version_id) AND (%s OR p.status='listed') LIMIT 10001) q''',
-                    (history, include_not_seen or history)).fetchone()['n']
-                if count > 10000:
-                    raise ReadError('working_set_too_large')
+                if scope in ('postings', 'all'):
+                    count = conn.execute('''SELECT count(*) AS n FROM (
+                        SELECT 1 FROM jobwatch.posting_versions v JOIN jobwatch.postings p USING(posting_key)
+                        WHERE (%s OR v.id=p.current_version_id) AND (%s OR p.status='listed') LIMIT 10001) q''',
+                        (history, include_not_seen or history)).fetchone()['n']
+                    if count > 10000:
+                        raise ReadError('working_set_too_large')
+                if scope in ('discovery', 'all'):
+                    dcount = conn.execute('SELECT count(*) AS n FROM (SELECT 1 FROM jobwatch.discovery_candidates LIMIT 10001) q').fetchone()['n']
+                    if dcount > 10000:
+                        raise ReadError('working_set_too_large')
             return research.search(conn, query, method=method, history=history,
                                    include_not_seen=include_not_seen, limit=limit, query_vector=vector,
-                                   lexical_method=lexical_method)
+                                   lexical_method=lexical_method, scope=scope)
 
     def inspect_evidence(self, posting_key, version_id=None, events_limit=50):
         integer(events_limit, 1, MAX_ROWS)

@@ -168,6 +168,8 @@ class BoardProbeResult:
     vacancies: tuple[DiscoveredVacancy, ...] = ()
     truncated_lever_page: bool = False
     error_code: str = ""
+    etag: str = ""
+    not_modified: bool = False
 
     @property
     def board_key(self) -> str:
@@ -403,6 +405,47 @@ def _extract_greenhouse_jobs(data: dict, *, include_content: bool) -> tuple[list
     return parsed, custom_hosts, region
 
 
+def _http_get_conditional(
+    url: str,
+    *,
+    if_none_match: str = "",
+    max_bytes: int = MAX_BOARD_BYTES,
+    timeout: int = 20,
+    accept: str = "application/json,text/plain,*/*",
+    allow_truncate: bool = False,
+    get_bytes=default_http_get,
+) -> tuple[int, bytes, str, str]:
+    """Conditional-GET wrapper returning (status_code, body_bytes, final_url, etag).
+
+    When `get_bytes` is the real `default_http_get`, sends `If-None-Match` when a cached
+    ETag is available, handles HTTP 304 without body transfer, and captures the response ETag.
+    Custom `get_bytes` callables (e.g., offline test stubs) remain 100% compatible.
+    """
+    if get_bytes is not default_http_get:
+        st, raw, final = get_bytes(url, max_bytes=max_bytes)
+        return st, raw, final, ""
+    headers = {"Accept": accept, "User-Agent": USER_AGENT}
+    if if_none_match:
+        headers["If-None-Match"] = if_none_match
+    req = Request(url, headers=headers)
+    try:
+        with urlopen(req, timeout=timeout) as resp:
+            etag = (resp.headers.get("ETag") or "").strip()
+            raw = resp.read(max_bytes + 1)
+            if len(raw) > max_bytes:
+                if allow_truncate:
+                    return resp.status, raw[:max_bytes], resp.geturl(), etag
+                return -1, b"", resp.geturl(), etag
+            return resp.status, raw, resp.geturl(), etag
+    except HTTPError as exc:
+        if exc.code == 304:
+            etag = (exc.headers.get("ETag") if exc.headers else None) or if_none_match
+            return 304, b"", url, etag.strip()
+        return exc.code, b"", url, ""
+    except (URLError, TimeoutError, OSError):
+        return 0, b"", url, ""
+
+
 def probe_ats_board(
     provider: str,
     board: str,
@@ -411,6 +454,7 @@ def probe_ats_board(
     directory_source: str = "ats_directory",
     get_bytes=default_http_get,
     fetch_full_on_uk: bool = True,
+    cached_etag: str = "",
     now: datetime | None = None,
 ) -> BoardProbeResult:
     """Conservatively probe one Greenhouse, Ashby, or Lever board for UK relevant vacancies."""
@@ -426,12 +470,17 @@ def probe_ats_board(
     custom_host_urls = 0
     truncated_lever = False
     parsed_jobs: list[dict] = []
+    response_etag = ""
 
     if provider == "greenhouse":
         meta_url = f"https://boards-api.greenhouse.io/v1/boards/{board}/jobs"
-        status, raw, _ = get_bytes(meta_url, max_bytes=MAX_BOARD_BYTES)
+        status, raw, _, response_etag = _http_get_conditional(
+            meta_url, if_none_match=cached_etag, max_bytes=MAX_BOARD_BYTES, get_bytes=get_bytes,
+        )
         requests_made += 1
         bytes_read += len(raw)
+        if status == 304:
+            return BoardProbeResult(provider, board, region, 304, "unchanged_304", 0, 0, 0, 0, 0, requests_made, 0, round(time.monotonic() - t0, 3), company_name=company_name, etag=response_etag or cached_etag, not_modified=True)
         if status == 429:
             raise DiscoveryRateLimitError(f"HTTP 429 probing greenhouse:{board}")
         if status == 404:
@@ -460,9 +509,13 @@ def probe_ats_board(
 
     elif provider == "ashby":
         url = f"https://api.ashbyhq.com/posting-api/job-board/{board}?includeCompensation=true"
-        status, raw, _ = get_bytes(url, max_bytes=MAX_BOARD_BYTES)
+        status, raw, _, response_etag = _http_get_conditional(
+            url, if_none_match=cached_etag, max_bytes=MAX_BOARD_BYTES, get_bytes=get_bytes,
+        )
         requests_made += 1
         bytes_read += len(raw)
+        if status == 304:
+            return BoardProbeResult(provider, board, region, 304, "unchanged_304", 0, 0, 0, 0, 0, requests_made, 0, round(time.monotonic() - t0, 3), company_name=company_name, etag=response_etag or cached_etag, not_modified=True)
         if status == 429:
             raise DiscoveryRateLimitError(f"HTTP 429 probing ashby:{board}")
         if status == 404:
@@ -511,17 +564,25 @@ def probe_ats_board(
 
     elif provider == "lever":
         url = f"https://api.lever.co/v0/postings/{board}?mode=json&limit=100"
-        status, raw, _ = get_bytes(url, max_bytes=MAX_BOARD_BYTES)
+        status, raw, _, response_etag = _http_get_conditional(
+            url, if_none_match=cached_etag, max_bytes=MAX_BOARD_BYTES, get_bytes=get_bytes,
+        )
         requests_made += 1
         bytes_read += len(raw)
+        if status == 304:
+            return BoardProbeResult(provider, board, region, 304, "unchanged_304", 0, 0, 0, 0, 0, requests_made, 0, round(time.monotonic() - t0, 3), company_name=company_name, etag=response_etag or cached_etag, not_modified=True)
         if status == 429:
             raise DiscoveryRateLimitError(f"HTTP 429 probing lever:{board}")
         if status == 404:
             # EU-hosted Lever boards return 404 on api.lever.co; try EU endpoint once.
             eu_url = f"https://api.eu.lever.co/v0/postings/{board}?mode=json&limit=100"
-            status_eu, raw_eu, _ = get_bytes(eu_url, max_bytes=MAX_BOARD_BYTES)
+            status_eu, raw_eu, _, response_etag = _http_get_conditional(
+                eu_url, if_none_match=cached_etag, max_bytes=MAX_BOARD_BYTES, get_bytes=get_bytes,
+            )
             requests_made += 1
             bytes_read += len(raw_eu)
+            if status_eu == 304:
+                return BoardProbeResult(provider, board, "eu", 304, "unchanged_304", 0, 0, 0, 0, 0, requests_made, 0, round(time.monotonic() - t0, 3), company_name=company_name, etag=response_etag or cached_etag, not_modified=True)
             if status_eu == 429:
                 raise DiscoveryRateLimitError(f"HTTP 429 probing lever-eu:{board}")
             if status_eu == 200:
@@ -573,7 +634,7 @@ def probe_ats_board(
         return BoardProbeResult(
             provider, board, region, status, "empty", 0, 0, 0, 0, custom_host_urls,
             requests_made, bytes_read, round(time.monotonic() - t0, 3),
-            company_name=company_name, hosted_website=hosted_website,
+            company_name=company_name, hosted_website=hosted_website, etag=response_etag,
         )
 
     uk_count = 0
@@ -652,6 +713,7 @@ def probe_ats_board(
         sample_posting_id=sample_id,
         vacancies=tuple(relevant),
         truncated_lever_page=truncated_lever,
+        etag=response_etag,
     )
 
 

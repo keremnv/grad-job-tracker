@@ -1,5 +1,3 @@
-# REVIEW-ONLY TEMPLATE: Do NOT install or enable in production until remote evidence
-# ingestion is explicitly approved by the owner.
 [Unit]
 Description=Narrow public evidence-ingestion MCP (SECURITY DEFINER boundary only; zero IP network)
 Requires=jobwatch-postgresql.service

@@ -10,7 +10,7 @@ User=jobwatch-corroborator
 Group=jobwatch-db
 Environment="JOBWATCH_DATABASE_URL=host=/run/jobwatch-postgresql dbname=jobwatch user=jobwatch_corroborator"
 Environment=PYTHONDONTWRITEBYTECODE=1
-ExecStart=/opt/jobwatch/current/venv/bin/jobwatch-evidence corroborate --limit 10
+ExecStart=/opt/jobwatch/current/venv/bin/jobwatch-evidence corroborate --limit 10 --max-requests 30 --max-bytes 5242880
 MemoryMax=192M
 CPUQuota=30%
 TimeoutStartSec=120

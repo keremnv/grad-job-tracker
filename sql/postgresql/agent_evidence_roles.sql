@@ -110,6 +110,16 @@ BEGIN
     TO jobwatch_calendar_reader;
     GRANT EXECUTE ON FUNCTION jobwatch.normalize_claim_wording(text) TO jobwatch_calendar_reader;
   END IF;
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'jobwatch_chat_readonly') THEN
+    GRANT SELECT ON
+      jobwatch.discovery_candidate_snapshots,
+      jobwatch.research_discovery_evidence,
+      jobwatch.posting_deadline_claims_distinct,
+      jobwatch.research_agent_evidence,
+      jobwatch.research_agent_corroborations
+    TO jobwatch_chat_readonly;
+    GRANT EXECUTE ON FUNCTION jobwatch.normalize_claim_wording(text) TO jobwatch_chat_readonly;
+  END IF;
 END $$;
 
 COMMIT;

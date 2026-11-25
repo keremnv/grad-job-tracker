@@ -1,5 +1,5 @@
 [Unit]
-Description=Job Watch daily bounded ATS discovery probe (public observations only; never activates sources)
+Description=Job Watch bounded ATS discovery probe (public observations only; never activates sources)
 Requires=jobwatch-postgresql.service
 After=jobwatch-postgresql.service network-online.target
 Wants=network-online.target
@@ -12,9 +12,9 @@ Group=jobwatch-db
 Environment="JOBWATCH_DATABASE_URL=host=/run/jobwatch-postgresql dbname=jobwatch user=jobwatch_collector"
 Environment=PYTHONDONTWRITEBYTECODE=1
 ExecStart=/opt/jobwatch/current/venv/bin/python /opt/jobwatch/current/infra/aws/scripts/run_operation.py discover-probe
-MemoryMax=128M
-CPUQuota=25%
-TimeoutStartSec=15min
+MemoryMax=192M
+CPUQuota=30%
+TimeoutStartSec=20min
 Restart=on-failure
 RestartSec=15min
 NoNewPrivileges=true

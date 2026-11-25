@@ -25,9 +25,11 @@ def run(operation, *, config_path=Path('/etc/jobwatch/aws.json'), run_command=su
     elif operation == 'discover-probe':
         command = [sys.executable, '-m', 'jobwatch.postgres.directory_discovery',
                    '--no-refresh', '--providers', 'greenhouse,ashby,lever',
-                   '--scheduler', 'prioritized', '--exploration-ratio', '0.60',
-                   '--max-boards', '40', '--max-requests', '80', '--max-bytes', '33554432',
-                   '--verify-limit', '8', '--delay', '0.5']
+                   '--scheduler', 'prioritized', '--exploration-ratio', '0.90',
+                   '--max-boards', '100', '--max-requests', '220', '--max-bytes', '33554432',
+                   '--verify-limit', '15', '--delay', '0.35',
+                   '--auto-steady-state', '--steady-state-max-boards', '20',
+                   '--steady-state-exploration-ratio', '0.40']
     elif operation == 'auto-stage':
         command = [sys.executable, '-m', 'jobwatch.postgres.auto_activation', '--phase', 'stage', '--apply']
     elif operation == 'auto-validate':
@@ -45,7 +47,7 @@ def run(operation, *, config_path=Path('/etc/jobwatch/aws.json'), run_command=su
         try:
             data = json.loads(result.stdout)
             # Deliberately allowlist counters. No source text, DSN, owner notes or exception strings.
-            for field in ('counts', 'selected_sources', 'positive_only', 'absence_safe'):
+            for field in ('counts', 'selected_sources', 'positive_only', 'absence_safe', 'admitted_agent_vacancies'):
                 value = data.get(field)
                 if isinstance(value, int) or (isinstance(value, dict) and all(isinstance(v, int) for v in value.values())):
                     summary[field] = value
@@ -57,10 +59,12 @@ def run(operation, *, config_path=Path('/etc/jobwatch/aws.json'), run_command=su
     elif operation in ('discover-refresh', 'discover-probe'):
         try:
             data = json.loads(result.stdout)
-            for field in ('boards_probed', 'candidates_inserted', 'candidates_updated',
+            for field in ('boards_probed', 'unique_boards_newly_probed', 'unique_employers_with_uk_relevant',
+                          'conditional_304_hits', 'total_directory_boards', 'unprobed_remaining',
+                          'effective_max_boards', 'candidates_inserted', 'candidates_updated',
                           'priority_vacancies', 'review_vacancies', 'requests_made', 'bytes_read'):
                 value = data.get(field)
-                if isinstance(value, int):
+                if isinstance(value, int) and not isinstance(value, bool):
                     summary[field] = value
             for field in ('status_counts', 'identity_checks', 'selection_reasons', 'provider_probes'):
                 value = data.get(field)
@@ -68,7 +72,11 @@ def run(operation, *, config_path=Path('/etc/jobwatch/aws.json'), run_command=su
                     summary[field] = value
             if data.get('scheduler') in ('prioritized', 'fifo'):
                 summary['scheduler'] = data.get('scheduler')
-            if data.get('halted_reason') in (None, 'max_requests_reached', 'max_bytes_reached', 'rate_limited_429'):
+            if data.get('discovery_phase') in ('backfill', 'steady_state'):
+                summary['discovery_phase'] = data.get('discovery_phase')
+            if isinstance(data.get('locked_by_concurrent_run'), bool):
+                summary['locked_by_concurrent_run'] = data.get('locked_by_concurrent_run')
+            if data.get('halted_reason') in (None, 'max_requests_reached', 'max_bytes_reached', 'rate_limited_429', 'locked_by_concurrent_run'):
                 summary['halted_reason'] = data.get('halted_reason')
             dirs = data.get('directories')
             if isinstance(dirs, dict):

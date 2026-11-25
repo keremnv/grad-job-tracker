@@ -1,4 +1,4 @@
-# REVIEW-ONLY TEMPLATE: Private operator replaces the tunnel ID only after approval.
+# Private operator replaces the tunnel ID with the OpenAI Platform tunnel ID.
 # Dedicated OS user `jobwatch-tunnel-evidence` (SupplementaryGroups=jobwatch-agent-evidence,
 # NEVER in `jobwatch-db`) connects strictly to `/run/jobwatch-agent-evidence/mcp.sock`.
 config_version: 1

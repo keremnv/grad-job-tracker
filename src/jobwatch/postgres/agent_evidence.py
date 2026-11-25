@@ -1048,32 +1048,62 @@ def corroborate_pending(
     checked_by: str = "corroborator:isolated-v2",
     fetcher=safe_fetch_public_https,
     budget: CorroborationBudget | None = None,
+    retry_after_hours: int = 6,
     now: datetime | None = None,
 ) -> list[dict]:
-    """Corroborate up to `limit` uncorroborated observations under a shared network budget."""
+    """Corroborate up to `limit` pending observations under an advisory lock and shared network budget.
+
+    Processes unattempted observations first, then allows at most one bounded retry after
+    `retry_after_hours` (default 6h) strictly for transient `timeout`/`network_error` failures.
+    Terminal outcomes (`blocked_or_403`, `http_error`, `ssrf_refused`, `js_shell_or_empty`,
+    `retrieved_200`, `truncated_before_match`) are never automatically retried.
+    """
     if type(limit) is not int or not 1 <= limit <= 100:
         raise ValueError("limit must be 1..100")
-    run_budget = budget or CorroborationBudget(max_requests=limit * 3, max_bytes=limit * MAX_CORROBORATION_FETCH_BYTES)
-    rows = verifier_conn.execute(
-        "SELECT o.observation_id "
-        "FROM jobwatch.agent_evidence_observations o "
-        "WHERE NOT EXISTS ("
-        "  SELECT 1 FROM jobwatch.agent_evidence_corroborations c "
-        "  WHERE c.observation_id = o.observation_id"
-        ") ORDER BY o.recorded_at ASC LIMIT %s",
-        (limit,),
-    ).fetchall()
-    results = []
-    for r in rows:
+    at = now or datetime.now(timezone.utc)
+    iso(at)
+    retry_cutoff = at - timedelta(hours=retry_after_hours)
+    lock_acquired = bool(
+        verifier_conn.execute(
+            "SELECT pg_try_advisory_lock(hashtextextended('jobwatch.corroborator', 0)) AS ok"
+        ).fetchone()["ok"]
+    )
+    if not lock_acquired:
+        return []
+    try:
+        run_budget = budget or CorroborationBudget(max_requests=limit * 3, max_bytes=limit * MAX_CORROBORATION_FETCH_BYTES)
+        rows = verifier_conn.execute(
+            "SELECT o.observation_id "
+            "FROM jobwatch.agent_evidence_observations o "
+            "LEFT JOIN LATERAL ("
+            "  SELECT count(*)::int AS attempts, "
+            "         (array_agg(c.retrieval_status ORDER BY c.checked_at DESC, c.recorded_at DESC))[1] AS last_status, "
+            "         max(c.checked_at) AS last_checked_at "
+            "  FROM jobwatch.agent_evidence_corroborations c "
+            "  WHERE c.observation_id = o.observation_id"
+            ") st ON true "
+            "WHERE coalesce(st.attempts, 0) = 0 "
+            "   OR (st.attempts = 1 AND st.last_status IN ('timeout', 'network_error') AND st.last_checked_at <= %s) "
+            "ORDER BY coalesce(st.attempts, 0) ASC, o.recorded_at ASC "
+            "LIMIT %s",
+            (retry_cutoff, limit),
+        ).fetchall()
+        results = []
+        for r in rows:
+            try:
+                results.append(corroborate_observation(
+                    verifier_conn, str(r["observation_id"]),
+                    checked_by=checked_by, fetcher=fetcher, budget=run_budget, now=at,
+                ))
+            except EvidenceValidationError as exc:
+                results.append({"observation_id": str(r["observation_id"]), "halted": str(exc)})
+                break
+        return results
+    finally:
         try:
-            results.append(corroborate_observation(
-                verifier_conn, str(r["observation_id"]),
-                checked_by=checked_by, fetcher=fetcher, budget=run_budget, now=now,
-            ))
-        except EvidenceValidationError as exc:
-            results.append({"observation_id": str(r["observation_id"]), "halted": str(exc)})
-            break
-    return results
+            verifier_conn.execute("SELECT pg_advisory_unlock(hashtextextended('jobwatch.corroborator', 0))")
+        except Exception:
+            pass
 
 
 def admit_corroborated_vacancies(conn, *, processing=None) -> dict:
@@ -1184,6 +1214,8 @@ def main(argv=None) -> int:
     co = sub.add_parser("corroborate")
     co.add_argument("--observation-id", default=None)
     co.add_argument("--limit", type=int, default=10)
+    co.add_argument("--max-requests", type=int, default=30)
+    co.add_argument("--max-bytes", type=int, default=5 * 1024 * 1024)
     co.add_argument("--checked-by", default="corroborator:isolated-v2")
 
     sub.add_parser("admit-vacancies")
@@ -1214,10 +1246,11 @@ def main(argv=None) -> int:
                 idempotency_key=args.idempotency_key,
             )
         elif args.cmd == "corroborate":
+            run_budget = CorroborationBudget(max_requests=args.max_requests, max_bytes=args.max_bytes)
             if args.observation_id:
-                res = corroborate_observation(conn, args.observation_id, checked_by=args.checked_by)
+                res = corroborate_observation(conn, args.observation_id, checked_by=args.checked_by, budget=run_budget)
             else:
-                res = corroborate_pending(conn, limit=args.limit, checked_by=args.checked_by)
+                res = corroborate_pending(conn, limit=args.limit, checked_by=args.checked_by, budget=run_budget)
         else:
             res = admit_corroborated_vacancies(conn)
     print(json.dumps(res, sort_keys=True, default=str))

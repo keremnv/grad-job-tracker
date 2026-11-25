@@ -49,8 +49,9 @@ def main(argv=None):
     snapshot.add_argument('--max-bytes',type=int,default=calendar_feed.MAX_BYTES)
     status=cs.add_parser('status');status.add_argument('--output-dir',type=Path,required=True)
     status.add_argument('--max-age-hours',type=int,default=2)
-    search=sub.add_parser('search');search.add_argument('query');search.add_argument('--method',choices=('bm25','fts','vector','hybrid'),default='bm25')
-    search.add_argument('--lexical-method',choices=('bm25','fts'),default='bm25')
+    search=sub.add_parser('search');search.add_argument('query');search.add_argument('--method',choices=('bm25','fts','fts_symbol','bm25_prefiltered','vector','hybrid'),default='bm25')
+    search.add_argument('--lexical-method',choices=('bm25','fts','fts_symbol','bm25_prefiltered'),default='bm25')
+    search.add_argument('--scope',choices=('postings','discovery','all'),default='postings')
     search.add_argument('--history',action='store_true');search.add_argument('--include-not-seen',action='store_true');search.add_argument('--limit',type=int,default=20)
     source=sub.add_parser('source');ss=source.add_subparsers(dest='source_command',required=True)
     for command in ('inspect','check','activate'):
@@ -78,6 +79,15 @@ def main(argv=None):
             c=Collector(actor=args.actor)
             kwargs={'get_json':fixture_transport(args.fixture),'pause':lambda _:None} if args.fixture else {}
             result=collect_monitored(c,max_sources=args.max_sources,**kwargs)
+            try:
+                from .agent_evidence import admit_corroborated_vacancies
+                with c._connection() as conn:
+                    has_ev=conn.execute("SELECT to_regclass('jobwatch.agent_evidence_observations') AS t").fetchone()['t']
+                    if has_ev:
+                        adm=admit_corroborated_vacancies(conn,processing=c.processing)
+                        result['admitted_agent_vacancies']=adm['admitted_count']
+            except Exception:
+                pass
             print(actions_summary(result) if args.format=='summary' else json.dumps(primitive(result),ensure_ascii=True))
             return result['exit_code']
         if args.command=='rescreen':
@@ -97,10 +107,10 @@ def main(argv=None):
             print(json.dumps(primitive(result),ensure_ascii=True));return code
         if args.command=='search':
             from .embeddings import query_embedding
-            vector=query_embedding(args.query) if args.method in ('vector','hybrid') else None
+            vector=query_embedding(args.query) if (args.method in ('vector','hybrid') and args.scope!='discovery') else None
             with connect() as conn:
                 result=research.search(conn,args.query,method=args.method,history=args.history,include_not_seen=args.include_not_seen,limit=args.limit,
-                                       query_vector=vector,lexical_method=args.lexical_method)
+                                       query_vector=vector,lexical_method=args.lexical_method,scope=args.scope)
             print(json.dumps(primitive(result),ensure_ascii=True));return 0
         if args.command=='readiness':
             reconciliation=json.loads(args.reconciliation.read_text()) if args.reconciliation else None

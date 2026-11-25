@@ -44,7 +44,7 @@ def inside(mask):
             return SimpleNamespace(returncode=int(args[1].startswith('is-')))
         if args[:3]==['python3.12','-m','venv']:
             dest=Path(args[3]);venv.EnvBuilder(with_pip=False,symlinks=True).create(dest)
-            for name in ('jobwatch-read-mcp','jobwatch-owner-mcp'):
+            for name in ('jobwatch-read-mcp','jobwatch-owner-mcp','jobwatch-evidence-mcp'):
                 path=dest/'bin'/name;path.write_text('#!/bin/sh\nexit 0\n');path.chmod(0o700)
         return SimpleNamespace(returncode=0)
     os.umask(mask)

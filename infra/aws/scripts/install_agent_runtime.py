@@ -13,9 +13,9 @@ import tempfile
 
 from deploy_release import verify,make_code_readable
 
-UNITS=('jobwatch-agent-read.service','jobwatch-agent-owner.service','jobwatch-calendar.service',
-       'jobwatch-calendar.timer','jobwatch-calendar.path','jobwatch-tunnel@.service')
-RUNNING_UNITS=(*UNITS[:-1],'jobwatch-tunnel@read.service','jobwatch-tunnel@owner.service')
+UNITS=('jobwatch-agent-read.service','jobwatch-agent-owner.service','jobwatch-agent-evidence.service',
+       'jobwatch-calendar.service','jobwatch-calendar.timer','jobwatch-calendar.path','jobwatch-tunnel@.service')
+RUNNING_UNITS=(*UNITS[:-1],'jobwatch-tunnel@read.service','jobwatch-tunnel@owner.service','jobwatch-tunnel@evidence.service')
 # is-enabled also exits 0 for "static" (e.g. the timer/path-triggered calendar service).
 ENABLED_STATES={'enabled','enabled-runtime','linked','linked-runtime','alias','indirect','generated','transient'}
 
@@ -53,7 +53,7 @@ def install(archive,sha256,commit,*,installation_root=Path('/'),run_command=subp
         run_command(['python3.12','-m','venv',str(destination/'venv')],check=True)
         run_command([str(destination/'venv/bin/pip'),'install','--no-index','--no-deps','--require-hashes',
             '--find-links',str(destination/'wheels'),'-r',str(destination/'requirements.lock')],check=True)
-        for name in ('jobwatch-read-mcp','jobwatch-owner-mcp'):
+        for name in ('jobwatch-read-mcp','jobwatch-owner-mcp','jobwatch-evidence-mcp'):
             run_command([str(destination/'venv/bin'/name),'--help'],check=True,stdout=subprocess.DEVNULL)
         # No inference imports or downloads are allowed in this runtime.
         run_command([str(destination/'venv/bin/python'),'-c',
