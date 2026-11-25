@@ -131,6 +131,75 @@ class DirectoryDiscoveryOfflineTests(unittest.TestCase):
         self.assertEqual(hosted.status, "hosted_link_only")
         self.assertEqual(hosted.official_website, "https://spa.example")
 
+    def test_ashby_public_website_json_extraction_preserves_strict_bidirectional_verification(self):
+        # Ashby SPA embeds `"publicWebsite"` inside `window.__appData` without static <a> tags.
+        ashby_spa = (
+            b'<html><script>window.__appData = {"organization":{"name":"Anima Health",'
+            b'"publicWebsite":"https:\\/\\/www.animahealth.com"}};</script></html>'
+        )
+        seen_allow_truncate = []
+
+        def fake_anima_ok(url, **kwargs):
+            seen_allow_truncate.append((url, kwargs.get("allow_truncate")))
+            if "jobs.ashbyhq.com/anima" in url:
+                return 200, ashby_spa, url
+            if url.endswith("/careers"):
+                return 200, b'<a href="https://jobs.ashbyhq.com/anima">Join us</a>', "https://www.animahealth.com/company/careers"
+            return 200, b"<html>Anima Health homepage</html>", url
+
+        verified = verify_board_identity("ashby", "anima", get_bytes=fake_anima_ok)
+        self.assertEqual(verified.status, "verified_official_link")
+        self.assertEqual(verified.official_website, "https://www.animahealth.com")
+        self.assertEqual(verified.careers_url, "https://www.animahealth.com/company/careers")
+        self.assertTrue(all(flag is True for _, flag in seen_allow_truncate))
+
+        # Without official-site corroboration, Ashby publicWebsite MUST stay hosted_link_only!
+        def fake_no_corrob(url, **_kwargs):
+            if "jobs.ashbyhq.com/10xteam" in url:
+                return 200, b'<script>window.__appData={"publicWebsite":"https://10x.team"};</script>', url
+            return 200, b"<html>No ATS board link here</html>", url
+
+        uncorrob = verify_board_identity("ashby", "10xteam", get_bytes=fake_no_corrob)
+        self.assertEqual(uncorrob.status, "hosted_link_only")
+        self.assertEqual(uncorrob.official_website, "https://10x.team")
+
+    def test_bounded_lever_header_prefix_reads_oversized_html_only_when_allowed(self):
+        from unittest.mock import patch
+        from jobwatch.discovery.directory_discovery import default_http_get
+
+        oversized_lever_html = (
+            b'<html><header><a href="https://acme-lever.co.uk">Acme Home</a></header>'
+            + (b"X" * 4096)
+            + b"</html>"
+        )
+
+        class _FakeResp:
+            status = 200
+            def __init__(self, body, url):
+                self._body = body
+                self._url = url
+            def read(self, n=-1):
+                return self._body if n < 0 else self._body[:n]
+            def geturl(self):
+                return self._url
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                return False
+
+        # Strict mode (default for JSON/CSV): oversized payload returns -1, b"".
+        with patch("jobwatch.discovery.directory_discovery.urlopen", return_value=_FakeResp(oversized_lever_html, "https://jobs.lever.co/acme")):
+            st_strict, raw_strict, _ = default_http_get("https://jobs.lever.co/acme", max_bytes=1024, allow_truncate=False)
+        self.assertEqual(st_strict, -1)
+        self.assertEqual(raw_strict, b"")
+
+        # Bounded header-prefix mode (HTML identity inspection): returns first max_bytes safely!
+        with patch("jobwatch.discovery.directory_discovery.urlopen", return_value=_FakeResp(oversized_lever_html, "https://jobs.lever.co/acme")):
+            st_trunc, raw_trunc, _ = default_http_get("https://jobs.lever.co/acme", max_bytes=1024, allow_truncate=True)
+        self.assertEqual(st_trunc, 200)
+        self.assertEqual(len(raw_trunc), 1024)
+        self.assertIn(b"https://acme-lever.co.uk", raw_trunc)
+
 
 if __name__ == "__main__":
     unittest.main()

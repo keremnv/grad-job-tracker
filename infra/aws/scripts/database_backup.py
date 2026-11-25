@@ -53,7 +53,8 @@ def security_snapshot(conn):
 def _fingerprint_tables(conn, *, streaming=True):
     check_migrations(conn)
     tables = {}
-    for table in (*TABLES, 'owner_audit', 'schema_migrations', 'embedding_chunks', 'calendar_selections'):
+    for table in (*TABLES, 'owner_audit', 'schema_migrations', 'embedding_chunks', 'calendar_selections',
+                  'discovery_candidates', 'discovered_boards', 'discovery_candidate_snapshots'):
         if streaming:
             row_hashes = []
             with conn.cursor(name=f'jobwatch_fp_{table}') as cur:

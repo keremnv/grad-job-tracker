@@ -20,7 +20,7 @@ from jobwatch.postgres.migrate import migrate
 ENABLED = bool(os.environ.get('JOBWATCH_PG_TEST_CONTAINER'))
 DOMAIN_TABLES = ('employers', 'sources', 'collection_runs', 'postings', 'posting_versions',
                  'posting_events', 'verifications', 'leads', 'triage', 'applications', 'owner_audit',
-                 'calendar_selections', 'discovery_candidates', 'discovered_boards')
+                 'calendar_selections', 'discovery_candidates', 'discovery_candidate_snapshots', 'discovered_boards')
 
 
 @dataclass(frozen=True)

@@ -1,4 +1,16 @@
-"""Disposable PostgreSQL 17 qualification tests for discovery fidelity (0011) and hardened agent evidence (0012)."""
+"""Disposable PostgreSQL 17 trust-boundary & direct-SQL security qualification for Stage B (0012).
+
+Tests BOTH Python wrapper paths AND hostile direct SQL calls to the SECURITY DEFINER functions
+as `jobwatch_agent_evidence`, including:
+- `pg_temp` temporary-schema function shadowing attack (`pg_temp.sha256`, `pg_temp.clock_timestamp`, `pg_temp.hashtextextended`)
+- Trusted SQL hash derivation (caller cannot forge `submission_sha256`/`payload_sha256`/`evidence_sha256`)
+- Cross-login idempotency isolation (`UNIQUE (db_login, idempotency_key)`)
+- Candidate identity consistency & anti-contamination of collector-discovered candidates
+- Neutralization of untrusted screening verdicts (`unscreened-agent-submission` until collector rescreens)
+- Direct SQL SSRF/URL, semantic date, completeness, and retention-policy enforcement
+- Full PostgreSQL catalog audit of function ownership, `search_path`, `PUBLIC`, `NOINHERIT`, and table grants
+- Target-vacancy binding in corroboration (unrelated page with identical wording CANNOT corroborate!)
+"""
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
@@ -11,8 +23,10 @@ import unittest
 import psycopg
 from psycopg.conninfo import make_conninfo
 
+from jobwatch.postgres import discovery
 from jobwatch.postgres.agent_evidence import (
     AgentEvidenceIngestor,
+    CandidateIdentityConflictError,
     EvidenceValidationError,
     IdempotencyConflictError,
     ObservationSubmission,
@@ -24,13 +38,12 @@ from jobwatch.postgres.migrate import migrate
 from support import DatabaseTest, actor
 
 ROOT = Path(__file__).resolve().parents[2]
-FIDELITY_SQL = ROOT / "sql/postgresql/proposals/0011_discovery_evidence_fidelity.sql"
 EVIDENCE_SQL = ROOT / "sql/postgresql/proposals/0012_agent_evidence_hardened.sql"
 ROLES_SQL = ROOT / "sql/postgresql/proposals/agent_evidence_roles.sql"
 
 
-class HardenedAgentEvidenceAndFidelityPgTests(DatabaseTest):
-    def test_fidelity_security_definer_concurrency_atomicity_and_6state_corroboration(self):
+class HardenedAgentEvidenceDirectSqlSecurityTests(DatabaseTest):
+    def test_direct_sql_trust_boundary_pg_temp_shadowing_grants_and_bound_corroboration(self):
         container = os.environ["JOBWATCH_PG_TEST_CONTAINER"]
         db = "jobwatch_agent_evidence_hardened_test"
         subprocess.run(["docker", "exec", container, "createdb", "-U", "postgres", "-O", "postgres", db], check=True)
@@ -51,21 +64,24 @@ class HardenedAgentEvidenceAndFidelityPgTests(DatabaseTest):
             """)
             cfg = replace(self.target.config(), dsn=make_conninfo(self.target.config().dsn, dbname=db))
             with connect(cfg) as mig:
+                # 0001..0011 come from packaged migrations; 0012 stays isolated in sql/postgresql/proposals/.
                 migrate(mig)
-                mig.execute(FIDELITY_SQL.read_text(encoding="utf-8"))
                 mig.execute(EVIDENCE_SQL.read_text(encoding="utf-8"))
                 mig.commit()
             admin(ROLES_SQL.read_text(encoding="utf-8"))
-            admin(f"GRANT CONNECT ON DATABASE {db} TO jobwatch_agent_evidence; "
-                  f"ALTER ROLE jobwatch_agent_evidence IN DATABASE {db} SET search_path=jobwatch,pg_catalog;")
+            admin(
+                f"GRANT CONNECT ON DATABASE {db} TO jobwatch_agent_evidence; "
+                f"ALTER ROLE jobwatch_agent_evidence IN DATABASE {db} SET search_path=jobwatch,pg_catalog;"
+            )
 
             owner_cfg = replace(cfg, dsn=make_conninfo(cfg.dsn, user="jobwatch_owner"), purpose="runtime")
             col_cfg = replace(cfg, dsn=make_conninfo(cfg.dsn, user="jobwatch_collector"), purpose="runtime")
             ev_cfg = replace(cfg, dsn=make_conninfo(cfg.dsn, user="jobwatch_agent_evidence"), purpose="runtime")
 
+            # Seed one monitored posting and one collector-discovered candidate for anti-contamination tests.
             with connect(owner_cfg) as own, own.transaction():
                 actor(own)
-                emp = own.execute("INSERT INTO jobwatch.employers(slug,name) VALUES ('acme-uk','Acme UK') RETURNING id").fetchone()["id"]
+                emp = own.execute("INSERT INTO jobwatch.employers(slug,name,careers_url) VALUES ('acme-uk','Acme UK','https://acme.co.uk/careers') RETURNING id").fetchone()["id"]
                 sid = own.execute(
                     "INSERT INTO jobwatch.sources(provider,board,region,employer_id,status,validation_url,endpoint_checked_at,mapping_verified_at,mapping_verified_by,mapping_evidence) "
                     "VALUES ('greenhouse','acmeuk','global',%s,'monitored','https://acme.co.uk/careers',now(),now(),'owner','ev') RETURNING id",
@@ -84,62 +100,228 @@ class HardenedAgentEvidenceAndFidelityPgTests(DatabaseTest):
                 col.execute(
                     "INSERT INTO jobwatch.posting_versions(id,posting_key,source_id,origin,evidence,observed_at,normalizer_version,normalized_sha256,"
                     "company,title,posting_url,location_text,description_text) "
-                    "VALUES (%s,%s,%s,'git_history',E'\\\\x7b7d',now(),'normalizer-v2',repeat('b',64),'Acme UK','Graduate SWE','https://job-boards.greenhouse.io/acmeuk/jobs/42','London, UK','Full native description')",
+                    "VALUES (%s,%s,%s,'git_history',E'\\\\x7b7d',now(),'normalizer-v2',repeat('b',64),'Acme UK','Graduate Machine Learning Engineer','https://job-boards.greenhouse.io/acmeuk/jobs/42','London, UK','Full native description')",
                     (vid, pkey, sid),
                 )
-
-            ingestor = AgentEvidenceIngestor(resolve_dns=False)
-            now = datetime.now(timezone.utc)
-
-            # 1. Complete 12,000-char description retained WITHOUT truncation + distinct complete vs excerpt hashes + snapshot history!
-            long_desc = ("Build distributed ML systems in Python and Rust in London. " * 210) + "Application deadline: 29 November 2026. Right to work in the UK required."
-            self.assertGreater(len(long_desc), 10000)
-            with connect(ev_cfg) as ev_conn:
-                vac = ingestor.record_new_vacancy(
-                    ev_conn,
-                    logical_contributor="local-cli:session-a",
-                    claimed_actor="assistant-claimed-name",
-                    observed_at=now - timedelta(minutes=5),
-                    company="Bright AI UK",
-                    title="Graduate Machine Learning Engineer 2027",
-                    posting_url="https://brightai.co.uk/careers/grad-ml-2027",
-                    location_text="London, United Kingdom",
-                    country="GB",
-                    description_text=long_desc,
-                    evidence_completeness="complete",
+                # Collector-discovered candidate that an agent MUST NOT contaminate!
+                col_desc = "Collector-discovered complete description for Beta UK."
+                col_sha = sha256(col_desc.encode()).hexdigest()
+                col.execute(
+                    "INSERT INTO jobwatch.discovery_candidates("
+                    "candidate_key,provider,board,native_id,company,title,posting_url,"
+                    "description_text,description_excerpt,evidence_completeness,complete_description_sha256,excerpt_sha256,"
+                    "evidence_sha256,state,discovery_mechanisms,verdict,family,codes,rules_version,screening_basis) "
+                    "VALUES ('greenhouse:betauk:77','greenhouse','betauk','77','Beta UK','Graduate SWE',"
+                    "'https://job-boards.greenhouse.io/betauk/jobs/77',%s,%s,'complete',%s,%s,repeat('c',64),"
+                    "'verified_identity',ARRAY['ats_directory:gh'],'priority','software',ARRAY['location.uk'],'screen-2026-11-25.1','full')",
+                    (col_desc, col_desc, col_sha, col_sha),
                 )
-                self.assertEqual(vac["status"], "recorded")
-                self.assertEqual(vac["overall_state"], "submission_recorded")
-                self.assertEqual(vac["complete_description_sha256"], sha256(long_desc.encode()).hexdigest())
-                self.assertNotEqual(vac["complete_description_sha256"], vac["excerpt_sha256"])
 
-                # Excluded verdict STILL retains complete description & historical snapshot!
-                excl_vac = ingestor.record_new_vacancy(
-                    ev_conn,
-                    logical_contributor="local-cli:session-a",
-                    observed_at=now - timedelta(minutes=4),
-                    company="Bright AI UK",
-                    title="Senior Staff Sales Director",
-                    posting_url="https://brightai.co.uk/careers/senior-sales",
-                    location_text="London, United Kingdom",
-                    country="GB",
-                    description_text="Complete senior sales description preserved independently of verdict.",
-                    evidence_completeness="complete",
-                )
-                self.assertEqual(excl_vac["verdict"], "excluded")
-
-                # Verify ordinary SQL inspectability via research_discovery_evidence
-                row = ev_conn.execute(
-                    "SELECT effective_completeness, char_length(effective_description) AS dlen, "
-                    "complete_description_sha256, excerpt_sha256, snapshot_count "
-                    "FROM jobwatch.research_discovery_evidence WHERE candidate_key=%s",
-                    (vac["candidate_key"],),
+            # 1. FULL POSTGRESQL SECURITY & GRANT AUDIT (ownership, search_path, PUBLIC, NOINHERIT, zero table writes)
+            with connect(cfg) as audit_conn:
+                role = audit_conn.execute(
+                    "SELECT rolsuper, rolinherit, rolcreaterole, rolcreatedb, rolcanlogin, rolreplication, rolbypassrls "
+                    "FROM pg_roles WHERE rolname='jobwatch_agent_evidence'"
                 ).fetchone()
-                self.assertEqual(row["effective_completeness"], "complete")
-                self.assertEqual(row["dlen"], len(long_desc))
-                self.assertEqual(row["snapshot_count"], 1)
+                self.assertEqual(dict(role), {
+                    "rolsuper": False, "rolinherit": False, "rolcreaterole": False,
+                    "rolcreatedb": False, "rolcanlogin": True, "rolreplication": False, "rolbypassrls": False,
+                })
+                memberships = audit_conn.execute(
+                    "SELECT count(*) AS n FROM pg_auth_members WHERE pg_get_userbyid(member)='jobwatch_agent_evidence'"
+                ).fetchone()["n"]
+                self.assertEqual(memberships, 0)
 
-                # 2. Zero raw table INSERT/UPDATE/DELETE bypass for jobwatch_agent_evidence!
+                # Every 0012 function owned by non-superuser jobwatch_migrator, pg_temp LAST in search_path, ZERO PUBLIC execute!
+                funcs = audit_conn.execute("""
+                    SELECT p.proname, pg_get_userbyid(p.proowner) AS owner, p.prosecdef, p.proconfig,
+                           has_function_privilege('public', p.oid, 'EXECUTE') AS pub_exec,
+                           has_function_privilege('jobwatch_agent_evidence', p.oid, 'EXECUTE') AS ev_exec
+                    FROM pg_proc p
+                    JOIN pg_namespace n ON n.oid = p.pronamespace
+                    WHERE n.nspname = 'jobwatch'
+                      AND p.proname IN (
+                        'parse_strict_iso_date', 'validate_agent_https_url',
+                        'enforce_agent_evidence_budget', 'submit_agent_observation', 'submit_agent_vacancy'
+                      )
+                    ORDER BY p.proname
+                """).fetchall()
+                self.assertEqual(len(funcs), 5)
+                for fn in funcs:
+                    self.assertEqual(fn["owner"], "jobwatch_migrator")
+                    self.assertFalse(fn["pub_exec"], f"PUBLIC must not execute {fn['proname']}")
+                    self.assertIn("search_path=pg_catalog, jobwatch, pg_temp", fn["proconfig"] or [], fn)
+                    if fn["proname"] in ("submit_agent_observation", "submit_agent_vacancy"):
+                        self.assertTrue(fn["prosecdef"])
+                        self.assertTrue(fn["ev_exec"])
+                    else:
+                        self.assertFalse(fn["ev_exec"])
+
+                # ZERO INSERT/UPDATE/DELETE/TRUNCATE/TRIGGER/REFERENCES privileges on ANY table!
+                bad_grants = audit_conn.execute("""
+                    SELECT table_schema, table_name, privilege_type
+                    FROM information_schema.role_table_grants
+                    WHERE grantee = 'jobwatch_agent_evidence'
+                      AND privilege_type <> 'SELECT'
+                """).fetchall()
+                self.assertEqual(bad_grants, [], f"Unexpected write grants: {bad_grants}")
+
+            # 2. LIVE `pg_temp` TEMPORARY-SCHEMA SHADOWING ATTACK TEST (even with TEMP granted!)
+            admin(f"GRANT TEMP ON DATABASE {db} TO jobwatch_agent_evidence;")
+            with connect(ev_cfg) as ev_conn:
+                with ev_conn.transaction():
+                    ev_conn.execute("""
+                        CREATE FUNCTION pg_temp.sha256(bytea) RETURNS bytea LANGUAGE sql AS $$ SELECT decode(repeat('f', 64), 'hex') $$;
+                        CREATE FUNCTION pg_temp.clock_timestamp() RETURNS timestamptz LANGUAGE sql AS $$ SELECT '2099-01-01T00:00:00Z'::timestamptz $$;
+                        CREATE FUNCTION pg_temp.hashtextextended(text, bigint) RETURNS bigint LANGUAGE sql AS $$ SELECT 42::bigint $$;
+                    """)
+                    # Confirm our hostile pg_temp functions exist in the session, then invoke SECURITY DEFINER directly!
+                    r_shadow = ev_conn.execute(
+                        "SELECT * FROM jobwatch.submit_agent_observation("
+                        "'shadow-test-001', 'official_source_link', 'direct-sql:attacker', 'spoof', "
+                        "now(), 'https://acme.co.uk/careers', 'Shadow test claim', '', NULL, "
+                        "NULL, NULL, NULL, %s, NULL, '{\"probe\":1}'::jsonb)",
+                        (sid,),
+                    ).fetchone()
+                # submission_sha256 MUST NOT be all 'f' (pg_temp.sha256 was bypassed!) and recorded_at MUST NOT be 2099!
+                self.assertNotEqual(r_shadow["submission_sha256"], "f" * 64)
+                self.assertLess(r_shadow["recorded_at"].year, 2090)
+
+                # 3. DIRECT SQL HOSTILE CALLS TO SECURITY DEFINER FUNCTIONS
+                # 3a. Direct SQL SSRF / private IP / IMDS / bad port / non-HTTPS refusal!
+                for bad_url in (
+                    "http://acme.co.uk/jobs",
+                    "https://169.254.169.254/latest/meta-data/",
+                    "https://10.0.0.5/internal",
+                    "https://127.0.0.1/admin",
+                    "https://[::1]/admin",
+                    "https://[::ffff:169.254.169.254]/latest",
+                    "https://localhost/jobs",
+                    "https://acme.co.uk:8443/jobs",
+                    "https://user:pass@acme.co.uk/jobs",
+                ):
+                    with self.subTest(bad_url=bad_url):
+                        with self.assertRaises(psycopg.errors.InvalidParameterValue):
+                            with ev_conn.transaction():
+                                ev_conn.execute(
+                                    "SELECT * FROM jobwatch.submit_agent_observation("
+                                    "'ssrf-direct-01', 'official_source_link', 'cli:1', '', now(), %s, 'Bad URL')",
+                                    (bad_url,),
+                                )
+
+                # 3b. Direct SQL semantic date refusal (`2026-02-30`)
+                with self.assertRaises(psycopg.errors.DatetimeFieldOverflow):
+                    with ev_conn.transaction():
+                        ev_conn.execute(
+                            "SELECT * FROM jobwatch.submit_agent_observation("
+                            "'bad-date-direct', 'deadline_wording', 'cli:1', '', now(), "
+                            "'https://acme.co.uk/jobs/42', 'Invalid date', 'Apply by 30 Feb 2026', '2026-02-30', %s)",
+                            (pkey,),
+                        )
+
+                # 3c. Direct SQL idempotency conflict detection via SQL-computed submission_sha256!
+                with ev_conn.transaction():
+                    ev_conn.execute(
+                        "SELECT * FROM jobwatch.submit_agent_observation("
+                        "'shared-idem-001', 'official_source_link', 'cli:1', '', now(), "
+                        "'https://acme.co.uk/page-a', 'First summary', '', NULL, NULL, NULL, NULL, %s, NULL, '{}'::jsonb)",
+                        (sid,),
+                    )
+                with self.assertRaises(psycopg.errors.UniqueViolation):
+                    with ev_conn.transaction():
+                        ev_conn.execute(
+                            "SELECT * FROM jobwatch.submit_agent_observation("
+                            "'shared-idem-001', 'official_source_link', 'cli:1', '', now(), "
+                            "'https://acme.co.uk/page-a', 'TAMPERED summary', '', NULL, NULL, NULL, NULL, %s, NULL, '{}'::jsonb)",
+                            (sid,),
+                        )
+
+                # 3d. Direct SQL provider/board/URL mismatch refusal!
+                with self.assertRaises(psycopg.errors.InvalidParameterValue):
+                    with ev_conn.transaction():
+                        ev_conn.execute(
+                            "SELECT * FROM jobwatch.submit_agent_vacancy("
+                            "'mismatch-gh-001', 'cli:1', '', now(), 'greenhouse', 'wrongboard', '999', "
+                            "'RealCo', 'Grad SWE', 'https://job-boards.greenhouse.io/realboard/jobs/999', "
+                            "'London', 'GB', ARRAY['GB'], 'complete', 'complete_public_ats', 'Full description')"
+                        )
+
+                # 3e. Direct SQL retention policy & completeness refusal!
+                for bad_comp, bad_pol, bad_desc, bad_ex in (
+                    ("complete", "complete_public_ats", None, "only excerpt"),
+                    ("complete", "excerpt_only_terms_restricted", "full text", "ex"),
+                    ("truncated", "metadata_only", None, "ex"),
+                    ("unavailable", "complete_public_ats", "should fail", ""),
+                ):
+                    with self.subTest(bad=(bad_comp, bad_pol)):
+                        with self.assertRaises(psycopg.errors.InvalidParameterValue):
+                            with ev_conn.transaction():
+                                ev_conn.execute(
+                                    "SELECT * FROM jobwatch.submit_agent_vacancy("
+                                    "'pol-fail-001', 'cli:1', '', now(), 'other', NULL, NULL, "
+                                    "'Co', 'Grad SWE', 'https://co.co.uk/jobs/1', 'London', 'GB', ARRAY['GB'], %s, %s, %s, %s)",
+                                    (bad_comp, bad_pol, bad_desc, bad_ex),
+                                )
+
+                # 3f. Anti-contamination: agent CANNOT overwrite or conflict with collector candidate `greenhouse:betauk:77`!
+                # Provider/host spoofing on collector URL -> rejected immediately as InvalidParameterValue!
+                with self.assertRaises(psycopg.errors.InvalidParameterValue):
+                    with ev_conn.transaction():
+                        ev_conn.execute(
+                            "SELECT * FROM jobwatch.submit_agent_vacancy("
+                            "'contam-spoof-1', 'cli:1', '', now(), 'other', NULL, NULL, "
+                            "'SpoofCo', 'Hijacked Title', 'https://job-boards.greenhouse.io/betauk/jobs/77', "
+                            "'London', 'GB', ARRAY['GB'], 'complete', 'complete_public_ats', 'Malicious overwrite attempt')"
+                        )
+                # Conflicting native_id on exact collector URL -> rejected as candidate_identity_conflict (UniqueViolation)!
+                with self.assertRaises(psycopg.errors.UniqueViolation):
+                    with ev_conn.transaction():
+                        ev_conn.execute(
+                            "SELECT * FROM jobwatch.submit_agent_vacancy("
+                            "'contam-conflict-1', 'cli:1', '', now(), 'greenhouse', 'betauk', '88', "
+                            "'Beta UK', 'Hijacked Title', 'https://job-boards.greenhouse.io/betauk/jobs/77', "
+                            "'London', 'GB', ARRAY['GB'], 'complete', 'complete_public_ats', 'Malicious overwrite attempt')"
+                        )
+                # Consistent re-observation of collector candidate records ONLY an observation — ZERO mutation to candidate or snapshots!
+                with ev_conn.transaction():
+                    r_exist = ev_conn.execute(
+                        "SELECT * FROM jobwatch.submit_agent_vacancy("
+                        "'contam-consistent-1', 'cli:1', '', now(), 'greenhouse', 'betauk', '77', "
+                        "'Beta UK', 'Tampered Title', 'https://job-boards.greenhouse.io/betauk/jobs/77', "
+                        "'London', 'GB', ARRAY['GB'], 'complete', 'complete_public_ats', 'Agent wording should not overwrite collector')"
+                    ).fetchone()
+                self.assertEqual(r_exist["candidate_key"], "greenhouse:betauk:77")
+                cand_check = ev_conn.execute(
+                    "SELECT title, effective_description, snapshot_count FROM jobwatch.research_discovery_evidence "
+                    "WHERE candidate_key='greenhouse:betauk:77'"
+                ).fetchone()
+                self.assertEqual(cand_check["title"], "Graduate SWE")  # untouched!
+                self.assertEqual(cand_check["effective_description"], col_desc)  # untouched!
+                self.assertEqual(cand_check["snapshot_count"], 0)  # zero untrusted snapshots injected!
+
+                # 3g. Direct SQL new vacancy ALWAYS enters unscreened (caller CANNOT forge priority verdict/rules_version)!
+                long_desc = ("Graduate distributed Python & ML engineer in London. " * 150) + "Closing date: 29 November 2026."
+                with ev_conn.transaction():
+                    r_new = ev_conn.execute(
+                        "SELECT * FROM jobwatch.submit_agent_vacancy("
+                        "'direct-new-vac-001', 'local-cli:s1', 'untrusted-label', now(), 'other', NULL, NULL, "
+                        "'Bright AI UK', 'Graduate Machine Learning Engineer 2027', "
+                        "'https://brightai.co.uk/careers/grad-ml-2027', 'London, United Kingdom', 'GB', ARRAY['GB'], "
+                        "'complete', 'complete_public_ats', %s)",
+                        (long_desc,),
+                    ).fetchone()
+                self.assertEqual(r_new["complete_description_sha256"], sha256(long_desc.encode()).hexdigest())
+                unscreened_row = ev_conn.execute(
+                    "SELECT verdict, family, codes, rules_version, screening_basis "
+                    "FROM jobwatch.research_discovery_candidates WHERE candidate_key=%s",
+                    (r_new["candidate_key"],),
+                ).fetchone()
+                self.assertEqual(unscreened_row["verdict"], "review")
+                self.assertEqual(unscreened_row["family"], "unscreened")
+                self.assertEqual(unscreened_row["codes"], ["evidence.agent_submitted_unscreened"])
+                self.assertEqual(unscreened_row["rules_version"], "unscreened-agent-submission")
+
+                # 3h. Zero raw table writes for jobwatch_agent_evidence
                 for stmt in (
                     "INSERT INTO jobwatch.agent_evidence_observations(idempotency_key,submission_sha256,kind,db_login,logical_contributor,observed_at,source_url,claim_summary,payload_sha256) VALUES ('bypass1234',repeat('a',64),'official_source_link','jobwatch_owner','x',now(),'https://acme.co.uk','x',repeat('b',64))",
                     "INSERT INTO jobwatch.discovery_candidates(candidate_key,provider,company,title,posting_url,evidence_sha256,discovery_mechanisms,verdict,family,codes,rules_version,screening_basis) VALUES ('agent:bypass','other','X','T','https://acme.co.uk',repeat('a',64),ARRAY['x'],'review','other',ARRAY[]::text[],'v','full')",
@@ -154,97 +336,35 @@ class HardenedAgentEvidenceAndFidelityPgTests(DatabaseTest):
                         with ev_conn.transaction():
                             ev_conn.execute(stmt)
 
-                # 3. Attribution separation + idempotency collision refusal + genuine repeat observation preservation!
-                d1 = ingestor.record_observation(ev_conn, ObservationSubmission(
-                    kind="deadline_wording",
-                    logical_contributor="local-cli:session-a",
-                    claimed_actor="untrusted-agent-label",
-                    observed_at=now - timedelta(minutes=3),
-                    source_url="https://acme.co.uk/careers/grad-swe",
-                    posting_key=pkey,
-                    claim_summary="Observed closing date on careers page",
-                    observed_wording="Applications close 29 November 2026.",
-                    idempotency_key="fixed-idem-key-001",
-                ))
-                self.assertEqual(d1["status"], "recorded")
-                # Exact replay succeeds
-                d1_rep = ingestor.record_observation(ev_conn, ObservationSubmission(
-                    kind="deadline_wording",
-                    logical_contributor="local-cli:session-a",
-                    claimed_actor="untrusted-agent-label",
-                    observed_at=now - timedelta(minutes=3),
-                    source_url="https://acme.co.uk/careers/grad-swe",
-                    posting_key=pkey,
-                    claim_summary="Observed closing date on careers page",
-                    observed_wording="Applications close 29 November 2026.",
-                    idempotency_key="fixed-idem-key-001",
-                ))
-                self.assertEqual(d1_rep["status"], "duplicate_replayed")
-                # Same idempotency_key with DIFFERENT wording MUST FAIL loudly!
-                with self.assertRaises(IdempotencyConflictError):
-                    ingestor.record_observation(ev_conn, ObservationSubmission(
-                        kind="deadline_wording",
-                        logical_contributor="local-cli:session-a",
-                        observed_at=now - timedelta(minutes=2),
-                        source_url="https://acme.co.uk/careers/grad-swe",
-                        posting_key=pkey,
-                        claim_summary="Observed closing date on careers page",
-                        observed_wording="Applications close 15 December 2026.",
-                        idempotency_key="fixed-idem-key-001",
-                    ))
-                # Genuine repeat observation at a later time (auto idempotency key includes observed_at) creates a NEW row!
-                d1_later = ingestor.record_observation(ev_conn, ObservationSubmission(
-                    kind="deadline_wording",
-                    logical_contributor="local-cli:session-a",
-                    observed_at=now - timedelta(minutes=1),
-                    source_url="https://acme.co.uk/careers/grad-swe",
-                    posting_key=pkey,
-                    claim_summary="Re-observed closing date later",
-                    observed_wording="Applications close 29 November 2026.",
-                ))
-                self.assertEqual(d1_later["status"], "recorded")
-                self.assertNotEqual(d1_later["observation_id"], d1["observation_id"])
-
-                # Semantic date validation enforced inside PostgreSQL SECURITY DEFINER function too!
-                with self.assertRaises(psycopg.errors.DatetimeFieldOverflow):
-                    with ev_conn.transaction():
-                        ev_conn.execute(
-                            "SELECT * FROM jobwatch.submit_agent_observation("
-                            "'bad-date-key-1', repeat('a',64), 'deadline_wording', 'cli:1', '', now(), "
-                            "'https://acme.co.uk/jobs', 'Invalid date test', 'Apply by 30 Feb 2026', '2026-02-30', "
-                            "%s, NULL, NULL, NULL, NULL, '{}'::jsonb, repeat('b',64))",
-                            (pkey,),
-                        )
-
-                # Verify attribution columns in research_agent_evidence
-                attr = ev_conn.execute(
-                    "SELECT db_login, logical_contributor, claimed_actor, overall_state "
-                    "FROM jobwatch.research_agent_evidence WHERE observation_id=%s",
-                    (d1["observation_id"],),
+            # 4. CROSS-LOGIN IDEMPOTENCY ISOLATION: `jobwatch_owner` can reuse 'shared-idem-001' with DIFFERENT content!
+            with connect(owner_cfg) as own, own.transaction():
+                r_own = own.execute(
+                    "SELECT * FROM jobwatch.submit_agent_observation("
+                    "'shared-idem-001', 'official_source_link', 'owner-cli:1', '', now(), "
+                    "'https://acme.co.uk/owner-page', 'Owner completely different summary', '', NULL, NULL, NULL, NULL, %s)",
+                    (sid,),
                 ).fetchone()
-                self.assertEqual(attr["db_login"], "jobwatch_agent_evidence")
-                self.assertEqual(attr["logical_contributor"], "local-cli:session-a")
-                self.assertEqual(attr["claimed_actor"], "untrusted-agent-label")
-                self.assertEqual(attr["overall_state"], "submission_recorded")
+            self.assertEqual(r_own["status"], "recorded")
 
-                # Atomicity: invalid vacancy leaves ZERO orphan rows!
-                before_cands = ev_conn.execute("SELECT count(*) AS n FROM jobwatch.research_discovery_evidence").fetchone()["n"]
-                with self.assertRaises(EvidenceValidationError):
-                    ingestor.record_new_vacancy(
-                        ev_conn, logical_contributor="local-cli:session-a",
-                        observed_at=now + timedelta(hours=1),  # future rejected
-                        company="Ghost Co", title="Grad SWE", posting_url="https://ghost.co.uk/jobs/1",
-                        description_text="Should not persist.",
-                    )
-                after_cands = ev_conn.execute("SELECT count(*) AS n FROM jobwatch.research_discovery_evidence").fetchone()["n"]
-                self.assertEqual(before_cands, after_cands)
+            # Trusted deterministic collector rescreening upgrades the unscreened agent vacancy cleanly!
+            with connect(col_cfg) as col:
+                rescreened = discovery.rescreen_candidates(col)
+                self.assertGreaterEqual(rescreened, 1)
+                screened_row = col.execute(
+                    "SELECT verdict, family, rules_version, screening_basis FROM jobwatch.discovery_candidates WHERE candidate_key=%s",
+                    (r_new["candidate_key"],),
+                ).fetchone()
+                self.assertEqual(screened_row["verdict"], "priority")
+                self.assertEqual(screened_row["screening_basis"], "full")
+                self.assertNotEqual(screened_row["rules_version"], "unscreened-agent-submission")
 
-            # 4. Concurrent transactional rate-budget enforcement keyed on db_login (NOT spoofing contributor names!)
+            # 5. CONCURRENT TRANSACTIONAL RATE-BUDGET ENFORCEMENT (keyed on db_login, immune to contributor spoofing)
+            ingestor = AgentEvidenceIngestor(resolve_dns=False)
+            now = datetime.now(timezone.utc)
             with connect(owner_cfg) as own, own.transaction():
                 cur_cnt = own.execute(
                     "SELECT count(*) AS n FROM jobwatch.agent_evidence_observations WHERE db_login='jobwatch_agent_evidence'"
                 ).fetchone()["n"]
-                # Allow strictly 2 more submissions across ALL concurrent threads regardless of contributor names!
                 own.execute(
                     "INSERT INTO jobwatch.agent_evidence_budgets(db_login, hourly_limit, daily_limit) "
                     "VALUES ('jobwatch_agent_evidence', %s, 100) "
@@ -268,75 +388,83 @@ class HardenedAgentEvidenceAndFidelityPgTests(DatabaseTest):
                 except EvidenceValidationError:
                     return "budget_blocked"
 
-            with ThreadPoolExecutor(max_workers=6) as pool:
+            with ThreadPoolExecutor(max_workers=5) as pool:
                 outcomes = list(pool.map(submit_worker, range(6)))
             self.assertEqual(outcomes.count("recorded"), 2, outcomes)
             self.assertEqual(outcomes.count("budget_blocked"), 4, outcomes)
 
-            # 5. Append-only 6-state corroboration history (preserves every attempt, distinguishes all 6 states!)
+            # Raise budget for corroboration test observations.
+            with connect(owner_cfg) as own, own.transaction():
+                own.execute("UPDATE jobwatch.agent_evidence_budgets SET hourly_limit=50 WHERE db_login='jobwatch_agent_evidence'")
+
+            # 6. TARGET-VACANCY BINDING IN CORROBORATION (unrelated page with matching wording MUST NOT corroborate!)
+            with connect(ev_cfg) as ev_conn:
+                # 6a. Observation pointing to UNRELATED blog URL for posting `greenhouse:acmeuk:42`
+                obs_unrelated = ingestor.record_observation(ev_conn, ObservationSubmission(
+                    kind="deadline_wording",
+                    logical_contributor="local-cli:s2",
+                    observed_at=now - timedelta(minutes=2),
+                    source_url="https://unrelated-grad-blog.co.uk/tips",
+                    posting_key=pkey,
+                    claim_summary="Blog mentions closing date",
+                    observed_wording="Applications close 29 November 2026.",
+                ))
+                # 6b. Observation pointing to official employer careers page for `greenhouse:acmeuk:42`
+                obs_official = ingestor.record_observation(ev_conn, ObservationSubmission(
+                    kind="deadline_wording",
+                    logical_contributor="local-cli:s2",
+                    observed_at=now - timedelta(minutes=1),
+                    source_url="https://acme.co.uk/careers/grad-ml",
+                    posting_key=pkey,
+                    claim_summary="Official careers page closing date",
+                    observed_wording="Applications close 29 November 2026.",
+                ))
+
             with connect(col_cfg) as col_conn:
-                # Attempt 1: HTTP 403 -> evidence_unavailable (NOT contradiction!)
-                c1 = corroborate_observation(
-                    col_conn, d1["observation_id"],
-                    fetcher=lambda u, budget=None: SafeFetchResult(403, b"Forbidden", u, "93.184.216.34", False, 0),
+                # Unrelated page contains the EXACT quoted wording, yet MUST NOT reach `claim_corroborated`!
+                c_unrel = corroborate_observation(
+                    col_conn, obs_unrelated["observation_id"],
+                    fetcher=lambda u, budget=None: SafeFetchResult(
+                        200, b"<html><body>Random grad blog: Applications close 29 November 2026.</body></html>",
+                        u, "93.184.216.34", False, 0,
+                    ),
                 )
-                self.assertEqual(c1["overall_state"], "evidence_unavailable")
-                self.assertEqual(c1["retrieval_status"], "blocked_or_403")
+                self.assertEqual(c_unrel["target_binding_status"], "unbound_target")
+                self.assertEqual(c_unrel["wording_status"], "matched")
+                self.assertEqual(c_unrel["claim_status"], "unverified")
+                self.assertEqual(c_unrel["overall_state"], "wording_matched")
+                self.assertEqual(c_unrel["evidence_completeness"], "complete")
 
-                # Attempt 2: Truncated 200 response missing quote -> evidence_unavailable (NOT contradiction!)
-                c2 = corroborate_observation(
-                    col_conn, d1["observation_id"],
-                    fetcher=lambda u, budget=None: SafeFetchResult(200, b"<html>Header only...</html>", u, "93.184.216.34", True, 0),
-                )
-                self.assertEqual(c2["overall_state"], "evidence_unavailable")
-                self.assertEqual(c2["retrieval_status"], "truncated_before_match")
+                # SQL CHECK itself refuses inserting `claim_corroborated` with `unbound_target`!
+                with self.assertRaises(psycopg.errors.CheckViolation):
+                    with col_conn.transaction():
+                        col_conn.execute(
+                            "INSERT INTO jobwatch.agent_evidence_corroborations("
+                            "observation_id,checked_at,checked_by,retrieval_status,target_binding_status,"
+                            "wording_status,claim_status,overall_state,evidence_completeness) "
+                            "VALUES (%s,now(),'bad','retrieved_200','unbound_target','matched','corroborated','claim_corroborated','complete')",
+                            (obs_unrelated["observation_id"],),
+                        )
 
-                # Attempt 3: HTTP 200 without quote and without contradictory date -> source_retrieved (NOT corroboration AND NOT contradiction!)
-                c3 = corroborate_observation(
-                    col_conn, d1["observation_id"],
-                    fetcher=lambda u, budget=None: SafeFetchResult(200, b"<html><body>Welcome to Acme UK careers portal.</body></html>", u, "93.184.216.34", False, 0),
+                # Official employer domain + role title present -> `bound_host_and_identity` + `claim_corroborated`!
+                c_bound = corroborate_observation(
+                    col_conn, obs_official["observation_id"],
+                    fetcher=lambda u, budget=None: SafeFetchResult(
+                        200,
+                        b"<html><body><h1>Acme UK - Graduate Machine Learning Engineer</h1><p>Applications close 29 November 2026.</p></body></html>",
+                        u, "93.184.216.34", False, 0,
+                    ),
                 )
-                self.assertEqual(c3["overall_state"], "source_retrieved")
+                self.assertEqual(c_bound["target_binding_status"], "bound_host_and_identity")
+                self.assertEqual(c_bound["overall_state"], "claim_corroborated")
+                self.assertEqual(c_bound["evidence_completeness"], "complete")
+                self.assertIn("29 November 2026", c_bound["evidence_excerpt"])
+                self.assertEqual(c_bound["provenance"]["target_binding_status"], "bound_host_and_identity")
 
-                # Attempt 4: HTTP 200 with EXPLICIT DIFFERENT DATE -> contradictory_evidence!
-                c4 = corroborate_observation(
-                    col_conn, d1["observation_id"],
-                    fetcher=lambda u, budget=None: SafeFetchResult(200, b"<html><body>Application deadline: 15 December 2026.</body></html>", u, "93.184.216.34", False, 0),
-                )
-                self.assertEqual(c4["overall_state"], "contradictory_evidence")
-
-                # Attempt 5: HTTP 200 with exact quote AND matching explicit date -> claim_corroborated!
-                c5 = corroborate_observation(
-                    col_conn, d1["observation_id"],
-                    fetcher=lambda u, budget=None: SafeFetchResult(200, b"<html><body><p>Applications close 29 November 2026.</p></body></html>", u, "93.184.216.34", False, 0),
-                )
-                self.assertEqual(c5["overall_state"], "claim_corroborated")
-
-                # All 5 prior corroboration attempts are preserved append-only!
-                hist = col_conn.execute(
-                    "SELECT overall_state FROM jobwatch.research_agent_corroborations "
-                    "WHERE observation_id=%s ORDER BY recorded_at ASC",
-                    (d1["observation_id"],),
-                ).fetchall()
-                self.assertEqual(
-                    [r["overall_state"] for r in hist],
-                    ["evidence_unavailable", "evidence_unavailable", "source_retrieved", "contradictory_evidence", "claim_corroborated"],
-                )
-                # Wording matched without explicit date interpretation -> wording_matched ONLY!
-                with connect(owner_cfg) as own_conn, own_conn.transaction():
-                    obs_vague = own_conn.execute(
-                        "SELECT * FROM jobwatch.submit_agent_observation("
-                        "'vague-dl-001', repeat('c',64), 'deadline_wording', 'cli:1', '', now(), "
-                        "'https://acme.co.uk/grad', 'Vague deadline wording', 'Applications close soon at noon.', NULL, "
-                        "%s, NULL, NULL, NULL, NULL, '{}'::jsonb, repeat('d',64))",
-                        (pkey,),
-                    ).fetchone()
-                c_vague = corroborate_observation(
-                    col_conn, str(obs_vague["observation_id"]),
-                    fetcher=lambda u, budget=None: SafeFetchResult(200, b"<html>Applications close soon at noon.</html>", u, "93.184.216.34", False, 0),
-                )
-                self.assertEqual(c_vague["overall_state"], "wording_matched")
-                self.assertEqual(c_vague["claim_status"], "unverified")
+                # Confirm corroboration NEVER silently created verifications or calendar_selections!
+                with connect(owner_cfg) as own:
+                    self.assertEqual(own.execute("SELECT count(*) AS n FROM jobwatch.verifications").fetchone()["n"], 0)
+                    self.assertEqual(own.execute("SELECT count(*) AS n FROM jobwatch.calendar_selections").fetchone()["n"], 0)
         finally:
             subprocess.run(["docker", "exec", container, "dropdb", "-U", "postgres", "--force", db], check=False)
 

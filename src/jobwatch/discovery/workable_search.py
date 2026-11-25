@@ -76,6 +76,8 @@ class DiscoveredVacancy:
     mechanism: str
     provenance: dict
     authoritative_board_observation: bool = False
+    evidence_completeness: str | None = None
+    evidence_retention_policy: str = 'complete_public_ats'
 
 
 @dataclass(frozen=True)

@@ -2,14 +2,15 @@
 
 NOT enabled in production. Enforces:
 1. Controlled DB boundary: calls SECURITY DEFINER `submit_agent_observation` and
-   `submit_agent_vacancy` (zero raw table INSERT grants for `jobwatch_agent_evidence`).
-2. Attribution & transactional budgets: authenticated `db_login = session_user`
-   separated from `logical_contributor` and untrusted `claimed_actor`; hourly/daily
-   budgets enforced transactionally per `db_login` under `pg_advisory_xact_lock`.
-3. Observation integrity: semantic ISO date validation (`date.fromisoformat` + SQL
-   `make_date`), strict idempotency payload-collision detection (`submission_sha256`),
-   atomic candidate + historical snapshot + observation creation, explicit
-   `evidence_completeness` and separate complete vs excerpt SHA-256 hashes.
+   `submit_agent_vacancy` (zero raw table INSERT/UPDATE/DELETE grants for
+   `jobwatch_agent_evidence`). All hashes (`submission_sha256`, `payload_sha256`,
+   `complete_description_sha256`, `excerpt_sha256`, `evidence_sha256`) and
+   `candidate_key` are derived strictly inside PostgreSQL — never trusted from callers.
+2. Untrusted screening separation: `submit_agent_vacancy` never accepts caller-supplied
+   screening verdicts, reason codes, or rules versions; new agent vacancies enter with
+   `rules_version='unscreened-agent-submission'` until the trusted collector screener runs.
+3. Scoped idempotency & transactional budgets: `UNIQUE (db_login, idempotency_key)` and
+   advisory-locked hourly/daily budgets keyed on authenticated `session_user`.
 4. Network security (real SSRF protection beyond static URL checks):
    - HTTPS-only, port allowlist (`443` only), no URL credentials, public FQDN.
    - DNS resolution checked for EVERY IP (`ip.is_global`, including `ipv4_mapped` IPv6).
@@ -17,13 +18,14 @@ NOT enabled in production. Enforces:
      `server_hostname=host`), completely defeating DNS rebinding TOCTOU.
    - Hop-by-hop redirect validation (`max_redirects=3`), bounded read (`<= 512 KiB`),
      and per-run `CorroborationBudget`.
-5. Append-only 6-state corroboration history (`agent_evidence_corroborations`):
-   distinguishes `submission_recorded`, `source_retrieved`, `wording_matched`,
-   `claim_corroborated`, `evidence_unavailable`, and `contradictory_evidence`.
+5. Append-only 6-state corroboration history (`agent_evidence_corroborations`) with
+   strict target-vacancy identity binding (`bound_exact_url` / `bound_host_and_identity` /
+   `unbound_target`), explicit `evidence_completeness`, `evidence_excerpt`, and `provenance`.
+   An unrelated page containing similar wording can NEVER corroborate a vacancy!
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from hashlib import sha256
 import http.client
@@ -35,8 +37,9 @@ from urllib.parse import urljoin, urlsplit
 
 from jobwatch import filtering
 from jobwatch.discovery.directory_discovery import _html_corroborates_board
+from jobwatch.identity import exact_url
 from jobwatch.timing import parse_prose_deadline
-from .collection import Processing, iso, safe
+from .collection import iso, safe
 from .evidence import encode_evidence
 
 ALLOWED_KINDS = frozenset({
@@ -47,6 +50,7 @@ ALLOWED_KINDS = frozenset({
     "source_identity",
 })
 ALLOWED_COMPLETENESS = frozenset({"complete", "partial", "truncated", "unavailable"})
+ALLOWED_RETENTION_POLICIES = frozenset({"complete_public_ats", "excerpt_only_terms_restricted", "metadata_only"})
 MAX_WORDING_CHARS = 4000
 MAX_SUMMARY_CHARS = 500
 MAX_COMPLETE_DESC_CHARS = 262_144
@@ -55,7 +59,11 @@ MAX_PAYLOAD_BYTES = 8192
 MAX_CORROBORATION_FETCH_BYTES = 512 * 1024
 ALLOWED_PORTS = frozenset({443})
 LOCAL_HOSTNAMES = frozenset({"localhost", "localhost.localdomain", "ip6-localhost", "ip6-loopback"})
-JS_SHELL_MARKERS = re.compile(r'enable javascript|javascript is required|you need to enable javascript|checking your browser|just a moment', re.I)
+JS_SHELL_MARKERS = re.compile(
+    r"enable javascript|javascript is required|you need to enable javascript|checking your browser|just a moment",
+    re.I,
+)
+_MULTI_PART_TLDS = frozenset({"co.uk", "org.uk", "ac.uk", "gov.uk", "com.au", "co.nz", "co.jp"})
 
 
 class EvidenceValidationError(ValueError):
@@ -64,6 +72,10 @@ class EvidenceValidationError(ValueError):
 
 class IdempotencyConflictError(EvidenceValidationError):
     """Raised when an idempotency_key is reused with materially different content."""
+
+
+class CandidateIdentityConflictError(EvidenceValidationError):
+    """Raised when a submission conflicts with an existing discovery_candidates identity."""
 
 
 class SSRFBlockedError(EvidenceValidationError):
@@ -86,6 +98,17 @@ def _is_public_global_ip(raw_ip: str) -> bool:
     )
 
 
+def _registrable_domain(host: str) -> str:
+    h = (host or "").lower().strip(".")
+    parts = [p for p in h.split(".") if p]
+    if len(parts) <= 2:
+        return h
+    tail2 = ".".join(parts[-2:])
+    if tail2 in _MULTI_PART_TLDS and len(parts) >= 3:
+        return ".".join(parts[-3:])
+    return tail2
+
+
 def validate_public_evidence_url(
     url: str,
     *,
@@ -93,10 +116,7 @@ def validate_public_evidence_url(
     resolve_dns: bool = False,
     resolver=socket.getaddrinfo,
 ) -> tuple[str, str, int, list[str]]:
-    """Validate URL syntax/scheme/port/host and (optionally) resolve + validate EVERY IP.
-
-    Returns (cleaned_url, hostname, port, validated_global_ips).
-    """
+    """Validate URL syntax/scheme/port/host and (optionally) resolve + validate EVERY IP."""
     if not isinstance(url, str):
         raise SSRFBlockedError("URL must be a string")
     cleaned = url.strip()
@@ -119,7 +139,6 @@ def validate_public_evidence_url(
     if "." not in host:
         raise SSRFBlockedError("Hostname must be a public FQDN")
 
-    # Literal IP check
     try:
         ipaddress.ip_address(host)
         is_literal_ip = True
@@ -164,10 +183,7 @@ def validate_semantic_iso_date(value: str | None) -> str | None:
 
 
 class _PinnedHTTPSConnection(http.client.HTTPSConnection):
-    """HTTPSConnection that connects directly to a pre-validated IP with SNI/cert verification for `host`.
-
-    Eliminates DNS rebinding TOCTOU between resolution validation and TCP connect.
-    """
+    """HTTPSConnection connecting directly to a pre-validated IP with TLS SNI/cert verification."""
 
     def __init__(self, host: str, pinned_ip: str, port: int = 443, *, timeout: float = 10.0, context=None):
         super().__init__(host, port=port, timeout=timeout, context=context or ssl.create_default_context())
@@ -224,7 +240,7 @@ def safe_fetch_public_https(
 ) -> SafeFetchResult:
     """SSRF-hardened HTTPS fetcher with connection-time IP pinning and hop-by-hop redirect validation.
 
-    Intended ONLY for an isolated, network-restricted corroboration worker (never a privileged DB/root process).
+    Intended ONLY for an isolated, network-restricted corroboration worker (never a privileged DB/owner process).
     """
     current_url = url
     redirects = 0
@@ -300,13 +316,16 @@ class ObservationSubmission:
 
 
 class AgentEvidenceIngestor:
-    """Controlled ingestor invoking SECURITY DEFINER SQL boundaries under `jobwatch_agent_evidence`."""
+    """Controlled ingestor invoking SECURITY DEFINER SQL boundaries under `jobwatch_agent_evidence`.
+
+    All cryptographic hashes, candidate keys, and unscreened markers are derived inside PostgreSQL.
+    """
 
     def __init__(self, *, resolve_dns: bool = False, resolver=socket.getaddrinfo):
         self.resolve_dns = resolve_dns
         self.resolver = resolver
 
-    def _validate_and_hash(self, sub: ObservationSubmission, now: datetime) -> dict:
+    def _validate_observation(self, sub: ObservationSubmission, now: datetime) -> dict:
         if sub.kind not in ALLOWED_KINDS:
             raise EvidenceValidationError(f"Unsupported evidence kind: {sub.kind!r}")
         logical = safe(sub.logical_contributor or "").strip()
@@ -342,28 +361,23 @@ class AgentEvidenceIngestor:
         encoded_payload = encode_evidence(payload)
         if len(encoded_payload) > MAX_PAYLOAD_BYTES:
             raise EvidenceValidationError(f"payload exceeds {MAX_PAYLOAD_BYTES} bytes")
-        payload_sha = sha256(encoded_payload).hexdigest()
-
-        material_basis = {
-            "kind": sub.kind, "source_url": cleaned_url,
-            "posting_key": sub.posting_key, "candidate_key": sub.candidate_key,
-            "board_key": sub.board_key, "source_id": sub.source_id, "lead_key": sub.lead_key,
-            "claim_summary": summary, "observed_wording": wording,
-            "candidate_deadline_date": cand_date, "payload_sha256": payload_sha,
-        }
-        submission_sha = sha256(encode_evidence(material_basis)).hexdigest()
 
         idem = (sub.idempotency_key or "").strip()
         if not idem:
-            # Include observed_at so genuine repeat observations at later times are preserved!
-            idem = sha256(encode_evidence({**material_basis, "logical_contributor": logical, "observed_at": iso(sub.observed_at)})).hexdigest()
+            # Include observed_at so genuine repeat observations at later times remain distinct.
+            idem = sha256(encode_evidence({
+                "kind": sub.kind, "url": cleaned_url, "posting_key": sub.posting_key,
+                "candidate_key": sub.candidate_key, "board_key": sub.board_key,
+                "source_id": sub.source_id, "lead_key": sub.lead_key,
+                "summary": summary, "wording": wording, "date": cand_date,
+                "payload": payload, "logical": logical, "observed_at": iso(sub.observed_at),
+            })).hexdigest()
         elif not 8 <= len(idem) <= 128:
             raise EvidenceValidationError("idempotency_key must be 8..128 characters")
 
         return {
             "logical": logical, "claimed": claimed, "url": cleaned_url, "summary": summary,
-            "wording": wording, "cand_date": cand_date, "payload": payload,
-            "payload_sha": payload_sha, "submission_sha": submission_sha, "idem": idem,
+            "wording": wording, "cand_date": cand_date, "payload": payload, "idem": idem,
         }
 
     def record_observation(self, conn, sub: ObservationSubmission, *, now: datetime | None = None) -> dict:
@@ -371,28 +385,28 @@ class AgentEvidenceIngestor:
         from psycopg.types.json import Jsonb
 
         at = now or datetime.now(timezone.utc)
-        v = self._validate_and_hash(sub, at)
+        v = self._validate_observation(sub, at)
         try:
             with conn.transaction():
                 row = conn.execute(
                     "SELECT * FROM jobwatch.submit_agent_observation("
-                    "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                    "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                     (
-                        v["idem"], v["submission_sha"], sub.kind, v["logical"], v["claimed"],
+                        v["idem"], sub.kind, v["logical"], v["claimed"],
                         sub.observed_at, v["url"], v["summary"], v["wording"], v["cand_date"],
                         sub.posting_key, sub.candidate_key, sub.board_key, sub.source_id, sub.lead_key,
-                        Jsonb(v["payload"]), v["payload_sha"],
+                        Jsonb(v["payload"]),
                     ),
                 ).fetchone()
         except psycopg.errors.UniqueViolation as exc:
             raise IdempotencyConflictError("idempotency_key already bound to a materially different submission") from exc
-        except psycopg.errors.RaiseException as exc:
+        except (psycopg.errors.RaiseException, psycopg.errors.InvalidParameterValue, psycopg.errors.DatetimeFieldOverflow) as exc:
             raise EvidenceValidationError(str(exc).splitlines()[0]) from exc
 
         return {
             "observation_id": str(row["observation_id"]),
             "idempotency_key": v["idem"],
-            "submission_sha256": v["submission_sha"],
+            "submission_sha256": row["submission_sha256"],
             "status": row["status"],
             "overall_state": row["overall_state"],
             "recorded_at": iso(row["recorded_at"]),
@@ -412,14 +426,21 @@ class AgentEvidenceIngestor:
         country: str = "",
         countries: tuple[str, ...] = (),
         description_text: str | None = None,
+        description_excerpt: str = "",
         evidence_completeness: str = "complete",
+        evidence_retention_policy: str = "complete_public_ats",
         provider: str = "other",
         board: str | None = None,
         native_id: str | None = None,
+        claim_summary: str | None = None,
+        payload: dict | None = None,
         idempotency_key: str | None = None,
         now: datetime | None = None,
     ) -> dict:
-        """Atomically validate & persist candidate + historical snapshot + observation via SECURITY DEFINER."""
+        """Atomically persist candidate + snapshot + observation via SECURITY DEFINER.
+
+        All hashes, candidate keys, and neutral unscreened markers are computed inside SQL.
+        """
         import psycopg
         from psycopg.types.json import Jsonb
 
@@ -444,94 +465,169 @@ class AgentEvidenceIngestor:
             raise EvidenceValidationError("board and native_id must both be provided or both omitted")
         if evidence_completeness not in ALLOWED_COMPLETENESS:
             raise EvidenceValidationError(f"Invalid evidence_completeness: {evidence_completeness!r}")
+        if evidence_retention_policy not in ALLOWED_RETENTION_POLICIES:
+            raise EvidenceValidationError(f"Invalid evidence_retention_policy: {evidence_retention_policy!r}")
 
         clean_desc: str | None = safe(description_text) if description_text is not None else None
         if clean_desc is not None and len(clean_desc) > MAX_COMPLETE_DESC_CHARS:
             raise EvidenceValidationError(f"description_text exceeds safety cap ({MAX_COMPLETE_DESC_CHARS} chars)")
-        if evidence_completeness == "unavailable":
-            clean_desc = None
-            excerpt = ""
-            complete_sha = None
-            excerpt_sha = None
-            basis = "title_metadata_only"
-        else:
-            if evidence_completeness == "complete" and not clean_desc:
-                raise EvidenceValidationError("completeness='complete' requires non-empty description_text")
-            plain_desc = filtering.plain(clean_desc or "")
-            excerpt = plain_desc[:MAX_EXCERPT_CHARS]
-            excerpt_sha = sha256(excerpt.encode("utf-8")).hexdigest() if excerpt else None
-            complete_sha = (
-                sha256(clean_desc.encode("utf-8")).hexdigest()
-                if (evidence_completeness == "complete" and clean_desc is not None)
-                else None
-            )
-            basis = "full" if evidence_completeness == "complete" else "excerpt"
+        clean_excerpt = safe(description_excerpt or "").strip()
+        if not clean_excerpt and clean_desc and evidence_completeness != "unavailable":
+            clean_excerpt = filtering.plain(clean_desc)[:MAX_EXCERPT_CHARS]
+        if len(clean_excerpt) > MAX_EXCERPT_CHARS:
+            clean_excerpt = clean_excerpt[:MAX_EXCERPT_CHARS]
 
-        ckey = (
-            f"{provider}:{board.lower()}:{native_id}"
-            if (board and native_id)
-            else f"agent:{sha256(url.encode('utf-8')).hexdigest()[:24]}"
-        )
-        screened = filtering.screen({
-            "title": tit, "location": safe(location_text), "country": safe(country),
-            "countries": list(countries), "department": "", "team": "",
-            "employment_type": "", "description": clean_desc if clean_desc is not None else (excerpt or None),
-        })
-        ev_payload = {
-            "company": comp, "title": tit, "posting_url": url, "location_text": safe(location_text),
-            "country": safe(country), "countries": list(countries),
-            "evidence_completeness": evidence_completeness,
-            "complete_description_sha256": complete_sha, "excerpt_sha256": excerpt_sha,
-        }
-        ev_sha = sha256(encode_evidence(ev_payload)).hexdigest()
-        payload = {
-            "provider": provider, "board": board, "native_id": native_id,
-            "evidence_completeness": evidence_completeness, "screening_verdict": screened["verdict"],
-        }
-        payload_sha = sha256(encode_evidence(payload)).hexdigest()
-        summary = f"Agent-submitted public vacancy: {comp} - {tit}"[:MAX_SUMMARY_CHARS]
-        sub_sha = sha256(encode_evidence({
-            "kind": "new_vacancy", "source_url": url, "candidate_key": ckey,
-            "claim_summary": summary, "evidence_sha256": ev_sha, "payload_sha256": payload_sha,
-        })).hexdigest()
+        clean_payload = safe(payload or {})
+        if not isinstance(clean_payload, dict):
+            raise EvidenceValidationError("payload must be a JSON object")
+
         idem = (idempotency_key or "").strip() or sha256(encode_evidence({
-            "sub_sha": sub_sha, "logical": logical, "observed_at": iso(observed_at),
+            "kind": "new_vacancy", "provider": provider, "board": board, "native_id": native_id,
+            "url": url, "company": comp, "title": tit, "completeness": evidence_completeness,
+            "policy": evidence_retention_policy, "logical": logical, "observed_at": iso(observed_at),
         })).hexdigest()
 
         try:
             with conn.transaction():
                 row = conn.execute(
                     "SELECT * FROM jobwatch.submit_agent_vacancy("
-                    "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                    "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                     (
-                        idem, sub_sha, logical, claimed, observed_at,
-                        ckey, provider, board, native_id, comp, tit, url,
+                        idem, logical, claimed, observed_at,
+                        provider, board, native_id, comp, tit, url,
                         safe(location_text), safe(country), list(countries),
-                        evidence_completeness, clean_desc, excerpt,
-                        complete_sha, excerpt_sha, ev_sha,
-                        screened["verdict"], screened["family"], screened["codes"],
-                        screened["rules_version"], screened["input_sha256"], basis,
-                        summary, Jsonb(payload), payload_sha,
+                        evidence_completeness, evidence_retention_policy,
+                        clean_desc, clean_excerpt,
+                        safe(claim_summary) if claim_summary is not None else None,
+                        Jsonb(clean_payload),
                     ),
                 ).fetchone()
         except psycopg.errors.UniqueViolation as exc:
+            msg = str(exc)
+            if "candidate_identity_conflict" in msg:
+                raise CandidateIdentityConflictError("Submission conflicts with an existing candidate identity") from exc
             raise IdempotencyConflictError("idempotency_key already bound to a materially different submission") from exc
-        except psycopg.errors.RaiseException as exc:
+        except (psycopg.errors.RaiseException, psycopg.errors.InvalidParameterValue, psycopg.errors.CheckViolation) as exc:
             raise EvidenceValidationError(str(exc).splitlines()[0]) from exc
 
         return {
             "candidate_key": row["candidate_key"],
             "observation_id": str(row["observation_id"]),
             "idempotency_key": idem,
-            "submission_sha256": sub_sha,
+            "submission_sha256": row["submission_sha256"],
             "evidence_completeness": evidence_completeness,
-            "complete_description_sha256": complete_sha,
-            "excerpt_sha256": excerpt_sha,
-            "verdict": screened["verdict"],
+            "evidence_retention_policy": evidence_retention_policy,
+            "complete_description_sha256": row["complete_description_sha256"],
+            "excerpt_sha256": row["excerpt_sha256"],
+            "screening_status": "unscreened_agent_submission",
             "status": row["status"],
             "overall_state": row["overall_state"],
             "recorded_at": iso(row["recorded_at"]),
         }
+
+
+def _load_target_context(conn, obs: dict) -> dict | None:
+    if obs.get("posting_key"):
+        row = conn.execute(
+            "SELECT p.posting_key, p.provider, p.board, p.native_id, pv.company, pv.title, pv.posting_url, "
+            "s.validation_url, e.careers_url "
+            "FROM jobwatch.postings p "
+            "JOIN jobwatch.posting_versions pv ON pv.id = p.current_version_id "
+            "LEFT JOIN jobwatch.sources s ON s.id = p.source_id "
+            "LEFT JOIN jobwatch.employers e ON e.id = s.employer_id "
+            "WHERE p.posting_key = %s",
+            (obs["posting_key"],),
+        ).fetchone()
+        if row:
+            return dict(row)
+    if obs.get("candidate_key"):
+        row = conn.execute(
+            "SELECT candidate_key, provider, board, native_id, company, title, posting_url "
+            "FROM jobwatch.discovery_candidates WHERE candidate_key = %s",
+            (obs["candidate_key"],),
+        ).fetchone()
+        if row:
+            return dict(row)
+    if obs.get("lead_key"):
+        row = conn.execute(
+            "SELECT lead_key, company, title, url AS posting_url FROM jobwatch.leads WHERE lead_key = %s",
+            (obs["lead_key"],),
+        ).fetchone()
+        if row:
+            return dict(row)
+    return None
+
+
+def _evaluate_target_binding(obs: dict, target: dict | None, final_url: str, body_text: str, plain_low: str) -> tuple[str, dict]:
+    """Ensure an independently retrieved source actually identifies the target vacancy.
+
+    Prevents an unrelated page that happens to share generic wording (e.g. 'Applications close
+    29 November 2026') from falsely corroborating a target vacancy.
+    """
+    kind = obs["kind"]
+    if kind in ("source_identity", "official_source_link") and target is None:
+        return "not_applicable", {"reason": "non_vacancy_source_observation"}
+    if target is None:
+        return "unbound_target", {"reason": "no_resolvable_target_vacancy"}
+
+    target_url = target.get("posting_url") or ""
+    allowed_urls = [u for u in (target_url, target.get("validation_url"), target.get("careers_url")) if u]
+    try:
+        final_exact = exact_url(final_url) if final_url else ""
+        target_exact = exact_url(target_url) if target_url else ""
+    except ValueError:
+        final_exact, target_exact = "", ""
+
+    if final_exact and target_exact and final_exact == target_exact:
+        return "bound_exact_url", {"matched_url": final_exact}
+
+    final_host = (urlsplit(final_url).hostname or "").lower()
+    final_reg = _registrable_domain(final_host)
+    allowed_regs = {_registrable_domain((urlsplit(u).hostname or "").lower()) for u in allowed_urls if u}
+    same_domain = bool(final_reg and final_reg in allowed_regs)
+
+    # Check if retrieved page explicitly references the target ATS board + native_id or exact role title.
+    provider = (target.get("provider") or "").lower()
+    board = (target.get("board") or "").lower()
+    native_id = (target.get("native_id") or "").lower()
+    title_norm = re.sub(r"\s+", " ", (target.get("title") or "").strip()).casefold()
+    company_norm = re.sub(r"\s+", " ", (target.get("company") or "").strip()).casefold()
+
+    id_in_page = bool(native_id and len(native_id) >= 4 and (native_id in final_url.lower() or native_id in body_text.lower()))
+    board_corrob = bool(provider and board and _html_corroborates_board(body_text, provider, board, native_id))
+    title_in_page = bool(title_norm and len(title_norm) >= 6 and title_norm in plain_low)
+    company_in_page = bool(company_norm and company_norm in plain_low)
+
+    if same_domain and (id_in_page or board_corrob or (title_in_page and (company_in_page or len(title_norm) >= 14))):
+        return "bound_host_and_identity", {
+            "final_domain": final_reg,
+            "id_in_page": id_in_page,
+            "board_corroborated": board_corrob,
+            "title_in_page": title_in_page,
+            "company_in_page": company_in_page,
+        }
+
+    return "unbound_target", {
+        "final_domain": final_reg,
+        "expected_domains": sorted(allowed_regs),
+        "same_domain": same_domain,
+        "id_in_page": id_in_page,
+        "title_in_page": title_in_page,
+        "reason": "Retrieved page did not match target posting URL or employer domain + vacancy identity.",
+    }
+
+
+def _extract_corroboration_excerpt(plain_body: str, quoted_plain: str) -> str:
+    clean = re.sub(r"\s+", " ", plain_body or "").strip()
+    if not clean:
+        return ""
+    if quoted_plain:
+        idx = clean.casefold().find(quoted_plain.casefold())
+        if idx >= 0:
+            start = max(0, idx - 300)
+            end = min(len(clean), idx + len(quoted_plain) + 300)
+            return clean[start:end][:MAX_EXCERPT_CHARS]
+    return clean[:MAX_EXCERPT_CHARS]
 
 
 def corroborate_observation(
@@ -543,10 +639,11 @@ def corroborate_observation(
     budget: CorroborationBudget | None = None,
     now: datetime | None = None,
 ) -> dict:
-    """Append an independent corroboration attempt distinguishing all 6 semantic states.
+    """Append an independent corroboration attempt with vacancy binding, completeness, and provenance.
 
     Must run under `jobwatch_collector` or `jobwatch_owner` (NEVER `jobwatch_agent_evidence`).
-    Preserves all prior corroboration attempts append-only.
+    Preserves all prior corroboration attempts append-only; NEVER mutates `verifications`,
+    `calendar_selections`, `leads`, or `posting_versions`.
     """
     from psycopg.types.json import Jsonb
 
@@ -554,12 +651,18 @@ def corroborate_observation(
     iso(at)
     obs = verifier_conn.execute(
         "SELECT observation_id, kind, source_url, observed_wording, candidate_deadline_date, "
-        "posting_key, candidate_key, board_key, source_id, payload "
+        "posting_key, candidate_key, board_key, source_id, lead_key, payload "
         "FROM jobwatch.agent_evidence_observations WHERE observation_id=%s",
         (observation_id,),
     ).fetchone()
     if not obs:
         raise ValueError(f"Unknown observation_id: {observation_id}")
+
+    target = _load_target_context(verifier_conn, obs)
+    target_binding_status = "not_applicable"
+    binding_info: dict = {}
+    evidence_completeness = "unavailable"
+    evidence_excerpt = ""
 
     try:
         res: SafeFetchResult = fetcher(obs["source_url"], budget=budget)
@@ -590,17 +693,22 @@ def corroborate_observation(
             retrieval_status, wording_status, claim_status, overall_state = "js_shell_or_empty", "not_checked", "unavailable", "evidence_unavailable"
         else:
             retrieval_status = "retrieved_200"
+            evidence_completeness = "truncated" if res.truncated else "complete"
+            evidence_excerpt = _extract_corroboration_excerpt(plain_body, quoted_plain)
+            target_binding_status, binding_info = _evaluate_target_binding(obs, target, res.final_url, body_text, plain_low)
+            details["target_binding"] = binding_info
+
             wording_matched = bool(quoted_low and quoted_low in plain_low)
             if not quoted_low:
                 wording_status = "not_applicable"
             elif wording_matched:
                 wording_status = "matched"
             elif res.truncated:
-                # Never call a truncated response a contradiction!
                 retrieval_status = "truncated_before_match"
                 wording_status = "not_found"
                 claim_status = "unavailable"
                 overall_state = "evidence_unavailable"
+                evidence_completeness = "unavailable"
                 details["note"] = "Response truncated at byte cap before quoted wording was found."
             else:
                 wording_status = "not_found"
@@ -608,7 +716,6 @@ def corroborate_observation(
             if retrieval_status == "retrieved_200":
                 kind = obs["kind"]
                 if kind == "deadline_wording":
-                    # Check explicit parsed dates in the retrieved official source!
                     parsed_page = parse_prose_deadline(plain_body)
                     parsed_quote = parse_prose_deadline(quoted_plain)
                     claimed_iso = obs["candidate_deadline_date"].isoformat() if obs["candidate_deadline_date"] else None
@@ -616,24 +723,24 @@ def corroborate_observation(
                     details["parsed_page"] = parsed_page
                     details["parsed_quote"] = parsed_quote
 
-                    if wording_matched:
-                        # Wording found: does it ACTUALLY corroborate the claimed date?
+                    if target_binding_status == "unbound_target":
+                        # Unrelated page MUST NEVER corroborate (or contradict) the target vacancy!
+                        claim_status = "unverified"
+                        overall_state = "wording_matched" if wording_matched else "source_retrieved"
+                        details["binding_failure"] = "Source page is not bound to the target vacancy."
+                    elif wording_matched:
                         if claimed_iso and parsed_quote.get("candidate_date") == claimed_iso:
                             claim_status, overall_state = "corroborated", "claim_corroborated"
                         elif claimed_iso and parsed_quote.get("candidate_date") and parsed_quote.get("candidate_date") != claimed_iso:
-                            # Agent quoted real wording, but misstated the date!
                             claim_status, overall_state = "contradicted", "contradictory_evidence"
                             details["contradiction"] = f"Quoted wording parses to {parsed_quote.get('candidate_date')}, not {claimed_iso}"
                         else:
-                            # Wording matched, but no unambiguous explicit date verified -> wording_matched ONLY!
                             claim_status, overall_state = "unverified", "wording_matched"
                     else:
-                        # Wording absent: ONLY contradictory if official source explicitly asserts a DIFFERENT date!
                         if claimed_iso and page_date and page_date != claimed_iso:
                             claim_status, overall_state = "contradicted", "contradictory_evidence"
                             details["contradiction"] = f"Official page states {page_date}, contradicting claimed {claimed_iso}"
                         else:
-                            # Page changed / wording absent without explicit contrary date -> source_retrieved (NOT contradiction!)
                             claim_status, overall_state = "unverified", "source_retrieved"
 
                 elif kind == "source_identity":
@@ -649,8 +756,11 @@ def corroborate_observation(
                         claim_status, overall_state = "unverified", "source_retrieved"
 
                 elif kind == "new_vacancy":
-                    # Minimal vacancy corroboration requires retrieved 200 + explicit title/wording match (and no explicit closed banner).
-                    if re.search(r'\b(?:this (?:role|job|position) (?:is no longer|has been) (?:open|filled|closed)|applications are now closed)\b', plain_low):
+                    if target_binding_status == "unbound_target":
+                        claim_status = "unverified"
+                        overall_state = "wording_matched" if wording_matched else "source_retrieved"
+                        details["binding_failure"] = "Retrieved source did not bind to the submitted vacancy URL/identity."
+                    elif re.search(r"\b(?:this (?:role|job|position) (?:is no longer|has been) (?:open|filled|closed)|applications are now closed)\b", plain_low):
                         claim_status, overall_state = "contradicted", "contradictory_evidence"
                         details["contradiction"] = "Retrieved source explicitly indicates vacancy is closed."
                     elif wording_matched:
@@ -659,37 +769,52 @@ def corroborate_observation(
                         claim_status, overall_state = "unverified", "source_retrieved"
 
                 else:
-                    # official_source_link / posting_evidence: HTTP 200 alone is NEVER corroboration!
                     if wording_matched:
                         claim_status, overall_state = "unverified", "wording_matched"
                     else:
                         claim_status, overall_state = "unverified", "source_retrieved"
 
     body_sha = sha256(res.body).hexdigest() if res.body else None
+    provenance = {
+        "requested_url": obs["source_url"],
+        "final_url": res.final_url,
+        "resolved_ip": res.resolved_ip,
+        "redirects": res.redirects,
+        "target_posting_url": (target or {}).get("posting_url"),
+        "target_binding_status": target_binding_status,
+        "checked_at": iso(at),
+        "checked_by": checked_by,
+    }
     with verifier_conn.transaction():
         row = verifier_conn.execute(
             "INSERT INTO jobwatch.agent_evidence_corroborations("
-            "observation_id, checked_at, checked_by, retrieval_status, wording_status, claim_status, "
-            "overall_state, http_status, final_url, resolved_ip, body_sha256, bytes_read, "
-            "response_truncated, evidence_details"
-            ") VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) "
+            "observation_id, checked_at, checked_by, retrieval_status, target_binding_status, "
+            "wording_status, claim_status, overall_state, evidence_completeness, evidence_excerpt, "
+            "http_status, final_url, resolved_ip, body_sha256, bytes_read, "
+            "response_truncated, provenance, evidence_details"
+            ") VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) "
             "RETURNING corroboration_id, overall_state, recorded_at",
             (
-                observation_id, at, checked_by, retrieval_status, wording_status, claim_status,
-                overall_state, res.http_status or None, res.final_url, res.resolved_ip,
-                body_sha, len(res.body), res.truncated, Jsonb(details),
+                observation_id, at, checked_by, retrieval_status, target_binding_status,
+                wording_status, claim_status, overall_state, evidence_completeness, evidence_excerpt,
+                res.http_status or None, res.final_url, res.resolved_ip,
+                body_sha, len(res.body), res.truncated, Jsonb(provenance), Jsonb(details),
             ),
         ).fetchone()
     return {
         "corroboration_id": str(row["corroboration_id"]),
         "observation_id": str(observation_id),
         "retrieval_status": retrieval_status,
+        "target_binding_status": target_binding_status,
         "wording_status": wording_status,
         "claim_status": claim_status,
         "overall_state": row["overall_state"],
+        "evidence_completeness": evidence_completeness,
+        "evidence_excerpt": evidence_excerpt,
         "http_status": res.http_status or None,
         "resolved_ip": res.resolved_ip,
         "body_sha256": body_sha,
         "response_truncated": res.truncated,
+        "provenance": provenance,
         "evidence_details": details,
     }

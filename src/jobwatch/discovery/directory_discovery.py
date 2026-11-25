@@ -76,6 +76,9 @@ UK_LOCATION_SIGNAL = re.compile(
 )
 
 _ANCHOR_HREF_URL = re.compile(r"""<a\b[^>]*\bhref=["'](https?://[^"'<>#\s]+)""", re.I)
+_STRUCTURED_WEBSITE_URL = re.compile(
+    r'"(?:publicWebsite|companyWebsite|websiteUrl|homepageUrl)"\s*:\s*"(https?:\\?/\\?/[^"\\<>#\s]+(?:\\?/[^"\\<>#\s]*)*)"'
+)
 _HOSTED_ATS_DOMAINS = (
     "greenhouse.io",
     "greenhouse.com",
@@ -171,13 +174,28 @@ class BoardProbeResult:
         return f"{self.provider}:{self.board.lower()}"
 
 
-def default_http_get(url: str, *, max_bytes: int = MAX_BOARD_BYTES, timeout: int = 20, accept: str = "application/json,text/plain,*/*") -> tuple[int, bytes, str]:
-    """Bounded read-only HTTP GET returning (status_code, body_bytes, final_url)."""
+def default_http_get(
+    url: str,
+    *,
+    max_bytes: int = MAX_BOARD_BYTES,
+    timeout: int = 20,
+    accept: str = "application/json,text/plain,*/*",
+    allow_truncate: bool = False,
+) -> tuple[int, bytes, str]:
+    """Bounded read-only HTTP GET returning (status_code, body_bytes, final_url).
+
+    When `allow_truncate=False` (default for JSON/CSV endpoints), responses exceeding
+    `max_bytes` return `(-1, b"", final_url)` so partial structured payloads never parse.
+    When `allow_truncate=True` (used ONLY for HTML header/link inspection in identity
+    verification), the bounded `max_bytes` prefix is returned safely.
+    """
     req = Request(url, headers={"Accept": accept, "User-Agent": USER_AGENT})
     try:
         with urlopen(req, timeout=timeout) as resp:
             raw = resp.read(max_bytes + 1)
             if len(raw) > max_bytes:
+                if allow_truncate:
+                    return resp.status, raw[:max_bytes], resp.geturl()
                 return -1, b"", resp.geturl()
             return resp.status, raw, resp.geturl()
     except HTTPError as exc:
@@ -649,19 +667,35 @@ def _hosted_board_url(provider: str, board: str, region: str) -> str:
     raise ValueError(f"unsupported provider: {provider!r}")
 
 
+def _is_candidate_official_website(candidate: str) -> bool:
+    if not feeds.public_url(candidate):
+        return False
+    parsed = urlsplit(candidate)
+    host = (parsed.hostname or "").lower()
+    path_low = (parsed.path or "").lower()
+    if not host or any(d in host for d in _HOSTED_ATS_DOMAINS):
+        return False
+    if path_low.endswith(_NON_HTML_ASSET_SUFFIXES):
+        return False
+    return True
+
+
 def _extract_official_website_from_hosted_html(html: str) -> str:
+    """Extract a candidate employer website URL from hosted ATS HTML (anchors or structured SPA JSON).
+
+    Does NOT establish identity on its own: `verify_board_identity` still requires strict
+    bidirectional corroboration from the employer's official site back to the ATS board.
+    """
     for match in _ANCHOR_HREF_URL.finditer(html):
         candidate = match.group(1)
-        if not feeds.public_url(candidate):
-            continue
-        parsed = urlsplit(candidate)
-        host = (parsed.hostname or "").lower()
-        path_low = (parsed.path or "").lower()
-        if not host or any(d in host for d in _HOSTED_ATS_DOMAINS):
-            continue
-        if path_low.endswith(_NON_HTML_ASSET_SUFFIXES):
-            continue
-        return candidate
+        if _is_candidate_official_website(candidate):
+            return candidate
+    # Ashby (and similar React SPAs) embed `window.__appData` with `"publicWebsite":"https://..."`
+    # rather than static `<a>` tags in the initial HTML shell.
+    for match in _STRUCTURED_WEBSITE_URL.finditer(html):
+        candidate = match.group(1).replace(r"\/", "/")
+        if _is_candidate_official_website(candidate):
+            return candidate
     return ""
 
 
@@ -719,7 +753,7 @@ def verify_board_identity(
 
     if not official_site:
         hosted_url = _hosted_board_url(provider, board, region)
-        st, raw, _ = get_bytes(hosted_url, max_bytes=MAX_SITE_BYTES, timeout=12, accept="text/html,*/*")
+        st, raw, _ = get_bytes(hosted_url, max_bytes=MAX_SITE_BYTES, timeout=12, accept="text/html,*/*", allow_truncate=True)
         reqs += 1
         nbytes += len(raw)
         if st == 429:
@@ -743,7 +777,7 @@ def verify_board_identity(
         candidate_pages.append(urljoin(official_site.rstrip("/") + "/", "careers"))
 
     for page_url in candidate_pages[:2]:
-        st, raw, final_url = get_bytes(page_url, max_bytes=MAX_SITE_BYTES, timeout=12, accept="text/html,*/*")
+        st, raw, final_url = get_bytes(page_url, max_bytes=MAX_SITE_BYTES, timeout=12, accept="text/html,*/*", allow_truncate=True)
         reqs += 1
         nbytes += len(raw)
         if st == 429:

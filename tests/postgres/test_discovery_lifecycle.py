@@ -107,7 +107,9 @@ class WorkableAndDiscoveryLifecycleTests(DatabaseTest):
             if p.returncode:
                 raise RuntimeError(p.stderr)
         for filename in ('agent_access.sql', 'lead_deadline_access.sql',
-                         'posting_deadline_access.sql', 'calendar_selection_access.sql', 'discovery_access.sql'):
+                         'posting_deadline_access.sql', 'calendar_selection_access.sql',
+                         'discovery_access.sql', 'directory_discovery_access.sql',
+                         'discovery_fidelity_access.sql'):
             p = subprocess.run(
                 ['docker', 'exec', '-i', container, 'psql', '-X', '-U', 'postgres',
                  '-d', 'jobwatch_foundation_test', '-v', 'ON_ERROR_STOP=1', '-f', '-'],
@@ -219,11 +221,36 @@ class WorkableAndDiscoveryLifecycleTests(DatabaseTest):
         self.assertEqual(self.scalar("SELECT state FROM jobwatch.discovery_candidates WHERE candidate_key='discovery:workable:u-1'"), 'promoted_lead')
         self.assertEqual(self.scalar("SELECT count(*) FROM jobwatch.owner_audit WHERE table_name='leads'"), 1)
 
-        # 5. Offline rescreen from excerpt works cleanly without network calls.
+        # 5. Offline rescreen uses complete retained description (stays 'full' after 0011).
         with self.target.connect('jobwatch_collector') as conn:
             changed = discovery.rescreen_candidates(conn)
-        self.assertEqual(changed, 1)  # full -> excerpt basis recorded honestly
-        self.assertEqual(self.scalar("SELECT screening_basis FROM jobwatch.discovery_candidates WHERE candidate_key='discovery:workable:u-1'"), 'excerpt')
+        self.assertEqual(changed, 0)
+        self.assertEqual(self.scalar("SELECT screening_basis FROM jobwatch.discovery_candidates WHERE candidate_key='discovery:workable:u-1'"), 'full')
+        self.assertEqual(self.scalar("SELECT evidence_completeness FROM jobwatch.discovery_candidates WHERE candidate_key='discovery:workable:u-1'"), 'complete')
+
+        # 5b. Research MCP can inspect current and historical discovery evidence (`research_discovery_evidence` + `discovery_candidate_snapshots`)
+        #     and cannot mutate snapshots.
+        ev_q = read.call('sql_query', {
+            'sql': (
+                "SELECT candidate_key, effective_evidence_source, effective_completeness, "
+                "effective_complete_description_sha256, snapshot_count, snapshot_observation_count "
+                "FROM jobwatch.research_discovery_evidence WHERE candidate_key='discovery:workable:u-1'"
+            ),
+            'limit': 5,
+        })
+        self.assertTrue(ev_q['ok'], ev_q)
+        self.assertEqual(ev_q['data']['rows'][0][1], 'discovery_candidate_snapshot')
+        self.assertEqual(ev_q['data']['rows'][0][2], 'complete')
+        self.assertIsNotNone(ev_q['data']['rows'][0][3])
+        self.assertEqual(ev_q['data']['rows'][0][4], 2)  # two distinct evidence_sha256 versions
+        self.assertEqual(ev_q['data']['rows'][0][5], 2)
+        snap_q = read.call('sql_query', {
+            'sql': "SELECT count(*) FROM jobwatch.discovery_candidate_snapshots WHERE candidate_key='discovery:workable:u-1'",
+            'limit': 5,
+        })
+        self.assertTrue(snap_q['ok'], snap_q)
+        self.assertEqual(snap_q['data']['rows'][0][0], 2)
+        self.rejected(psycopg.errors.ReadOnlySqlTransaction, "DELETE FROM jobwatch.discovery_candidate_snapshots", user='jobwatch_agent_readonly')
 
         # 6. Auto-linking to a newly collected monitored posting works for a separate non-promoted candidate.
         with self.target.connect('jobwatch_owner') as conn, conn.transaction():
@@ -270,6 +297,188 @@ class WorkableAndDiscoveryLifecycleTests(DatabaseTest):
             psycopg.errors.CheckViolation,
             "INSERT INTO jobwatch.sources(provider,board,region) VALUES ('workable','stalis','eu')",
         )
+
+    def test_migration_0011_check_null_semantics_invariants_snapshots_and_version_consistency(self):
+        # 1. Explicit PostgreSQL CHECK NULL semantics: 'complete' + NULL complete_description_sha256 MUST fail!
+        ex_text = 'Short excerpt'
+        ex_sha = sha256(ex_text.encode()).hexdigest()
+        full_text = 'Full complete description ' * 200
+        full_sha = sha256(full_text.encode()).hexdigest()
+        ev_sha = sha256(b'ev-1').hexdigest()
+
+        # NULL complete_description_sha256 with completeness='complete' (SQL 3VL UNKNOWN trap!) -> MUST raise CheckViolation!
+        self.rejected(
+            psycopg.errors.CheckViolation,
+            "INSERT INTO jobwatch.discovery_candidates("
+            "candidate_key,provider,company,title,posting_url,description_text,description_excerpt,"
+            "evidence_completeness,complete_description_sha256,excerpt_sha256,evidence_sha256,"
+            "discovery_mechanisms,verdict,family,codes,rules_version,screening_basis) "
+            "VALUES ('test:nullhash:1','other','Co','Grad SWE','https://example.org/j/1',%s,%s,"
+            "'complete',NULL,%s,%s,ARRAY['test'],'review','software',ARRAY[]::text[],'v1','full')",
+            params=(full_text, ex_text, ex_sha, ev_sha),
+        )
+        # Wrong complete_description_sha256 -> MUST fail!
+        self.rejected(
+            psycopg.errors.CheckViolation,
+            "INSERT INTO jobwatch.discovery_candidates("
+            "candidate_key,provider,company,title,posting_url,description_text,description_excerpt,"
+            "evidence_completeness,complete_description_sha256,excerpt_sha256,evidence_sha256,"
+            "discovery_mechanisms,verdict,family,codes,rules_version,screening_basis) "
+            "VALUES ('test:badhash:1','other','Co','Grad SWE','https://example.org/j/2',%s,%s,"
+            "'complete',%s,%s,%s,ARRAY['test'],'review','software',ARRAY[]::text[],'v1','full')",
+            params=(full_text, ex_text, '0' * 64, ex_sha, ev_sha),
+        )
+        # Missing excerpt_sha256 when excerpt is non-empty -> MUST fail!
+        self.rejected(
+            psycopg.errors.CheckViolation,
+            "INSERT INTO jobwatch.discovery_candidates("
+            "candidate_key,provider,company,title,posting_url,description_text,description_excerpt,"
+            "evidence_completeness,complete_description_sha256,excerpt_sha256,evidence_sha256,"
+            "discovery_mechanisms,verdict,family,codes,rules_version,screening_basis) "
+            "VALUES ('test:badex:1','other','Co','Grad SWE','https://example.org/j/3',NULL,%s,"
+            "'truncated',NULL,NULL,%s,ARRAY['test'],'review','software',ARRAY[]::text[],'v1','excerpt')",
+            params=(ex_text, ev_sha),
+        )
+        # Retention policy 'excerpt_only_terms_restricted' claiming 'complete' -> MUST fail!
+        self.rejected(
+            psycopg.errors.CheckViolation,
+            "INSERT INTO jobwatch.discovery_candidates("
+            "candidate_key,provider,company,title,posting_url,description_text,description_excerpt,"
+            "evidence_completeness,evidence_retention_policy,complete_description_sha256,excerpt_sha256,evidence_sha256,"
+            "discovery_mechanisms,verdict,family,codes,rules_version,screening_basis) "
+            "VALUES ('test:pol:1','other','Co','Grad SWE','https://example.org/j/4',%s,%s,"
+            "'complete','excerpt_only_terms_restricted',%s,%s,%s,ARRAY['test'],'review','software',ARRAY[]::text[],'v1','full')",
+            params=(full_text, ex_text, full_sha, ex_sha, ev_sha),
+        )
+        # Retention policy 'metadata_only' with non-empty excerpt -> MUST fail!
+        self.rejected(
+            psycopg.errors.CheckViolation,
+            "INSERT INTO jobwatch.discovery_candidates("
+            "candidate_key,provider,company,title,posting_url,description_text,description_excerpt,"
+            "evidence_completeness,evidence_retention_policy,complete_description_sha256,excerpt_sha256,evidence_sha256,"
+            "discovery_mechanisms,verdict,family,codes,rules_version,screening_basis) "
+            "VALUES ('test:pol:2','other','Co','Grad SWE','https://example.org/j/5',NULL,%s,"
+            "'truncated','metadata_only',NULL,%s,%s,ARRAY['test'],'review','software',ARRAY[]::text[],'v1','excerpt')",
+            params=(ex_text, ex_sha, ev_sha),
+        )
+
+        # 2. Repeated unchanged observations increment observation_count without duplicating snapshot content;
+        #    content changes append a new snapshot row; snapshot content is immutable to runtime roles!
+        t0 = datetime(2026, 11, 25, 9, 0, tzinfo=timezone.utc)
+        t1 = t0 + timedelta(hours=4)
+        t2 = t0 + timedelta(hours=8)
+        v1 = _vacancy(candidate_key='ashby:anima:job-1', provider='ashby', board='anima', native_id='job-1',
+                      company='Anima Health', title='Graduate Software Engineer',
+                      posting_url='https://jobs.ashbyhq.com/anima/job-1',
+                      description_full=full_text, mechanism='ats_directory:ashby')
+        with self.target.connect('jobwatch_collector') as conn:
+            r1 = discovery.record_discoveries(conn, [v1], observed_at=t0)
+            r2 = discovery.record_discoveries(conn, [v1], observed_at=t1)
+        self.assertEqual(r1['snapshots_created'], 1)
+        self.assertEqual(r2['snapshots_reobserved'], 1)
+        self.assertEqual(self.scalar("SELECT count(*) FROM jobwatch.discovery_candidate_snapshots WHERE candidate_key='ashby:anima:job-1'"), 1)
+        with self.target.connect('jobwatch_owner') as conn:
+            snap = conn.execute("SELECT first_observed_at, last_observed_at, observation_count FROM jobwatch.discovery_candidate_snapshots WHERE candidate_key='ashby:anima:job-1'").fetchone()
+        self.assertEqual(snap['first_observed_at'], t0)
+        self.assertEqual(snap['last_observed_at'], t1)
+        self.assertEqual(snap['observation_count'], 2)
+
+        # Snapshot table NULL-hash check also enforced!
+        self.rejected(
+            psycopg.errors.CheckViolation,
+            "INSERT INTO jobwatch.discovery_candidate_snapshots("
+            "candidate_key,first_observed_at,last_observed_at,discovery_mechanism,source_url,"
+            "evidence_completeness,title,description_text,description_excerpt,"
+            "complete_description_sha256,excerpt_sha256,evidence_sha256) "
+            "VALUES ('ashby:anima:job-1',now(),now(),'test','https://jobs.ashbyhq.com/anima/job-1',"
+            "'complete','T',%s,%s,NULL,%s,%s)",
+            params=(full_text, ex_text, ex_sha, sha256(b'snap-null').hexdigest()),
+        )
+
+        # Runtime roles CANNOT tamper with snapshot wording or delete snapshots!
+        for role in ('jobwatch_collector', 'jobwatch_owner'):
+            self.rejected(psycopg.errors.InsufficientPrivilege, "UPDATE jobwatch.discovery_candidate_snapshots SET description_text='tampered'", user=role)
+            self.rejected(psycopg.errors.InsufficientPrivilege, "DELETE FROM jobwatch.discovery_candidate_snapshots", user=role)
+
+        # Content change creates a 2nd distinct snapshot row while preserving the 1st!
+        v1_edited = _vacancy(candidate_key='ashby:anima:job-1', provider='ashby', board='anima', native_id='job-1',
+                             company='Anima Health', title='Graduate Software Engineer',
+                             posting_url='https://jobs.ashbyhq.com/anima/job-1',
+                             description_full=full_text + ' Updated deadline: 10 December 2026.',
+                             mechanism='ats_directory:ashby')
+        # Use a different evidence_sha256 reflecting the content edit
+        v1_edited = DiscoveredVacancy(**{**v1_edited.__dict__, 'evidence_sha256': sha256(b'ev-edited').hexdigest()})
+        with self.target.connect('jobwatch_collector') as conn:
+            r3 = discovery.record_discoveries(conn, [v1_edited], observed_at=t2)
+        self.assertEqual(r3['snapshots_created'], 1)
+        self.assertEqual(self.scalar("SELECT count(*) FROM jobwatch.discovery_candidate_snapshots WHERE candidate_key='ashby:anima:job-1'"), 2)
+
+        # 3. Single-version consistency in research_discovery_evidence when linked to native posting_versions!
+        key, vid, _ = self.seed(
+            native_id='native-99',
+            url='https://example.org/jobs/native-99',
+            description='Authoritative native posting description text.',
+        )
+        v_linked = _vacancy(
+            candidate_key=key,
+            provider='greenhouse', board='test', native_id='native-99',
+            company='Test', title='Graduate Software Engineer',
+            posting_url='https://example.org/jobs/native-99',
+            description_full='Different discovery-side description text.',
+            mechanism='ats_directory:gh',
+        )
+        with self.target.connect('jobwatch_collector') as conn:
+            discovery.record_discoveries(conn, [v_linked], observed_at=t2)
+        with self.target.connect('jobwatch_owner') as conn:
+            ev = conn.execute("SELECT * FROM jobwatch.research_discovery_evidence WHERE candidate_key=%s", (key,)).fetchone()
+            pv = conn.execute("SELECT id, description_text, evidence_sha256, observed_at, provenance FROM jobwatch.posting_versions WHERE id=%s", (vid,)).fetchone()
+        self.assertEqual(ev['effective_evidence_source'], 'native_posting_version')
+        self.assertEqual(ev['effective_version_id'], str(pv['id']))
+        self.assertEqual(ev['effective_description'], pv['description_text'])
+        self.assertEqual(ev['effective_complete_description_sha256'], sha256(pv['description_text'].encode()).hexdigest())
+        self.assertEqual(ev['effective_evidence_sha256'], pv['evidence_sha256'])
+        self.assertEqual(ev['effective_first_observed_at'], pv['observed_at'])
+        self.assertEqual(ev['effective_provenance'], pv['provenance'])
+        # Candidate-side metadata stays distinct and inspectable without polluting effective_*!
+        self.assertNotEqual(ev['candidate_complete_description_sha256'], ev['effective_complete_description_sha256'])
+
+    def test_migration_0011_upgrade_backfills_legacy_truncated_rows_honestly(self):
+        from dataclasses import replace
+        from psycopg.conninfo import make_conninfo
+        from jobwatch.postgres.connection import connect
+        from jobwatch.postgres.migrate import load_migrations, migrate
+
+        container = os.environ['JOBWATCH_PG_TEST_CONTAINER']
+        db = 'jobwatch_0011_legacy_backfill_test'
+        subprocess.run(['docker', 'exec', container, 'createdb', '-U', 'postgres', '-O', 'jobwatch_migrator', db], check=True)
+        try:
+            cfg = replace(self.target.config(), dsn=make_conninfo(self.target.config().dsn, dbname=db))
+            plan = load_migrations()
+            with connect(cfg) as conn:
+                migrate(conn, plan[:10])
+                conn.execute(
+                    "INSERT INTO jobwatch.discovery_candidates("
+                    "candidate_key,provider,company,title,posting_url,description_excerpt,evidence_sha256,"
+                    "discovery_mechanisms,verdict,family,codes,rules_version,screening_basis) VALUES "
+                    "('legacy:trunc:1','greenhouse','OldCo','Grad SWE','https://example.org/old/1','Truncated 2500-char excerpt',repeat('a',64),ARRAY['legacy'],'review','software',ARRAY[]::text[],'v1','excerpt'),"
+                    "('legacy:empty:2','greenhouse','OldCo','Grad ML','https://example.org/old/2','   ',repeat('b',64),ARRAY['legacy'],'review','ml_ai',ARRAY[]::text[],'v1','title_metadata_only')"
+                )
+                self.assertEqual(migrate(conn), [plan[10].filename])
+                r1 = conn.execute("SELECT * FROM jobwatch.discovery_candidates WHERE candidate_key='legacy:trunc:1'").fetchone()
+                r2 = conn.execute("SELECT * FROM jobwatch.discovery_candidates WHERE candidate_key='legacy:empty:2'").fetchone()
+                self.assertEqual(r1['evidence_completeness'], 'truncated')
+                self.assertIsNone(r1['description_text'])
+                self.assertIsNone(r1['complete_description_sha256'])
+                self.assertEqual(r1['excerpt_sha256'], sha256(b'Truncated 2500-char excerpt').hexdigest())
+                self.assertIsNotNone(r1['current_snapshot_id'])
+                self.assertEqual(r2['evidence_completeness'], 'unavailable')
+                self.assertEqual(r2['description_excerpt'], '')
+                self.assertIsNone(r2['excerpt_sha256'])
+                self.assertIsNotNone(r2['current_snapshot_id'])
+                snap1 = conn.execute("SELECT provenance FROM jobwatch.discovery_candidate_snapshots WHERE snapshot_id=%s", (r1['current_snapshot_id'],)).fetchone()
+                self.assertTrue(snap1['provenance']['legacy_pre_0011_snapshot'])
+        finally:
+            subprocess.run(['docker', 'exec', container, 'dropdb', '-U', 'postgres', '--force', db], check=False)
 
 
 if __name__ == '__main__':
