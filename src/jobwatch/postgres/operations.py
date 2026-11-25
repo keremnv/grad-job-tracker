@@ -36,6 +36,8 @@ def main(argv=None):
     sub=p.add_subparsers(dest='command',required=True)
     scan=sub.add_parser('scan');scan.add_argument('--actor',required=True);scan.add_argument('--fixture',type=Path)
     scan.add_argument('--format',choices=('json','summary'),default='json');scan.add_argument('--max-sources',type=int,default=1000)
+    rescreen=sub.add_parser('rescreen');rescreen.add_argument('--actor',required=True)
+    rescreen.add_argument('--advance-from',default=None)
     report=sub.add_parser('report');report.add_argument('kind',choices=('daily','weekly','requirements','calendar'))
     report.add_argument('--since');report.add_argument('--limit',type=int,default=50);report.add_argument('--json',action='store_true')
     cal=sub.add_parser('calendar');cs=cal.add_subparsers(dest='calendar_command',required=True)
@@ -78,6 +80,11 @@ def main(argv=None):
             result=collect_monitored(c,max_sources=args.max_sources,**kwargs)
             print(actions_summary(result) if args.format=='summary' else json.dumps(primitive(result),ensure_ascii=True))
             return result['exit_code']
+        if args.command=='rescreen':
+            c=Collector(actor=args.actor)
+            result=c.rescreen_all(advance_from=args.advance_from)
+            print(json.dumps({'sources':result,'rules_version':c.processing.rules_version,'normalizer_version':c.processing.normalizer_version},ensure_ascii=True))
+            return 0
         if args.command=='source':
             if args.source_command=='check':
                 kwargs={'get_json':fixture_transport(args.fixture),'pause':lambda _:None,'fixture':True} if args.fixture else {}

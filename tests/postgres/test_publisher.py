@@ -19,7 +19,7 @@ except ImportError:
     psycopg = None
 
 from jobwatch import filtering
-from jobwatch.postgres.collection import Processing, fetch, normalize_v1
+from jobwatch.postgres.collection import NORMALIZER_VERSION, Processing, fetch, normalize_v1
 from jobwatch.postgres.publisher import Collector, CollectionError, _version
 from support import DatabaseTest, actor, source
 
@@ -230,7 +230,7 @@ class PublisherTests(DatabaseTest):
         self.assertEqual(self.events('provider'), [])
         self.assertEqual(len(self.events('normalizer')), 1)
         self.assertEqual(self.scalar('SELECT count(*) FROM jobwatch.posting_versions'), 2)
-        self.assertEqual(self.scalar("SELECT description_text FROM jobwatch.posting_versions WHERE normalizer_version='normalizer-v1'"), 'Build Python services')
+        self.assertEqual(self.scalar("SELECT description_text FROM jobwatch.posting_versions WHERE normalizer_version=%s", (NORMALIZER_VERSION,)), 'Build Python services')
         self.assertEqual(new.rescreen_source(self.source, advance_from='pipeline-v1'), 'rescreened')
         self.assertEqual(len(self.events('normalizer')), 1)
 

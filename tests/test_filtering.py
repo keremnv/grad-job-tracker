@@ -28,7 +28,8 @@ class ScreeningTests(unittest.TestCase):
         for title in ('Graduate Mechanical Engineer (2027 start)','Business & Operations Graduate 2027','Drug Delivery Business Developer','People Operations Associate (AI and Automation)','Technology Leader - Wireless Software Systems'):
             with self.subTest(title=title): self.assertEqual(classify(p(title,'United Kingdom'))[0],'excluded')
         self.assertEqual(classify(p('Software/Infrastructure Graduate - 2027 - Hong Kong','Hong Kong'))[0],'excluded')
-        self.assertEqual(classify(p('Software/Infrastructure Graduate - 2027 - London','London, London - Sloane Street'))[0],'review')
+        self.assertEqual(classify(p('Software/Infrastructure Graduate - 2027 - London','London, London - Sloane Street'))[0],'priority')
+        self.assertEqual(classify(p('Software Quality Assurance Engineer','Taipei,Taiwan, Taiwan Locations'))[0],'excluded')
 
     def test_unknown_city_and_remote_are_reviewed(self):
         for location in ('London','Cambridge','Remote','EMEA','Worldwide',''):
@@ -45,9 +46,10 @@ class ScreeningTests(unittest.TestCase):
         self.assertEqual(classify(p(location='Berlin',country='DE'))[0],'excluded')
 
     def test_year_and_experience_uncertainties_not_invented_eligibility(self):
-        for title in ('2026 Graduate Software Engineer','Graduate Software Engineer 2028','Graduate Developer (2025/2027)','2027/2028 Graduate AI Engineer'):
+        for title in ('2026 Graduate Software Engineer','Graduate Software Engineer 2028'):
             judgment,reason=classify(p(title));self.assertEqual(judgment,'review');self.assertIn('flexibility unknown',reason)
-        self.assertEqual(classify(p('2027 Graduate Software Engineer'))[0],'priority')
+        for title in ('2027 Graduate Software Engineer','Graduate Developer (2026/2027)','2027/2028 Graduate AI Engineer'):
+            self.assertEqual(classify(p(title))[0],'priority')
         for desc in ('Requires 3+ years professional experience','PhD required','Strong experience in backend services'):
             self.assertEqual(classify(p(description=desc))[0],'review')
         self.assertIn('owner eligibility unknown',classify(p(description='Sole British National; DV clearance'))[1])

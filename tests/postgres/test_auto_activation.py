@@ -7,9 +7,13 @@ from jobwatch.discovery.directory_discovery import DirectoryBoard, IdentityCheck
 from jobwatch.postgres.auto_activation import (
     AUTO_DISCOVERY_PREFIX,
     AutoActivationPolicy,
+    LOCK_NAMESPACE,
+    deactivate_auto_source,
     evaluate_board_eligibility,
     evaluate_deactivation_candidates,
+    reactivate_auto_source,
     run_auto_activation_pass,
+    stage_auto_candidates,
 )
 from jobwatch.postgres.directory_discovery import record_board_probe, sync_directory_boards
 from jobwatch.postgres.publisher import Collector
@@ -109,6 +113,36 @@ class AutoActivationPrototypeTests(DatabaseTest):
             self.assertEqual(flagged[0]["board_key"], "greenhouse:autofail")
             self.assertIn("consecutive_collection_failures", flagged[0]["reasons"])
             self.assertIn("zero_uk_relevant_yield_over_window", flagged[0]["reasons"])
+
+            # Manual source is strictly protected from auto-deactivation.
+            with self.assertRaises(PermissionError):
+                deactivate_auto_source(owner, manual_sid, reason="should_fail")
+
+            # Pausing auto-activated source is audited, reversible, and preserves all history.
+            res = deactivate_auto_source(owner, auto_sid, reason="consecutive_collection_failures")
+            self.assertEqual(res["status"], "paused")
+            self.assertTrue(res["historical_evidence_preserved"])
+            self.assertEqual(owner.execute("SELECT status FROM jobwatch.sources WHERE id=%s", (auto_sid,)).fetchone()["status"], "paused")
+            self.assertEqual(owner.execute("SELECT count(*) AS n FROM jobwatch.collection_runs WHERE source_id=%s", (auto_sid,)).fetchone()["n"], 5)
+
+            rev = reactivate_auto_source(owner, auto_sid, reason="endpoint_recovered")
+            self.assertEqual(rev["status"], "monitored")
+            self.assertEqual(owner.execute("SELECT status FROM jobwatch.sources WHERE id=%s", (auto_sid,)).fetchone()["status"], "monitored")
+
+    def test_concurrent_runs_cannot_exceed_activation_budget(self):
+        with self.target.connect("jobwatch_collector") as conn:
+            self._seed_board(conn, "greenhouse", "lockco", "Lock Co UK", uk_prio=1, total=10)
+        policy = AutoActivationPolicy(max_monitored_boards=10, max_activations_per_run=1)
+        with self.target.connect("jobwatch_owner") as holder, self.target.connect("jobwatch_owner") as contender:
+            got = holder.execute("SELECT pg_try_advisory_lock(hashtextextended(%s, 0)) AS ok", (LOCK_NAMESPACE,)).fetchone()["ok"]
+            self.assertTrue(got)
+            try:
+                blocked = stage_auto_candidates(contender, policy=policy, dry_run=False)
+                self.assertTrue(blocked["locked_by_concurrent_run"])
+                self.assertEqual(blocked["staged"], [])
+                self.assertEqual(contender.execute("SELECT count(*) AS n FROM jobwatch.sources WHERE board='lockco'").fetchone()["n"], 0)
+            finally:
+                holder.execute("SELECT pg_advisory_unlock(hashtextextended(%s, 0))", (LOCK_NAMESPACE,))
 
 
 if __name__ == "__main__":

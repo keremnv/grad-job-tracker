@@ -1,0 +1,25 @@
+[Unit]
+Description=Job Watch bounded automatic source activation (phase 3/3, owner role)
+Requires=jobwatch-postgresql.service
+After=jobwatch-postgresql.service
+StartLimitIntervalSec=21600
+StartLimitBurst=3
+[Service]
+Type=oneshot
+User=jobwatch-owner
+Group=jobwatch-db
+Environment="JOBWATCH_DATABASE_URL=host=/run/jobwatch-postgresql dbname=jobwatch user=jobwatch_owner"
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/jobwatch/current/venv/bin/python /opt/jobwatch/current/infra/aws/scripts/run_operation.py auto-activate
+MemoryMax=128M
+CPUQuota=25%
+TimeoutStartSec=5min
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+UMask=0077

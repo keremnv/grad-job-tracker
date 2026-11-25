@@ -18,7 +18,7 @@ REQUESTS = {
     'ashby': 'ashby:compensation-v1',
     'workable': 'workable:widget-details-v1',
 }
-NORMALIZER_VERSION = 'normalizer-v1'
+NORMALIZER_VERSION = 'normalizer-v2'
 
 
 def iso(value):

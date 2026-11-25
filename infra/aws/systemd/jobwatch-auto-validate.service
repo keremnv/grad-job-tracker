@@ -1,0 +1,26 @@
+[Unit]
+Description=Job Watch bounded automatic source endpoint validation (phase 2/3, collector role)
+Requires=jobwatch-postgresql.service
+After=jobwatch-postgresql.service network-online.target
+OnSuccess=jobwatch-auto-activate.service
+StartLimitIntervalSec=21600
+StartLimitBurst=3
+[Service]
+Type=oneshot
+User=jobwatch-collector
+Group=jobwatch-db
+Environment="JOBWATCH_DATABASE_URL=host=/run/jobwatch-postgresql dbname=jobwatch user=jobwatch_collector"
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/jobwatch/current/venv/bin/python /opt/jobwatch/current/infra/aws/scripts/run_operation.py auto-validate
+MemoryMax=128M
+CPUQuota=25%
+TimeoutStartSec=10min
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+UMask=0077

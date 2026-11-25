@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily Job Watch bounded automatic source activation pass (04:50 UTC)
+[Timer]
+OnCalendar=*-*-* 04:50:00 UTC
+RandomizedDelaySec=5min
+Persistent=false
+Unit=jobwatch-auto-stage.service
+[Install]
+WantedBy=timers.target

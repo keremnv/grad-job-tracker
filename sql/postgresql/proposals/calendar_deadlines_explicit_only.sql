@@ -1,0 +1,15 @@
+-- ISOLATED PROPOSAL (NOT DEPLOYED TO PRODUCTION).
+-- Explicit identity-based calendar inclusion policy.
+-- Replaces the legacy all-evidence default (`/etc/jobwatch/calendar-deadlines.sql`).
+--
+-- Effect:
+--   published = (policy claims = EMPTY) U (calendar_selections mode='include')
+--                                       - (calendar_selections mode='exclude')
+--
+-- 1. Entirely new vacancies NEVER automatically enter the ICS calendar merely
+--    because qualifying deadline evidence exists.
+-- 2. Any vacancy explicitly selected in `jobwatch.calendar_selections` (`mode='include'`)
+--    automatically reflects subsequent well-supported deadline changes (preserving UID
+--    and advancing SEQUENCE), while unresolved conflicts or lost supporting evidence
+--    safely omit the event without deleting the selection or manifest UID history.
+SELECT NULL::text AS evidence_key WHERE false

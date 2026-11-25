@@ -7,7 +7,7 @@ import sys
 import time
 
 
-OPERATIONS = ('collect', 'backup', 'discover-refresh', 'discover-probe')
+OPERATIONS = ('collect', 'backup', 'discover-refresh', 'discover-probe', 'auto-stage', 'auto-validate', 'auto-activate')
 
 
 def run(operation, *, config_path=Path('/etc/jobwatch/aws.json'), run_command=subprocess.run):
@@ -25,8 +25,15 @@ def run(operation, *, config_path=Path('/etc/jobwatch/aws.json'), run_command=su
     elif operation == 'discover-probe':
         command = [sys.executable, '-m', 'jobwatch.postgres.directory_discovery',
                    '--no-refresh', '--providers', 'greenhouse,ashby,lever',
+                   '--scheduler', 'prioritized', '--exploration-ratio', '0.60',
                    '--max-boards', '40', '--max-requests', '80', '--max-bytes', '33554432',
                    '--verify-limit', '8', '--delay', '0.5']
+    elif operation == 'auto-stage':
+        command = [sys.executable, '-m', 'jobwatch.postgres.auto_activation', '--phase', 'stage', '--apply']
+    elif operation == 'auto-validate':
+        command = [sys.executable, '-m', 'jobwatch.postgres.auto_activation', '--phase', 'validate']
+    elif operation == 'auto-activate':
+        command = [sys.executable, '-m', 'jobwatch.postgres.auto_activation', '--phase', 'activate', '--apply']
     else:
         raise ValueError(f'Unsupported operation: {operation!r}')
     started = time.monotonic()
@@ -55,10 +62,12 @@ def run(operation, *, config_path=Path('/etc/jobwatch/aws.json'), run_command=su
                 value = data.get(field)
                 if isinstance(value, int):
                     summary[field] = value
-            for field in ('status_counts', 'identity_checks'):
+            for field in ('status_counts', 'identity_checks', 'selection_reasons', 'provider_probes'):
                 value = data.get(field)
                 if isinstance(value, dict) and all(isinstance(k, str) and isinstance(v, int) for k, v in value.items()):
                     summary[field] = value
+            if data.get('scheduler') in ('prioritized', 'fifo'):
+                summary['scheduler'] = data.get('scheduler')
             if data.get('halted_reason') in (None, 'max_requests_reached', 'max_bytes_reached', 'rate_limited_429'):
                 summary['halted_reason'] = data.get('halted_reason')
             dirs = data.get('directories')
@@ -67,6 +76,19 @@ def run(operation, *, config_path=Path('/etc/jobwatch/aws.json'), run_command=su
                     str(prov): {k: v for k, v in stats.items() if k in ('total', 'inserted', 'updated', 'already_registered', 'unknown_boards', 'skipped_invalid') and isinstance(v, int)}
                     for prov, stats in dirs.items() if isinstance(stats, dict)
                 }
+        except (ValueError, TypeError):
+            summary['summary_available'] = False
+    elif operation in ('auto-stage', 'auto-validate', 'auto-activate'):
+        try:
+            data = json.loads(result.stdout)
+            for field in ('evaluated', 'checked'):
+                if isinstance(data.get(field), int):
+                    summary[field] = data[field]
+            for list_field in ('eligible', 'staged', 'validated', 'failed', 'activated', 'deferred'):
+                if isinstance(data.get(list_field), list):
+                    summary[list_field + '_count'] = len(data[list_field])
+            if isinstance(data.get('locked_by_concurrent_run'), bool):
+                summary['locked_by_concurrent_run'] = data['locked_by_concurrent_run']
         except (ValueError, TypeError):
             summary['summary_available'] = False
     publish(summary, config, run_command=run_command)

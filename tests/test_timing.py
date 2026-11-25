@@ -1,7 +1,7 @@
 import unittest
 from jobwatch.feeds import Posting
 from jobwatch.state import merge
-from jobwatch.timing import deadline_evidence, deadline_window, parse_prose_deadline, stale
+from jobwatch.timing import analyze_posting_deadlines, deadline_evidence, deadline_window, parse_prose_deadline, stale
 from jobwatch.cli import report
 
 NOW='2026-10-17T12:00:00Z'
@@ -74,3 +74,24 @@ class TimingTests(unittest.TestCase):
         )
         self.assertEqual(sup_html['kind'], 'explicit_date')
         self.assertEqual(sup_html['candidate_date'], '2026-11-29')
+
+    def test_multiline_headings_work_noise_and_conflict_analysis(self):
+        palantir = deadline_evidence({}, "<h3>Application deadline</h3><p>We accept applications on an ongoing basis.</p>", "https://example.org", NOW)
+        self.assertEqual(len(palantir), 1)
+        self.assertIn("ongoing basis", palantir[0]["wording"])
+        self.assertNotIn("value", palantir[0])
+        self.assertTrue(parse_prose_deadline(palantir[0]["wording"])["rolling"])
+
+        riverlane = deadline_evidence({}, "<p>Deadline</p><p>Please submit your application by November 6<sup>th</sup>, 2026</p>", "https://example.org", NOW)
+        self.assertEqual(len(riverlane), 1)
+        self.assertEqual(parse_prose_deadline(riverlane[0]["wording"])["candidate_date"], "2026-11-06")
+
+        noise = deadline_evidence({}, "<li>Comfortable working in a deadline-driven environment and delivering work to deadline.</li>", "https://example.org", NOW)
+        self.assertEqual(noise, [])
+
+        conflict = analyze_posting_deadlines([
+            {"source_field": "application_deadline", "value": "2026-11-29"},
+            {"source_field": "description", "wording": "Application deadline: 30 November 2026"},
+        ])
+        self.assertTrue(conflict["has_date_conflict"])
+        self.assertEqual(conflict["all_distinct_dates"], ["2026-11-29", "2026-11-30"])

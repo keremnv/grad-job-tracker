@@ -183,7 +183,7 @@ def select_probe_batch_prioritized(
     *,
     limit: int = 40,
     providers: tuple[str, ...] = ("greenhouse", "ashby", "lever"),
-    exploration_ratio: float = 0.35,
+    exploration_ratio: float = 0.60,
     new_board_days: int = 7,
     reprobe_active_days: int = 7,
     reprobe_non_uk_days: int = 30,
@@ -192,10 +192,11 @@ def select_probe_batch_prioritized(
     """Deterministic multi-signal scheduler with anti-starvation exploration budget and exponential backoff.
 
     Allocates:
-    - `exploration_ratio` (default 35%) strictly to `probe_status='unprobed'` boards
+    - `exploration_ratio` (default 60%) strictly to `probe_status='unprobed'` boards
       rotated deterministically across providers (`hashtext(board_key)`) so unexplored
-      employers are never starved and alphabetical bias is eliminated.
-    - Remaining slots to highest deterministic priority score combining:
+      employers are never starved, unique employer recall stays high, and alphabetical
+      bias is eliminated.
+    - Remaining slots to highest deterministic priority score combining inspectable inputs:
       newly added directory entries, verified official UK identity, historical
       early-career & UK technical yield, UK hints/domains, and staleness since last probe.
     - Exponential failure/dead backoff: `7d * 2^(min(probe_count-1, 3))` (7d -> 14d -> 28d -> 56d),
@@ -240,12 +241,14 @@ def select_probe_batch_prioritized(
         for prov in providers:
             rows = conn.execute(
                 "SELECT b.board_key, b.provider, b.board, b.region, b.company_hint, b.uk_hint, "
-                "b.probe_status, b.identity_status, b.directory_sources, 'exploration' AS selection_reason "
+                "b.probe_status, b.identity_status, b.directory_sources, "
+                "(b.first_discovered_at >= %s) AS is_new_entry, "
+                "'exploration' AS selection_reason "
                 "FROM jobwatch.discovered_boards b "
                 "WHERE b.provider = %s AND b.source_id IS NULL AND b.last_probed_at IS NULL "
                 "AND NOT EXISTS (SELECT 1 FROM jobwatch.sources s WHERE s.provider = b.provider AND lower(s.board) = lower(b.board)) "
                 "ORDER BY (b.first_discovered_at >= %s) DESC, abs(hashtext(b.board_key)), b.board_key LIMIT %s",
-                (prov, new_cutoff, per_prov),
+                (new_cutoff, prov, new_cutoff, per_prov),
             ).fetchall()
             prov_buckets.append(rows)
         # Round-robin across providers up to explore_quota
@@ -253,36 +256,52 @@ def select_probe_batch_prioritized(
         while len(selected) < explore_quota and any(idx < len(bk) for bk in prov_buckets):
             for bk in prov_buckets:
                 if idx < len(bk) and len(selected) < explore_quota:
-                    r = bk[idx]
+                    r = dict(bk[idx])
                     if r["board_key"] not in seen:
+                        r["score_breakdown"] = {"slot": "exploration_reserve", "is_new_entry": bool(r.pop("is_new_entry", False))}
                         seen.add(r["board_key"])
                         selected.append(r)
             idx += 1
 
-    # 2. Priority slots: multi-signal deterministic score.
+    # 2. Priority slots: multi-signal deterministic score with inspectable component breakdown.
     remaining = limit - len(selected)
     if remaining > 0:
-        score_sql = """(
-            CASE WHEN b.first_discovered_at >= %s THEN 30 ELSE 0 END
-          + CASE WHEN b.identity_status = 'verified_official_link' THEN 25 ELSE 0 END
-          + (b.priority_vacancies * 20)
-          + (least(b.review_vacancies, 10) * 5)
-          + CASE WHEN b.uk_hint THEN 20 ELSE 0 END
-          + CASE WHEN b.uk_vacancies > 0 THEN 15 ELSE 0 END
-          + CASE WHEN b.official_website ~* '\\.co\\.uk(/|$)|\\.uk(/|$)' THEN 20 ELSE 0 END
-          + CASE WHEN b.last_probed_at IS NULL THEN 10
-                 ELSE least(greatest(floor(extract(epoch from (%s - b.last_probed_at)) / 86400)::int, 0), 60) END
-        )"""
         prio_rows = conn.execute(
             "SELECT b.board_key, b.provider, b.board, b.region, b.company_hint, b.uk_hint, "
             "b.probe_status, b.identity_status, b.directory_sources, "
-            + score_sql + " AS priority_score, 'priority' AS selection_reason "
+            "CASE WHEN b.first_discovered_at >= %s THEN 30 ELSE 0 END AS s_new, "
+            "CASE WHEN b.identity_status = 'verified_official_link' THEN 25 ELSE 0 END AS s_verified, "
+            "(b.priority_vacancies * 20) AS s_priority_yield, "
+            "(least(b.review_vacancies, 10) * 5) AS s_review_yield, "
+            "CASE WHEN b.uk_hint THEN 20 ELSE 0 END AS s_uk_hint, "
+            "CASE WHEN b.uk_vacancies > 0 THEN 15 ELSE 0 END AS s_uk_vacancies, "
+            "CASE WHEN b.official_website ~* '\\.co\\.uk(/|$)|\\.uk(/|$)' THEN 20 ELSE 0 END AS s_uk_domain, "
+            "CASE WHEN b.last_probed_at IS NULL THEN 10 "
+            "     ELSE least(greatest(floor(extract(epoch from (%s - b.last_probed_at)) / 86400)::int, 0), 60) END AS s_staleness "
             "FROM jobwatch.discovered_boards b WHERE " + eligible_where +
-            " ORDER BY priority_score DESC, abs(hashtext(b.board_key)), b.board_key LIMIT %s",
-            [new_cutoff, at, *base_params, remaining + len(seen)],
+            " ORDER BY ("
+            "  CASE WHEN b.first_discovered_at >= %s THEN 30 ELSE 0 END"
+            " + CASE WHEN b.identity_status = 'verified_official_link' THEN 25 ELSE 0 END"
+            " + (b.priority_vacancies * 20)"
+            " + (least(b.review_vacancies, 10) * 5)"
+            " + CASE WHEN b.uk_hint THEN 20 ELSE 0 END"
+            " + CASE WHEN b.uk_vacancies > 0 THEN 15 ELSE 0 END"
+            " + CASE WHEN b.official_website ~* '\\.co\\.uk(/|$)|\\.uk(/|$)' THEN 20 ELSE 0 END"
+            " + CASE WHEN b.last_probed_at IS NULL THEN 10 ELSE least(greatest(floor(extract(epoch from (%s - b.last_probed_at)) / 86400)::int, 0), 60) END"
+            ") DESC, abs(hashtext(b.board_key)), b.board_key LIMIT %s",
+            [new_cutoff, at, *base_params, new_cutoff, at, remaining + len(seen)],
         ).fetchall()
-        for r in prio_rows:
+        for raw_row in prio_rows:
+            r = dict(raw_row)
             if r["board_key"] not in seen and len(selected) < limit:
+                breakdown = {
+                    k[2:]: int(r.pop(k))
+                    for k in ("s_new", "s_verified", "s_priority_yield", "s_review_yield",
+                              "s_uk_hint", "s_uk_vacancies", "s_uk_domain", "s_staleness")
+                }
+                r["priority_score"] = sum(breakdown.values())
+                r["selection_reason"] = "priority"
+                r["score_breakdown"] = breakdown
                 seen.add(r["board_key"])
                 selected.append(r)
     return selected
@@ -346,6 +365,8 @@ def run_discovery_cycle(
     probe_boards: bool = True,
     providers: tuple[str, ...] = ("greenhouse", "ashby", "lever"),
     directory_urls: dict[str, str] | None = None,
+    scheduler: str = "prioritized",
+    exploration_ratio: float = 0.60,
     max_boards: int = 40,
     max_requests: int = 80,
     max_bytes: int = 32 * 1024 * 1024,
@@ -358,12 +379,18 @@ def run_discovery_cycle(
     processing: Processing = Processing(),
 ) -> dict:
     """Execute one bounded recurring directory discovery cycle without activating any sources."""
+    if scheduler not in ("prioritized", "fifo"):
+        raise ValueError("scheduler must be 'prioritized' or 'fifo'")
     t0 = time.monotonic()
     at = now or datetime.now(timezone.utc)
     iso(at)
     summary = {
         "started_at": iso(at),
         "providers": list(providers),
+        "scheduler": scheduler,
+        "exploration_ratio": exploration_ratio if scheduler == "prioritized" else None,
+        "selection_reasons": {},
+        "provider_probes": {},
         "directories": {},
         "boards_probed": 0,
         "status_counts": {},
@@ -401,7 +428,12 @@ def run_discovery_cycle(
             summary["directories"][provider] = {**sync_counts, "sha256": ref.sha256, "skipped_invalid": ref.skipped_invalid}
 
     if probe_boards and not summary["halted_reason"]:
-        batch = select_probe_batch(conn, limit=max_boards, providers=providers, uk_hint_quota=uk_hint_quota, now=at)
+        if scheduler == "prioritized":
+            batch = select_probe_batch_prioritized(
+                conn, limit=max_boards, providers=providers, exploration_ratio=exploration_ratio, now=at,
+            )
+        else:
+            batch = select_probe_batch(conn, limit=max_boards, providers=providers, uk_hint_quota=uk_hint_quota, now=at)
         id_checks_done = 0
         for idx, row in enumerate(batch):
             if summary["requests_made"] >= max_requests:
@@ -412,6 +444,9 @@ def run_discovery_cycle(
                 break
             if idx > 0 and delay_s > 0:
                 pause(delay_s)
+            reason = row.get("selection_reason") or "fifo"
+            summary["selection_reasons"][reason] = summary["selection_reasons"].get(reason, 0) + 1
+            summary["provider_probes"][row["provider"]] = summary["provider_probes"].get(row["provider"], 0) + 1
             dir_src = (row["directory_sources"] or ["ats_directory"])[0]
             try:
                 probe = probe_ats_board(
@@ -471,6 +506,8 @@ def run_discovery_cycle(
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Bounded recurring ATS directory discovery (never activates sources)")
     parser.add_argument("--providers", default="greenhouse,ashby,lever")
+    parser.add_argument("--scheduler", choices=("prioritized", "fifo"), default="prioritized")
+    parser.add_argument("--exploration-ratio", type=float, default=0.60)
     parser.add_argument("--max-boards", type=int, default=40)
     parser.add_argument("--max-requests", type=int, default=80)
     parser.add_argument("--max-bytes", type=int, default=32 * 1024 * 1024)
@@ -489,6 +526,8 @@ def main(argv=None):
             refresh_directories=not args.no_refresh,
             probe_boards=not args.refresh_only,
             providers=providers,
+            scheduler=args.scheduler,
+            exploration_ratio=args.exploration_ratio,
             max_boards=args.max_boards,
             max_requests=args.max_requests,
             max_bytes=args.max_bytes,

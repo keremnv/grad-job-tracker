@@ -154,6 +154,9 @@ class DeploymentTests(unittest.TestCase):
             ('jobwatch-collect.service','JOBWATCH_DATABASE_URL','jobwatch_collector'),
             ('jobwatch-discover-refresh.service','JOBWATCH_DATABASE_URL','jobwatch_collector'),
             ('jobwatch-discover-probe.service','JOBWATCH_DATABASE_URL','jobwatch_collector'),
+            ('jobwatch-auto-stage.service','JOBWATCH_DATABASE_URL','jobwatch_owner'),
+            ('jobwatch-auto-validate.service','JOBWATCH_DATABASE_URL','jobwatch_collector'),
+            ('jobwatch-auto-activate.service','JOBWATCH_DATABASE_URL','jobwatch_owner'),
             ('jobwatch-backup.service','JOBWATCH_MIGRATION_DATABASE_URL','jobwatch_migrator')):
             lines=(root/'systemd'/name).read_text().splitlines()
             line=next(v for v in lines if v.startswith('Environment=') and variable in v)
