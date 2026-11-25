@@ -1,7 +1,7 @@
 import unittest
 from jobwatch.feeds import Posting
 from jobwatch.state import merge
-from jobwatch.timing import deadline_evidence, deadline_window, stale
+from jobwatch.timing import deadline_evidence, deadline_window, parse_prose_deadline, stale
 from jobwatch.cli import report
 
 NOW='2026-10-17T12:00:00Z'
@@ -39,3 +39,38 @@ class TimingTests(unittest.TestCase):
         s={'schema':1,'postings':{},'boards':{'lever:x':{'status':'success','last_attempt':NOW,'last_success':NOW,'count':0}},'last_scan':{'at':NOW,'events':[],'failures':[]}}
         out=report(s,as_of='2026-10-21T12:00:00Z')
         self.assertIn('STALE',out);self.assertIn('Last scan attempt (UTC): '+NOW,out)
+
+    def test_parse_prose_deadline_handles_start_dates_missing_years_and_noise(self):
+        gc = parse_prose_deadline(
+            "Start date: September 2027 Application deadline : Midnight, 29th November 2026 "
+            "We encourage you to apply early, as we may close applications before the advertised deadline."
+        )
+        self.assertEqual(gc['kind'], 'explicit_date')
+        self.assertEqual(gc['candidate_date'], '2026-11-29')
+        self.assertEqual(gc['time_wording'].lower(), 'midnight')
+        self.assertTrue(gc['early_closure_warning'])
+        self.assertFalse(gc['missing_year'])
+
+        oc = parse_prose_deadline("This role has a closing date of November 22, 2026.")
+        self.assertEqual(oc['kind'], 'explicit_date')
+        self.assertEqual(oc['candidate_date'], '2026-11-22')
+
+        dct = parse_prose_deadline("Closing date for applications: Thursday 26th November at 12pm")
+        self.assertEqual(dct['kind'], 'missing_year_date')
+        self.assertIsNone(dct['candidate_date'])
+        self.assertTrue(dct['missing_year'])
+        self.assertEqual(dct['time_wording'].lower(), '12pm')
+
+        noise = parse_prose_deadline("Ability to deliver high-quality work to deadline in a fast-paced environment.")
+        self.assertEqual(noise['kind'], 'non_application_noise')
+        self.assertIsNone(noise['candidate_date'])
+
+        rolling = parse_prose_deadline("We recruit on a rolling basis and there is no fixed closing date.")
+        self.assertEqual(rolling['kind'], 'rolling_or_no_deadline')
+        self.assertTrue(rolling['rolling'])
+
+        sup_html = parse_prose_deadline(
+            "&lt;p&gt;Start date: September 2027&lt;br&gt;Application deadline: Midnight, 29&lt;sup&gt;th&lt;/sup&gt; November 2026&lt;/p&gt;"
+        )
+        self.assertEqual(sup_html['kind'], 'explicit_date')
+        self.assertEqual(sup_html['candidate_date'], '2026-11-29')

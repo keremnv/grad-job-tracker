@@ -1,0 +1,404 @@
+{
+  "schema": 1,
+  "kind": "expanded_corpus_representative_eval",
+  "notes": "44 realistic labelled cases constructed on 2026-11-25 from empirical failure modes observed across the 26-board (2,463-posting) production corpus and initial recurring discovery output. Covers all 8 screening challenge categories for a June 2027 UK BSc software/AI/data/systems graduate. Expected verdict is one of: 'priority', 'review', 'excluded'.",
+  "cases": [
+    {
+      "id": "gr-01",
+      "category": "explicit_grad_holiday_residency_cap",
+      "expected": "priority",
+      "title": "Software Engineering Graduate 2027",
+      "location": "Hatfield, United Kingdom",
+      "country": "GB",
+      "description": "Join our 2027 graduate programme building cloud automation in Python and Java. Benefits include 25 days annual leave (rising to 27 after 5 years)."
+    },
+    {
+      "id": "gr-02",
+      "category": "explicit_grad_holiday_residency_cap",
+      "expected": "priority",
+      "title": "Software Engineer, New Grad",
+      "location": "London, UK",
+      "country": "GB",
+      "description": "Build global payments infrastructure. Open to recent graduates with no more than 18 months of professional experience."
+    },
+    {
+      "id": "gr-03",
+      "category": "explicit_grad_holiday_residency_cap",
+      "expected": "priority",
+      "title": "Graduate AI Engineer (2027 start)",
+      "location": "Cambridge, United Kingdom",
+      "country": "GB",
+      "description": "An excellent degree or PhD in Computer Science or AI. Due to security clearance you must have been continuously resident in the UK for a minimum of 5 years."
+    },
+    {
+      "id": "gr-04",
+      "category": "explicit_grad_holiday_residency_cap",
+      "expected": "priority",
+      "title": "Graduate Software Engineer - Defence & Security (2027 start)",
+      "location": "Cambridge, United Kingdom",
+      "country": "GB",
+      "description": "Develop embedded and backend C++/Python systems. Requires a degree/Master's/PhD and UK residency for at least 5 years."
+    },
+    {
+      "id": "gr-05",
+      "category": "explicit_grad_holiday_residency_cap",
+      "expected": "priority",
+      "title": "Software Engineer, New Grad - Query Engines",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "Work on distributed query execution in Rust and Java. Bachelor's, Master's, or PhD in Computer Science or equivalent."
+    },
+    {
+      "id": "gr-06",
+      "category": "explicit_grad_holiday_residency_cap",
+      "expected": "priority",
+      "title": "Graduate Backend Engineer (2027)",
+      "location": "London, UK",
+      "country": "GB",
+      "description": "Build Go and PostgreSQL microservices. Ideal for graduates with up to 1 year of work experience."
+    },
+    {
+      "id": "cm-01",
+      "category": "commercial_and_freelance_noise",
+      "expected": "excluded",
+      "title": "Growth Associate - M&A Platform",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "Drive origination and partner acquisition across our software-enabled M&A lending platform."
+    },
+    {
+      "id": "cm-02",
+      "category": "commercial_and_freelance_noise",
+      "expected": "excluded",
+      "title": "Partner Growth Associate",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "Manage commercial partner funnels for our retail technology software clients."
+    },
+    {
+      "id": "cm-03",
+      "category": "commercial_and_freelance_noise",
+      "expected": "excluded",
+      "title": "Junior Ads Specialist",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "Optimise paid search and display campaigns for our open-source software products."
+    },
+    {
+      "id": "cm-04",
+      "category": "commercial_and_freelance_noise",
+      "expected": "excluded",
+      "title": "Real Estate Agent - AI Trainer - Freelance - 8-20 hrs/week",
+      "location": "United Kingdom (Remote)",
+      "country": "GB",
+      "description": "Evaluate AI model outputs on real estate tasks. Flexible freelance contract."
+    },
+    {
+      "id": "cm-05",
+      "category": "commercial_and_freelance_noise",
+      "expected": "excluded",
+      "title": "Corporate Lawyer - AI Trainer",
+      "location": "London, UK",
+      "country": "GB",
+      "description": "Write and grade legal prompts for LLM training."
+    },
+    {
+      "id": "cm-06",
+      "category": "commercial_and_freelance_noise",
+      "expected": "excluded",
+      "title": "Graduate Scale-Up Consultant",
+      "location": "London, UK",
+      "country": "GB",
+      "description": "Advise B2B SaaS software founders on commercial growth and market entry."
+    },
+    {
+      "id": "ds-01",
+      "category": "grad_data_science_and_cyber",
+      "expected": "priority",
+      "title": "Graduate Data Scientist (2027)",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "Build production ML pipelines and statistical models in Python and SQL."
+    },
+    {
+      "id": "ds-02",
+      "category": "grad_data_science_and_cyber",
+      "expected": "priority",
+      "title": "Graduate Cybersecurity Engineer",
+      "location": "Bristol, United Kingdom",
+      "country": "GB",
+      "description": "Automate threat detection and application security tooling in Python and Go."
+    },
+    {
+      "id": "ds-03",
+      "category": "grad_data_science_and_cyber",
+      "expected": "priority",
+      "title": "Junior AppSec Engineer",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "Audit backend services and write security scanners in Rust and Python."
+    },
+    {
+      "id": "ds-04",
+      "category": "grad_data_science_and_cyber",
+      "expected": "review",
+      "title": "Graduate Data Scientist",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "Requires 3+ years of commercial experience building production machine learning systems in Python."
+    },
+    {
+      "id": "ds-05",
+      "category": "grad_data_science_and_cyber",
+      "expected": "excluded",
+      "title": "Data Scientist",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "Work with product teams on analytics and experimentation in Python."
+    },
+    {
+      "id": "ds-06",
+      "category": "grad_data_science_and_cyber",
+      "expected": "excluded",
+      "title": "Graduate Security Policy Analyst",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "Draft governance standards and compliance briefings for executive boards."
+    },
+    {
+      "id": "ge-01",
+      "category": "generic_swe_entry_level_desc",
+      "expected": "review",
+      "title": "Software Engineer",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "Entry-level role on our core payments platform. Recent graduates and final-year students graduating in 2027 welcome. Python and Go."
+    },
+    {
+      "id": "ge-02",
+      "category": "generic_swe_entry_level_desc",
+      "expected": "review",
+      "title": "Backend Engineer",
+      "location": "Manchester, United Kingdom",
+      "country": "GB",
+      "description": "Build TypeScript and PostgreSQL services. Open to candidates at an early-career stage."
+    },
+    {
+      "id": "ge-03",
+      "category": "generic_swe_entry_level_desc",
+      "expected": "review",
+      "title": "Software Engineer",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "Build distributed systems in C++. Must have 4+ years of commercial experience."
+    },
+    {
+      "id": "ge-04",
+      "category": "generic_swe_entry_level_desc",
+      "expected": "excluded",
+      "title": "Senior Software Engineer",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "Mentor recent graduates and lead backend architecture."
+    },
+    {
+      "id": "ge-05",
+      "category": "generic_swe_entry_level_desc",
+      "expected": "excluded",
+      "title": "Software Engineering Intern (Summer 2027)",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "12-week internship for penultimate-year undergraduates."
+    },
+    {
+      "id": "ex-01",
+      "category": "required_vs_desirable_experience",
+      "expected": "priority",
+      "title": "Graduate Software Engineer",
+      "location": "Edinburgh, United Kingdom",
+      "country": "GB",
+      "description": "Build Python services. Commercial experience in cloud deployments is desirable but not required."
+    },
+    {
+      "id": "ex-02",
+      "category": "required_vs_desirable_experience",
+      "expected": "priority",
+      "title": "Junior Platform Engineer",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "Maintain Kubernetes clusters. Nice to have: prior professional experience with Terraform or AWS."
+    },
+    {
+      "id": "ex-03",
+      "category": "required_vs_desirable_experience",
+      "expected": "review",
+      "title": "Junior Software Engineer",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "You must have at least 3+ years of commercial experience delivering production Java applications."
+    },
+    {
+      "id": "ex-04",
+      "category": "required_vs_desirable_experience",
+      "expected": "review",
+      "title": "Associate Backend Developer",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "Extensive experience with distributed databases is essential for this position."
+    },
+    {
+      "id": "ex-05",
+      "category": "required_vs_desirable_experience",
+      "expected": "priority",
+      "title": "Graduate ML Engineer",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "Train PyTorch models. Open to graduates with 0-2 years of experience; internships are advantageous."
+    },
+    {
+      "id": "ph-01",
+      "category": "mandatory_vs_non_mandatory_phd",
+      "expected": "priority",
+      "title": "Graduate Machine Learning Engineer",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "Hold a BSc, MSc, or PhD in Computer Science, Mathematics, or related discipline."
+    },
+    {
+      "id": "ph-02",
+      "category": "mandatory_vs_non_mandatory_phd",
+      "expected": "priority",
+      "title": "Graduate Research Engineer",
+      "location": "Cambridge, United Kingdom",
+      "country": "GB",
+      "description": "Strong software engineering in Python/C++. A PhD is desirable though BSc graduates are encouraged to apply."
+    },
+    {
+      "id": "ph-03",
+      "category": "mandatory_vs_non_mandatory_phd",
+      "expected": "review",
+      "title": "New Grad AI Research Engineer",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "Candidates must hold a PhD in machine learning with top-tier publications."
+    },
+    {
+      "id": "ph-04",
+      "category": "mandatory_vs_non_mandatory_phd",
+      "expected": "review",
+      "title": "PhD Graduate Software Engineer",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "Join our compiler research group."
+    },
+    {
+      "id": "ph-05",
+      "category": "mandatory_vs_non_mandatory_phd",
+      "expected": "review",
+      "title": "Graduate Applied Scientist",
+      "location": "London, United Kingdom",
+      "country": "GB",
+      "description": "A doctorate in statistical learning is required. Write Python prototypes."
+    },
+    {
+      "id": "lo-01",
+      "category": "multi_country_remote_ambiguous_uk",
+      "expected": "priority",
+      "title": "Software/Infrastructure Graduate - 2027 - London",
+      "location": "London, London - Sloane Street",
+      "country": "",
+      "description": "Build low-latency trading infrastructure in C++ and Python."
+    },
+    {
+      "id": "lo-02",
+      "category": "multi_country_remote_ambiguous_uk",
+      "expected": "priority",
+      "title": "Graduate Software Engineer",
+      "location": "New York, NY; London, UK",
+      "country": "US",
+      "countries": ["US", "GB"],
+      "description": "Hiring 2027 new grads in both our London and New York offices."
+    },
+    {
+      "id": "lo-03",
+      "category": "multi_country_remote_ambiguous_uk",
+      "expected": "priority",
+      "title": "Graduate Software Engineer",
+      "location": "Remote - United Kingdom",
+      "country": "",
+      "description": "Fully remote across the UK building Rust backend services."
+    },
+    {
+      "id": "lo-04",
+      "category": "multi_country_remote_ambiguous_uk",
+      "expected": "review",
+      "title": "Graduate Software Engineer",
+      "location": "London",
+      "country": "",
+      "description": "City name alone without UK country code or UK office qualifier."
+    },
+    {
+      "id": "lo-05",
+      "category": "multi_country_remote_ambiguous_uk",
+      "expected": "excluded",
+      "title": "Graduate Software Engineer",
+      "location": "London, Ontario",
+      "country": "CA",
+      "description": "Based in our London, Ontario engineering centre."
+    },
+    {
+      "id": "lo-06",
+      "category": "multi_country_remote_ambiguous_uk",
+      "expected": "excluded",
+      "title": "New Grad Software Engineer",
+      "location": "Cambridge, Massachusetts",
+      "country": "US",
+      "description": "Join our Boston/Cambridge MA robotics team."
+    },
+    {
+      "id": "lo-07",
+      "category": "multi_country_remote_ambiguous_uk",
+      "expected": "priority",
+      "title": "Graduate Software Engineer",
+      "location": "GB-London",
+      "country": "",
+      "description": "Graduate backend engineering role in Python."
+    },
+    {
+      "id": "yr-01",
+      "category": "year_2027_compatibility",
+      "expected": "priority",
+      "title": "Graduate Software Engineer (2026 or 2027 start)",
+      "location": "Cambridge, United Kingdom",
+      "country": "GB",
+      "description": "Flexible start dates across autumn 2026 and autumn 2027."
+    },
+    {
+      "id": "yr-02",
+      "category": "year_2027_compatibility",
+      "expected": "priority",
+      "title": "Software Engineer Graduate Scheme 2026/2027",
+      "location": "London, UK",
+      "country": "GB",
+      "description": "Multiple cohorts in 2026 and September 2027."
+    },
+    {
+      "id": "yr-03",
+      "category": "year_2027_compatibility",
+      "expected": "review",
+      "title": "Graduate Software Engineer (2026 start)",
+      "location": "London, UK",
+      "country": "GB",
+      "description": "Immediate 2026 cohort start."
+    },
+    {
+      "id": "yr-04",
+      "category": "year_2027_compatibility",
+      "expected": "review",
+      "title": "Graduate Software Engineer 2028",
+      "location": "London, UK",
+      "country": "GB",
+      "description": "September 2028 graduate intake."
+    }
+  ]
+}

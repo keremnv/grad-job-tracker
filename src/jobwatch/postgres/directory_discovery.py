@@ -178,6 +178,116 @@ def select_probe_batch(
     return selected
 
 
+def select_probe_batch_prioritized(
+    conn,
+    *,
+    limit: int = 40,
+    providers: tuple[str, ...] = ("greenhouse", "ashby", "lever"),
+    exploration_ratio: float = 0.35,
+    new_board_days: int = 7,
+    reprobe_active_days: int = 7,
+    reprobe_non_uk_days: int = 30,
+    now: datetime | None = None,
+) -> list[dict]:
+    """Deterministic multi-signal scheduler with anti-starvation exploration budget and exponential backoff.
+
+    Allocates:
+    - `exploration_ratio` (default 35%) strictly to `probe_status='unprobed'` boards
+      rotated deterministically across providers (`hashtext(board_key)`) so unexplored
+      employers are never starved and alphabetical bias is eliminated.
+    - Remaining slots to highest deterministic priority score combining:
+      newly added directory entries, verified official UK identity, historical
+      early-career & UK technical yield, UK hints/domains, and staleness since last probe.
+    - Exponential failure/dead backoff: `7d * 2^(min(probe_count-1, 3))` (7d -> 14d -> 28d -> 56d),
+      and `active_non_uk` backoff `30d` (60d after 2+ probes).
+    """
+    if type(limit) is not int or not 1 <= limit <= 500:
+        raise ValueError("Probe batch limit must be 1..500")
+    if not 0.0 <= exploration_ratio <= 1.0:
+        raise ValueError("exploration_ratio must be in [0.0, 1.0]")
+    at = now or datetime.now(timezone.utc)
+    iso(at)
+    new_cutoff = at - timedelta(days=new_board_days)
+    active_cutoff = at - timedelta(days=reprobe_active_days)
+    non_uk_cutoff_1 = at - timedelta(days=reprobe_non_uk_days)
+    non_uk_cutoff_2 = at - timedelta(days=reprobe_non_uk_days * 2)
+
+    eligible_where = """
+      b.provider = ANY(%s)
+      AND b.source_id IS NULL
+      AND NOT EXISTS (
+        SELECT 1 FROM jobwatch.sources s
+        WHERE s.provider = b.provider AND lower(s.board) = lower(b.board)
+      )
+      AND (
+        b.last_probed_at IS NULL
+        OR (b.probe_status = 'active_uk_relevant' AND b.last_probed_at < %s)
+        OR (b.probe_status IN ('active_non_uk', 'empty') AND b.probe_count < 2 AND b.last_probed_at < %s)
+        OR (b.probe_status IN ('active_non_uk', 'empty') AND b.probe_count >= 2 AND b.last_probed_at < %s)
+        OR (b.probe_status IN ('dead', 'error') AND b.last_probed_at < (%s - (interval '7 days' * power(2, least(greatest(b.probe_count - 1, 0), 3)))))
+      )
+    """
+    base_params = [list(providers), active_cutoff, non_uk_cutoff_1, non_uk_cutoff_2, at]
+
+    explore_quota = int(round(limit * exploration_ratio))
+    selected: list[dict] = []
+    seen: set[str] = set()
+
+    # 1. Reserved exploration budget: evenly balanced across providers via deterministic hash rotation.
+    if explore_quota > 0 and providers:
+        per_prov = max(1, (explore_quota + len(providers) - 1) // len(providers))
+        prov_buckets: list[list[dict]] = []
+        for prov in providers:
+            rows = conn.execute(
+                "SELECT b.board_key, b.provider, b.board, b.region, b.company_hint, b.uk_hint, "
+                "b.probe_status, b.identity_status, b.directory_sources, 'exploration' AS selection_reason "
+                "FROM jobwatch.discovered_boards b "
+                "WHERE b.provider = %s AND b.source_id IS NULL AND b.last_probed_at IS NULL "
+                "AND NOT EXISTS (SELECT 1 FROM jobwatch.sources s WHERE s.provider = b.provider AND lower(s.board) = lower(b.board)) "
+                "ORDER BY (b.first_discovered_at >= %s) DESC, abs(hashtext(b.board_key)), b.board_key LIMIT %s",
+                (prov, new_cutoff, per_prov),
+            ).fetchall()
+            prov_buckets.append(rows)
+        # Round-robin across providers up to explore_quota
+        idx = 0
+        while len(selected) < explore_quota and any(idx < len(bk) for bk in prov_buckets):
+            for bk in prov_buckets:
+                if idx < len(bk) and len(selected) < explore_quota:
+                    r = bk[idx]
+                    if r["board_key"] not in seen:
+                        seen.add(r["board_key"])
+                        selected.append(r)
+            idx += 1
+
+    # 2. Priority slots: multi-signal deterministic score.
+    remaining = limit - len(selected)
+    if remaining > 0:
+        score_sql = """(
+            CASE WHEN b.first_discovered_at >= %s THEN 30 ELSE 0 END
+          + CASE WHEN b.identity_status = 'verified_official_link' THEN 25 ELSE 0 END
+          + (b.priority_vacancies * 20)
+          + (least(b.review_vacancies, 10) * 5)
+          + CASE WHEN b.uk_hint THEN 20 ELSE 0 END
+          + CASE WHEN b.uk_vacancies > 0 THEN 15 ELSE 0 END
+          + CASE WHEN b.official_website ~* '\\.co\\.uk(/|$)|\\.uk(/|$)' THEN 20 ELSE 0 END
+          + CASE WHEN b.last_probed_at IS NULL THEN 10
+                 ELSE least(greatest(floor(extract(epoch from (%s - b.last_probed_at)) / 86400)::int, 0), 60) END
+        )"""
+        prio_rows = conn.execute(
+            "SELECT b.board_key, b.provider, b.board, b.region, b.company_hint, b.uk_hint, "
+            "b.probe_status, b.identity_status, b.directory_sources, "
+            + score_sql + " AS priority_score, 'priority' AS selection_reason "
+            "FROM jobwatch.discovered_boards b WHERE " + eligible_where +
+            " ORDER BY priority_score DESC, abs(hashtext(b.board_key)), b.board_key LIMIT %s",
+            [new_cutoff, at, *base_params, remaining + len(seen)],
+        ).fetchall()
+        for r in prio_rows:
+            if r["board_key"] not in seen and len(selected) < limit:
+                seen.add(r["board_key"])
+                selected.append(r)
+    return selected
+
+
 def record_board_probe(
     conn,
     probe: BoardProbeResult,

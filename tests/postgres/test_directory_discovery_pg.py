@@ -12,6 +12,7 @@ from jobwatch.postgres.connection import connect
 from jobwatch.postgres.directory_discovery import (
     run_discovery_cycle,
     select_probe_batch,
+    select_probe_batch_prioritized,
     sync_directory_boards,
 )
 from jobwatch.postgres.migrate import migrate
@@ -122,6 +123,53 @@ class DirectoryDiscoveryPgTests(DatabaseTest):
         with self.target.connect("jobwatch_owner") as conn:
             self.assertEqual(conn.execute("SELECT count(*) AS n FROM jobwatch.sources").fetchone()["n"], sources_before)
             self.assertEqual(conn.execute("SELECT count(*) AS n FROM jobwatch.owner_audit").fetchone()["n"], audit_before)
+
+    def test_prioritized_scheduler_reserves_exploration_scores_signals_and_backs_off(self):
+        now = datetime(2026, 11, 25, 12, 0, tzinfo=timezone.utc)
+        old = now - timedelta(days=20)
+        boards = [
+            DirectoryBoard("greenhouse", "highyield", "High Yield UK", True, "dir:gh", "https://example.org/gh.csv"),
+            DirectoryBoard("greenhouse", "deadco", "Dead Co", False, "dir:gh", "https://example.org/gh.csv"),
+            DirectoryBoard("greenhouse", "nonukco", "Non UK Co", False, "dir:gh", "https://example.org/gh.csv"),
+            DirectoryBoard("ashby", "unexplored1", "Unexplored Ashby", False, "dir:ashby", "https://example.org/a.csv"),
+            DirectoryBoard("lever", "unexplored2", "Unexplored Lever", False, "dir:lever", "https://example.org/l.csv"),
+            DirectoryBoard("greenhouse", "brandnew", "Brand New Co", False, "dir:gh", "https://example.org/gh.csv"),
+        ]
+        with self.target.connect("jobwatch_collector") as conn:
+            sync_directory_boards(conn, boards, directory_source="dir:test", provenance={"sha256": "c" * 64}, observed_at=old)
+            # Mark highyield as verified UK board due for 7d reprobe; deadco & nonukco inside backoff windows; brandnew as added today.
+            conn.execute(
+                "UPDATE jobwatch.discovered_boards SET probe_status='active_uk_relevant', priority_vacancies=2, "
+                "uk_vacancies=3, identity_status='verified_official_link', last_probed_at=%s, probe_count=1 "
+                "WHERE board_key='greenhouse:highyield'",
+                (now - timedelta(days=10),),
+            )
+            conn.execute(
+                "UPDATE jobwatch.discovered_boards SET probe_status='dead', last_probed_at=%s, probe_count=3 "
+                "WHERE board_key='greenhouse:deadco'",
+                (now - timedelta(days=20),),  # 3rd probe => 7 * 2^2 = 28d backoff -> NOT eligible yet
+            )
+            conn.execute(
+                "UPDATE jobwatch.discovered_boards SET probe_status='active_non_uk', last_probed_at=%s, probe_count=2 "
+                "WHERE board_key='greenhouse:nonukco'",
+                (now - timedelta(days=40),),  # 2nd probe => 60d backoff -> NOT eligible yet
+            )
+            conn.execute(
+                "UPDATE jobwatch.discovered_boards SET first_discovered_at=%s, last_directory_seen_at=%s WHERE board_key='greenhouse:brandnew'",
+                (now - timedelta(days=1), now - timedelta(days=1)),
+            )
+            batch = select_probe_batch_prioritized(conn, limit=4, exploration_ratio=0.5, now=now)
+            keys = [r["board_key"] for r in batch]
+            reasons = {r["board_key"]: r["selection_reason"] for r in batch}
+            # Dead (28d backoff) and non-UK (60d backoff) must be excluded.
+            self.assertNotIn("greenhouse:deadco", keys)
+            self.assertNotIn("greenhouse:nonukco", keys)
+            # Exploration slots (2 of 4) must include newly added brandnew + unexplored across providers.
+            self.assertEqual(len(keys), 4)
+            self.assertEqual(sum(1 for r in batch if r["selection_reason"] == "exploration"), 2)
+            self.assertIn("greenhouse:brandnew", keys)
+            self.assertIn("greenhouse:highyield", keys)
+            self.assertEqual(reasons["greenhouse:highyield"], "priority")
 
     def test_research_mcp_read_only_visibility_and_mutation_refusal(self):
         from psycopg.conninfo import make_conninfo

@@ -95,6 +95,9 @@ CODES = {
     'eligibility.unverified': 'graduation eligibility, start date and application status unverified',
     'evidence.source_text_unavailable': 'source description not retained; description checks not run',
     'evidence.description_empty': 'source supplied no description; description checks not possible',
+    'exclude.freelance_ai_trainer': 'freelance AI trainer / data annotation gig outside graduate engineering',
+    'level.entry_description_only': 'generic engineering title with explicit entry-level description; verify role level',
+    'level.desirable_experience_only': 'experience wording appears only in desirable/optional context',
 }
 UNCERTAIN = {'level.unknown', 'level.experience_wording', 'level.doctoral_wording', 'location.unknown',
              'role.adjacent_family', 'role.discipline_unknown', 'role.customer_facing', 'year.title_mismatch',
@@ -261,3 +264,185 @@ def rank(row):
     """No prestige/weight assumptions: clear early-career signals first, then stable labels."""
     return (verdict_of(row) != 'priority', not bool(EARLY.search(row['title'])),
             row['company'].casefold(), row['title'].casefold(), row['external_id'])
+
+
+# ---------------------------------------------------------------------------
+# Candidate improved deterministic screening ruleset (isolated local evaluation;
+# NOT active in production until owner review and versioned rescreening).
+# ---------------------------------------------------------------------------
+RULES_VERSION_V2 = 'screen-2026-11-25.1'
+
+_V2_FREELANCE_AI_TRAINER = re.compile(
+    r'\b(?:ai trainer|data annotat\w*|rlhf|prompt (?:writer|evaluator|trainer))\b',
+    re.I,
+)
+_V2_COMMERCIAL_NON_ENGINEER = re.compile(
+    r'\b(?:growth associate|partner growth|m&a|ads specialist|real estate|lawyer|attorney|'
+    r'insurance broker|pension specialist|hr business partner|scale-up consultant|'
+    r'strategy consultant|migration consultant|organizational design|market entry)\b',
+    re.I,
+)
+_V2_UK_DISAMBIGUATED = re.compile(
+    r'\b(?:london\s*[-–]\s*(?:sloane street|canary wharf|city|shoreditch|soho|kings? cross|paddington)|'
+    r'gb-london|hatfield|dundee|bridgend|guildford|lancaster,\s*uk)\b',
+    re.I,
+)
+# Benign contexts where "N years" or "professional experience" is NOT a senior experience bar.
+_V2_BENIGN_EXPERIENCE_CLAUSE = re.compile(
+    r'(?:(?:continuously\s+)?resident in the uk|uk residency|security clearance)[^.;:\n]{0,45}\b\d+\+?\s+years?\b'
+    r'|(?:annual leave|holiday|rising to \d+ after)[^.;:\n]{0,30}\b\d+\+?\s+years?\b'
+    r'|(?:no more than|less than|up to|at most)\s+\d+\s*(?:months?|years?)\s+(?:of\s+)?(?:(?:professional|commercial|work|industry|relevant)\s+)?experience'
+    r'|up to [12]\s+years?|0\s*[-–]\s*[12]\s+years?',
+    re.I,
+)
+_V2_DESIRABLE_CLAUSE = re.compile(
+    r'\b(?:desirable|nice to have|bonus|preferred but not required|advantageous|not essential|not required|optional)\b',
+    re.I,
+)
+# Inclusive degree ladders where PhD is accepted alongside BSc/MSc, NOT mandatory.
+_V2_INCLUSIVE_DEGREE_LADDER = re.compile(
+    r"(?:bachelor'?s|bsc|beng|meng|master'?s|msc|undergraduate|an? excellent degree|degree)"
+    r"[^.;:\n]{0,45}(?:or|/|,)[^.;:\n]{0,20}\b(?:ph\.?d|doctorate)\b"
+    r"|\b(?:ph\.?d|doctorate)\b[^.;:\n]{0,30}\b(?:desirable|advantageous|bonus|nice to have|welcome|preferred)\b",
+    re.I,
+)
+_V2_PRIORITY_ADJACENT = ('data_science', 'security')
+
+
+def _v2_experience_and_doctoral(title: str, desc: str) -> tuple[bool, bool, bool]:
+    """Return (required_experience, desirable_experience_only, mandatory_doctoral)."""
+    req_exp = False
+    des_exp = False
+    req_phd = bool(DOCTORAL.search(title))
+    if not desc:
+        return req_exp, des_exp, req_phd
+
+    for sent in re.split(r'(?<=[.!?])\s+|[\r\n]+', desc):
+        if EXPERIENCE.search(sent):
+            # Strip benign residency/holiday/max-new-grad-cap spans before checking
+            cleaned = _V2_BENIGN_EXPERIENCE_CLAUSE.sub(' ', sent)
+            if EXPERIENCE.search(cleaned):
+                if _V2_DESIRABLE_CLAUSE.search(sent):
+                    des_exp = True
+                else:
+                    req_exp = True
+        if not req_phd and DOCTORAL.search(sent):
+            cleaned_phd = _V2_INCLUSIVE_DEGREE_LADDER.sub(' ', sent)
+            if DOCTORAL.search(cleaned_phd):
+                req_phd = True
+    return req_exp, (des_exp and not req_exp), req_phd
+
+
+def screen_v2(inputs: dict) -> dict:
+    """Candidate improved deterministic screener (`screen-2026-11-25.1`) for offline comparison."""
+    title = inputs.get('title') or ''
+    context = ' '.join(x for x in (inputs.get('department'), inputs.get('team')) if x)
+    description = inputs.get('description')
+    desc = plain(description) if description else ''
+    family = role_family(title)
+    codes, exclusions = [], []
+
+    # Location check with explicit UK office/borough disambiguation (e.g. "London - Sloane Street")
+    loc_str = inputs.get('location') or ''
+    location, location_reason = location_judgment(_Where(inputs))
+    if location == 'unknown' and _V2_UK_DISAMBIGUATED.search(loc_str):
+        location = 'uk_signal'
+        location_reason = 'UK source signal; location arrangements require review'
+
+    early_title = bool(EARLY.search(title))
+    early_department = bool(context and EARLY_CONTEXT.search(context))
+    early_description = bool(desc and EARLY_DESCRIPTION.search(desc))
+    early = early_title or early_department or early_description
+
+    if _V2_FREELANCE_AI_TRAINER.search(title):
+        exclusions.append('exclude.freelance_ai_trainer')
+    if NON_ENGINEER.search(title) or _V2_COMMERCIAL_NON_ENGINEER.search(title):
+        exclusions.append('exclude.non_engineering_title')
+    if STUDENT.search(title):
+        exclusions.append('exclude.student_title')
+    if SENIOR.search(title):
+        exclusions.append('exclude.senior_title')
+    if location == 'non_uk':
+        exclusions.append('exclude.non_uk_location')
+    if family in ('engineering_generic', 'other') and NON_SOFTWARE_DISCIPLINE.search(title):
+        exclusions.append('exclude.non_software_discipline')
+    if family == 'other':
+        if NON_ENGINEERING_CONTEXT.search(title):
+            exclusions.append('exclude.non_engineering_title')
+        elif not early:
+            exclusions.append('exclude.no_engineering_signal')
+    elif family not in CORE_FAMILIES and not early:
+        exclusions.append('exclude.adjacent_without_early_signal')
+    if family not in CORE_FAMILIES and early and desc and not SOFTWARE_EVIDENCE.search(' '.join((title, context, desc))):
+        exclusions.append('exclude.no_engineering_evidence')
+
+    codes.append('family.' + family)
+    if context and ENGINEERING_DEPARTMENT.search(context):
+        codes.append('role.department_engineering')
+
+    # Graduate Data Science & Cybersecurity with early title + software evidence are promoted out of generic adjacent uncertainty.
+    promotable_adjacent = (
+        family in _V2_PRIORITY_ADJACENT
+        and early_title
+        and (not desc or bool(SOFTWARE_EVIDENCE.search(' '.join((title, context, desc)))))
+    )
+    if family == 'other' or family == 'engineering_generic':
+        codes.append('role.discipline_unknown')
+    elif family not in CORE_FAMILIES and not promotable_adjacent:
+        codes.append('role.adjacent_family')
+    if CUSTOMER_FACING.search(title):
+        codes.append('role.customer_facing')
+    codes.append({'uk_signal': 'location.uk_multi_country' if 'multiple' in location_reason else 'location.uk',
+                  'unknown': 'location.unknown', 'non_uk': 'location.non_uk'}[location])
+
+    # Year compatibility: "(2026 or 2027 start)" includes 2027, so only flag mismatch when 2027 is absent.
+    years = set(re.findall(r'\b20\d{2}\b', title))
+    if years and '2027' not in years:
+        codes.append('year.title_mismatch')
+
+    if early_title:
+        codes.append('level.early_title')
+    if early_department:
+        codes.append('level.early_department')
+    if early_description:
+        codes.append('level.early_description')
+
+    req_exp, des_exp_only, req_phd = _v2_experience_and_doctoral(title, desc)
+    if not early_title:
+        if early_description and not req_exp:
+            codes.append('level.entry_description_only')
+        else:
+            codes.append('level.unknown')
+
+    if description is None:
+        codes.append('evidence.source_text_unavailable')
+    elif not desc:
+        codes.append('evidence.description_empty')
+    else:
+        if req_exp:
+            codes.append('level.experience_wording')
+        elif des_exp_only:
+            codes.append('level.desirable_experience_only')
+        if req_phd:
+            codes.append('level.doctoral_wording')
+        if AUTHORISATION.search(desc):
+            codes.append('eligibility.work_authorisation_wording')
+    codes.append('eligibility.unverified')
+
+    exclusions = list(dict.fromkeys(exclusions))
+    if exclusions:
+        verdict = 'excluded'
+    else:
+        uncertain = any(c in UNCERTAIN for c in codes)
+        eligible_family = (family in CORE_FAMILIES) or promotable_adjacent
+        verdict = 'priority' if eligible_family and early_title and not uncertain else 'review'
+
+    result = {
+        'verdict': verdict,
+        'family': family,
+        'codes': exclusions + codes,
+        'rules_version': RULES_VERSION_V2,
+        'basis': 'title_metadata_only' if description is None else 'full',
+        'input_sha256': input_fingerprint(inputs),
+    }
+    return {**result, 'explanation': explanation_of(result)}
