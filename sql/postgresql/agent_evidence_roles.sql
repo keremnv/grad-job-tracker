@@ -47,9 +47,12 @@ GRANT SELECT ON
   jobwatch.research_discovery_evidence,
   jobwatch.discovery_candidate_snapshots,
   jobwatch.posting_deadline_claims,
+  jobwatch.posting_deadline_claims_distinct,
   jobwatch.research_agent_evidence,
   jobwatch.research_agent_corroborations
 TO jobwatch_agent_evidence;
+
+GRANT EXECUTE ON FUNCTION jobwatch.normalize_claim_wording(text) TO jobwatch_agent_evidence, jobwatch_corroborator;
 
 -- Controlled SECURITY DEFINER ingestion boundary ONLY (ZERO raw table writes!).
 GRANT EXECUTE ON FUNCTION jobwatch.submit_agent_observation(
@@ -85,21 +88,27 @@ DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'jobwatch_agent_readonly') THEN
     GRANT SELECT ON
+      jobwatch.posting_deadline_claims_distinct,
       jobwatch.research_agent_evidence,
       jobwatch.research_agent_corroborations
     TO jobwatch_agent_readonly;
+    GRANT EXECUTE ON FUNCTION jobwatch.normalize_claim_wording(text) TO jobwatch_agent_readonly;
   END IF;
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'jobwatch_agent_owner') THEN
     GRANT SELECT ON
+      jobwatch.posting_deadline_claims_distinct,
       jobwatch.research_agent_evidence,
       jobwatch.research_agent_corroborations
     TO jobwatch_agent_owner;
+    GRANT EXECUTE ON FUNCTION jobwatch.normalize_claim_wording(text) TO jobwatch_agent_owner;
   END IF;
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'jobwatch_calendar_reader') THEN
     GRANT SELECT ON
+      jobwatch.posting_deadline_claims_distinct,
       jobwatch.research_agent_evidence,
       jobwatch.research_agent_corroborations
     TO jobwatch_calendar_reader;
+    GRANT EXECUTE ON FUNCTION jobwatch.normalize_claim_wording(text) TO jobwatch_calendar_reader;
   END IF;
 END $$;
 

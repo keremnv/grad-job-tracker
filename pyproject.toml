@@ -26,6 +26,7 @@ jobwatch-read-mcp = "jobwatch.postgres.read_mcp:main"
 jobwatch-read-probe = "jobwatch.postgres.connection_probe:main"
 jobwatch-embeddings = "jobwatch.postgres.embeddings:main"
 jobwatch-evidence = "jobwatch.postgres.agent_evidence:main"
+jobwatch-evidence-mcp = "jobwatch.postgres.evidence_mcp:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

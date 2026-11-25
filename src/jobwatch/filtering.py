@@ -150,8 +150,25 @@ UNCERTAIN = {
 ENGINEERING_DEPARTMENT = re.compile(r'\b(?:engineering|software|technology|tech|infrastructure|platform|data|machine learning|ai|research|r&d|development|security)\b', re.I)
 
 
+_SCRIPT_STYLE_BLOCK = re.compile(r'<(script|style|noscript|template)\b[^>]*>.*?</\1\s*>', re.I | re.S)
+_INLINE_FORMAT_TAG = re.compile(r'</?(?:strong|b|em|i|u|sup|sub|span|small|mark|abbr|code)\b[^>]*>', re.I)
+
+
 def plain(value):
-    return re.sub(r'\s+', ' ', re.sub(r'<[^>]*>', ' ', html.unescape(value))).strip()
+    text = value or ''
+    if not text:
+        return ''
+    # Decode up to two entity passes (Greenhouse frequently double-escapes `&amp;nbsp;` / `&lt;p&gt;`).
+    unescaped = html.unescape(text)
+    if '&' in unescaped:
+        unescaped = html.unescape(unescaped)
+    unescaped = _SCRIPT_STYLE_BLOCK.sub(' ', unescaped)
+    # Remove inline formatting tags without injecting spaces (preserves `29<sup>th</sup>` -> `29th`,
+    # `<strong>Deadline</strong>:` -> `Deadline:`).
+    unescaped = _INLINE_FORMAT_TAG.sub('', unescaped)
+    stripped = re.sub(r'<[^>]*>', ' ', unescaped)
+    stripped = stripped.replace('\xa0', ' ').replace('\u200b', '')
+    return re.sub(r'\s+', ' ', stripped).strip()
 
 
 def role_family(title):

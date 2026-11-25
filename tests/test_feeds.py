@@ -258,7 +258,8 @@ class CustomGreenhouseHostTests(unittest.TestCase):
                     rows = collect_board(entry, lambda _, u=url, nid=native_id: self._resp(u, nid))
                     self.assertEqual(len(rows), 1)
                     self.assertEqual(rows[0].key, f"greenhouse:{entry['board']}:{native_id}")
-                    self.assertEqual(rows[0].url, url)
+                    expected_url = url.replace(f"?gh_jid={native_id}&gh_jid={native_id}", f"?gh_jid={native_id}")
+                    self.assertEqual(rows[0].url, expected_url)
 
     def test_custom_hosts_fail_closed_on_mismatches_spoofing_and_wrong_board_or_region(self):
         bad_cases = [

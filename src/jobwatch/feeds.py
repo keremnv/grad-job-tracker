@@ -127,7 +127,12 @@ def _link(value, kind, board, region="global") -> tuple[str, str]:
         if custom is not None:
             match = custom.fullmatch(value)
             if match:
-                return value, match[1]  # collect_board also checks this against the native ID.
+                canonical = value
+                if (board, region) == ("ocadogroup", "eu"):
+                    # Collapse Ocado Greenhouse's duplicated identical `&gh_jid=<id>` query parameter
+                    # while keeping exact backreference validation above and unchanged posting_key.
+                    canonical = f"https://careers.ocadogroup.com/jobs/details?gh_jid={match[1]}"
+                return canonical, match[1]  # collect_board also checks this against the native ID.
     u = urlsplit(value)
     parts = u.path.strip("/").split("/")
     if kind == "greenhouse":

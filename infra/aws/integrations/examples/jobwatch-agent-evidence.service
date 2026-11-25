@@ -1,0 +1,35 @@
+# REVIEW-ONLY TEMPLATE: Do NOT install or enable in production until remote evidence
+# ingestion is explicitly approved by the owner.
+[Unit]
+Description=Narrow public evidence-ingestion MCP (SECURITY DEFINER boundary only; zero IP network)
+Requires=jobwatch-postgresql.service
+After=jobwatch-postgresql.service
+
+[Service]
+User=jobwatch-agent-evidence
+Group=jobwatch-agent-evidence
+SupplementaryGroups=jobwatch-db
+RuntimeDirectory=jobwatch-agent-evidence
+RuntimeDirectoryMode=0750
+Environment="JOBWATCH_EVIDENCE_DATABASE_URL=host=/run/jobwatch-postgresql dbname=jobwatch user=jobwatch_agent_evidence"
+Environment=PYTHONDONTWRITEBYTECODE=1
+UnsetEnvironment=JOBWATCH_DATABASE_URL JOBWATCH_MIGRATION_DATABASE_URL JOBWATCH_EMBEDDING_DATABASE_URL JOBWATCH_CHAT_DATABASE_URL JOBWATCH_AGENT_OWNER_DATABASE_URL CONTROL_PLANE_API_KEY OPENAI_API_KEY OPENAI_ADMIN_KEY AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_PROFILE
+ExecStart=/opt/jobwatch-agent-runtime/bin/jobwatch-evidence-mcp --transport streamable-http --unix-socket /run/jobwatch-agent-evidence/mcp.sock
+Restart=on-failure
+RestartSec=15s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectProc=invisible
+RestrictSUIDSGID=true
+LockPersonality=true
+# Zero outbound or inbound IP networking: Unix domain sockets ONLY (PostgreSQL + MCP socket).
+RestrictAddressFamilies=AF_UNIX
+CapabilityBoundingSet=
+MemoryMax=96M
+CPUQuota=15%
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

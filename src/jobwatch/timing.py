@@ -6,6 +6,8 @@ from .config import timestamp
 from .filtering import plain
 
 _BLOCK_TAG_BREAK = re.compile(r'</?(?:p|div|br|li|h[1-6]|tr|section|article)\b[^>]*>', re.I)
+_SCRIPT_STYLE_STRIP = re.compile(r'<(script|style|noscript|template)\b[^>]*>.*?</\1\s*>', re.I | re.S)
+_INLINE_TAG_STRIP = re.compile(r'</?(?:strong|b|em|i|u|sup|sub|span|small|mark|abbr|code)\b[^>]*>', re.I)
 _BARE_DEADLINE_HEADING = re.compile(
     r'^(?:application(?:s)?\s+deadline|closing\s+date(?:\s+for\s+applications)?|deadline)\s*:?$',
     re.I,
@@ -47,9 +49,14 @@ def deadline_evidence(raw, description, url, observed_at):
     if not description:
         return evidence
 
-    # Normalise HTML block tags into line breaks while preserving plain text wording.
-    # Unescape once first so Greenhouse double-escaped `&lt;p&gt;` blocks split cleanly.
+    # Normalise HTML entities (up to two passes for Greenhouse double-escaped `&lt;p&gt;` / `&amp;nbsp;`),
+    # strip script/style blocks, preserve inline formatting cohesion (`29<sup>th</sup>` -> `29th`),
+    # and convert block boundaries into line breaks.
     unescaped = html.unescape(description)
+    if '&' in unescaped:
+        unescaped = html.unescape(unescaped)
+    unescaped = _SCRIPT_STYLE_STRIP.sub(' ', unescaped)
+    unescaped = _INLINE_TAG_STRIP.sub('', unescaped)
     block_text = _BLOCK_TAG_BREAK.sub('\n', unescaped)
     raw_lines = [ln.strip() for ln in re.split(r'[\r\n]+', block_text) if plain(ln)]
 
@@ -68,7 +75,7 @@ def deadline_evidence(raw, description, url, observed_at):
             i += 2
             continue
 
-        for sentence in re.split(r'(?<=[.!?])\s+', line):
+        for sentence in re.split(r'(?<=[.!?])\s+', line_plain):
             sp = plain(sentence)
             if not sp or re.search(r'\boffer deadline\b', sp, re.I):
                 continue
@@ -76,8 +83,7 @@ def deadline_evidence(raw, description, url, observed_at):
                 continue
             if _WORK_DEADLINE_NOISE.search(sp) and not _APPLICATION_DEADLINE_CUE.search(sp):
                 continue
-            # Keep original wording (plain-normalised when HTML tags were present to avoid half-tags)
-            wording = sp if ('<' in sentence and '>' in sentence) else sentence.strip()
+            wording = sp
             if wording not in seen_wording:
                 seen_wording.add(wording)
                 evidence.append({'wording': wording, 'source_field': 'description', 'url': url, 'observed_at': observed_at})
@@ -146,7 +152,7 @@ _EARLY_CLOSURE_WARNING = re.compile(
     re.I,
 )
 _DMY_FULL = re.compile(
-    r'\b(\d{1,2})(?:\s*(?:st|nd|rd|th))?\s+(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|'
+    r'\b(\d{1,2})(?:\s*(?:st|nd|rd|th))?(?:\s+of)?\s+(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|'
     r'jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)'
     r'\s*,?\s+(20\d{2})\b',
     re.I,
@@ -158,13 +164,13 @@ _MDY_FULL = re.compile(
 )
 _ISO_FULL = re.compile(r'\b(20\d{2})-(\d{2})-(\d{2})\b')
 _PARTIAL_NO_YEAR = re.compile(
-    r'\b(\d{1,2})(?:\s*(?:st|nd|rd|th))?\s+(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|'
+    r'\b(\d{1,2})(?:\s*(?:st|nd|rd|th))?(?:\s+of)?\s+(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|'
     r'jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b(?!,?\s+20\d{2})'
     r'|\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|'
     r'sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+(\d{1,2})(?:\s*(?:st|nd|rd|th))?\b(?!,?\s+20\d{2})',
     re.I,
 )
-_TIME_TOKEN = re.compile(r'\b(midnight|noon|\d{1,2}(?::\d{2})?\s*(?:am|pm)|\d{2}:\d{2})\b', re.I)
+_TIME_TOKEN = re.compile(r'\b(midnight|noon|\d{1,2}(?::\d{2})?\s*(?:am|pm)|(?:[01]\d|2[0-3]):[0-5]\d|(?<=at\s)(?:[01]\d|2[0-3])[0-5]\d)\b', re.I)
 _TZ_TOKEN = re.compile(r'\b(UTC|GMT|BST|[+-]\d{2}:\d{2})\b')
 
 

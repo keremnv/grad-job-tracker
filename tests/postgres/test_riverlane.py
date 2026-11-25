@@ -145,7 +145,8 @@ class RiverlaneTests(DatabaseTest):
                 bad_data['jobs'][0]['absolute_url'] = bad_url
                 with self.assertRaises(CollectionError):
                     self.client.collect_source(sid, get_json=lambda _, d=bad_data: d)
+                expected_stored_url = good_url.replace(f'?gh_jid={nid}&gh_jid={nid}', f'?gh_jid={nid}')
                 self.assertEqual(
                     self.scalar('SELECT v.posting_url FROM jobwatch.postings p JOIN jobwatch.posting_versions v ON v.id=p.current_version_id WHERE p.source_id=%s', (sid,)),
-                    good_url,
+                    expected_stored_url,
                 )

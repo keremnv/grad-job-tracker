@@ -28,6 +28,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from hashlib import sha256
+import html
+from html.parser import HTMLParser
 import http.client
 import ipaddress
 import re
@@ -617,6 +619,193 @@ def _evaluate_target_binding(obs: dict, target: dict | None, final_url: str, bod
     }
 
 
+_EXCLUDED_HTML_TAGS = frozenset({"script", "style", "noscript", "template", "svg"})
+_INLINE_HTML_TAGS = frozenset({"strong", "b", "em", "i", "u", "sup", "sub", "span", "small", "mark", "abbr", "code", "a"})
+_LINK_ATTRS_BY_TAG = {
+    "a": ("href",),
+    "iframe": ("src",),
+    "link": ("href",),
+    "form": ("action",),
+}
+MAX_EXTRACTED_LINKS = 500
+
+
+class _VisibleAndLinkHTMLParser(HTMLParser):
+    """Conservative stdlib HTML extractor keeping visible text strictly separate from scripts/styles and links."""
+
+    def __init__(self, base_url: str = ""):
+        super().__init__(convert_charrefs=True)
+        self._base_url = base_url
+        self._skip_depth = 0
+        self.script_count = 0
+        self.tag_count = 0
+        self._chunks: list[str] = []
+        self.links: list[dict] = []
+        self._seen_links: set[tuple[str, str, str]] = set()
+
+    def handle_starttag(self, tag: str, attrs):
+        t = tag.lower()
+        self.tag_count += 1
+        if t == "script":
+            self.script_count += 1
+        if t in _EXCLUDED_HTML_TAGS:
+            self._skip_depth += 1
+            return
+        if t not in _INLINE_HTML_TAGS and self._skip_depth == 0:
+            self._chunks.append(" ")
+        attr_names = _LINK_ATTRS_BY_TAG.get(t)
+        if attr_names and len(self.links) < MAX_EXTRACTED_LINKS:
+            attr_map = {k.lower(): v for k, v in attrs if k and v is not None}
+            if t == "link":
+                rel = (attr_map.get("rel") or "").lower()
+                if "canonical" not in rel and "alternate" not in rel:
+                    return
+            for aname in attr_names:
+                raw_val = (attr_map.get(aname) or "").strip()
+                if not raw_val or raw_val.startswith(("#", "javascript:", "mailto:", "tel:", "data:")):
+                    continue
+                resolved = urljoin(self._base_url, raw_val) if self._base_url else raw_val
+                if not resolved.lower().startswith("https://"):
+                    continue
+                key = (t, aname, resolved)
+                if key not in self._seen_links:
+                    self._seen_links.add(key)
+                    self.links.append({"tag": t, "attr": aname, "url": resolved})
+
+    def handle_endtag(self, tag: str):
+        t = tag.lower()
+        if t in _EXCLUDED_HTML_TAGS:
+            if self._skip_depth > 0:
+                self._skip_depth -= 1
+            return
+        if t not in _INLINE_HTML_TAGS and self._skip_depth == 0:
+            self._chunks.append(" ")
+
+    def handle_data(self, data: str):
+        if self._skip_depth == 0 and data:
+            self._chunks.append(data)
+
+    @property
+    def visible_text(self) -> str:
+        raw = "".join(self._chunks).replace("\xa0", " ").replace("\u200b", "")
+        return re.sub(r"\s+", " ", raw).strip()
+
+
+def _extract_html_evidence(body_text: str, base_url: str = "") -> dict:
+    """Extract clean visible text (excluding script/style/noscript/svg) and link attributes separately."""
+    if not body_text:
+        return {"visible_text": "", "links": [], "is_html": False, "script_count": 0, "tag_count": 0}
+    looks_html = bool(re.search(r"<(?:!doctype\s+html|html|head|body|div|p|a|script|section|main)\b", body_text[:8192], re.I))
+    if not looks_html:
+        plain = re.sub(r"\s+", " ", html.unescape(body_text).replace("\xa0", " ")).strip()
+        return {"visible_text": plain, "links": [], "is_html": False, "script_count": 0, "tag_count": 0}
+    parser = _VisibleAndLinkHTMLParser(base_url=base_url)
+    try:
+        parser.feed(body_text)
+        parser.close()
+    except Exception:
+        # Conservative fallback: strip script/style blocks via filtering.plain rather than crashing.
+        return {"visible_text": filtering.plain(body_text), "links": parser.links, "is_html": True, "script_count": parser.script_count, "tag_count": parser.tag_count}
+    return {
+        "visible_text": parser.visible_text,
+        "links": parser.links,
+        "is_html": True,
+        "script_count": parser.script_count,
+        "tag_count": parser.tag_count,
+    }
+
+
+def _links_corroborate_board(links: list[dict], provider: str, board: str, sample_posting_id: str = "") -> dict | None:
+    """Check extracted HTML link attributes (`<a href>`, `<iframe src>`, etc.) for an exact ATS board reference."""
+    if not provider or not board:
+        return None
+    b = board.lower()
+    needles = {
+        "greenhouse": (
+            f"greenhouse.io/{b}",
+            f"greenhouse.io/embed/job_board?for={b}",
+            f"boards-api.greenhouse.io/v1/boards/{b}",
+            f"gh_jid={sample_posting_id}".lower() if sample_posting_id else "",
+        ),
+        "ashby": (
+            f"ashbyhq.com/{b}",
+            f"posting-api/job-board/{b}",
+        ),
+        "lever": (
+            f"lever.co/{b}",
+            f"v0/postings/{b}",
+        ),
+        "workable": (
+            f"apply.workable.com/{b}",
+            f"workable.com/api/v1/widget/accounts/{b}",
+        ),
+    }.get(provider.lower(), ())
+    for item in links:
+        url_low = item["url"].lower()
+        for needle in needles:
+            if not needle:
+                continue
+            idx = url_low.find(needle)
+            if idx >= 0:
+                end = idx + len(needle)
+                if end == len(url_low) or url_low[end] in ("/", "?", "#", "&"):
+                    return {
+                        "matched_via": f"{item['tag']}_{item['attr']}",
+                        "matched_url": item["url"],
+                        "matched_needle": needle,
+                    }
+    return None
+
+
+def _links_match_target_url(links: list[dict], claimed_url_or_fragment: str) -> dict | None:
+    """Check whether extracted link attributes reference a claimed HTTPS URL or host/path."""
+    needle = (claimed_url_or_fragment or "").strip()
+    if not needle:
+        return None
+    needle_norm = ""
+    if needle.lower().startswith("https://"):
+        try:
+            needle_norm = exact_url(needle).rstrip("/").lower()
+        except ValueError:
+            needle_norm = needle.rstrip("/").lower()
+    needle_low = needle.rstrip("/").lower()
+    for item in links:
+        u = item["url"]
+        try:
+            u_norm = exact_url(u).rstrip("/").lower()
+        except ValueError:
+            u_norm = u.rstrip("/").lower()
+        if needle_norm and u_norm == needle_norm:
+            return {"matched_via": f"{item['tag']}_{item['attr']}", "matched_url": u, "match_type": "exact_url"}
+        if not needle_norm and "." in needle_low and "/" in needle_low and needle_low in u_norm:
+            return {"matched_via": f"{item['tag']}_{item['attr']}", "matched_url": u, "match_type": "host_path_substring"}
+    return None
+
+
+def _load_source_board_identity(conn, obs: dict) -> tuple[str, str]:
+    """Resolve `(provider, board)` from payload, `source_id`, or `board_key` for `source_identity` checks."""
+    payload = obs.get("payload") or {}
+    prov = (payload.get("provider") or "").strip().lower()
+    board = (payload.get("board") or "").strip()
+    if prov and board:
+        return prov, board
+    if obs.get("source_id") is not None:
+        row = conn.execute(
+            "SELECT provider, board FROM jobwatch.sources WHERE id = %s",
+            (obs["source_id"],),
+        ).fetchone()
+        if row:
+            return (row["provider"] or "").lower(), row["board"] or ""
+    if obs.get("board_key"):
+        row = conn.execute(
+            "SELECT provider, board FROM jobwatch.discovered_boards WHERE board_key = %s",
+            (obs["board_key"],),
+        ).fetchone()
+        if row:
+            return (row["provider"] or "").lower(), row["board"] or ""
+    return prov, board
+
+
 def _extract_corroboration_excerpt(plain_body: str, quoted_plain: str) -> str:
     clean = re.sub(r"\s+", " ", plain_body or "").strip()
     if not clean:
@@ -641,7 +830,7 @@ def corroborate_observation(
 ) -> dict:
     """Append an independent corroboration attempt with vacancy binding, completeness, and provenance.
 
-    Must run under `jobwatch_collector` or `jobwatch_owner` (NEVER `jobwatch_agent_evidence`).
+    Must run under `jobwatch_corroborator`, `jobwatch_collector`, or `jobwatch_owner` (NEVER `jobwatch_agent_evidence`).
     Preserves all prior corroboration attempts append-only; NEVER mutates `verifications`,
     `calendar_selections`, `leads`, or `posting_versions`.
     """
@@ -675,11 +864,26 @@ def corroborate_observation(
         res = SafeFetchResult(0, b"", obs["source_url"], "", False, 0, error_kind="ssrf_refused")
     else:
         body_text = res.body.decode("utf-8", errors="replace") if res.body else ""
-        plain_body = filtering.plain(body_text)
+        extracted = _extract_html_evidence(body_text, base_url=res.final_url or obs["source_url"])
+        plain_body = extracted["visible_text"]
+        extracted_links = extracted["links"]
         plain_low = plain_body.casefold()
         quoted_plain = filtering.plain(obs["observed_wording"] or "")
         quoted_low = quoted_plain.casefold()
-        details = {"redirects": res.redirects, "truncated": res.truncated}
+        details = {
+            "redirects": res.redirects,
+            "truncated": res.truncated,
+            "visible_text_chars": len(plain_body),
+            "extracted_link_count": len(extracted_links),
+        }
+
+        is_js_shell = (
+            len(plain_body) < 40
+            and (
+                bool(JS_SHELL_MARKERS.search(body_text))
+                or (extracted["is_html"] and extracted["script_count"] >= 2 and len(body_text) > 512)
+            )
+        )
 
         if res.error_kind == "timeout":
             retrieval_status, wording_status, claim_status, overall_state = "timeout", "not_checked", "unavailable", "evidence_unavailable"
@@ -689,7 +893,7 @@ def corroborate_observation(
             retrieval_status, wording_status, claim_status, overall_state = "blocked_or_403", "not_checked", "unavailable", "evidence_unavailable"
         elif res.http_status != 200:
             retrieval_status, wording_status, claim_status, overall_state = "http_error", "not_checked", "unavailable", "evidence_unavailable"
-        elif len(plain_body) < 40 and JS_SHELL_MARKERS.search(body_text):
+        elif is_js_shell:
             retrieval_status, wording_status, claim_status, overall_state = "js_shell_or_empty", "not_checked", "unavailable", "evidence_unavailable"
         else:
             retrieval_status = "retrieved_200"
@@ -698,6 +902,7 @@ def corroborate_observation(
             target_binding_status, binding_info = _evaluate_target_binding(obs, target, res.final_url, body_text, plain_low)
             details["target_binding"] = binding_info
 
+            # Visible text wording match ONLY (strictly excludes <script>/<style> and link attributes).
             wording_matched = bool(quoted_low and quoted_low in plain_low)
             if not quoted_low:
                 wording_status = "not_applicable"
@@ -744,11 +949,27 @@ def corroborate_observation(
                             claim_status, overall_state = "unverified", "source_retrieved"
 
                 elif kind == "source_identity":
-                    prov = (obs["payload"] or {}).get("provider") or ""
-                    board = (obs["payload"] or {}).get("board") or ""
-                    corrob = _html_corroborates_board(body_text, prov, board) if (prov and board) else None
-                    if corrob:
-                        details["bidirectional_match"] = corrob
+                    prov, board = _load_source_board_identity(verifier_conn, obs)
+                    link_match = _links_corroborate_board(extracted_links, prov, board) if (prov and board) else None
+                    embed_match = _html_corroborates_board(body_text, prov, board) if (prov and board and not link_match) else None
+                    if link_match:
+                        details["link_evidence"] = link_match
+                        details["identity_evidence"] = {"provider": prov, "board": board, "basis": "html_link_attribute"}
+                        claim_status, overall_state = "corroborated", "claim_corroborated"
+                    elif embed_match:
+                        details["bidirectional_match"] = embed_match
+                        details["identity_evidence"] = {"provider": prov, "board": board, "basis": "html_embed_reference"}
+                        claim_status, overall_state = "corroborated", "claim_corroborated"
+                    elif wording_matched:
+                        claim_status, overall_state = "unverified", "wording_matched"
+                    else:
+                        claim_status, overall_state = "unverified", "source_retrieved"
+
+                elif kind == "official_source_link":
+                    target_url_claim = (obs["payload"] or {}).get("target_url") or obs["observed_wording"] or ""
+                    link_match = _links_match_target_url(extracted_links, target_url_claim)
+                    if link_match:
+                        details["link_evidence"] = link_match
                         claim_status, overall_state = "corroborated", "claim_corroborated"
                     elif wording_matched:
                         claim_status, overall_state = "unverified", "wording_matched"

@@ -263,7 +263,44 @@ def select_probe_batch_prioritized(
                         selected.append(r)
             idx += 1
 
-    # 2. Priority slots: multi-signal deterministic score with inspectable component breakdown.
+    # 2. Priority slots: pending targeted investigations first (explicit request or agent observation
+    #    referencing an unprobed board_key), then multi-signal deterministic score.
+    remaining = limit - len(selected)
+    if remaining > 0:
+        targeted_rows = conn.execute(
+            "SELECT b.board_key, b.provider, b.board, b.region, b.company_hint, b.uk_hint, "
+            "b.probe_status, b.identity_status, b.directory_sources, "
+            "b.investigation_requested_at, b.investigation_requested_by "
+            "FROM jobwatch.discovered_boards b "
+            "WHERE b.provider = ANY(%s) "
+            "  AND b.source_id IS NULL "
+            "  AND NOT EXISTS (SELECT 1 FROM jobwatch.sources s WHERE s.provider = b.provider AND lower(s.board) = lower(b.board)) "
+            "  AND ("
+            "    (b.investigation_requested_at IS NOT NULL AND (b.last_probed_at IS NULL OR b.last_probed_at < b.investigation_requested_at)) "
+            "    OR EXISTS ("
+            "      SELECT 1 FROM jobwatch.agent_evidence_observations o "
+            "      WHERE o.board_key = b.board_key "
+            "        AND (b.last_probed_at IS NULL OR b.last_probed_at < o.recorded_at)"
+            "    )"
+            "  ) "
+            "ORDER BY b.investigation_requested_at ASC NULLS LAST, b.board_key "
+            "LIMIT %s",
+            (list(providers), remaining + len(seen)),
+        ).fetchall()
+        for raw_row in targeted_rows:
+            r = dict(raw_row)
+            if r["board_key"] not in seen and len(selected) < limit:
+                req_at = r.pop("investigation_requested_at", None)
+                req_by = r.pop("investigation_requested_by", None)
+                r["selection_reason"] = "targeted_investigation"
+                r["score_breakdown"] = {
+                    "slot": "targeted_investigation",
+                    "explicit_request": req_at is not None,
+                    "requested_by": req_by,
+                }
+                seen.add(r["board_key"])
+                selected.append(r)
+
     remaining = limit - len(selected)
     if remaining > 0:
         prio_rows = conn.execute(
@@ -358,12 +395,49 @@ def record_board_probe(
     return {"board_key": probe.board_key, "probe_status": probe.probe_status, "candidates": vac_counts}
 
 
+PROVIDER_MIN_DELAY_S: dict[str, float] = {
+    "greenhouse": 0.25,
+    "ashby": 0.25,
+    "lever": 1.0,  # api.lever.co/robots.txt & api.eu.lever.co/robots.txt: Crawl-delay: 1
+}
+
+
+def request_board_investigation(
+    conn,
+    board_keys: list[str] | tuple[str, ...],
+    *,
+    requested_by: str,
+    reason: str = "",
+    requested_at: datetime | None = None,
+) -> dict:
+    """Flag existing `discovered_boards` rows for prioritized probing without activating sources."""
+    if not isinstance(requested_by, str) or not requested_by.strip():
+        raise ValueError("requested_by must be non-empty")
+    keys = [k.strip().lower() for k in board_keys if isinstance(k, str) and k.strip()]
+    if not keys or len(keys) > 100:
+        raise ValueError("board_keys must contain 1..100 board_key strings")
+    at = requested_at or datetime.now(timezone.utc)
+    iso(at)
+    with conn.transaction():
+        rows = conn.execute(
+            "UPDATE jobwatch.discovered_boards "
+            "SET investigation_requested_at = %s, investigation_requested_by = %s, investigation_reason = %s "
+            "WHERE lower(board_key) = ANY(%s) AND source_id IS NULL "
+            "RETURNING board_key",
+            (at, safe(requested_by.strip())[:128], safe((reason or "").strip())[:500], keys),
+        ).fetchall()
+    updated = [r["board_key"] for r in rows]
+    missing = sorted(set(keys) - {k.lower() for k in updated})
+    return {"requested": updated, "not_found_or_monitored": missing, "requested_at": iso(at)}
+
+
 def run_discovery_cycle(
     conn,
     *,
     refresh_directories: bool = True,
     probe_boards: bool = True,
     providers: tuple[str, ...] = ("greenhouse", "ashby", "lever"),
+    board_keys: tuple[str, ...] | None = None,
     directory_urls: dict[str, str] | None = None,
     scheduler: str = "prioritized",
     exploration_ratio: float = 0.60,
@@ -428,13 +502,27 @@ def run_discovery_cycle(
             summary["directories"][provider] = {**sync_counts, "sha256": ref.sha256, "skipped_invalid": ref.skipped_invalid}
 
     if probe_boards and not summary["halted_reason"]:
-        if scheduler == "prioritized":
+        if board_keys:
+            wanted = [k.strip().lower() for k in board_keys if k and k.strip()]
+            batch = [
+                {**dict(r), "selection_reason": "explicit_target"}
+                for r in conn.execute(
+                    "SELECT b.board_key, b.provider, b.board, b.region, b.company_hint, b.uk_hint, "
+                    "b.probe_status, b.identity_status, b.directory_sources "
+                    "FROM jobwatch.discovered_boards b "
+                    "WHERE lower(b.board_key) = ANY(%s) "
+                    "ORDER BY b.board_key LIMIT %s",
+                    (wanted, max_boards),
+                ).fetchall()
+            ]
+        elif scheduler == "prioritized":
             batch = select_probe_batch_prioritized(
                 conn, limit=max_boards, providers=providers, exploration_ratio=exploration_ratio, now=at,
             )
         else:
             batch = select_probe_batch(conn, limit=max_boards, providers=providers, uk_hint_quota=uk_hint_quota, now=at)
         id_checks_done = 0
+        last_provider_ts: dict[str, float] = {}
         for idx, row in enumerate(batch):
             if summary["requests_made"] >= max_requests:
                 summary["halted_reason"] = "max_requests_reached"
@@ -442,8 +530,16 @@ def run_discovery_cycle(
             if summary["bytes_read"] >= max_bytes:
                 summary["halted_reason"] = "max_bytes_reached"
                 break
-            if idx > 0 and delay_s > 0:
-                pause(delay_s)
+            prov_name = row["provider"]
+            min_gap = max(delay_s, PROVIDER_MIN_DELAY_S.get(prov_name, 0.0)) if delay_s > 0 else 0.0
+            if min_gap > 0:
+                if prov_name in last_provider_ts:
+                    wait_s = min_gap - (time.monotonic() - last_provider_ts[prov_name])
+                    if wait_s > 0:
+                        pause(wait_s)
+                elif idx > 0 and delay_s > 0:
+                    pause(delay_s)
+            last_provider_ts[prov_name] = time.monotonic()
             reason = row.get("selection_reason") or "fifo"
             summary["selection_reasons"][reason] = summary["selection_reasons"].get(reason, 0) + 1
             summary["provider_probes"][row["provider"]] = summary["provider_probes"].get(row["provider"], 0) + 1
@@ -515,10 +611,12 @@ def main(argv=None):
     parser.add_argument("--delay", type=float, default=0.5)
     parser.add_argument("--no-refresh", action="store_true")
     parser.add_argument("--refresh-only", action="store_true")
+    parser.add_argument("--board-keys", default="", help="Comma-separated discovered_boards board_keys for controlled targeted probing")
     args = parser.parse_args(argv)
     if args.no_refresh and args.refresh_only:
         parser.error("Cannot combine --no-refresh and --refresh-only")
     providers = tuple(p.strip() for p in args.providers.split(",") if p.strip())
+    target_keys = tuple(k.strip() for k in args.board_keys.split(",") if k.strip()) or None
     cfg = DatabaseConfig.from_env()
     with connect(cfg) as conn:
         result = run_discovery_cycle(
@@ -526,6 +624,7 @@ def main(argv=None):
             refresh_directories=not args.no_refresh,
             probe_boards=not args.refresh_only,
             providers=providers,
+            board_keys=target_keys,
             scheduler=args.scheduler,
             exploration_ratio=args.exploration_ratio,
             max_boards=args.max_boards,

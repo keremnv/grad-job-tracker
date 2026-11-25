@@ -478,9 +478,9 @@ class WorkableAndDiscoveryLifecycleTests(DatabaseTest):
                 snap1 = conn.execute("SELECT provenance FROM jobwatch.discovery_candidate_snapshots WHERE snapshot_id=%s", (r1['current_snapshot_id'],)).fetchone()
                 self.assertTrue(snap1['provenance']['legacy_pre_0011_snapshot'])
 
-                # Upgrade to 0012: re-observing the SAME source payload (identical evidence_sha256 = repeat('a', 64))
+                # Upgrade to 0012+: re-observing the SAME source payload (identical evidence_sha256 = repeat('a', 64))
                 # with COMPLETE description preserves snapshot #1 ('truncated') AND appends snapshot #2 ('complete')!
-                self.assertEqual(migrate(conn), [plan[11].filename])
+                self.assertEqual(migrate(conn), [m.filename for m in plan[11:]])
                 full_text = 'Complete recovered description text for OldCo Graduate SWE. ' * 80
                 v_complete = DiscoveredVacancy(
                     candidate_key='legacy:trunc:1', provider='greenhouse', board=None, native_id=None,
