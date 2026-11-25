@@ -1,5 +1,7 @@
 # PostgreSQL production handover
 
+> **Current operational status (25 November 2026 — Maintenance Mode):** The planned feature-development phase is complete. Production runs commit `1365c22e7687983c827b06731b5108187b0ebb5e` on PostgreSQL `17.11` (`pgvector 0.8.7`, migration `0014`) with 28 monitored boards, 9 active systemd timers, 3 MCP listeners (`read`, `owner`, `evidence`), and kernel `nftables` UID 984 corroborator isolation. See [FINAL_PRODUCTION_ROLLOUT_REPORT.md](FINAL_PRODUCTION_ROLLOUT_REPORT.md) and [MAINTENANCE_AND_RECOVERY_GUIDE.md](MAINTENANCE_AND_RECOVERY_GUIDE.md) for current schedules, Evidence MCP connection/revocation, backup/restore verification, and operational playbooks.
+
 26 October 2026. The owner explicitly accepted H1/H2 and the failed GitHub push
 and authorised the single-writer cutover from release `feb3dbc`.
 
