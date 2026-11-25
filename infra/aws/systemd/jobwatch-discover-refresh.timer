@@ -1,0 +1,9 @@
+[Unit]
+Description=Weekly Sunday Job Watch ATS directory refresh (04:00 UTC)
+[Timer]
+OnCalendar=Sun *-*-* 04:00:00 UTC
+RandomizedDelaySec=5min
+Persistent=false
+Unit=jobwatch-discover-refresh.service
+[Install]
+WantedBy=timers.target

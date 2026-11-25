@@ -233,14 +233,15 @@ def run_discovery_cycle(
     conn,
     *,
     refresh_directories: bool = True,
+    probe_boards: bool = True,
     providers: tuple[str, ...] = ("greenhouse", "ashby", "lever"),
     directory_urls: dict[str, str] | None = None,
     max_boards: int = 40,
     max_requests: int = 80,
-    max_bytes: int = 40 * 1024 * 1024,
-    verify_identity_limit: int = 10,
+    max_bytes: int = 32 * 1024 * 1024,
+    verify_identity_limit: int = 8,
     uk_hint_quota: int | None = None,
-    delay_s: float = 0.4,
+    delay_s: float = 0.5,
     get_bytes=default_http_get,
     pause=time.sleep,
     now: datetime | None = None,
@@ -289,7 +290,7 @@ def run_discovery_cycle(
             )
             summary["directories"][provider] = {**sync_counts, "sha256": ref.sha256, "skipped_invalid": ref.skipped_invalid}
 
-    if not summary["halted_reason"]:
+    if probe_boards and not summary["halted_reason"]:
         batch = select_probe_batch(conn, limit=max_boards, providers=providers, uk_hint_quota=uk_hint_quota, now=at)
         id_checks_done = 0
         for idx, row in enumerate(batch):
@@ -362,19 +363,25 @@ def main(argv=None):
     parser.add_argument("--providers", default="greenhouse,ashby,lever")
     parser.add_argument("--max-boards", type=int, default=40)
     parser.add_argument("--max-requests", type=int, default=80)
-    parser.add_argument("--verify-limit", type=int, default=10)
-    parser.add_argument("--delay", type=float, default=0.4)
+    parser.add_argument("--max-bytes", type=int, default=32 * 1024 * 1024)
+    parser.add_argument("--verify-limit", type=int, default=8)
+    parser.add_argument("--delay", type=float, default=0.5)
     parser.add_argument("--no-refresh", action="store_true")
+    parser.add_argument("--refresh-only", action="store_true")
     args = parser.parse_args(argv)
+    if args.no_refresh and args.refresh_only:
+        parser.error("Cannot combine --no-refresh and --refresh-only")
     providers = tuple(p.strip() for p in args.providers.split(",") if p.strip())
     cfg = DatabaseConfig.from_env()
     with connect(cfg) as conn:
         result = run_discovery_cycle(
             conn,
             refresh_directories=not args.no_refresh,
+            probe_boards=not args.refresh_only,
             providers=providers,
             max_boards=args.max_boards,
             max_requests=args.max_requests,
+            max_bytes=args.max_bytes,
             verify_identity_limit=args.verify_limit,
             delay_s=args.delay,
         )

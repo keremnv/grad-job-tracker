@@ -152,11 +152,34 @@ class DeploymentTests(unittest.TestCase):
         self.assertNotIn('git ',collect)
         for name, variable, role in (
             ('jobwatch-collect.service','JOBWATCH_DATABASE_URL','jobwatch_collector'),
+            ('jobwatch-discover-refresh.service','JOBWATCH_DATABASE_URL','jobwatch_collector'),
+            ('jobwatch-discover-probe.service','JOBWATCH_DATABASE_URL','jobwatch_collector'),
             ('jobwatch-backup.service','JOBWATCH_MIGRATION_DATABASE_URL','jobwatch_migrator')):
             lines=(root/'systemd'/name).read_text().splitlines()
             line=next(v for v in lines if v.startswith('Environment=') and variable in v)
             assignments=dict(v.split('=',1) for v in shlex.split(line[len('Environment='):]))
             self.assertEqual(assignments[variable],f'host=/run/jobwatch-postgresql dbname=jobwatch user={role}')
+
+    def test_discovery_operations_allowlist_counters_and_omit_private_text(self):
+        with TemporaryDirectory() as d:
+            config=Path(d)/'aws.json';config.write_text(json.dumps({'region':'eu-north-1','log_group':'test','log_stream':'operations'}))
+            for op in ('discover-refresh', 'discover-probe'):
+                def run(args,**kwargs):
+                    if args[0]=='aws':return SimpleNamespace(returncode=0,stdout='',stderr='')
+                    payload={'boards_probed':40,'candidates_inserted':3,'candidates_updated':1,
+                             'priority_vacancies':1,'review_vacancies':3,'requests_made':55,'bytes_read':123456,
+                             'status_counts':{'active_uk_relevant':2},'identity_checks':{'verified_official_link':1},
+                             'halted_reason':None,'directories':{'greenhouse':{'total':10,'inserted':2,'sha256':'secret-ignored'}},
+                             'extra_untrusted':'https://secret.example/token'}
+                    return SimpleNamespace(returncode=0,stdout=json.dumps(payload),stderr='dsn=secret')
+                output=io.StringIO()
+                with redirect_stdout(output):
+                    self.assertEqual(run_operation.run(op,config_path=config,run_command=run),0)
+                text=output.getvalue()
+                self.assertNotIn('secret',text)
+                parsed=json.loads(text)
+                self.assertEqual(parsed['operation'],op)
+                self.assertEqual(parsed['boards_probed'],40)
 
 
 if __name__=='__main__':unittest.main()

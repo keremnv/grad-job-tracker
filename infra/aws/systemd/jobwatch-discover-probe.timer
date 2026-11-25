@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily Job Watch bounded ATS discovery probe (04:30 UTC)
+[Timer]
+OnCalendar=*-*-* 04:30:00 UTC
+RandomizedDelaySec=5min
+Persistent=false
+Unit=jobwatch-discover-probe.service
+[Install]
+WantedBy=timers.target
