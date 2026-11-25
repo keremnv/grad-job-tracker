@@ -1,11 +1,18 @@
 -- ISOLATED PROPOSAL (NOT DEPLOYED TO PRODUCTION).
--- Narrow least-privilege role for agent public evidence ingestion.
--- Enforces strict database separation:
---   - Append-only INSERT on `agent_evidence_observations` (excluding corroboration columns!)
---   - Append-only INSERT on `discovery_candidates` (excluding owner-promotion/link columns!)
---   - ZERO UPDATE/DELETE privileges anywhere
---   - ZERO write privileges on `applications`, `triage`, `calendar_selections`,
---     `leads`, `verifications`, `postings`, `posting_versions`, `sources`, `employers`, `owner_audit`.
+-- Strictly controlled least-privilege role for agent public evidence ingestion.
+--
+-- Security invariant:
+--   `jobwatch_agent_evidence` has ZERO raw INSERT/UPDATE/DELETE privileges on ANY
+--   table! Every submission MUST pass through the two SECURITY DEFINER functions
+--   (`submit_agent_observation`, `submit_agent_vacancy`) which enforce:
+--     - Authenticated `session_user` attribution (cannot spoof `db_login`)
+--     - Transactional advisory-locked hourly/daily budgets per `db_login`
+--     - Strict semantic calendar date validation (`make_date`)
+--     - Strict idempotency payload-collision refusal (`idempotency_key_conflict`)
+--     - Atomic candidate + historical snapshot + observation persistence
+--   ZERO access to corroboration writes (`agent_evidence_corroborations`),
+--   ZERO access to owner decisions (`applications`, `triage`, `calendar_selections`,
+--   `leads`, `verifications`, `owner_audit`) or collector tables (`sources`, `postings`).
 
 \set ON_ERROR_STOP on
 BEGIN;
@@ -19,79 +26,38 @@ END $$;
 
 REVOKE ALL ON SCHEMA jobwatch FROM jobwatch_agent_evidence;
 GRANT USAGE ON SCHEMA jobwatch TO jobwatch_agent_evidence;
-GRANT EXECUTE ON FUNCTION jobwatch.url_identity(text, boolean) TO jobwatch_agent_evidence;
 
--- Narrow read visibility to resolve targets and check duplicates/rate budgets.
+-- Narrow read-only visibility to resolve targets and inspect own/public observations.
 GRANT SELECT ON
   jobwatch.research_postings,
   jobwatch.research_discovered_boards,
   jobwatch.research_discovery_candidates,
+  jobwatch.research_discovery_evidence,
   jobwatch.posting_deadline_claims,
-  jobwatch.agent_evidence_observations,
-  jobwatch.research_agent_evidence
+  jobwatch.research_agent_evidence,
+  jobwatch.research_agent_corroborations
 TO jobwatch_agent_evidence;
 
--- Append-only INSERT on observations: corroboration columns intentionally OMITTED so
--- an agent submission can NEVER self-corroborate!
-GRANT INSERT (
-  observation_id,
-  idempotency_key,
-  kind,
-  contributor,
-  observed_at,
-  source_url,
-  posting_key,
-  candidate_key,
-  board_key,
-  source_id,
-  lead_key,
-  claim_summary,
-  observed_wording,
-  candidate_deadline_date,
-  payload,
-  payload_sha256
-) ON jobwatch.agent_evidence_observations TO jobwatch_agent_evidence;
+-- Controlled ingestion boundary ONLY (NO raw INSERT/UPDATE/DELETE on any table!).
+GRANT EXECUTE ON FUNCTION jobwatch.submit_agent_observation(
+  text,text,text,text,text,timestamptz,text,text,text,text,text,text,text,bigint,text,jsonb,text
+) TO jobwatch_agent_evidence;
 
--- Append-only INSERT on discovery_candidates for `new_vacancy` submissions:
--- excludes source_id, linked_posting_key, promoted_lead_key, and NO UPDATE/DELETE.
-GRANT INSERT (
-  candidate_key,
-  provider,
-  board,
-  native_id,
-  company,
-  title,
-  posting_url,
-  location_text,
-  country,
-  countries,
-  department,
-  team,
-  employment_type,
-  workplace_type,
-  published_at,
-  source_dates,
-  deadlines,
-  description_excerpt,
-  description_sha256,
-  evidence_sha256,
-  state,
-  discovery_mechanisms,
-  provenance,
-  verdict,
-  family,
-  codes,
-  rules_version,
-  screening_input_sha256,
-  screening_basis
-) ON jobwatch.discovery_candidates TO jobwatch_agent_evidence;
+GRANT EXECUTE ON FUNCTION jobwatch.submit_agent_vacancy(
+  text,text,text,text,timestamptz,text,text,text,text,text,text,text,text,text,text[],
+  text,text,text,text,text,text,text,text,text[],text,text,text,text,jsonb,text
+) TO jobwatch_agent_evidence;
 
--- Read-only agent visibility (only when read role exists)
+-- Read-only visibility for Research role when provisioned.
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'jobwatch_agent_readonly') THEN
-    GRANT SELECT ON jobwatch.agent_evidence_observations, jobwatch.research_agent_evidence
-      TO jobwatch_agent_readonly;
+    GRANT SELECT ON
+      jobwatch.research_discovery_evidence,
+      jobwatch.discovery_candidate_snapshots,
+      jobwatch.research_agent_evidence,
+      jobwatch.research_agent_corroborations
+    TO jobwatch_agent_readonly;
   END IF;
 END $$;
 

@@ -122,6 +122,62 @@ class CalendarSelectionTests(DatabaseTest):
         self.assertIsNone(p['change_id'])
         self.assertEqual(self.scalar('SELECT count(*) FROM jobwatch.leads'),0)
 
+    def test_explicit_only_policy_updates_selected_and_preserves_uid_across_conflicts(self):
+        explicit_only = "SELECT NULL::text AS evidence_key WHERE false"
+        with tempfile.NamedTemporaryFile('w', suffix='.sql') as f:
+            f.write(explicit_only); f.flush()
+            owner = self.tools(Path(f.name))
+            read = ReadTools(self.target.config('jobwatch_agent_readonly'), shared=True, calendar_policy=Path(f.name))
+
+            # 1. New vacancy with qualifying deadline does NOT automatically enter the calendar.
+            self.verify_posting(due=DUE)
+            count0, _, m0 = self.summaries(explicit_only)
+            self.assertEqual(count0, 0)
+
+            # 2. Explicitly select vacancy -> enters feed with SEQUENCE 0.
+            p = self.prepare({'key': self.key, 'action': 'include'}, owner=owner)
+            self.commit(p, owner)
+            files1, m1 = calendar_feed.build(self.data(explicit_only), m0)
+            self.assertEqual(files1['deadlines.ics'].decode().count('BEGIN:VEVENT'), 1)
+            uid = next(iter(m1['events']))
+            self.assertEqual(m1['events'][uid]['sequence'], 0)
+            self.assertTrue(m1['events'][uid]['active'])
+
+            # 3. Conflicting second deadline is NOT silently resolved: event omitted (active=False, SEQUENCE=1),
+            #    UID preserved, AND selected vacancy remains inspectable with status='conflicting'!
+            self.verify_posting(due=LATER)
+            files2, m2 = calendar_feed.build(self.data(explicit_only), m1)
+            self.assertEqual(files2['deadlines.ics'].decode().count('BEGIN:VEVENT'), 0)
+            self.assertFalse(m2['events'][uid]['active'])
+            self.assertEqual(m2['events'][uid]['sequence'], 1)
+            self.assertTrue(any('Conflicting' in w for w in m2['warnings']))
+            diag = read.call('run_report', {'kind': 'calendar_selection'})
+            self.assertTrue(diag['ok'])
+            self.assertEqual(diag['data']['recorded_approvals'], 1)
+            self.assertEqual(diag['data']['items'][0]['status'], 'conflicting')
+            self.assertFalse(diag['data']['items'][0]['in_projection'])
+
+            # 4. Superseding both claims with a single new verified date automatically updates the selected
+            #    event under the EXACT same stable UID with incremented SEQUENCE=2!
+            with self.target.connect('jobwatch_owner') as c:
+                active_ids = [r['claim_id'] for r in c.execute(
+                    "SELECT claim_id FROM jobwatch.posting_deadline_claims WHERE posting_key=%s AND superseded_by='[]'::jsonb",
+                    (self.key,),
+                ).fetchall()]
+            new_due = (TODAY + timedelta(days=9)).isoformat()
+            with self.target.connect('jobwatch_owner') as c, c.transaction():
+                actor(c)
+                c.execute(
+                    "INSERT INTO jobwatch.verifications(posting_key,kind,checked_at,checked_by,url,wording,value,deadline_supersedes,deadline_reason) "
+                    "VALUES (%s,'deadline',now(),'owner','https://example.org/updated','Extended deadline',%s,%s::jsonb,'Employer extended deadline')",
+                    (self.key, new_due, json.dumps(active_ids)),
+                )
+            files3, m3 = calendar_feed.build(self.data(explicit_only), m2)
+            self.assertEqual(files3['deadlines.ics'].decode().count('BEGIN:VEVENT'), 1)
+            self.assertTrue(m3['events'][uid]['active'])
+            self.assertEqual(m3['events'][uid]['sequence'], 2)
+            self.assertIn(new_due.replace('-', ''), files3['deadlines.ics'].decode())
+
     def test_blocked_item_leaves_the_rest_committable_and_excludes_its_evidence(self):
         p=self.prepare({'key':'vacancy:good','action':'include','evidence':[lead('vacancy:good')]},
             {'key':'vacancy:weak','action':'include','evidence':[lead('vacancy:weak',title='Other',official=False)]})

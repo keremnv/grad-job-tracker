@@ -15,10 +15,13 @@ AWS resource, credential, scheduler, URL or subscription.
 
 ## Why there is a table
 
-`/etc/jobwatch/calendar-deadlines.sql` is root-owned, unaudited and unreachable from
-Owner Actions. The deployment report records the Git-tracked default, which selects
-every posting and lead. Under that policy any qualifying deadline is already
-published, so adding needs no selection row, but removal cannot be expressed at all.
+`/etc/jobwatch/calendar-deadlines.sql` is root-owned and unreachable from Owner Actions.
+As of **25 November 2026**, production transitioned to **explicit identity-based inclusion**
+(`SELECT NULL::text AS evidence_key WHERE false`), with zero historical events pre-seeded.
+New vacancies and deadlines never enter the calendar automatically; only identities
+explicitly selected in `jobwatch.calendar_selections` (`mode='include'`) are published,
+and subsequent well-supported deadline changes automatically update those selected events
+under stable UIDs and incremented `SEQUENCE`.
 
 Migration 0007 adds `jobwatch.calendar_selections`: keys, `include`/`exclude`, the date
 shown at approval, time and actor. It has no free text and cannot supply a calendar
